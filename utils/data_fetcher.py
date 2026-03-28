@@ -1,0 +1,423 @@
+"""
+Shared data fetching utilities for the AI Stock Agent system.
+All agents import from here rather than making raw API calls themselves.
+Every function logs what it fetches and raises on unrecoverable errors.
+"""
+
+import os
+import time
+from datetime import datetime, timedelta
+from typing import Any
+
+import finnhub
+import pandas as pd
+import requests
+import yfinance as yf
+from alpha_vantage.fundamentaldata import FundamentalData
+from alpha_vantage.timeseries import TimeSeries
+from fredapi import Fred
+from newsapi import NewsApiClient
+
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+# ---------------------------------------------------------------------------
+# Lazy client singletons — created once on first use
+# ---------------------------------------------------------------------------
+
+_finnhub_client: finnhub.Client | None = None
+_fred_client: Fred | None = None
+_newsapi_client: NewsApiClient | None = None
+
+
+def _finnhub() -> finnhub.Client:
+    global _finnhub_client
+    if _finnhub_client is None:
+        key = os.environ.get("FINNHUB_API_KEY")
+        if not key:
+            raise EnvironmentError("FINNHUB_API_KEY not set in environment")
+        _finnhub_client = finnhub.Client(api_key=key)
+    return _finnhub_client
+
+
+def _fred() -> Fred:
+    global _fred_client
+    if _fred_client is None:
+        key = os.environ.get("FRED_API_KEY")
+        if not key:
+            raise EnvironmentError("FRED_API_KEY not set in environment")
+        _fred_client = Fred(api_key=key)
+    return _fred_client
+
+
+def _newsapi() -> NewsApiClient:
+    global _newsapi_client
+    if _newsapi_client is None:
+        key = os.environ.get("NEWS_API_KEY")
+        if not key:
+            raise EnvironmentError("NEWS_API_KEY not set in environment")
+        _newsapi_client = NewsApiClient(api_key=key)
+    return _newsapi_client
+
+
+# ---------------------------------------------------------------------------
+# yfinance helpers
+# ---------------------------------------------------------------------------
+
+def fetch_price_history(ticker: str, period: str = "6mo", interval: str = "1d") -> pd.DataFrame:
+    """
+    Return OHLCV price history for a single ticker.
+    period: '1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'
+    interval: '1m','2m','5m','15m','30m','60m','90m','1h','1d','5d','1wk','1mo','3mo'
+    """
+    logger.debug("yfinance price history: %s period=%s interval=%s", ticker, period, interval)
+    df = yf.download(ticker, period=period, interval=interval, progress=False, auto_adjust=True)
+    if df.empty:
+        logger.warning("No price data returned for %s", ticker)
+    return df
+
+
+def fetch_price_history_multi(tickers: list[str], period: str = "3mo", interval: str = "1d") -> pd.DataFrame:
+    """Return closing prices for a list of tickers as a DataFrame (columns = tickers)."""
+    logger.debug("yfinance multi price history: %s tickers, period=%s", len(tickers), period)
+    raw = yf.download(tickers, period=period, interval=interval, progress=False, auto_adjust=True)
+    if isinstance(raw.columns, pd.MultiIndex):
+        return raw["Close"]
+    return raw
+
+
+def fetch_ticker_info(ticker: str) -> dict[str, Any]:
+    """Return yfinance .info dict for a ticker (P/E, market cap, sector, etc.)."""
+    logger.debug("yfinance info: %s", ticker)
+    try:
+        info = yf.Ticker(ticker).info
+        return info or {}
+    except Exception as exc:
+        logger.error("yfinance info failed for %s: %s", ticker, exc)
+        return {}
+
+
+def fetch_financials(ticker: str) -> dict[str, pd.DataFrame]:
+    """
+    Return income statement, balance sheet, and cash flow DataFrames for a ticker.
+    Keys: 'income_stmt', 'balance_sheet', 'cash_flow'
+    """
+    logger.debug("yfinance financials: %s", ticker)
+    t = yf.Ticker(ticker)
+    return {
+        "income_stmt": t.income_stmt,
+        "balance_sheet": t.balance_sheet,
+        "cash_flow": t.cashflow,
+    }
+
+
+def fetch_analyst_recommendations(ticker: str) -> pd.DataFrame:
+    """Return analyst recommendation history from yfinance."""
+    logger.debug("yfinance recommendations: %s", ticker)
+    try:
+        return yf.Ticker(ticker).recommendations or pd.DataFrame()
+    except Exception as exc:
+        logger.error("yfinance recommendations failed for %s: %s", ticker, exc)
+        return pd.DataFrame()
+
+
+def fetch_earnings_calendar(ticker: str) -> pd.DataFrame:
+    """Return upcoming earnings dates from yfinance."""
+    logger.debug("yfinance earnings dates: %s", ticker)
+    try:
+        cal = yf.Ticker(ticker).calendar
+        return cal if cal is not None else pd.DataFrame()
+    except Exception as exc:
+        logger.error("yfinance earnings calendar failed for %s: %s", ticker, exc)
+        return pd.DataFrame()
+
+
+# ---------------------------------------------------------------------------
+# FRED API helpers
+# ---------------------------------------------------------------------------
+
+def fetch_fred_series(series_id: str, limit: int = 60) -> pd.Series:
+    """
+    Fetch a FRED economic time series.
+    Common series_ids:
+      FEDFUNDS  — Fed Funds Rate
+      CPIAUCSL  — CPI (inflation)
+      PCEPI     — PCE Price Index
+      GDP       — Gross Domestic Product
+      DGS10     — 10-Year Treasury yield
+      DGS2      — 2-Year Treasury yield
+      BAMLH0A0HYM2 — High-yield credit spread
+    """
+    logger.debug("FRED series: %s", series_id)
+    try:
+        series = _fred().get_series(series_id)
+        return series.dropna().tail(limit)
+    except Exception as exc:
+        logger.error("FRED fetch failed for %s: %s", series_id, exc)
+        return pd.Series(dtype=float)
+
+
+def fetch_fred_latest(series_id: str) -> float | None:
+    """Return the single most recent value for a FRED series."""
+    series = fetch_fred_series(series_id, limit=1)
+    if series.empty:
+        return None
+    return float(series.iloc[-1])
+
+
+# ---------------------------------------------------------------------------
+# Finnhub helpers
+# ---------------------------------------------------------------------------
+
+def fetch_finnhub_company_news(ticker: str, days_back: int = 7) -> list[dict]:
+    """Return recent news articles for a company from Finnhub."""
+    logger.debug("Finnhub company news: %s", ticker)
+    to_date = datetime.utcnow().strftime("%Y-%m-%d")
+    from_date = (datetime.utcnow() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    try:
+        articles = _finnhub().company_news(ticker, _from=from_date, to=to_date)
+        return articles or []
+    except Exception as exc:
+        logger.error("Finnhub company news failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_finnhub_market_news(category: str = "general") -> list[dict]:
+    """Return market-level news from Finnhub. category: 'general','forex','crypto','merger'"""
+    logger.debug("Finnhub market news: category=%s", category)
+    try:
+        return _finnhub().general_news(category, min_id=0) or []
+    except Exception as exc:
+        logger.error("Finnhub market news failed: %s", exc)
+        return []
+
+
+def fetch_finnhub_analyst_ratings(ticker: str) -> dict:
+    """Return aggregated analyst buy/sell/hold ratings from Finnhub."""
+    logger.debug("Finnhub analyst ratings: %s", ticker)
+    try:
+        return _finnhub().recommendation_trends(ticker) or {}
+    except Exception as exc:
+        logger.error("Finnhub analyst ratings failed for %s: %s", ticker, exc)
+        return {}
+
+
+def fetch_finnhub_price_target(ticker: str) -> dict:
+    """Return analyst consensus price target from Finnhub."""
+    logger.debug("Finnhub price target: %s", ticker)
+    try:
+        return _finnhub().price_target(ticker) or {}
+    except Exception as exc:
+        logger.error("Finnhub price target failed for %s: %s", ticker, exc)
+        return {}
+
+
+def fetch_finnhub_insider_transactions(ticker: str) -> dict:
+    """Return recent insider buy/sell transactions from Finnhub."""
+    logger.debug("Finnhub insider transactions: %s", ticker)
+    try:
+        return _finnhub().stock_insider_transactions(ticker) or {}
+    except Exception as exc:
+        logger.error("Finnhub insider transactions failed for %s: %s", ticker, exc)
+        return {}
+
+
+def fetch_finnhub_earnings_calendar(from_date: str = None, to_date: str = None) -> dict:
+    """Return upcoming earnings announcements. Dates format: 'YYYY-MM-DD'."""
+    if not from_date:
+        from_date = datetime.utcnow().strftime("%Y-%m-%d")
+    if not to_date:
+        to_date = (datetime.utcnow() + timedelta(days=14)).strftime("%Y-%m-%d")
+    logger.debug("Finnhub earnings calendar: %s to %s", from_date, to_date)
+    try:
+        return _finnhub().earnings_calendar(_from=from_date, to=to_date, symbol="", international=False) or {}
+    except Exception as exc:
+        logger.error("Finnhub earnings calendar failed: %s", exc)
+        return {}
+
+
+def fetch_finnhub_basic_financials(ticker: str) -> dict:
+    """Return key financial metrics (P/E, EV/EBITDA, etc.) from Finnhub."""
+    logger.debug("Finnhub basic financials: %s", ticker)
+    try:
+        return _finnhub().company_basic_financials(ticker, "all") or {}
+    except Exception as exc:
+        logger.error("Finnhub basic financials failed for %s: %s", ticker, exc)
+        return {}
+
+
+# ---------------------------------------------------------------------------
+# NewsAPI helpers
+# ---------------------------------------------------------------------------
+
+def fetch_news_headlines(query: str, days_back: int = 3, page_size: int = 20) -> list[dict]:
+    """
+    Search NewsAPI for headlines matching a query string.
+    Returns a list of article dicts with keys: title, description, url, publishedAt, source.
+    """
+    logger.debug("NewsAPI headlines: query='%s'", query)
+    from_date = (datetime.utcnow() - timedelta(days=days_back)).strftime("%Y-%m-%dT%H:%M:%S")
+    try:
+        resp = _newsapi().get_everything(
+            q=query,
+            from_param=from_date,
+            language="en",
+            sort_by="relevancy",
+            page_size=page_size,
+        )
+        return resp.get("articles", [])
+    except Exception as exc:
+        logger.error("NewsAPI headlines failed for query '%s': %s", query, exc)
+        return []
+
+
+def fetch_news_top_headlines(category: str = "business") -> list[dict]:
+    """Return top business headlines from NewsAPI."""
+    logger.debug("NewsAPI top headlines: category=%s", category)
+    try:
+        resp = _newsapi().get_top_headlines(category=category, language="en", page_size=20)
+        return resp.get("articles", [])
+    except Exception as exc:
+        logger.error("NewsAPI top headlines failed: %s", exc)
+        return []
+
+
+# ---------------------------------------------------------------------------
+# SEC EDGAR helpers
+# ---------------------------------------------------------------------------
+
+def fetch_sec_company_submissions(cik: str) -> dict:
+    """
+    Fetch a company's SEC filing history from EDGAR.
+    cik: Central Index Key (zero-padded to 10 digits), e.g. '0000320193' for Apple.
+    """
+    logger.debug("SEC EDGAR submissions: CIK=%s", cik)
+    url = f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "ai-stock-agent research@example.com"}, timeout=15)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as exc:
+        logger.error("SEC EDGAR fetch failed for CIK %s: %s", cik, exc)
+        return {}
+
+
+def fetch_sec_company_facts(cik: str) -> dict:
+    """
+    Fetch all reported financial facts (XBRL data) for a company from SEC EDGAR.
+    This includes balance sheet, income statement items over time.
+    """
+    logger.debug("SEC EDGAR company facts: CIK=%s", cik)
+    url = f"https://data.sec.gov/api/xbrl/companyfacts/CIK{cik.zfill(10)}.json"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "ai-stock-agent research@example.com"}, timeout=15)
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as exc:
+        logger.error("SEC EDGAR facts failed for CIK %s: %s", cik, exc)
+        return {}
+
+
+def search_sec_cik(company_name: str) -> str | None:
+    """Look up a company's CIK number by name via the SEC EDGAR full-text search."""
+    logger.debug("SEC EDGAR CIK search: '%s'", company_name)
+    url = "https://efts.sec.gov/LATEST/search-index?q=%22{}%22&dateRange=custom&startdt=2020-01-01&forms=13F-HR".format(
+        requests.utils.quote(company_name)
+    )
+    try:
+        resp = requests.get(url, headers={"User-Agent": "ai-stock-agent research@example.com"}, timeout=15)
+        resp.raise_for_status()
+        hits = resp.json().get("hits", {}).get("hits", [])
+        if hits:
+            return hits[0].get("_source", {}).get("entity_id")
+    except Exception as exc:
+        logger.error("SEC CIK search failed for '%s': %s", company_name, exc)
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Alpha Vantage helpers
+# ---------------------------------------------------------------------------
+
+def fetch_alpha_vantage_overview(ticker: str) -> dict:
+    """Return company overview (sector, industry, description, key ratios) from Alpha Vantage."""
+    logger.debug("Alpha Vantage overview: %s", ticker)
+    key = os.environ.get("ALPHA_VANTAGE_API_KEY")
+    if not key:
+        raise EnvironmentError("ALPHA_VANTAGE_API_KEY not set in environment")
+    try:
+        fd = FundamentalData(key=key, output_format="json")
+        data, _ = fd.get_company_overview(ticker)
+        return data or {}
+    except Exception as exc:
+        logger.error("Alpha Vantage overview failed for %s: %s", ticker, exc)
+        return {}
+
+
+def fetch_alpha_vantage_earnings(ticker: str) -> dict:
+    """Return quarterly and annual earnings history from Alpha Vantage."""
+    logger.debug("Alpha Vantage earnings: %s", ticker)
+    key = os.environ.get("ALPHA_VANTAGE_API_KEY")
+    if not key:
+        raise EnvironmentError("ALPHA_VANTAGE_API_KEY not set in environment")
+    try:
+        fd = FundamentalData(key=key, output_format="json")
+        data, _ = fd.get_company_earnings(ticker)
+        return data or {}
+    except Exception as exc:
+        logger.error("Alpha Vantage earnings failed for %s: %s", ticker, exc)
+        return {}
+
+
+# ---------------------------------------------------------------------------
+# Reddit / PRAW helpers
+# ---------------------------------------------------------------------------
+
+def fetch_reddit_mentions(
+    ticker: str,
+    subreddits: list[str] = None,
+    days_back: int = 7,
+    limit: int = 100,
+) -> dict[str, Any]:
+    """
+    Search Reddit posts mentioning a ticker across the specified subreddits.
+    Returns: { 'post_count': int, 'posts': [{'title', 'score', 'created_utc', 'subreddit'}] }
+    Requires REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT in environment.
+    """
+    import praw
+
+    if subreddits is None:
+        subreddits = ["stocks", "investing", "wallstreetbets"]
+
+    client_id = os.environ.get("REDDIT_CLIENT_ID")
+    client_secret = os.environ.get("REDDIT_CLIENT_SECRET")
+    user_agent = os.environ.get("REDDIT_USER_AGENT", "ai-stock-agent/1.0")
+
+    if not client_id or not client_secret:
+        raise EnvironmentError("REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET must be set")
+
+    logger.debug("Reddit mentions: %s in %s", ticker, subreddits)
+
+    reddit = praw.Reddit(
+        client_id=client_id,
+        client_secret=client_secret,
+        user_agent=user_agent,
+    )
+
+    cutoff = time.time() - (days_back * 86400)
+    posts = []
+    try:
+        for sub in subreddits:
+            for post in reddit.subreddit(sub).search(ticker, sort="new", limit=limit):
+                if post.created_utc >= cutoff:
+                    posts.append({
+                        "title": post.title,
+                        "score": post.score,
+                        "created_utc": post.created_utc,
+                        "subreddit": sub,
+                    })
+    except Exception as exc:
+        logger.error("Reddit fetch failed for %s: %s", ticker, exc)
+
+    return {"post_count": len(posts), "posts": posts}

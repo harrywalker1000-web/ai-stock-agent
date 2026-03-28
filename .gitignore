@@ -1,0 +1,55 @@
+# =============================================================================
+# AI Stock Agent — .gitignore
+# =============================================================================
+
+# --- API keys / secrets (NEVER commit) ---
+.env
+.env.*
+secrets.json
+credentials.json
+
+# --- Python virtual environments ---
+venv/
+.venv/
+env/
+ENV/
+
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# --- Runtime data (changes every day — too large/noisy to track in git) ---
+data/reports/
+data/trades/
+data/memory/
+data/candidates/
+logs/
+
+# --- Universe CSV is committed (useful reference, ~100KB, monthly refresh) ---
+# data/universe.csv  <-- intentionally NOT ignored; add to git explicitly
+
+# --- Claude-Flow / Ruflo system files (binary DB, internal state, not project code) ---
+.swarm/
+.claude/
+.claude-flow/
+
+# --- MCP config (may contain local paths or tokens) ---
+.mcp.json
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+
+# --- IDE ---
+.vscode/
+.idea/
+
+# --- SQLite databases ---
+*.db
+*.sqlite
+*.sqlite3
