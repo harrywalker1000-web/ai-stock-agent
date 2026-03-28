@@ -266,6 +266,10 @@ COMMITTEE RULES:
 - Reject any ticker with retail euphoria warning unless the bear case is exceptional.
 - For conflicts (agent spread >= 25): explicitly state which agent takes precedence and why.
 - Every decision must include a concise rationale (2-3 sentences).
+- RISK-OFF regime rule: In RISK-OFF, do NOT default to skipping. Instead, actively look for
+  enter_short opportunities on candidates with bearish technical setups, weak fundamentals,
+  or negative catalysts. A bearish signal in RISK-OFF is a SHORT thesis, not a skip.
+- RISK-ON regime rule: Prefer enter_long on strong fundamentals + momentum confirmation.
 
 ATR-BASED STOP-LOSS GUIDANCE (when setting one):
   Default: ATR × 2.0 below entry (LONG) or above entry (SHORT).
