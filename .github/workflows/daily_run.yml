@@ -1,0 +1,87 @@
+name: Daily Pipeline Run
+
+on:
+  schedule:
+    # 9:15am EST (14:15 UTC) on weekdays — gives 15 min buffer before market open
+    - cron: '15 14 * * 1-5'
+  workflow_dispatch:
+    # Manual trigger for testing
+    inputs:
+      skip_phase_a:
+        description: 'Skip Phase A (portfolio review)?'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+      phase_a_mode:
+        description: 'Phase A mode'
+        required: false
+        default: 'Lite'
+        type: choice
+        options: ['Lite', 'Standard', 'Full']
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          # Need write access to commit results back
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily pipeline
+        env:
+          # Alpaca (paper trading)
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+          # Market data
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
+          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          # LLM
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Pipeline config
+          PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || 'Lite' }}
+          SKIP_PHASE_A: ${{ github.event.inputs.skip_phase_a || 'false' }}
+          ALLOW_LIVE_TRADING: 'false'
+        run: python main.py
+
+      - name: Upload pipeline report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-report-${{ github.run_id }}
+          path: |
+            data/reports/pipeline_result.json
+            logs/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Commit data back to repo
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Only stage the data files we want to track (not secrets, not logs)
+          git add data/memory/positions_log.json data/memory/pattern_history.json data/memory/decision_log.json || true
+          # Only commit if there are staged changes
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+          else
+            git commit -m "chore: daily pipeline data update $(date -u '+%Y-%m-%d')"
+            git push
+          fi
