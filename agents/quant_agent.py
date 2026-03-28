@@ -487,6 +487,99 @@ def _compute_signal_confidence(ind: dict, patterns: list[str]) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Mean reversion scoring — forward-looking signal
+# ---------------------------------------------------------------------------
+
+def _compute_mean_reversion_score(ind: dict) -> dict:
+    """
+    Scores the probability that a stock is in an oversold dislocation about to bounce,
+    rather than a momentum continuation. Returns mean_reversion_score (0-100) and
+    forward_bias (mean_reversion_long | watch_for_reversal | momentum_continuation).
+
+    Key conditions:
+      - RSI deeply oversold (< 35)
+      - Price significantly below SMA200
+      - Near 52-week low
+      - Volume declining on selloff (selling exhaustion)
+      - Bollinger Band at/below lower boundary
+      - Stochastic oversold
+    """
+    score = 0
+    signals: list[str] = []
+
+    # RSI oversold
+    rsi = ind.get("rsi_14")
+    if rsi is not None:
+        if rsi < 25:
+            score += 30
+            signals.append(f"RSI extremely oversold ({rsi:.1f})")
+        elif rsi < 35:
+            score += 20
+            signals.append(f"RSI oversold ({rsi:.1f})")
+
+    # Price below SMA200
+    current = ind.get("current_price")
+    sma200 = ind.get("sma_200")
+    if current and sma200 and sma200 > 0:
+        pct_below = (sma200 - current) / sma200
+        if pct_below > 0.25:
+            score += 25
+            signals.append(f"Price {pct_below*100:.0f}% below SMA200 — extreme dislocation")
+        elif pct_below > 0.15:
+            score += 15
+            signals.append(f"Price {pct_below*100:.0f}% below SMA200")
+        elif pct_below > 0.08:
+            score += 8
+            signals.append(f"Price {pct_below*100:.0f}% below SMA200")
+
+    # Near 52-week low
+    pct_from_low = ind.get("pct_from_52w_low")
+    if pct_from_low is not None:
+        if pct_from_low < 5:
+            score += 20
+            signals.append(f"Within 5% of 52W low — near floor")
+        elif pct_from_low < 15:
+            score += 10
+            signals.append(f"Within 15% of 52W low")
+
+    # Volume declining on selloff (selling exhaustion)
+    if (ind.get("momentum_direction") == "negative"
+            and ind.get("obv_trend") == "down"
+            and (ind.get("volume_ratio") or 1.0) < 0.8):
+        score += 15
+        signals.append("Declining volume on selloff — selling exhaustion")
+
+    # Bollinger Band lower extremity
+    bb_pct = ind.get("bb_pct")
+    if bb_pct is not None:
+        if bb_pct < 0.05:
+            score += 10
+            signals.append(f"At/below lower Bollinger Band (BB%={bb_pct:.2f})")
+        elif bb_pct < 0.15:
+            score += 5
+
+    # Stochastic oversold
+    if ind.get("stoch_signal") == "oversold":
+        score += 10
+        signals.append("Stochastic oversold")
+
+    score = min(score, 100)
+
+    if score >= 60:
+        forward_bias = "mean_reversion_long"
+    elif score >= 35:
+        forward_bias = "watch_for_reversal"
+    else:
+        forward_bias = "momentum_continuation"
+
+    return {
+        "mean_reversion_score": score,
+        "forward_bias": forward_bias,
+        "mean_reversion_signals": signals,
+    }
+
+
+# ---------------------------------------------------------------------------
 # LLM analysis
 # ---------------------------------------------------------------------------
 
@@ -496,6 +589,7 @@ def _analyse_with_llm(
     patterns: list[str],
     levels: dict,
     confidence: dict,
+    mean_rev: dict,
     memory_note: str,
     direction_hint: str,
     macro_regime: str,
@@ -519,7 +613,10 @@ def _analyse_with_llm(
         if position_context else ""
     )
 
+    mr_signals_str = ", ".join(mean_rev.get("mean_reversion_signals", [])) or "none"
+
     prompt = f"""You are a quantitative analyst performing technical analysis on {ticker}.
+Your job is to assess BOTH where the price has been AND where it is likely going in the next 5-10 days.
 
 MACRO REGIME: {macro_regime}
 CANDIDATE DIRECTION HINT: {direction_hint}
@@ -552,17 +649,30 @@ KEY LEVELS:
 
 DETECTED PATTERNS: {', '.join(patterns) if patterns else 'none'}
 
+MEAN REVERSION ANALYSIS (pre-computed):
+  Mean reversion score: {mean_rev.get('mean_reversion_score')}/100
+  Pre-computed forward bias: {mean_rev.get('forward_bias')}
+  Oversold signals detected: {mr_signals_str}
+  Interpretation: score >= 60 = strong mean reversion setup (likely bounce);
+                  score 35-59 = possible reversal forming; score < 35 = momentum likely continues
+
 SIGNAL CONFIDENCE: {confidence.get('level')} ({confidence.get('confidence_note')})
 
 PATTERN LEARNING NOTE:
 {memory_note}
 {_fmt_position_section(position_context)}
-INSTRUCTIONS:
-- Score 0-100 on technical setup quality (100 = ideal entry, 0 = terrible setup)
-- Confirm or challenge the direction hint based on the data
+CRITICAL INSTRUCTIONS:
+- Distinguish between MOMENTUM CONTINUATION vs MEAN REVERSION DISLOCATION:
+    * If mean_reversion_score >= 50 AND fundamentals are known to be strong:
+      this is likely a dislocation — set forward_bias = "bullish" and direction = LONG
+      even if the trend has been bearish. The trend is the PAST; the bounce is the FUTURE.
+    * If mean_reversion_score < 30 AND momentum is negative: continuation is more likely.
+      Direction = SHORT. Set forward_bias = "bearish".
+    * Neutral zone (30-50): exercise judgement. State which scenario you believe is more likely.
+- Score 0-100 on technical setup quality (100 = ideal entry for your chosen direction)
 - Identify the single most important technical level to watch
-- Flag any conflicts between signals in data_conflicts array
-- Keep quant_summary to 2-3 sentences
+- Flag any conflicts in data_conflicts
+- Keep quant_summary to 2-3 sentences that address WHERE THIS IS GOING, not just where it has been
 {review_instruction}
 
 Return ONLY valid JSON:
@@ -570,6 +680,9 @@ Return ONLY valid JSON:
   "ticker": "{ticker}",
   "quant_score": <integer 0-100>,
   "direction": "LONG" or "SHORT",
+  "trade_type": "momentum" | "mean_reversion" | "dislocation",
+  "forward_bias": "bullish" | "bearish" | "neutral",
+  "mean_reversion_score": {mean_rev.get('mean_reversion_score')},
   "trend": "uptrend" | "downtrend" | "sideways",
   "rsi_14": {ind.get('rsi_14')},
   "macd_signal": "bullish" | "bearish" | "neutral",
@@ -580,7 +693,7 @@ Return ONLY valid JSON:
   "signal_confidence": {json.dumps(confidence)},
   "data_conflicts": ["<conflict if any>"],
   "pattern_learning_note": "<summary of memory note, 1 sentence>",
-  "quant_summary": "<2-3 sentence technical narrative>"{entry_vs_today_field}
+  "quant_summary": "<2-3 sentences: what is the technical setup AND where is this going next 5-10 days>"{entry_vs_today_field}
 }}"""
 
     try:
@@ -666,11 +779,19 @@ def run(mode: str = "new_opportunities") -> dict:
         swarm_memories = _check_swarm_memory("+".join(sorted(signals)))
         memory_note = _build_pattern_learning_note(patterns, signals, macro_regime, pattern_history)
 
+        # Mean reversion scoring (forward-looking)
+        mean_rev = _compute_mean_reversion_score(ind)
+
         # LLM analysis
         result = _analyse_with_llm(
-            ticker, ind, patterns, levels, confidence,
+            ticker, ind, patterns, levels, confidence, mean_rev,
             memory_note, direction_hint, macro_regime, position_context
         )
+
+        # Ensure mean_rev fields are always attached even if LLM omitted them
+        result.setdefault("mean_reversion_score", mean_rev["mean_reversion_score"])
+        result.setdefault("forward_bias", mean_rev["forward_bias"])
+        result["mean_reversion_signals"] = mean_rev["mean_reversion_signals"]
 
         # Attach P&L context in portfolio_review mode
         if position_context:

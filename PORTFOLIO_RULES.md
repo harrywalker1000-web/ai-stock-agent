@@ -117,6 +117,30 @@ The analyst team (Agents 1–9) provide the analysis. The Committee (Agent 10) m
 
 ---
 
+## Forward-Looking Mandate
+
+**The system's primary goal is to identify where prices are going, not where they have been.**
+
+Every agent must answer the question: *"What happens next?"* — not *"What has happened?"*
+
+### Specific requirements
+
+- **Quant Agent**: must produce a `mean_reversion_score` and `forward_bias` on every ticker. Oversold conditions are opportunities, not confirmations of doom. Distinguish between momentum continuation and price dislocation.
+
+- **Fundamental Agent**: must output `price_vs_intrinsic_value` and `dislocation_opportunity`. A stock trading at a 30%+ discount to peer median valuation with strong fundamentals is a *buy* signal, regardless of recent price action. Sector context is mandatory — tech P/E differs from industrial P/E.
+
+- **Sentiment Agent**: must classify sentiment as `leading` (predictive) or `lagging` (reactive). Lagging sentiment on a fundamentally strong stock after a broad selloff is a contrarian buy signal, not a confirmation of the bearish trend. Output `contrarian_signal=true` when applicable.
+
+- **Investment Committee**: must classify every candidate as Scenario A (momentum), B (dislocation long), C (dislocation short), or D (skip). The Committee must apply the self-challenge rule: if all decisions are the same action type with similar conviction scores, it must re-examine mean reversion and dislocation signals before finalising.
+
+- **Candidate Generator**: runs a dislocation screen on S&P 500 constituents to surface quality stocks down >20% in the last month, even if they have no recent news or institutional signal coverage.
+
+### Red flags
+
+A portfolio of only momentum shorts at similar low conviction levels in a RISK-OFF environment is a sign the system is pattern-following. The Investment Committee must flag and re-examine this before submitting decisions.
+
+---
+
 ## Hard Rules
 
 - No switching to live trading without explicit user confirmation

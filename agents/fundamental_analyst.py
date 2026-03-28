@@ -590,8 +590,11 @@ DATA CONFLICTS:
 INSTRUCTIONS:
 - Score the stock 0-100 on fundamental quality and value (100 = exceptional)
 - All valuation commentary must reference the peer group — never call a stock cheap/expensive without peer context
+- Industry/sector context matters: a high P/E is normal for high-growth tech but abnormal for industrials — benchmark within sector only
 - If direction hint is SHORT, look specifically for: margin deterioration, revenue deceleration, leverage risk, FCF/earnings divergence
 - If data conflicts exist, note them in key_concerns
+- For price_vs_intrinsic_value: express as a % premium or discount to the peer median valuation (e.g. "-28% vs peer P/E median — significant discount")
+- dislocation_opportunity: true when price is materially below intrinsic peer-relative value AND underlying business metrics are solid. This means the market may be irrationally penalising the stock beyond what fundamentals justify — a potential LONG opportunity regardless of short-term technicals.
 {review_instruction}
 
 Return ONLY valid JSON matching this exact structure:
@@ -600,6 +603,8 @@ Return ONLY valid JSON matching this exact structure:
   "fundamental_score": <integer 0-100>,
   "direction": "LONG" or "SHORT",
   "valuation_vs_peers": "<one sentence — e.g. 'slight premium vs peers, justified by 22% revenue growth'>",
+  "price_vs_intrinsic_value": "<e.g. '-30% vs peer P/E median — potential dislocation' or 'in line with peers'>",
+  "dislocation_opportunity": true | false,
   "pe_ratio": <float or null>,
   "pe_peer_average": <float or null>,
   "revenue_growth_yoy": <float as decimal e.g. 0.22 or null>,
@@ -609,7 +614,7 @@ Return ONLY valid JSON matching this exact structure:
   "peers_used": {json.dumps(peers)},
   "key_strengths": ["<strength 1>", "<strength 2>"],
   "key_concerns": ["<concern 1>"],
-  "fundamental_summary": "<2-3 sentence analyst-style narrative>"{thesis_fields}
+  "fundamental_summary": "<2-3 sentence analyst-style narrative — must address whether current price fairly reflects fundamentals>"{thesis_fields}
 }}"""
 
     try:

@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import yfinance as yf
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -67,6 +68,7 @@ WEIGHTS = {
     "macro_tailwind": 1,
     "analyst_upgrade": 1,
     "insider_buying": 1,
+    "dislocation_screen": 1.5,   # down >20% in a month = potential mean reversion opportunity
 }
 
 CONFIDENCE_MULTIPLIERS = {
@@ -289,6 +291,57 @@ def _load_recent_candidate_tickers() -> dict[str, int]:
 
 
 # ---------------------------------------------------------------------------
+# Dislocation screen — forward-looking mean-reversion candidates
+# ---------------------------------------------------------------------------
+
+def _fetch_dislocation_candidates(
+    universe: dict,
+    avoid_sectors: set,
+    max_tickers: int = 150,
+) -> dict[str, float]:
+    """
+    Scans S&P 500 members in non-avoid sectors for stocks down >20% in the last month.
+    These are potential mean-reversion longs regardless of Phase 1 signal coverage.
+    Returns dict: ticker → 1M return (negative float).
+    Capped at max_tickers to avoid slowing the pipeline.
+    """
+    to_check = [
+        t for t, meta in universe.items()
+        if meta.get("in_sp500") and meta.get("sector_etf") not in avoid_sectors
+    ][:max_tickers]
+
+    if not to_check:
+        return {}
+
+    try:
+        df = yf.download(
+            to_check,
+            period="1mo",
+            auto_adjust=True,
+            progress=False,
+            threads=True,
+        )
+        if df.empty:
+            return {}
+
+        close = df["Close"] if isinstance(df.columns, pd.MultiIndex) else df
+        dislocated: dict[str, float] = {}
+        for ticker in to_check:
+            if ticker not in close.columns:
+                continue
+            prices = close[ticker].dropna()
+            if len(prices) < 15:
+                continue
+            ret_1m = (float(prices.iloc[-1]) - float(prices.iloc[0])) / abs(float(prices.iloc[0]))
+            if ret_1m <= -0.20:
+                dislocated[ticker] = round(ret_1m, 4)
+        return dislocated
+    except Exception as exc:
+        logger.warning("Dislocation screen failed: %s", exc)
+        return {}
+
+
+# ---------------------------------------------------------------------------
 # Core scoring engine
 # ---------------------------------------------------------------------------
 def _score_candidates(
@@ -298,6 +351,7 @@ def _score_candidates(
     inst_signals: dict,
     news_signals: dict,
     recent_appearances: dict[str, int],
+    dislocation_tickers: dict[str, float] | None = None,
 ) -> list[dict]:
     """
     Scores every ticker that appears in at least one signal source.
@@ -310,6 +364,8 @@ def _score_candidates(
     candidate_tickers.update(inst_signals["top_inst_tickers"])
     candidate_tickers.update(news_signals["catalyst_tickers"].keys())
     candidate_tickers.update(news_signals["top_catalyst_tickers"])
+    if dislocation_tickers:
+        candidate_tickers.update(dislocation_tickers.keys())
 
     macro_favoured_etfs = macro_signals["macro_favoured_etfs"]
     macro_mult = macro_signals["macro_mult"]
@@ -361,6 +417,13 @@ def _score_candidates(
             score += WEIGHTS["fresh_catalyst"] * cat["conf_mult"]
             signals_hit.append("fresh_catalyst")
             direction_votes.append(cat.get("direction", "LONG"))
+
+        # --- dislocation_screen (+1.5) ---
+        if dislocation_tickers and ticker in dislocation_tickers:
+            score += WEIGHTS["dislocation_screen"]
+            ret_1m = dislocation_tickers[ticker]
+            signals_hit.append(f"dislocation_screen({ret_1m*100:.0f}%_1m)")
+            direction_votes.append("LONG")  # dislocation = potential mean reversion long
 
         # --- sector_momentum (+1) ---
         if sector_etf and sector_etf in top_sectors:
@@ -548,9 +611,22 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
     if recent_appearances:
         logger.info(f"  Freshness data: {len(recent_appearances)} tickers seen in last {FRESHNESS_LOOKBACK} days")
 
+    # Dislocation screen: find S&P 500 stocks down >20% in the last month
+    dislocation_tickers: dict[str, float] = {}
+    if universe:
+        dislocation_tickers = _fetch_dislocation_candidates(
+            universe, sector_signals["avoid_sectors"]
+        )
+        if dislocation_tickers:
+            logger.info(
+                "Dislocation screen: %d stocks down >20%% in last month — added as mean-reversion candidates",
+                len(dislocation_tickers),
+            )
+
     # Score candidates
     scored = _score_candidates(
-        universe, macro_signals, sector_signals, inst_signals, news_signals, recent_appearances
+        universe, macro_signals, sector_signals, inst_signals, news_signals,
+        recent_appearances, dislocation_tickers,
     )
     logger.info(f"Scored {len(scored)} candidate tickers")
 

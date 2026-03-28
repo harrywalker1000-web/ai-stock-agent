@@ -409,6 +409,14 @@ INSTRUCTIONS:
 - If retail_euphoria_warning is true, flag as contrarian risk in summary
 - Note if analyst targets look stale (large upside may reflect pre-selloff targets not yet revised)
 - Direction hint is the candidate generator's suggestion — you may override it based on sentiment
+- contrarian_signal: set true when sentiment is irrationally negative on a stock with:
+    * analyst mean price target significantly ABOVE current price (>15% upside still priced in)
+    * AND news catalysts are neutral/mixed rather than catastrophically negative
+    * AND there is no structural company-specific reason for the selloff (just market fear)
+    This means the crowd is fearful but the analyst community sees value — a potential contrarian LONG.
+- sentiment_type: "leading" = sentiment is pricing in future events before they happen (analyst upgrades,
+  pre-earnings positioning, rumour-driven). "lagging" = sentiment is reacting to price moves that already
+  happened (downgrade after a 30% drop, bearish after a crash). Lagging sentiment has LESS predictive value.
 {review_instruction}
 
 Return ONLY valid JSON:
@@ -423,9 +431,11 @@ Return ONLY valid JSON:
   "short_squeeze_risk": "low" | "medium" | "high",
   "retail_euphoria_warning": true | false,
   "analyst_targets_stale": true | false,
+  "contrarian_signal": true | false,
+  "sentiment_type": "leading" | "lagging" | "mixed",
   "data_conflicts": ["<any conflict>"],
   "signal_confidence": {json.dumps(confidence)},
-  "sentiment_summary": "<2-3 sentence narrative>"{shift_field}
+  "sentiment_summary": "<2-3 sentence narrative — must address whether current sentiment is leading or lagging>"{shift_field}
 }}"""
 
     try:

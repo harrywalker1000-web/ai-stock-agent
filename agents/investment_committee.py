@@ -156,9 +156,18 @@ def _build_scorecard(
             "analyst_consensus": s.get("analyst_consensus", "N/A"),
             "upside_pct": s.get("price_target_upside_pct"),
             "retail_euphoria_warning": s.get("retail_euphoria_warning", False),
-            "thesis_intact": f.get("thesis_intact"),        # Phase A field
-            "entry_vs_today": q.get("entry_vs_today"),      # Phase A field
-            "pnl_pct": f.get("pnl_pct") or q.get("pnl_pct"),  # Phase A field
+            # Forward-looking fields (new)
+            "mean_reversion_score": q.get("mean_reversion_score", 0),
+            "forward_bias": q.get("forward_bias", "momentum_continuation"),
+            "trade_type": q.get("trade_type", "momentum"),
+            "dislocation_opportunity": f.get("dislocation_opportunity", False),
+            "price_vs_intrinsic_value": f.get("price_vs_intrinsic_value", "N/A"),
+            "contrarian_signal": s.get("contrarian_signal", False),
+            "sentiment_type": s.get("sentiment_type", "mixed"),
+            # Phase A fields
+            "thesis_intact": f.get("thesis_intact"),
+            "entry_vs_today": q.get("entry_vs_today"),
+            "pnl_pct": f.get("pnl_pct") or q.get("pnl_pct"),
             "key_conflicts": (
                 f.get("data_conflicts", []) +
                 q.get("data_conflicts", []) +
@@ -224,15 +233,21 @@ def _deliberate_with_llm(
         block = (
             f"TICKER: {ticker}  Composite: {sc['composite_score']}/100  "
             f"[F:{sc['fundamental_score']} Q:{sc['quant_score']} S:{sc['sentiment_score']}]  "
-            f"Dir: {sc['direction']}  Conf: {sc['overall_confidence']}\n"
+            f"Dir(majority vote): {sc['direction']}  Conf: {sc['overall_confidence']}\n"
             f"{phase_a_str}"
             f"  Signals: {', '.join(sc['candidate_signals'][:4]) or 'none'}\n"
-            f"  Analyst: {sc['analyst_consensus']} | Upside: {_f(sc.get('upside_pct'))}%\n"
-            f"  F-summary: {sc['fundamental_summary'][:120]}\n"
-            f"  Q-summary: {sc['quant_summary'][:120]}\n"
-            f"  S-summary: {sc['sentiment_summary'][:120]}\n"
-            f"  Conflicts: {conflict_str}\n"
-            f"  Euphoria warning: {sc['retail_euphoria_warning']} | Memory: {mem_note}"
+            f"  Analyst: {sc['analyst_consensus']} | Upside to target: {_f(sc.get('upside_pct'))}%\n"
+            f"  --- FORWARD-LOOKING SIGNALS ---\n"
+            f"  Mean reversion score: {sc['mean_reversion_score']}/100 | Forward bias: {sc['forward_bias']}\n"
+            f"  Trade type (Quant): {sc['trade_type']} | Dislocation (Fundamental): {sc['dislocation_opportunity']}\n"
+            f"  Price vs intrinsic value: {sc['price_vs_intrinsic_value']}\n"
+            f"  Contrarian signal (Sentiment): {sc['contrarian_signal']} | Sentiment type: {sc['sentiment_type']}\n"
+            f"  --- AGENT SUMMARIES ---\n"
+            f"  F-summary: {sc['fundamental_summary'][:140]}\n"
+            f"  Q-summary: {sc['quant_summary'][:140]}\n"
+            f"  S-summary: {sc['sentiment_summary'][:140]}\n"
+            f"  Conflicts: {conflict_str} | Euphoria warning: {sc['retail_euphoria_warning']}\n"
+            f"  Memory: {mem_note}"
         )
         candidate_blocks.append(block)
 
@@ -245,6 +260,7 @@ def _deliberate_with_llm(
     )
 
     prompt = f"""You are the Investment Committee of an AI hedge fund. Today is {today}.
+Your mandate is to identify where prices are GOING, not where they have been.
 
 MACRO REGIME: {macro_regime}
 CURRENTLY OPEN POSITIONS: {open_pos_str}
@@ -255,8 +271,42 @@ CANDIDATES FOR DELIBERATION:
 {chr(10).join(candidate_blocks)}
 {'=' * 60}
 
+DECISION FRAMEWORK — CLASSIFY EACH CANDIDATE BEFORE DECIDING:
+
+Scenario A — MOMENTUM TRADE:
+  Technicals confirm the direction. Fundamentals support it. Sentiment aligns.
+  → Enter in the direction of momentum (long or short).
+
+Scenario B — DISLOCATION LONG (Mean Reversion):
+  Strong fundamentals (high F-score, dislocation_opportunity=true OR contrarian_signal=true)
+  + oversold technicals (mean_reversion_score >= 50, forward_bias = mean_reversion_long)
+  + negative/fearful sentiment (often lagging, sentiment_type = lagging)
+  = Price has overshot to the DOWNSIDE. The market is being irrational.
+  → Enter LONG. Do NOT short this. The thesis is "buy the fear."
+
+Scenario C — DISLOCATION SHORT (Overbought/Euphoria):
+  Weak fundamentals + overbought technicals + euphoric sentiment (retail_euphoria_warning=true)
+  = Price has overshot to the UPSIDE.
+  → Enter SHORT. The thesis is "sell the hype."
+
+Scenario D — GENUINE UNCERTAINTY:
+  Fundamental and technical signals are deeply contradictory with no clear dislocation story.
+  → Skip. Do not force a trade.
+
+REGIME CONTEXT — {macro_regime}:
+In RISK-OFF, broad market selloffs frequently create Scenario B opportunities — quality stocks
+dragged down with everything else. Before shorting anything in RISK-OFF, ask:
+"Is this stock down because it deserves to be (weak business), or because everything is down?"
+Only short if the answer is "it deserves to be down." Otherwise, consider a dislocation long.
+
+KEY SIGNALS TO PRIORITISE:
+  - mean_reversion_score >= 60 + dislocation_opportunity=true → strong Scenario B candidate
+  - contrarian_signal=true + sentiment_type=lagging → sentiment is stale, fundamentals win
+  - retail_euphoria_warning=true + weak fundamentals → Scenario C
+  - forward_bias from Quant agent reflects where price is going next 5-10 days — weight heavily
+
 COMMITTEE RULES:
-- No fixed quota. Decide 0 to many. Never force a position to meet a number.
+- No fixed quota. Decide 0 to many. Never force a trade to meet a number.
 - Target 10+ simultaneous total positions when capital allows.
 - Soft 20% single-position cap. May exceed ONLY with explicit written justification.
 - Stop-losses are OPTIONAL. Set them when: next review is >24h away, around earnings,
@@ -264,12 +314,15 @@ COMMITTEE RULES:
 - Price targets are RE-EVALUATION checkpoints, not automatic sell triggers.
 - In Phase B: prefer diversification across sectors when conviction is similar.
 - Reject any ticker with retail euphoria warning unless the bear case is exceptional.
-- For conflicts (agent spread >= 25): explicitly state which agent takes precedence and why.
-- Every decision must include a concise rationale (2-3 sentences).
-- RISK-OFF regime rule: In RISK-OFF, do NOT default to skipping. Instead, actively look for
-  enter_short opportunities on candidates with bearish technical setups, weak fundamentals,
-  or negative catalysts. A bearish signal in RISK-OFF is a SHORT thesis, not a skip.
-- RISK-ON regime rule: Prefer enter_long on strong fundamentals + momentum confirmation.
+- For conflicts (agent spread >= 25): state which agent takes precedence and why.
+- Every decision must include a 2-3 sentence rationale that addresses direction AND trade type.
+
+SELF-CHALLENGE RULE (mandatory):
+Before finalising your output, check: are all your non-skip decisions the same action
+(e.g. all enter_short) with conviction scores within 10 points of each other?
+If yes, STOP. This is a red flag for pattern-following. Review each ticker's
+mean_reversion_score, dislocation_opportunity, and contrarian_signal again.
+At least re-examine whether any Scenario B (dislocation long) applies before submitting.
 
 ATR-BASED STOP-LOSS GUIDANCE (when setting one):
   Default: ATR × 2.0 below entry (LONG) or above entry (SHORT).

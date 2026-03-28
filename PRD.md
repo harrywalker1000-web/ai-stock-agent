@@ -28,6 +28,15 @@ The system must be capable of identifying both long opportunities (stocks expect
 6. Be cheap to run — target under $0.15 per daily run using GPT-4o-mini
 7. Serve as an impressive, explainable portfolio project for finance interviews
 
+### Forward-Looking Mandate (non-negotiable)
+
+The system must reason about where prices are **going**, not where they have been. Past price action is an input, not a conclusion. Specific requirements:
+- Mean reversion and dislocation opportunities are as valid as momentum signals
+- Bearish technicals in a broad selloff are not automatically a short thesis — they may be a dislocation long thesis
+- Every agent must produce at least one forward-looking output field (mean_reversion_score, dislocation_opportunity, contrarian_signal)
+- The Investment Committee must classify every candidate by trade type (momentum / dislocation long / dislocation short) before deciding action
+- A portfolio of identical low-conviction momentum shorts is a system failure, not a valid output
+
 ---
 
 ## 3. Tech Stack
