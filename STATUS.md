@@ -3,7 +3,7 @@
 **Project:** AI Hedge Fund Agent System
 **Owner:** Harry Walker
 **PRD:** See `PRD.md` for full specification
-**Last updated:** 2026-03-28 (session 3 — Agents 8-11 complete; next: portfolio_manager.py + main.py)
+**Last updated:** 2026-03-28 (session 3 — full pipeline complete: Agents 1-11 + portfolio_manager + main.py; pushed to GitHub)
 **Python:** 3.11.9 (venv at `venv/` — use `venv/bin/python` for all commands)
 **Run any agent:** `cd` to project root, then `venv/bin/python -m agents.<agent_name>`
 
@@ -26,7 +26,7 @@
 | 11 | Agent 9 — Memory Agent | ✅ Complete | Tested, SQLite + JSON mirrors confirmed |
 | 12 | Agent 10 — Investment Committee | ✅ Complete | Tested live, 4 enters on 8 candidates |
 | 13 | Agent 11 — Trade Executor | ✅ Complete | Paper-only mode, stop-loss check, CSV log |
-| 14 | `main.py` — Full pipeline integration | ❌ Not started | |
+| 14 | `main.py` + `portfolio_manager.py` | ✅ Complete | Full Phase A→B pipeline, imports verified |
 | 15 | `dashboard/app.py` — Streamlit UI | ❌ Not started | |
 | 16 | `.github/workflows/daily_run.yml` — Scheduling | ❌ Not started | |
 
@@ -228,25 +228,19 @@ Agents communicate by reading each other's JSON report files from `data/reports/
 
 ---
 
-## Next Step: Step 14 — `portfolio_manager.py` + `main.py`
+## Next Step: Step 15 — Dashboard (`dashboard/app.py`)
 
-**Files to create:**
-- `agents/portfolio_manager.py` — orchestrates Phase A → Phase B each morning
-- `main.py` — daily entry point that runs the full pipeline
+**Files to create:** `dashboard/app.py`
 
-**portfolio_manager.py must:**
-1. Read open positions from Alpaca (or positions_log.json in paper mode)
-2. Run Phase A (portfolio review) with Lite mode by default — passes held tickers to analyst team
-3. Pass Phase A results to Committee → Executor for hold/increase/decrease/exit
-4. Then run Phase B (new opportunity research) — full Phase 1+2+3 pipeline
-5. Pass Phase B results to Committee → Executor for new entries
-6. Call memory_agent.run() at end for daily consolidation
+**Must show:**
+1. Header: portfolio value vs starting value ($), % change, performance vs SPY since inception
+2. Today's Picks: cards per new position with composite score, agent breakdown, thesis, entry/SL/target, 3-month price chart
+3. Portfolio State: open positions with entry price, current P&L, size %
+4. Decision Log: recent Committee decisions with one-line summary, click-through for full reasoning
+5. Historical Performance: trade history table with outcomes, win rate, avg return
 
-**main.py must:**
-- Single entry point: `python main.py`
-- Orchestrate full pipeline via portfolio_manager
-- Log total runtime and estimated API cost
-- Handle exceptions gracefully (one phase failing should not kill the other)
+**Data sources:** all from local files — `data/reports/`, `data/memory/`, `data/trades/trade_log.csv`
+**No live API calls from dashboard** — reads yesterday's run outputs only
 
 ---
 
