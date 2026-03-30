@@ -69,6 +69,9 @@ WEIGHTS = {
     "analyst_upgrade": 1,
     "insider_buying": 1,
     "dislocation_screen": 1.5,   # down >20% in a month = potential mean reversion opportunity
+    "activist_filing_13d": 3.0,  # 13D = activist >5% stake with control intent — strongest institutional signal
+    "activist_filing_13g": 1.5,  # 13G = passive >5% stake — medium signal
+    "unusual_options": 2.0,      # unusual call/put sweep = institutional telegraphing before move
 }
 
 CONFIDENCE_MULTIPLIERS = {
@@ -214,10 +217,39 @@ def _extract_institutional_signals(inst: dict) -> dict[str, Any]:
         if t
     }
 
+    # Activist filings (13D/13G) — extract resolved tickers
+    activist_13d: set[str] = set()
+    activist_13g: set[str] = set()
+    for filing in inst.get("activist_signals", []):
+        ticker = str(filing.get("ticker") or "").strip().upper()
+        if not ticker:
+            continue
+        if "13D" in str(filing.get("form_type", "")):
+            activist_13d.add(ticker)
+        else:
+            activist_13g.add(ticker)
+
+    # Unusual options — extract tickers with bullish or bearish sweeps
+    unusual_calls: dict[str, float] = {}  # ticker → max vol/OI ratio
+    unusual_puts: dict[str, float] = {}
+    for opt in inst.get("unusual_options_signals", []):
+        ticker = str(opt.get("ticker") or "").strip().upper()
+        if not ticker:
+            continue
+        ratio = float(opt.get("max_vol_oi_ratio", 0))
+        if opt.get("direction", "").lower() == "bullish":
+            unusual_calls[ticker] = max(unusual_calls.get(ticker, 0), ratio)
+        else:
+            unusual_puts[ticker] = max(unusual_puts.get(ticker, 0), ratio)
+
     return {
         "analyst_tickers": analyst_tickers,
         "insider_tickers": insider_tickers,
         "top_inst_tickers": top_inst_tickers,
+        "activist_13d": activist_13d,
+        "activist_13g": activist_13g,
+        "unusual_calls": unusual_calls,
+        "unusual_puts": unusual_puts,
     }
 
 
@@ -362,6 +394,10 @@ def _score_candidates(
     candidate_tickers.update(inst_signals["analyst_tickers"].keys())
     candidate_tickers.update(inst_signals["insider_tickers"].keys())
     candidate_tickers.update(inst_signals["top_inst_tickers"])
+    candidate_tickers.update(inst_signals.get("activist_13d", set()))
+    candidate_tickers.update(inst_signals.get("activist_13g", set()))
+    candidate_tickers.update(inst_signals.get("unusual_calls", {}).keys())
+    candidate_tickers.update(inst_signals.get("unusual_puts", {}).keys())
     candidate_tickers.update(news_signals["catalyst_tickers"].keys())
     candidate_tickers.update(news_signals["top_catalyst_tickers"])
     if dislocation_tickers:
@@ -417,6 +453,30 @@ def _score_candidates(
             score += WEIGHTS["fresh_catalyst"] * cat["conf_mult"]
             signals_hit.append("fresh_catalyst")
             direction_votes.append(cat.get("direction", "LONG"))
+
+        # --- activist_filing_13d (+3.0) — highest conviction institutional signal ---
+        if ticker in inst_signals.get("activist_13d", set()):
+            score += WEIGHTS["activist_filing_13d"]
+            signals_hit.append("activist_13d")
+            direction_votes.append("LONG")
+
+        # --- activist_filing_13g (+1.5) ---
+        if ticker in inst_signals.get("activist_13g", set()):
+            score += WEIGHTS["activist_filing_13g"]
+            signals_hit.append("activist_13g")
+            direction_votes.append("LONG")
+
+        # --- unusual_options (+2.0) — institutional telegraphing ---
+        unusual_call_ratio = inst_signals.get("unusual_calls", {}).get(ticker, 0)
+        unusual_put_ratio = inst_signals.get("unusual_puts", {}).get(ticker, 0)
+        if unusual_call_ratio > 0:
+            score += WEIGHTS["unusual_options"]
+            signals_hit.append(f"unusual_calls({unusual_call_ratio:.1f}x_vol_oi)")
+            direction_votes.append("LONG")
+        elif unusual_put_ratio > 0:
+            score += WEIGHTS["unusual_options"] * 0.5  # puts = short signal, half weight (could be hedge)
+            signals_hit.append(f"unusual_puts({unusual_put_ratio:.1f}x_vol_oi)")
+            direction_votes.append("SHORT")
 
         # --- dislocation_screen (+1.5) ---
         if dislocation_tickers and ticker in dislocation_tickers:

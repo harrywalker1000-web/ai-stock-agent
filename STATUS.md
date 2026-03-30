@@ -3,7 +3,7 @@
 **Project:** AI Hedge Fund Agent System
 **Owner:** Harry Walker
 **PRD:** See `PRD.md` for full specification
-**Last updated:** 2026-03-30 (session 6 — FMP integration; SQLite crash fix; dashboard data pipeline; sync_reports step in CI)
+**Last updated:** 2026-03-30 (session 6 — FMP integration; SQLite crash fix; dashboard data pipeline; SEC 13D/13G activist filings; unusual options activity; Phase A news agent)
 **Python:** 3.11.9 (venv at `venv/` — use `venv/bin/python` for all commands)
 **Run any agent:** `cd` to project root, then `venv/bin/python -m agents.<agent_name>`
 **Full pipeline:** `SKIP_PHASE_A=true venv/bin/python main.py`
@@ -28,9 +28,31 @@
 - **`.github/workflows/daily_run.yml`**: added `python scripts/sync_reports.py` step after pipeline succeeds; `dashboard/data/reports/` now committed back to repo so Vercel picks up fresh data on every run
 - **FMP_API_KEY** added as GitHub Actions secret
 
+### Institutional signal quality — three new sources
+
+**SEC 13D/13G activist filings (`utils/data_fetcher.py` + `agents/institutional_agent.py`)**
+- `fetch_sec_activist_filings(days_back=10)`: queries EDGAR full-text search API for SC 13D and SC 13G filings filed in the last 10 days
+- CIK→ticker reverse map cached from `sec.gov/files/company_tickers.json`
+- 13D (activist intent) = HIGH confidence signal, weight 3.0 in candidate scoring
+- 13G (passive >5% stake) = MEDIUM confidence signal, weight 1.5 in candidate scoring
+- Institutional Agent LLM prompt updated: 13D/13G + unusual options on same ticker = HIGH confidence combined signal
+
+**Unusual options activity (`utils/data_fetcher.py` + `agents/institutional_agent.py`)**
+- `fetch_unusual_options_activity(tickers, min_volume=500, volume_oi_ratio=2.0)`: detects institutional telegraphing via yfinance options chains
+- Checks nearest 2 expiry dates per ticker; flags any contract where volume/OI ≥ 2.0 AND volume ≥ 500
+- Returns top 30 results sorted by volume; signals: `bullish` (calls) or `bearish` (puts)
+- Unusual calls scored +2.0 in candidate generator; unusual puts +1.0 (half weight — could be hedge)
+
+**Candidate Generator scoring updated (`agents/candidate_generator.py`)**
+- New WEIGHTS: `activist_filing_13d=3.0`, `activist_filing_13g=1.5`, `unusual_options=2.0`
+- `_extract_institutional_signals()` now extracts activist and options signals from institutional report
+- `_score_candidates()` scores activist and options tickers; options puts scored SHORT direction
+
+**Phase A Lite — News Agent added (`agents/portfolio_manager.py`)**
+- News Agent now runs in all Phase A modes (not just Standard+)
+- Catches overnight catalysts (earnings misses, FDA actions, regulatory news) on held positions before Quant review
+
 ### Known improvements to make
-- Institutional Agent should also track SEC 13D/13G activist filings (fast, same-day, real institutional conviction signal)
-- Phase A should add News Agent in Lite mode (cheap, catches breaking catalysts on held positions)
 - Conviction scores still too round (multiples of 5) — needs raw composite score as anchor
 - No unit tests
 

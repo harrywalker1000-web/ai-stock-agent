@@ -70,6 +70,13 @@ def run_phase_a() -> dict:
     logger.info("Phase A: running Macro Agent...")
     results["macro"] = macro_agent.run()
 
+    # --- News Agent (all modes — catches overnight catalysts on held positions) ---
+    # Cheap: one API call batch. Essential: a held position could have had an FDA rejection,
+    # earnings miss, or regulatory action overnight. Must know before the Quant review.
+    from agents import news_agent
+    logger.info("Phase A: running News Agent (catching overnight catalysts)...")
+    results["news"] = news_agent.run()
+
     # --- Candidate Generator: portfolio_review fast-path (just passes held tickers through) ---
     from agents import candidate_generator
     candidate_generator.run(mode="portfolio_review", held_tickers=held_tickers)

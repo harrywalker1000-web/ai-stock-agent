@@ -22,6 +22,8 @@ from utils.data_fetcher import (
     fetch_finnhub_analyst_ratings,
     fetch_finnhub_insider_transactions,
     fetch_fmp_institutional_holders,
+    fetch_sec_activist_filings,
+    fetch_unusual_options_activity,
     fetch_ticker_info,
 )
 from utils.logger import get_logger
@@ -339,9 +341,19 @@ def _collect_institutional_data() -> dict:
     logger.info("Institutional Agent: fetching FMP institutional holders")
     fmp_holders = _fetch_fmp_holders_for_tickers(WATCH_TICKERS[:20])
 
+    # 5. SEC 13D/13G activist filings (filed within 10 days — fast-moving, high conviction)
+    logger.info("Institutional Agent: fetching SEC 13D/13G activist filings")
+    activist_filings = fetch_sec_activist_filings(days_back=10)
+
+    # 6. Unusual options activity on watch list (institutional telegraphing before stock moves)
+    logger.info("Institutional Agent: scanning unusual options activity for %d tickers", len(WATCH_TICKERS[:30]))
+    unusual_options = fetch_unusual_options_activity(WATCH_TICKERS[:30])
+
     logger.info(
-        "Institutional Agent: collected %d funds, %d analyst records, %d insider transactions, %d FMP holder snapshots",
-        len(all_holdings), len(analyst_data), len(insider_data), len(fmp_holders),
+        "Institutional Agent: collected %d funds, %d analyst records, %d insider transactions, "
+        "%d FMP holder snapshots, %d activist filings, %d unusual options",
+        len(all_holdings), len(analyst_data), len(insider_data),
+        len(fmp_holders), len(activist_filings), len(unusual_options),
     )
 
     ticker_confidence = _compute_ticker_confidence(all_holdings, analyst_data, insider_data)
@@ -351,6 +363,8 @@ def _collect_institutional_data() -> dict:
         "analyst_data": analyst_data,
         "insider_transactions": insider_data,
         "fmp_institutional_holders": fmp_holders,
+        "activist_filings": activist_filings,
+        "unusual_options": unusual_options,
         "ticker_confidence": ticker_confidence,
         "as_of": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
     }
@@ -560,6 +574,42 @@ def _analyse_with_llm(raw_data: dict) -> dict:
         fmp_lines.append(f"  {ticker}: {holder_names}")
     fmp_str = "\n".join(fmp_lines) if fmp_lines else "Not available (FMP_API_KEY not set)"
 
+    # Format activist filings (13D = high signal, 13G = medium signal)
+    activist = raw_data.get("activist_filings", [])
+    activist_with_ticker = [a for a in activist if a.get("ticker")]
+    act_lines = []
+    for a in activist_with_ticker[:15]:
+        act_lines.append(
+            f"  {a['form_type']:8s} {a.get('ticker','?'):6s} | Subject: {a.get('entity_name','?')[:30]} "
+            f"| Filer: {a.get('filer_name','?')[:30]} | Filed: {a.get('filed_date','?')} "
+            f"| Strength: {a.get('signal_strength','?')}"
+        )
+    # Also note filings where ticker wasn't resolved
+    unresolved = [a for a in activist if not a.get("ticker")]
+    if unresolved:
+        act_lines.append(f"  ({len(unresolved)} filings where ticker could not be resolved from CIK — review manually)")
+    activist_str = "\n".join(act_lines) if act_lines else "No 13D/13G filings found in the last 10 days"
+
+    # Format unusual options
+    unusual_opts = raw_data.get("unusual_options", [])
+    opt_lines = []
+    for o in unusual_opts[:15]:
+        opt_lines.append(
+            f"  {o['ticker']:6s} {o['type'].upper():4s} ${o['strike']} exp={o['expiry']} "
+            f"vol={o['volume']:,} OI={o['open_interest']:,} ratio={o['vol_oi_ratio']}x "
+            f"IV={o['implied_volatility']}% ITM={o['in_the_money']} → {o['signal'].upper()}"
+        )
+    opts_str = "\n".join(opt_lines) if opt_lines else "No unusual options activity detected"
+
+    # Summarise options signal by ticker (for confidence pre-computation note)
+    opts_by_ticker: dict[str, dict] = {}
+    for o in unusual_opts:
+        t = o["ticker"]
+        if t not in opts_by_ticker:
+            opts_by_ticker[t] = {"calls": 0, "puts": 0, "max_ratio": 0}
+        opts_by_ticker[t]["calls" if o["type"] == "call" else "puts"] += 1
+        opts_by_ticker[t]["max_ratio"] = max(opts_by_ticker[t]["max_ratio"], o["vol_oi_ratio"])
+
     # Format confidence block for prompt
     ticker_conf = raw_data.get("ticker_confidence", {})
     high_conf = [t for t, c in ticker_conf.items() if c.get("level") == "high"]
@@ -572,18 +622,21 @@ def _analyse_with_llm(raw_data: dict) -> dict:
     )
 
     system_prompt = """You are the Institutional Tracker Agent for an AI hedge fund system.
-You have been given real data from SEC 13F filings, analyst rating databases, and insider transaction filings,
-plus pre-computed signal confidence scores per ticker.
+You have been given real data from SEC 13F filings, SEC 13D/13G activist filings, analyst rating databases,
+insider transactions, unusual options activity, and FMP institutional holder data.
 
 CRITICAL RULES:
 - Only use the data provided. Do not invent figures or recall training knowledge.
 - 13F filings are quarterly and lag by up to 45 days — MEDIUM recency weight alone.
+- **13D/13G activist filings are filed within 10 days of >5% stake — HIGH recency weight.** A 13D is even stronger: it means the institution intends to influence management, not just hold.
 - Analyst consensus + insider buys in last 30 days are HIGH recency weight.
+- **Unusual options activity where volume >> OI is a HIGH recency signal** — this is fresh institutional money being deployed, often BEFORE the stock moves. Large call sweeps are among the most actionable signals in the data.
 - CEO/Director buying with personal money is a strong bullish signal.
 - Large insider SELLS are NOT necessarily bearish — they often reflect diversification.
 - CONFIDENCE IS MANDATORY: use the pre-computed signal_confidence for each signal.
   - 1 source (e.g. only 13F, no analyst/insider corroboration) = LOW confidence.
   - 2 sources = MEDIUM. 3 sources = HIGH.
+  - A 13D filing + unusual call activity on the same ticker = HIGH confidence even without 13F corroboration.
   - Single-source signals must NEVER appear in top_institutional_signals alone.
   - Any source conflict must be explained and reduces confidence.
 - Your output must be valid JSON matching the schema exactly.
@@ -646,8 +699,27 @@ Output this JSON schema:
       "interpretation": "specific interpretation referencing confidence"
     }
   ],
-  "top_institutional_signals": ["list of 5-8 tickers — ONLY include medium or high confidence signals"],
-  "institutional_summary": "4-5 sentence paragraph; explicitly state which signals are high vs low confidence and why",
+  "activist_signals": [
+    {
+      "ticker": "string or null if unresolved",
+      "entity_name": "subject company name",
+      "filer_name": "activist fund name",
+      "form_type": "SC 13D or SC 13G",
+      "filed_date": "YYYY-MM-DD",
+      "signal_strength": "high (13D) or medium (13G)",
+      "interpretation": "what this means for the stock — must reference form type and activist intent"
+    }
+  ],
+  "unusual_options_signals": [
+    {
+      "ticker": "string",
+      "direction": "bullish (calls) or bearish (puts)",
+      "max_vol_oi_ratio": number,
+      "interpretation": "1 sentence — what this positioning suggests about institutional expectations"
+    }
+  ],
+  "top_institutional_signals": ["list of 5-8 tickers — ONLY include medium or high confidence signals; activist filings + unusual options count as corroborating sources"],
+  "institutional_summary": "4-5 sentence paragraph; lead with any 13D/13G filings and unusual options as highest-recency signals; state confidence levels explicitly",
   "confidence": <0-100>
 }"""
 
@@ -661,6 +733,17 @@ PRE-COMPUTED SIGNAL CONFIDENCE PER TICKER (13F / analyst / insider cross-referen
 === SEC 13F HOLDINGS (quarterly filings — up to 45 day lag) ===
 {holdings_str}
 
+=== SEC 13D/13G ACTIVIST FILINGS (last 10 days — fast-moving, filed within 10 days of >5% stake) ===
+13D = activist intent (high conviction signal — fund wants to influence management)
+13G = passive >5% (medium signal — large stake but no control intent)
+{activist_str}
+
+=== UNUSUAL OPTIONS ACTIVITY (volume >> open interest = fresh institutional positioning) ===
+A high vol/OI ratio means NEW money entering, not existing hedges rolling over.
+Large call sweeps = institutions positioning for upside BEFORE stock moves.
+Large put sweeps = institutions hedging or positioning for downside.
+{opts_str}
+
 === FMP CURRENT INSTITUTIONAL HOLDERS (current quarter — no 45-day lag) ===
 {fmp_str}
 
@@ -673,10 +756,12 @@ PRE-COMPUTED SIGNAL CONFIDENCE PER TICKER (13F / analyst / insider cross-referen
 Data as of: {raw_data['as_of']}
 
 INSTRUCTIONS:
-1. Only include tickers in institutional_buys if they have analyst OR insider corroboration (medium+).
-2. A 13F holding alone = low confidence — note it but do NOT put it in top_institutional_signals.
-3. Populate signal_confidence using the pre-computed block above for each signal.
-4. Flag any ticker where sources conflict (e.g. strong analyst buy but net insider selling).
+1. Lead with 13D/13G activist filings — these are the freshest, highest-conviction signals. A 13D filing means a fund crossed 5% AND intends to push for change. Rate this HIGH confidence even without 13F corroboration.
+2. Unusual options: large call sweeps (vol/OI ratio >2x, volume >500) are institutional telegraphing. Include any ticker with unusual options in activist_signals and weight it heavily.
+3. Only include tickers in institutional_buys if they have analyst OR insider OR options corroboration (medium+).
+4. A 13F holding alone = low confidence — note it but do NOT put it in top_institutional_signals.
+5. Populate signal_confidence using the pre-computed block above for each signal.
+6. Flag any ticker where sources conflict (e.g. unusual put activity but analyst consensus is bullish).
 
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 

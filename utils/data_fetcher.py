@@ -482,6 +482,168 @@ def fetch_fmp_institutional_holders(ticker: str) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# SEC activist filing helpers (13D / 13G)
+# ---------------------------------------------------------------------------
+
+def fetch_sec_activist_filings(days_back: int = 10) -> list[dict]:
+    """
+    Fetch recent SC 13D and SC 13G activist filings from SEC EDGAR full-text search.
+    13D = activist (>5% stake, intend to influence management) — strong signal.
+    13G = passive (>5% stake, no control intent) — moderate signal.
+    Returns list of: {ticker, entity_name, cik, filer_name, form_type, filed_date, pct_owned}
+    Both are filed within 10 days of crossing the 5% threshold.
+    """
+    logger.debug("SEC EDGAR activist filings: last %d days", days_back)
+    from_date = (datetime.utcnow() - timedelta(days=days_back)).strftime("%Y-%m-%d")
+    to_date = datetime.utcnow().strftime("%Y-%m-%d")
+
+    url = "https://efts.sec.gov/LATEST/search-index"
+    params = {
+        "q": "",
+        "forms": "SC 13D,SC 13G",
+        "dateRange": "custom",
+        "startdt": from_date,
+        "enddt": to_date,
+    }
+    headers = {"User-Agent": "ai-stock-agent research@example.com"}
+
+    try:
+        resp = requests.get(url, params=params, headers=headers, timeout=20)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as exc:
+        logger.error("SEC activist filings fetch failed: %s", exc)
+        return []
+
+    # Build CIK → ticker map for fast lookup
+    cik_to_ticker = _load_cik_to_ticker()
+
+    results = []
+    for hit in data.get("hits", {}).get("hits", [])[:50]:
+        src = hit.get("_source", {})
+        entity_name = src.get("entity_name", "")
+        entity_id = str(src.get("entity_id") or "").lstrip("0")
+        form_type = src.get("form_type", "")
+        filed_date = src.get("file_date", "")
+
+        # Try to resolve ticker from CIK
+        ticker = cik_to_ticker.get(entity_id.zfill(10)) or cik_to_ticker.get(entity_id)
+
+        # Try to extract percent owned from display_names if available
+        display_names = src.get("display_names", [])
+        filer_name = display_names[0].get("name", "") if display_names else ""
+
+        results.append({
+            "ticker": ticker,
+            "entity_name": entity_name,
+            "cik": entity_id,
+            "filer_name": filer_name,
+            "form_type": form_type,
+            "filed_date": filed_date,
+            "signal_strength": "high" if "13D" in form_type else "medium",
+            "accession_no": src.get("accession_no", ""),
+        })
+
+    logger.info("SEC activist filings: found %d filings in last %d days", len(results), days_back)
+    return results
+
+
+_cik_to_ticker_cache: dict[str, str] = {}
+
+
+def _load_cik_to_ticker() -> dict[str, str]:
+    """Load reverse CIK→ticker map from SEC EDGAR (cached)."""
+    global _cik_to_ticker_cache
+    if _cik_to_ticker_cache:
+        return _cik_to_ticker_cache
+    url = "https://www.sec.gov/files/company_tickers.json"
+    try:
+        resp = requests.get(url, headers={"User-Agent": "ai-stock-agent research@example.com"}, timeout=20)
+        resp.raise_for_status()
+        raw = resp.json()
+        _cik_to_ticker_cache = {
+            str(v["cik_str"]).zfill(10): v["ticker"].upper()
+            for v in raw.values()
+        }
+        logger.debug("CIK→ticker map loaded: %d entries", len(_cik_to_ticker_cache))
+    except Exception as exc:
+        logger.warning("CIK→ticker map load failed: %s", exc)
+    return _cik_to_ticker_cache
+
+
+# ---------------------------------------------------------------------------
+# Unusual options activity (via yfinance)
+# ---------------------------------------------------------------------------
+
+def fetch_unusual_options_activity(
+    tickers: list[str],
+    min_volume: int = 500,
+    volume_oi_ratio: float = 2.0,
+) -> list[dict]:
+    """
+    Detect unusual options activity for a list of tickers using yfinance.
+    "Unusual" = options contract where volume >> open interest, suggesting
+    fresh institutional positioning rather than existing hedges rolling.
+
+    Criteria:
+      - volume >= min_volume (filters noise)
+      - volume / open_interest >= volume_oi_ratio (fresh money, not existing position)
+      - Nearest 2 expiry dates only (institutional plays are usually near-term)
+
+    Returns list of dicts sorted by volume descending:
+      { ticker, type (call/put), strike, expiry, volume, open_interest,
+        vol_oi_ratio, implied_volatility, in_the_money, signal (bullish/bearish) }
+    """
+    logger.debug("Unusual options scan: %d tickers", len(tickers))
+    unusual: list[dict] = []
+
+    for ticker_sym in tickers:
+        try:
+            t = yf.Ticker(ticker_sym)
+            expiry_dates = t.options
+            if not expiry_dates:
+                continue
+
+            # Check nearest 2 expiry dates to catch near-term institutional bets
+            for expiry in expiry_dates[:2]:
+                try:
+                    chain = t.option_chain(expiry)
+                except Exception:
+                    continue
+
+                for opt_type, df in (("call", chain.calls), ("put", chain.puts)):
+                    if df is None or df.empty:
+                        continue
+                    for _, row in df.iterrows():
+                        vol = row.get("volume") or 0
+                        oi = row.get("openInterest") or 0
+                        if vol < min_volume:
+                            continue
+                        if oi == 0 or (vol / oi) < volume_oi_ratio:
+                            continue
+                        unusual.append({
+                            "ticker": ticker_sym,
+                            "type": opt_type,
+                            "strike": round(float(row.get("strike", 0)), 2),
+                            "expiry": expiry,
+                            "volume": int(vol),
+                            "open_interest": int(oi),
+                            "vol_oi_ratio": round(vol / oi, 1),
+                            "implied_volatility": round(float(row.get("impliedVolatility", 0)) * 100, 1),
+                            "in_the_money": bool(row.get("inTheMoney", False)),
+                            "last_price": round(float(row.get("lastPrice", 0)), 2),
+                            "signal": "bullish" if opt_type == "call" else "bearish",
+                        })
+        except Exception as exc:
+            logger.debug("Options scan failed for %s: %s", ticker_sym, exc)
+
+    # Sort by raw volume — largest bets first
+    unusual.sort(key=lambda x: x["volume"], reverse=True)
+    logger.info("Unusual options: found %d contracts across %d tickers", len(unusual), len(tickers))
+    return unusual[:30]  # Cap at 30 most unusual
+
+
+# ---------------------------------------------------------------------------
 # Reddit / PRAW helpers
 # ---------------------------------------------------------------------------
 
