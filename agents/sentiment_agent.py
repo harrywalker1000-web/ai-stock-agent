@@ -166,38 +166,37 @@ def _fetch_finnhub_consensus(ticker: str, fh_client) -> dict:
 
 
 def _fetch_fmp_analyst_signals(ticker: str) -> dict:
-    """Fetch recent analyst price targets and upgrades/downgrades from FMP."""
+    """
+    Fetch analyst price target summary and upgrades/downgrades from FMP.
+    Uses price-target-summary (free tier) which returns aggregated stats rather than
+    per-analyst rows. upgrades-downgrades returns empty on the free tier.
+    """
     fmp_key = os.environ.get("FMP_API_KEY", "").strip()
     if not fmp_key:
         return {"available": False}
 
     try:
-        targets = fetch_fmp_price_targets(ticker)
+        # price-target-summary returns [{symbol, lastMonthCount, lastMonthAvgPriceTarget,
+        # lastQuarterCount, lastQuarterAvgPriceTarget, lastYearAvgPriceTarget, ...}]
+        target_summary = fetch_fmp_price_targets(ticker)
         upgrades = fetch_fmp_upgrades_downgrades(ticker, limit=10)
 
-        # Summarise recent targets (last 10)
-        recent_targets = []
-        for t in (targets or [])[:10]:
-            recent_targets.append({
-                "analyst": t.get("analystName") or t.get("analystCompany"),
-                "target": t.get("priceTarget") or t.get("adjPriceTarget"),
-                "date": (t.get("newsPublishedDate") or t.get("publishedDate") or "")[:10],
-            })
+        # Parse aggregated price target summary
+        summary = target_summary[0] if target_summary else {}
+        avg_fmp_target = summary.get("lastMonthAvgPriceTarget") or summary.get("lastQuarterAvgPriceTarget")
+        target_count = summary.get("lastMonthCount") or summary.get("lastQuarterCount") or 0
 
-        # Count upgrades vs downgrades in last 10 actions
+        # Count upgrades vs downgrades (empty on free tier; handled gracefully)
         upgrade_count = sum(1 for u in (upgrades or []) if str(u.get("action", "")).lower() == "upgrade")
         downgrade_count = sum(1 for u in (upgrades or []) if str(u.get("action", "")).lower() == "downgrade")
         initiation_count = sum(1 for u in (upgrades or []) if "init" in str(u.get("action", "")).lower())
 
-        # Compute avg target price from FMP targets
-        target_prices = [t["target"] for t in recent_targets if t.get("target")]
-        avg_fmp_target = round(sum(target_prices) / len(target_prices), 2) if target_prices else None
-
         return {
             "available": True,
-            "recent_targets": recent_targets[:5],
-            "avg_target_price": avg_fmp_target,
-            "target_count": len(target_prices),
+            "avg_target_price": round(float(avg_fmp_target), 2) if avg_fmp_target else None,
+            "target_count": target_count,
+            "last_quarter_avg_target": summary.get("lastQuarterAvgPriceTarget"),
+            "last_year_avg_target": summary.get("lastYearAvgPriceTarget"),
             "upgrades_recent": upgrade_count,
             "downgrades_recent": downgrade_count,
             "initiations_recent": initiation_count,
@@ -414,11 +413,11 @@ def _analyse_with_llm(
     fmp_block = ""
     if fmp_data and fmp_data.get("available"):
         fmp_block = f"""
-FMP ANALYST UPGRADES/DOWNGRADES (last 10 actions):
+FMP ANALYST DATA:
+  Avg price target (last month): ${_f(fmp_data.get('avg_target_price'))} ({fmp_data.get('target_count', 0)} analysts)
+  Avg price target (last quarter): ${_f(fmp_data.get('last_quarter_avg_target'))}
   Upgrades: {fmp_data.get('upgrades_recent', 0)} | Downgrades: {fmp_data.get('downgrades_recent', 0)} | Initiations: {fmp_data.get('initiations_recent', 0)}
   Upgrade momentum: {fmp_data.get('upgrade_momentum', 'N/A')}
-  FMP avg analyst target: ${_f(fmp_data.get('avg_target_price'))} ({fmp_data.get('target_count', 0)} targets)
-  Recent targets: {', '.join(f"${t['target']} ({t['analyst'] or 'anon'}, {t['date']})" for t in (fmp_data.get('recent_targets') or [])[:3])}
 """
 
     review_instruction = (

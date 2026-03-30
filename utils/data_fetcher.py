@@ -374,7 +374,9 @@ def fetch_alpha_vantage_earnings(ticker: str) -> dict:
 # Financial Modeling Prep (FMP) helpers
 # ---------------------------------------------------------------------------
 
-FMP_BASE = "https://financialmodelingprep.com/api/v3"
+# FMP migrated all /api/v3/ endpoints to /stable/ for API keys created after Aug 2025.
+# URL style changed: path params (/endpoint/{ticker}) → query params (?symbol=ticker)
+FMP_BASE = "https://financialmodelingprep.com/stable"
 
 
 def _fmp_key() -> str:
@@ -391,8 +393,8 @@ def fetch_fmp_income_statement(ticker: str, limit: int = 4) -> list[dict]:
     """
     logger.debug("FMP income statement: %s (limit=%d)", ticker, limit)
     try:
-        url = f"{FMP_BASE}/income-statement/{ticker}"
-        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        url = f"{FMP_BASE}/income-statement"
+        resp = requests.get(url, params={"symbol": ticker, "limit": limit, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
@@ -407,8 +409,8 @@ def fetch_fmp_key_metrics(ticker: str, limit: int = 4) -> list[dict]:
     """
     logger.debug("FMP key metrics: %s (limit=%d)", ticker, limit)
     try:
-        url = f"{FMP_BASE}/key-metrics/{ticker}"
-        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        url = f"{FMP_BASE}/key-metrics"
+        resp = requests.get(url, params={"symbol": ticker, "limit": limit, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
@@ -424,8 +426,8 @@ def fetch_fmp_analyst_estimates(ticker: str, limit: int = 8) -> list[dict]:
     """
     logger.debug("FMP analyst estimates: %s", ticker)
     try:
-        url = f"{FMP_BASE}/analyst-estimates/{ticker}"
-        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        url = f"{FMP_BASE}/analyst-estimates"
+        resp = requests.get(url, params={"symbol": ticker, "period": "annual", "limit": limit, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
@@ -435,12 +437,14 @@ def fetch_fmp_analyst_estimates(ticker: str, limit: int = 8) -> list[dict]:
 
 def fetch_fmp_price_targets(ticker: str) -> list[dict]:
     """
-    Return recent analyst price targets from FMP.
-    Fields include: analystName, priceTarget, adjPriceTarget, priceWhenPosted, newsTitle, newsPublishedDate.
+    Return aggregated analyst price target summary from FMP.
+    Returns single-element list with fields: lastMonthCount, lastMonthAvgPriceTarget,
+    lastQuarterCount, lastQuarterAvgPriceTarget, lastYearAvgPriceTarget, allTimeAvgPriceTarget.
+    Note: per-analyst targets (/price-target) require a paid FMP plan; this endpoint is free.
     """
-    logger.debug("FMP price targets: %s", ticker)
+    logger.debug("FMP price target summary: %s", ticker)
     try:
-        url = f"{FMP_BASE}/price-target"
+        url = f"{FMP_BASE}/price-target-summary"
         resp = requests.get(url, params={"symbol": ticker, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
         return resp.json() or []
@@ -453,13 +457,17 @@ def fetch_fmp_upgrades_downgrades(ticker: str, limit: int = 20) -> list[dict]:
     """
     Return recent analyst upgrades/downgrades from FMP.
     Fields include: analystName, publishedDate, newGrade, previousGrade, action (upgrade/downgrade/init).
+    Note: returns empty list on FMP free tier — paid plan required for this endpoint.
     """
     logger.debug("FMP upgrades/downgrades: %s", ticker)
     try:
         url = f"{FMP_BASE}/upgrades-downgrades"
         resp = requests.get(url, params={"symbol": ticker, "limit": limit, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
-        return resp.json() or []
+        data = resp.json()
+        if not data:
+            logger.debug("FMP upgrades/downgrades: no data for %s (free tier limitation)", ticker)
+        return data or []
     except Exception as exc:
         logger.error("FMP upgrades/downgrades failed for %s: %s", ticker, exc)
         return []
@@ -467,15 +475,19 @@ def fetch_fmp_upgrades_downgrades(ticker: str, limit: int = 20) -> list[dict]:
 
 def fetch_fmp_institutional_holders(ticker: str) -> list[dict]:
     """
-    Return current institutional holders from FMP (current quarter, no lag vs 13F).
+    Return current institutional holders from FMP.
     Fields include: holder, shares, dateReported, change, weightPercent.
+    Note: returns empty list on FMP free tier — paid plan required for this endpoint.
     """
     logger.debug("FMP institutional holders: %s", ticker)
     try:
-        url = f"{FMP_BASE}/institutional-holder/{ticker}"
-        resp = requests.get(url, params={"apikey": _fmp_key()}, timeout=15)
+        url = f"{FMP_BASE}/institutional-holder"
+        resp = requests.get(url, params={"symbol": ticker, "apikey": _fmp_key()}, timeout=15)
         resp.raise_for_status()
-        return resp.json() or []
+        data = resp.json()
+        if not data:
+            logger.debug("FMP institutional holders: no data for %s (free tier limitation)", ticker)
+        return data or []
     except Exception as exc:
         logger.error("FMP institutional holders failed for %s: %s", ticker, exc)
         return []
