@@ -24,6 +24,8 @@ jobs:
   run-pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repo
@@ -81,8 +83,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Only stage the data files we want to track (not secrets, not logs)
-          git add data/memory/positions_log.json data/memory/pattern_history.json data/memory/decision_log.json dashboard/data/reports/ || true
+          # Add each path individually — a single multi-path git add aborts on any missing file
+          git add data/memory/positions_log.json  2>/dev/null || true
+          git add data/memory/decision_log.json   2>/dev/null || true
+          git add data/memory/pattern_history.json 2>/dev/null || true
+          git add dashboard/data/reports/          2>/dev/null || true
           # Only commit if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes to commit"

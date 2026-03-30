@@ -26,9 +26,16 @@ build/
 # --- Runtime data (changes every day — too large/noisy to track in git) ---
 data/reports/
 data/trades/
-data/memory/
 data/candidates/
 logs/
+
+# --- Memory JSON files ARE tracked in git (pipeline state must persist between runs) ---
+# positions_log.json   — open positions; if lost, Phase A forgets all holdings
+# decision_log.json    — last 100 committee decisions (dashboard source)
+# pattern_history.json — signal win-rate tracker (grows over time)
+# Only ignore large/binary files if added under data/memory/ in future:
+data/memory/*.csv
+data/memory/*.parquet
 
 # --- Universe CSV is committed (useful reference, ~100KB, monthly refresh) ---
 # data/universe.csv  <-- intentionally NOT ignored; add to git explicitly
@@ -40,6 +47,11 @@ logs/
 
 # --- MCP config (may contain local paths or tokens) ---
 .mcp.json
+
+# --- Next.js dashboard build artifacts ---
+dashboard/.next/
+dashboard/node_modules/
+dashboard/.env.local
 
 # --- macOS ---
 .DS_Store
