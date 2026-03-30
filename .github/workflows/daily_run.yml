@@ -2,8 +2,9 @@ name: Daily Pipeline Run
 
 on:
   schedule:
-    # 9:15am EST (14:15 UTC) on weekdays — gives 15 min buffer before market open
-    - cron: '15 14 * * 1-5'
+    # 9:45am ET (13:45 UTC during EDT / BST 2:45pm) on weekdays
+    # 15 min after market open — lets opening volatility settle before executing trades
+    - cron: '45 13 * * 1-5'
   workflow_dispatch:
     # Manual trigger for testing
     inputs:
