@@ -36,11 +36,19 @@ for fname in REPORT_FILES:
     else:
         print(f"  - {fname} not found, skipping")
 
-# Also copy decision_log for position history
-src_mem = ROOT / "data" / "memory" / "decision_log.json"
-if src_mem.exists():
-    shutil.copy2(src_mem, DST / "decision_log.json")
-    print(f"  ✓ decision_log.json")
-    copied += 1
+# Also copy memory files that the dashboard reads directly
+MEM_SRC = ROOT / "data" / "memory"
+MEM_DST = ROOT / "dashboard" / "data" / "memory"
+MEM_DST.mkdir(parents=True, exist_ok=True)
+
+for fname in ("decision_log.json", "positions_log.json"):
+    src_file = MEM_SRC / fname
+    if src_file.exists():
+        # Copy to both locations: reports/ (legacy) and memory/ (portfolio API)
+        if fname == "decision_log.json":
+            shutil.copy2(src_file, DST / fname)
+        shutil.copy2(src_file, MEM_DST / fname)
+        print(f"  ✓ {fname}")
+        copied += 1
 
 print(f"\nSynced {copied} files → {DST}")
