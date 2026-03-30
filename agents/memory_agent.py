@@ -44,6 +44,7 @@ POSITIONS_LOG_PATH = MEMORY_DIR / "positions_log.json"
 DECISION_LOG_PATH = MEMORY_DIR / "decision_log.json"
 
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
+SWARM_DB.parent.mkdir(parents=True, exist_ok=True)
 
 MAX_DECISION_LOG = 100   # keep last N decisions in decision_log.json
 
@@ -52,11 +53,41 @@ MAX_DECISION_LOG = 100   # keep last N decisions in decision_log.json
 # DB connection
 # ---------------------------------------------------------------------------
 
+_DB_INITIALIZED = False
+
+
+def _ensure_schema(conn: sqlite3.Connection) -> None:
+    """Create tables if they don't exist (idempotent — uses CREATE TABLE IF NOT EXISTS)."""
+    conn.executescript("""
+        PRAGMA journal_mode = WAL;
+        CREATE TABLE IF NOT EXISTS memory_entries (
+            id TEXT PRIMARY KEY,
+            key TEXT NOT NULL,
+            namespace TEXT DEFAULT 'default',
+            content TEXT NOT NULL,
+            type TEXT DEFAULT 'episodic',
+            created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+            updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now') * 1000),
+            expires_at INTEGER,
+            status TEXT DEFAULT 'active',
+            UNIQUE(namespace, key)
+        );
+        CREATE INDEX IF NOT EXISTS idx_memory_namespace ON memory_entries(namespace);
+        CREATE INDEX IF NOT EXISTS idx_memory_key ON memory_entries(key);
+        CREATE INDEX IF NOT EXISTS idx_memory_status ON memory_entries(status);
+    """)
+    conn.commit()
+
+
 @contextmanager
 def _db():
     """Context manager for .swarm/memory.db connections."""
+    global _DB_INITIALIZED
     conn = sqlite3.connect(SWARM_DB)
     conn.row_factory = sqlite3.Row
+    if not _DB_INITIALIZED:
+        _ensure_schema(conn)
+        _DB_INITIALIZED = True
     try:
         yield conn
         conn.commit()
@@ -266,6 +297,21 @@ def get_ticker_history(ticker: str, days_back: int = 30) -> list[dict]:
 def get_open_positions() -> dict:
     """Return current open positions from positions_log.json."""
     return _load_json(POSITIONS_LOG_PATH, default={})
+
+
+def enrich_position_framework(ticker: str, framework_fields: dict) -> None:
+    """
+    Merge institutional framework fields into an existing positions_log.json entry.
+    Called by Investment Committee after enter_long / enter_short decisions to attach
+    the full analyst framework (fund mandate, comparables, valuation, etc.) to the record.
+    Creates the entry if it doesn't exist yet (Trade Executor may not have run).
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    if ticker not in positions:
+        positions[ticker] = {}
+    positions[ticker].update(framework_fields)
+    _save_json(POSITIONS_LOG_PATH, positions)
+    logger.debug("Enriched position framework: %s (%d fields)", ticker, len(framework_fields))
 
 
 def get_recent_decisions(limit: int = 20) -> list[dict]:

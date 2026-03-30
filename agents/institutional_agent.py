@@ -21,6 +21,7 @@ from openai import OpenAI
 from utils.data_fetcher import (
     fetch_finnhub_analyst_ratings,
     fetch_finnhub_insider_transactions,
+    fetch_fmp_institutional_holders,
     fetch_ticker_info,
 )
 from utils.logger import get_logger
@@ -284,8 +285,39 @@ def _fetch_insider_data(tickers: list[str]) -> list[dict]:
 # Collect everything
 # ---------------------------------------------------------------------------
 
+def _fetch_fmp_holders_for_tickers(tickers: list[str]) -> dict[str, list[dict]]:
+    """
+    Fetch current institutional holders from FMP for a list of tickers.
+    Returns {ticker: [holder_dict, ...]} — more current than 13F (no 45-day lag).
+    """
+    fmp_key = os.environ.get("FMP_API_KEY", "").strip()
+    if not fmp_key:
+        return {}
+
+    results: dict[str, list[dict]] = {}
+    for ticker in tickers[:20]:  # Rate-conscious — top 20 only
+        try:
+            holders = fetch_fmp_institutional_holders(ticker)
+            if holders:
+                # Keep top 10 by shares
+                holders_sorted = sorted(holders, key=lambda h: h.get("shares", 0), reverse=True)[:10]
+                results[ticker] = [
+                    {
+                        "holder": h.get("holder"),
+                        "shares": h.get("shares"),
+                        "date_reported": h.get("dateReported", ""),
+                        "change": h.get("change"),
+                        "weight_pct": h.get("weightPercent"),
+                    }
+                    for h in holders_sorted
+                ]
+        except Exception as exc:
+            logger.debug("FMP holders failed for %s: %s", ticker, exc)
+    return results
+
+
 def _collect_institutional_data() -> dict:
-    logger.info("Institutional Agent: collecting 13F, analyst, and insider data")
+    logger.info("Institutional Agent: collecting 13F, analyst, insider, and FMP holder data")
 
     # 1. SEC 13F filings — top holdings per fund
     all_holdings: dict[str, list[dict]] = {}
@@ -303,9 +335,13 @@ def _collect_institutional_data() -> dict:
     logger.info("Institutional Agent: fetching insider transactions")
     insider_data = _fetch_insider_data(WATCH_TICKERS[:30])  # Rate limit — top 30
 
+    # 4. FMP institutional holders (current quarter, no 45-day lag)
+    logger.info("Institutional Agent: fetching FMP institutional holders")
+    fmp_holders = _fetch_fmp_holders_for_tickers(WATCH_TICKERS[:20])
+
     logger.info(
-        "Institutional Agent: collected %d funds, %d analyst records, %d insider transactions",
-        len(all_holdings), len(analyst_data), len(insider_data),
+        "Institutional Agent: collected %d funds, %d analyst records, %d insider transactions, %d FMP holder snapshots",
+        len(all_holdings), len(analyst_data), len(insider_data), len(fmp_holders),
     )
 
     ticker_confidence = _compute_ticker_confidence(all_holdings, analyst_data, insider_data)
@@ -314,6 +350,7 @@ def _collect_institutional_data() -> dict:
         "fund_holdings": all_holdings,
         "analyst_data": analyst_data,
         "insider_transactions": insider_data,
+        "fmp_institutional_holders": fmp_holders,
         "ticker_confidence": ticker_confidence,
         "as_of": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
     }
@@ -514,6 +551,15 @@ def _analyse_with_llm(raw_data: dict) -> dict:
     analyst_str = _format_analyst_summary(raw_data["analyst_data"])
     insider_str = _format_insider_summary(raw_data["insider_transactions"])
 
+    # Format FMP institutional holders
+    fmp_holders = raw_data.get("fmp_institutional_holders", {})
+    fmp_lines = []
+    for ticker, holders in list(fmp_holders.items())[:15]:
+        top = holders[:3]
+        holder_names = ", ".join(h.get("holder", "?") for h in top if h.get("holder"))
+        fmp_lines.append(f"  {ticker}: {holder_names}")
+    fmp_str = "\n".join(fmp_lines) if fmp_lines else "Not available (FMP_API_KEY not set)"
+
     # Format confidence block for prompt
     ticker_conf = raw_data.get("ticker_confidence", {})
     high_conf = [t for t, c in ticker_conf.items() if c.get("level") == "high"]
@@ -614,6 +660,9 @@ PRE-COMPUTED SIGNAL CONFIDENCE PER TICKER (13F / analyst / insider cross-referen
 
 === SEC 13F HOLDINGS (quarterly filings — up to 45 day lag) ===
 {holdings_str}
+
+=== FMP CURRENT INSTITUTIONAL HOLDERS (current quarter — no 45-day lag) ===
+{fmp_str}
 
 === ANALYST CONSENSUS & PRICE TARGETS (tickers with >15% implied upside or downside, min 5 analysts) ===
 {analyst_str}

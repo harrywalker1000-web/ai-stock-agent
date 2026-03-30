@@ -371,6 +371,117 @@ def fetch_alpha_vantage_earnings(ticker: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Financial Modeling Prep (FMP) helpers
+# ---------------------------------------------------------------------------
+
+FMP_BASE = "https://financialmodelingprep.com/api/v3"
+
+
+def _fmp_key() -> str:
+    key = os.environ.get("FMP_API_KEY")
+    if not key:
+        raise EnvironmentError("FMP_API_KEY not set in environment")
+    return key
+
+
+def fetch_fmp_income_statement(ticker: str, limit: int = 4) -> list[dict]:
+    """
+    Return the last N annual income statements from FMP.
+    Fields include: revenue, grossProfit, ebitda, netIncome, eps, epsDiluted.
+    """
+    logger.debug("FMP income statement: %s (limit=%d)", ticker, limit)
+    try:
+        url = f"{FMP_BASE}/income-statement/{ticker}"
+        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP income statement failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_fmp_key_metrics(ticker: str, limit: int = 4) -> list[dict]:
+    """
+    Return key fundamental metrics from FMP (annual).
+    Fields include: peRatio, pbRatio, evToEbitda, roic, debtToEquity, revenuePerShare, netIncomePerShare.
+    """
+    logger.debug("FMP key metrics: %s (limit=%d)", ticker, limit)
+    try:
+        url = f"{FMP_BASE}/key-metrics/{ticker}"
+        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP key metrics failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_fmp_analyst_estimates(ticker: str, limit: int = 8) -> list[dict]:
+    """
+    Return analyst forward revenue and EPS estimates from FMP.
+    Fields include: date, estimatedRevenueLow, estimatedRevenueAvg, estimatedRevenueHigh,
+    estimatedEpsAvg, estimatedEpsLow, estimatedEpsHigh, numberAnalysts.
+    """
+    logger.debug("FMP analyst estimates: %s", ticker)
+    try:
+        url = f"{FMP_BASE}/analyst-estimates/{ticker}"
+        resp = requests.get(url, params={"limit": limit, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP analyst estimates failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_fmp_price_targets(ticker: str) -> list[dict]:
+    """
+    Return recent analyst price targets from FMP.
+    Fields include: analystName, priceTarget, adjPriceTarget, priceWhenPosted, newsTitle, newsPublishedDate.
+    """
+    logger.debug("FMP price targets: %s", ticker)
+    try:
+        url = f"{FMP_BASE}/price-target"
+        resp = requests.get(url, params={"symbol": ticker, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP price targets failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_fmp_upgrades_downgrades(ticker: str, limit: int = 20) -> list[dict]:
+    """
+    Return recent analyst upgrades/downgrades from FMP.
+    Fields include: analystName, publishedDate, newGrade, previousGrade, action (upgrade/downgrade/init).
+    """
+    logger.debug("FMP upgrades/downgrades: %s", ticker)
+    try:
+        url = f"{FMP_BASE}/upgrades-downgrades"
+        resp = requests.get(url, params={"symbol": ticker, "limit": limit, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP upgrades/downgrades failed for %s: %s", ticker, exc)
+        return []
+
+
+def fetch_fmp_institutional_holders(ticker: str) -> list[dict]:
+    """
+    Return current institutional holders from FMP (current quarter, no lag vs 13F).
+    Fields include: holder, shares, dateReported, change, weightPercent.
+    """
+    logger.debug("FMP institutional holders: %s", ticker)
+    try:
+        url = f"{FMP_BASE}/institutional-holder/{ticker}"
+        resp = requests.get(url, params={"apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        return resp.json() or []
+    except Exception as exc:
+        logger.error("FMP institutional holders failed for %s: %s", ticker, exc)
+        return []
+
+
+# ---------------------------------------------------------------------------
 # Reddit / PRAW helpers
 # ---------------------------------------------------------------------------
 

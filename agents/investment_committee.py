@@ -459,6 +459,42 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
             stop_loss=d.get("stop_loss"),
         )
 
+    # Enrich positions_log with institutional framework for all enter decisions
+    fund_map_by_ticker = {a["ticker"]: a for a in fundamental.get("fundamental_analyses", [])}
+    for d in decisions:
+        ticker_d = d.get("ticker", "")
+        action_d = d.get("action", "skip")
+        if action_d not in ("enter_long", "enter_short"):
+            continue
+        fund_data = fund_map_by_ticker.get(ticker_d, {})
+        framework_fields: dict = {}
+        for key in (
+            "fund_mandate", "company_info", "financial_snapshot", "comparables",
+            "market_analysis", "quality_of_earnings", "management_team",
+            "analyst_rating_history", "cap_table", "setup_checklist",
+            "valuation", "market_timing", "investment_thesis_bullets", "recommendation",
+        ):
+            if key in fund_data:
+                framework_fields[key] = fund_data[key]
+        # Convenience top-level fields for the dashboard
+        if fund_data.get("fund_mandate"):
+            framework_fields["setup_type"] = fund_data["fund_mandate"].get("setup_type")
+        if fund_data.get("valuation"):
+            framework_fields["expected_roi"] = fund_data["valuation"].get("expected_roi_2_3yr")
+        sc = next((s for s in scorecards if s["ticker"] == ticker_d), {})
+        framework_fields["agent_scores_detail"] = {
+            "fundamental": sc.get("fundamental_score"),
+            "quant": sc.get("quant_score"),
+            "sentiment": sc.get("sentiment_score"),
+            "fundamental_summary": sc.get("fundamental_summary", ""),
+            "quant_summary": sc.get("quant_summary", ""),
+            "sentiment_summary": sc.get("sentiment_summary", ""),
+        }
+        framework_fields["key_catalysts"] = d.get("key_catalysts", [])
+        framework_fields["key_risks_committee"] = d.get("key_risks", [])
+        if framework_fields:
+            memory.enrich_position_framework(ticker_d, framework_fields)
+
     # Portfolio allocation summary (exclude skips and non-sizing decisions)
     sizing_decisions = [d for d in decisions if d.get("action") not in ("skip", "hold") and d.get("size_pct")]
     total_allocated = sum(d["size_pct"] for d in sizing_decisions)

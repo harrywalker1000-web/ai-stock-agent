@@ -61,6 +61,10 @@ jobs:
           ALLOW_LIVE_TRADING: 'false'
         run: python main.py
 
+      - name: Sync reports to dashboard
+        if: success()
+        run: python scripts/sync_reports.py
+
       - name: Upload pipeline report
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,7 +82,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # Only stage the data files we want to track (not secrets, not logs)
-          git add data/memory/positions_log.json data/memory/pattern_history.json data/memory/decision_log.json || true
+          git add data/memory/positions_log.json data/memory/pattern_history.json data/memory/decision_log.json dashboard/data/reports/ || true
           # Only commit if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes to commit"

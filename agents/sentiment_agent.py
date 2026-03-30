@@ -36,6 +36,7 @@ except ImportError:
     _finnhub_lib = None
     _FINNHUB_AVAILABLE = False
 
+from utils.data_fetcher import fetch_fmp_price_targets, fetch_fmp_upgrades_downgrades
 from utils.logger import get_logger
 
 load_dotenv()
@@ -162,6 +163,53 @@ def _fetch_finnhub_consensus(ticker: str, fh_client) -> dict:
     except Exception as exc:
         logger.debug("Finnhub consensus failed for %s: %s", ticker, exc)
     return result
+
+
+def _fetch_fmp_analyst_signals(ticker: str) -> dict:
+    """Fetch recent analyst price targets and upgrades/downgrades from FMP."""
+    fmp_key = os.environ.get("FMP_API_KEY", "").strip()
+    if not fmp_key:
+        return {"available": False}
+
+    try:
+        targets = fetch_fmp_price_targets(ticker)
+        upgrades = fetch_fmp_upgrades_downgrades(ticker, limit=10)
+
+        # Summarise recent targets (last 10)
+        recent_targets = []
+        for t in (targets or [])[:10]:
+            recent_targets.append({
+                "analyst": t.get("analystName") or t.get("analystCompany"),
+                "target": t.get("priceTarget") or t.get("adjPriceTarget"),
+                "date": (t.get("newsPublishedDate") or t.get("publishedDate") or "")[:10],
+            })
+
+        # Count upgrades vs downgrades in last 10 actions
+        upgrade_count = sum(1 for u in (upgrades or []) if str(u.get("action", "")).lower() == "upgrade")
+        downgrade_count = sum(1 for u in (upgrades or []) if str(u.get("action", "")).lower() == "downgrade")
+        initiation_count = sum(1 for u in (upgrades or []) if "init" in str(u.get("action", "")).lower())
+
+        # Compute avg target price from FMP targets
+        target_prices = [t["target"] for t in recent_targets if t.get("target")]
+        avg_fmp_target = round(sum(target_prices) / len(target_prices), 2) if target_prices else None
+
+        return {
+            "available": True,
+            "recent_targets": recent_targets[:5],
+            "avg_target_price": avg_fmp_target,
+            "target_count": len(target_prices),
+            "upgrades_recent": upgrade_count,
+            "downgrades_recent": downgrade_count,
+            "initiations_recent": initiation_count,
+            "upgrade_momentum": (
+                "improving" if upgrade_count > downgrade_count
+                else "deteriorating" if downgrade_count > upgrade_count
+                else "stable"
+            ),
+        }
+    except Exception as exc:
+        logger.debug("FMP analyst signals failed for %s: %s", ticker, exc)
+        return {"available": False, "error": str(exc)}
 
 
 def _extract_news_sentiment(ticker: str, fresh: list[dict], stale: list[dict]) -> dict:
@@ -350,6 +398,7 @@ def _analyse_with_llm(
     direction_hint: str,
     macro_regime: str,
     position_context: dict | None = None,
+    fmp_data: dict | None = None,
 ) -> dict:
     """Single GPT-4o-mini call for sentiment scoring and narrative."""
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
@@ -360,6 +409,17 @@ def _analyse_with_llm(
     short_pct = yf_data.get("short_pct_float")
     short_str = f"{short_pct * 100:.1f}% of float" if short_pct else "N/A"
     reddit_str = "Not available (Reddit disabled)" if reddit is None else json.dumps(reddit)
+
+    # FMP section for prompt
+    fmp_block = ""
+    if fmp_data and fmp_data.get("available"):
+        fmp_block = f"""
+FMP ANALYST UPGRADES/DOWNGRADES (last 10 actions):
+  Upgrades: {fmp_data.get('upgrades_recent', 0)} | Downgrades: {fmp_data.get('downgrades_recent', 0)} | Initiations: {fmp_data.get('initiations_recent', 0)}
+  Upgrade momentum: {fmp_data.get('upgrade_momentum', 'N/A')}
+  FMP avg analyst target: ${_f(fmp_data.get('avg_target_price'))} ({fmp_data.get('target_count', 0)} targets)
+  Recent targets: {', '.join(f"${t['target']} ({t['analyst'] or 'anon'}, {t['date']})" for t in (fmp_data.get('recent_targets') or [])[:3])}
+"""
 
     review_instruction = (
         "- PORTFOLIO REVIEW MODE: assess whether current sentiment still supports the original entry. "
@@ -396,7 +456,7 @@ SHORT INTEREST:
   Short ratio (days to cover): {_f(yf_data.get('short_ratio'))}
   Short % of float: {short_str}
   Note: high short interest can mean deserved skepticism OR squeeze risk — interpret in context.
-
+{fmp_block}
 RETAIL SENTIMENT (Reddit):
 {reddit_str}
 
@@ -515,6 +575,7 @@ def run(mode: str = "new_opportunities") -> dict:
 
         yf_data = _fetch_yf_sentiment(ticker)
         fh_data = _fetch_finnhub_consensus(ticker, fh_client)
+        fmp_data = _fetch_fmp_analyst_signals(ticker)
         news_data = _extract_news_sentiment(ticker, fresh_catalysts, stale_catalysts)
         reddit_data = _fetch_reddit_sentiment(ticker)
 
@@ -525,9 +586,11 @@ def run(mode: str = "new_opportunities") -> dict:
             ticker, yf_data, analyst, fh_data,
             news_data, reddit_data, confidence,
             direction_hint, macro_regime, position_context,
+            fmp_data=fmp_data,
         )
 
         # Attach raw snapshots and candidate context
+        result["fmp_analyst_signals"] = fmp_data if fmp_data and fmp_data.get("available") else None
         result["analyst_detail"] = {
             "yf_label": yf_data.get("analyst_label"),
             "yf_num_analysts": yf_data.get("num_analysts"),

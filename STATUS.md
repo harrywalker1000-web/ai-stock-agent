@@ -3,10 +3,36 @@
 **Project:** AI Hedge Fund Agent System
 **Owner:** Harry Walker
 **PRD:** See `PRD.md` for full specification
-**Last updated:** 2026-03-28 (session 4 — forward-looking mandate implemented; first end-to-end pipeline run; GitHub Actions scheduled; all 11 agents live)
+**Last updated:** 2026-03-30 (session 6 — FMP integration; SQLite crash fix; dashboard data pipeline; sync_reports step in CI)
 **Python:** 3.11.9 (venv at `venv/` — use `venv/bin/python` for all commands)
 **Run any agent:** `cd` to project root, then `venv/bin/python -m agents.<agent_name>`
 **Full pipeline:** `SKIP_PHASE_A=true venv/bin/python main.py`
+
+---
+
+## Session 6 — What Was Done (2026-03-30)
+
+### FMP (Financial Modeling Prep) integration
+- **`utils/data_fetcher.py`**: 6 new FMP helper functions — `fetch_fmp_income_statement`, `fetch_fmp_key_metrics`, `fetch_fmp_analyst_estimates`, `fetch_fmp_price_targets`, `fetch_fmp_upgrades_downgrades`, `fetch_fmp_institutional_holders`
+- **`agents/fundamental_analyst.py`**: FMP added as a 4th data source alongside yfinance / Alpha Vantage / SEC EDGAR. `_fetch_fmp_metrics()` pulls income statement + key metrics + forward estimates. Cross-reference logic supplements missing ROIC/EV/EBITDA/margins from FMP when yfinance is null. FMP forward estimates used when Yahoo Finance estimates unavailable.
+- **`agents/sentiment_agent.py`**: `_fetch_fmp_analyst_signals()` fetches recent analyst price targets + upgrade/downgrade counts. Upgrade momentum and avg FMP target injected into LLM prompt. Raw FMP data attached to output JSON.
+- **`agents/institutional_agent.py`**: `_fetch_fmp_holders_for_tickers()` fetches current-quarter institutional ownership (no 45-day 13F lag). FMP data included in LLM prompt alongside 13F and insider data.
+
+### SQLite crash fix (memory_agent.py)
+- `.swarm/` directory not created in GitHub Actions (gitignored) → `sqlite3.OperationalError: unable to open database file` at pipeline end
+- Fix: `SWARM_DB.parent.mkdir(parents=True, exist_ok=True)` at module load
+- Fix: `_ensure_schema()` initialises all required tables on a fresh DB (CREATE TABLE IF NOT EXISTS) — needed whenever `.swarm/memory.db` doesn't exist
+
+### Dashboard data pipeline wired
+- **`scripts/sync_reports.py`**: copies 10 agent report JSON files + decision_log from `data/reports/` → `dashboard/data/reports/` — added in this session
+- **`.github/workflows/daily_run.yml`**: added `python scripts/sync_reports.py` step after pipeline succeeds; `dashboard/data/reports/` now committed back to repo so Vercel picks up fresh data on every run
+- **FMP_API_KEY** added as GitHub Actions secret
+
+### Known improvements to make
+- Institutional Agent should also track SEC 13D/13G activist filings (fast, same-day, real institutional conviction signal)
+- Phase A should add News Agent in Lite mode (cheap, catches breaking catalysts on held positions)
+- Conviction scores still too round (multiples of 5) — needs raw composite score as anchor
+- No unit tests
 
 ---
 
@@ -29,7 +55,29 @@
 | 13 | Agent 11 — Trade Executor | ✅ Complete | Paper-only, Alpaca connection verified |
 | 14 | `main.py` + `portfolio_manager.py` | ✅ Complete | Full Phase A→B pipeline |
 | 15 | `.github/workflows/daily_run.yml` | ✅ Complete | Fires 9:15am EST Mon–Fri; secrets configured |
-| 16 | `dashboard/app.py` — Streamlit UI | ❌ Not started | User brainstorming first |
+| 16 | `dashboard/` — Next.js 14 website | ✅ Complete | 6 pages, auth, mock data fallback — live at dashboard-haz-capital.vercel.app |
+| 17 | Institutional analyst framework | ✅ Complete | Full framework in fundamental_analyst.py; scoring/display split |
+
+---
+
+## Session 5 — What Was Done (2026-03-29)
+
+### Dashboard website — fully built (Next.js 14)
+- 6 pages: Home, Dashboard, Position (dynamic), Reports, Team, About
+- Password auth via middleware cookie, mock data fallback on every API route
+- Dashboard positions table: Ticker, Setup Type, Conviction, Expected ROI, P&L%, Entry Date
+- Position page: full institutional analyst framework display — 14 sections including financial snapshot, peer comparables, valuation, market timing, analyst history, cap table, management, company overview, review timeline
+- Build compiles clean: TypeScript + ESLint zero errors
+- Vercel config added (`dashboard/vercel.json`). Deployment pending.
+
+### Institutional Analyst Framework — data integrity split
+- `fundamental_analyst.py` now runs TWO separate LLM calls per ticker:
+  - **`_score_with_llm()`**: quantitative scoring only — all inputs verified live API data. Produces `fundamental_score`, `direction`, `dislocation_opportunity`. This is the ONLY output that influences Committee decisions.
+  - **`_framework_with_llm()`**: display-only institutional framework — company info, management, market analysis use LLM training knowledge. Never influences scores or trades. Clearly labelled in `_data_sources` output field.
+- `_fetch_peer_snapshot()` expanded: now fetches revenue, gross/operating/net margins, D/E ratio, revenue growth YoY per peer — all from yfinance (live data). Comparables table no longer uses LLM estimates.
+- Added `t.revenue_estimate` and `t.earnings_estimate` to `_fetch_yf_metrics()` — real Yahoo Finance analyst consensus forward estimates now available as live data.
+- `investment_committee.py`: after enter decisions, calls `memory.enrich_position_framework()` to store full analyst framework in `positions_log.json`.
+- `memory_agent.py`: added `enrich_position_framework()` function.
 
 ---
 
@@ -84,25 +132,46 @@ Dislocation screen found 7 S&P 500 stocks down >20% in last month — added DG, 
 
 ## Known Issues & Pending Refinements
 
-### HIGH PRIORITY — fix before or soon after Monday's first live run
+### HIGH PRIORITY
 
-1. **Decision rationale is too thin** — the Committee output says "dislocation vs peer valuation" without numbers. The dashboard must show actual figures: P/E vs peer median P/E, % below SMA200, exact mean_reversion_score, etc. The data exists in the JSON reports but isn't surfaced in the Committee's narrative. When the dashboard is built, every decision must have a full data card with real numbers. The Committee's `investment_thesis` text should also cite the key number (e.g. "trading at P/E 14x vs sector median 22x — 36% discount").
+1. **Data sources for display fields** — the institutional analyst framework uses TWO LLM calls:
+   - **Call 1 (scoring)** — uses ONLY live API data (yfinance/SEC EDGAR/Alpha Vantage). Produces `fundamental_score`, `direction`, `dislocation_opportunity`. **This is the only data that influences trades.**
+   - **Call 2 (display)** — uses LLM training knowledge for narrative fields (company overview, management, market analysis, TAM, PEPs check). These are **display-only** and never feed into scoring or Committee decisions.
+   - Fields that ARE live API in the display call: financial snapshot (historical), comparables table multiples (yfinance), ownership %, forward revenue/EPS (Yahoo Finance analyst consensus if available).
+   - Fields that are LLM/stale: company HQ, management background, analyst target price, major holders by name, TAM figure, geography flag notes.
+   - **TODO:** Eventually replace LLM narrative fields with verified data sources (SEC EDGAR filings for geography, OpenFIGI/Refinitiv for analyst targets, proxy filings for major holders).
 
-2. **Conviction scores are too round** — everything comes out as multiples of 5 (60, 65, 70, 75). Real financial models don't round like this. The LLM needs to be told explicitly to output non-rounded convictions that reflect the actual score spread (e.g. if composite is 67.3, conviction should reflect that). The Committee prompt should use the raw composite score as a floor/anchor for conviction, not as decorative context.
+2. **Analyst target prices** — `analyst_rating_history.avg_target_price` in the display framework is currently null (we don't have a live API for this). Yahoo Finance consensus EPS/Revenue ARE available via `t.revenue_estimate` / `t.earnings_estimate` and are used. Analyst price target requires a paid data source (Bloomberg, Refinitiv, or FactSet).
 
-3. **Candidate pool too small** — the pipeline is only reaching ~8–10 stocks for deep analysis. The target is minimum 50 stocks scored by all agents (Fundamental, Quant, Sentiment). Phase 1 agents (Institutional, News, Sector) are generating too few signals due to API rate limits (NewsAPI, Finnhub free tier hit during testing). In production daily runs this will be better (fresh quota), but the dislocation screen and universe expansion should push the candidate pool higher. The 50-stock minimum needs enforcing in code.
+3. **Conviction scores are too round** — everything comes out as multiples of 5 (60, 65, 70, 75). The Committee prompt should use raw composite score as floor/anchor for conviction. Fix in next session.
 
-4. **No unit tests** — `tests/` directory is empty. Before going live, at minimum the critical calculation paths (mean_reversion_score, composite scoring, stop-loss logic) need test coverage.
+4. **Candidate pool too small** — pipeline reaching ~8–10 stocks for deep analysis, target is 50+. Phase 1 API rate limits (NewsAPI, Finnhub free tier) constrain candidate generation. Better in production (once daily), but needs enforcing in code.
+
+5. **No unit tests** — `tests/` directory is empty. Critical paths (mean_reversion_score, composite scoring, stop-loss logic) need coverage before live trading.
 
 ### MEDIUM PRIORITY
 
-5. **NewsAPI free tier (100 requests/day)** — hits limit if the pipeline is run multiple times in a day during development. In production (once daily) this is fine. Upgrade to paid tier if running >1x per day during dev.
+6. **NewsAPI / Finnhub free tier limits** — fine for once-daily production run. Hits limit if pipeline run multiple times per day during development.
 
-6. **Finnhub rate limits** — same issue. 60 calls/minute on free tier. The pipeline spreads calls with `time.sleep(0.3–0.5)` in most agents but a burst of 44-ticker news scans can still hit limits.
+7. **Quant Agent files >500 lines** — ~800 lines after session 4. Refactor when convenient.
 
-7. **Quant Agent files >500 lines** — CLAUDE.md asks files under 500 lines. After session 4 additions the quant agent is ~800 lines. Acceptable for now; refactor when convenient.
+8. **Vercel deployment pending** — `dashboard/vercel.json` configured. Still need to run `vercel --cwd dashboard` and add SITE_PASSWORD, OPENAI_API_KEY, GOOGLE_API_KEY to Vercel environment variables.
 
-8. **Dashboard not started** — user is brainstorming UI before implementation. Key data to surface: full agent score breakdown per ticker, actual numbers behind every decision, P&L tracking vs SPY, Committee rationale with citations.
+---
+
+## Vercel (Dashboard)
+- **Live URL:** `https://dashboard-haz-capital.vercel.app`
+- **Project:** `haz-capital/dashboard`
+- **Env vars set:** `SITE_PASSWORD`, `OPENAI_API_KEY`
+- **Env vars pending:** `GOOGLE_API_KEY` (add manually — see command below)
+- **⚠ Password issue:** SITE_PASSWORD on Vercel was set to a placeholder. Run this to fix:
+  ```bash
+  npx vercel env rm SITE_PASSWORD production --yes --cwd dashboard
+  echo "YOUR_PASSWORD" | npx vercel env add SITE_PASSWORD production --cwd dashboard
+  echo "YOUR_GOOGLE_API_KEY" | npx vercel env add GOOGLE_API_KEY production --cwd dashboard
+  npx vercel --prod --cwd dashboard
+  ```
+- Note: `.vercel/` is gitignored. Project link persists in `dashboard/.vercel/project.json`.
 
 ---
 
@@ -110,7 +179,7 @@ Dislocation screen found 7 S&P 500 stocks down >20% in last month — added DG, 
 - **Repo:** `https://github.com/harrywalker1000-web/ai-stock-agent` (private)
 - **Branch:** `main`
 - **Last commit:** `9d99390` — forward-looking mandate (session 4)
-- **Actions secrets configured:** OPENAI_API_KEY, ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, ALPHA_VANTAGE_API_KEY, FINNHUB_API_KEY, NEWS_API_KEY, FRED_API_KEY
+- **Actions secrets configured:** OPENAI_API_KEY, ALPACA_API_KEY, ALPACA_SECRET_KEY, ALPACA_BASE_URL, ALPHA_VANTAGE_API_KEY, FINNHUB_API_KEY, NEWS_API_KEY, FRED_API_KEY, FMP_API_KEY
 - **Scheduled run:** `30 13 * * 1-5` (9:15am EST Mon–Fri) — next run: Monday 2026-03-31 at 9:15am EST
 - **Manual trigger:** GitHub → Actions → "Daily Pipeline Run" → Run workflow → set `SKIP_PHASE_A=true` for first run
 
@@ -161,6 +230,7 @@ ALPHA_VANTAGE_API_KEY   — Fundamental Analyst (25 calls/day free)
 FINNHUB_API_KEY         — Free tier (rate limit: 60 calls/min)
 NEWS_API_KEY            — Free tier (100 requests/day)
 FRED_API_KEY            — Macro Agent
+FMP_API_KEY             — Financial Modeling Prep (fundamental, sentiment, institutional)
 REDDIT_CLIENT_ID        — Currently 'skip_for_now'
 REDDIT_CLIENT_SECRET    — Currently placeholder
 REDDIT_USER_AGENT       — ai-stock-agent/1.0
@@ -187,7 +257,7 @@ ai-stock-agent/
 │   ├── institutional_agent.py    ✅ Agent 3
 │   ├── news_agent.py             ✅ Agent 4
 │   ├── candidate_generator.py    ✅ Agent 5 — dislocation screen added
-│   ├── fundamental_analyst.py    ✅ Agent 6 — dislocation_opportunity, price_vs_intrinsic_value
+│   ├── fundamental_analyst.py    ✅ Agent 6 — scoring/display split; live comparables; Yahoo Finance fwd estimates
 │   ├── quant_agent.py            ✅ Agent 7 — mean_reversion_score, forward_bias, trade_type
 │   ├── sentiment_agent.py        ✅ Agent 8 — contrarian_signal, sentiment_type
 │   ├── memory_agent.py           ✅ Agent 9
@@ -209,7 +279,7 @@ ai-stock-agent/
 │   ├── trades/                   — trade_log.csv
 │   └── reports/                  — All agent JSON outputs
 │
-├── dashboard/                    ❌ Not started (user brainstorming)
+├── dashboard/                    ✅ Built (Next.js 14, 6 pages, auth, mock data fallback)
 ├── tests/                        ❌ Not started
 └── .github/workflows/
     └── daily_run.yml             ✅ 9:15am EST Mon–Fri
