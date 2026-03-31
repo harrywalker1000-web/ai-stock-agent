@@ -190,11 +190,13 @@ def store_trade_entry(
     rationale: str,
     signals: list[str],
     stop_loss: float | None = None,
+    alpaca_order_id: str | None = None,
 ) -> None:
     """
     Called by Trade Executor when a new position is opened.
     Writes to both .swarm/memory.db and positions_log.json.
     direction: 'LONG' | 'SHORT'
+    alpaca_order_id: the Alpaca order ID if the order was placed; None = pending (market closed).
     """
     record = {
         "ticker": ticker,
@@ -206,6 +208,7 @@ def store_trade_entry(
         "stop_loss": stop_loss,
         "entry_thesis": rationale,
         "signals": signals,
+        "alpaca_order_id": alpaca_order_id,
         "status": "open",
         "opened_at": datetime.utcnow().isoformat(),
     }
@@ -297,6 +300,37 @@ def get_ticker_history(ticker: str, days_back: int = 30) -> list[dict]:
 def get_open_positions() -> dict:
     """Return current open positions from positions_log.json."""
     return _load_json(POSITIONS_LOG_PATH, default={})
+
+
+def confirm_trade_entry(ticker: str, alpaca_order_id: str) -> None:
+    """
+    Mark a pending position (alpaca_order_id=None) as confirmed after the order is placed.
+    Called by the reconciler when it places a deferred order at market open.
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    if ticker in positions:
+        positions[ticker]["alpaca_order_id"] = alpaca_order_id
+        positions[ticker]["confirmed_at"] = datetime.utcnow().isoformat()
+        _save_json(POSITIONS_LOG_PATH, positions)
+    with _db() as conn:
+        entry = _fetch(conn, "stock_agent_trades", ticker) or {}
+        entry["alpaca_order_id"] = alpaca_order_id
+        entry["confirmed_at"] = datetime.utcnow().isoformat()
+        _upsert(conn, "stock_agent_trades", ticker, entry)
+    logger.info("Confirmed pending order for %s: order_id=%s", ticker, alpaca_order_id)
+
+
+def remove_position(ticker: str) -> None:
+    """
+    Remove a position from positions_log without recording a P&L exit.
+    Used by the reconciler when a logged position was never actually placed
+    (e.g. market was closed AND we couldn't place it on next open).
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    if ticker in positions:
+        positions.pop(ticker)
+        _save_json(POSITIONS_LOG_PATH, positions)
+        logger.info("Removed phantom position from log: %s", ticker)
 
 
 def enrich_position_framework(ticker: str, framework_fields: dict) -> None:

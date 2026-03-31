@@ -202,6 +202,7 @@ def _deliberate_with_llm(
     macro_regime: str,
     open_positions: dict,
     mode: str,
+    available_cash_pct: float = 100.0,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -252,18 +253,26 @@ def _deliberate_with_llm(
         candidate_blocks.append(block)
 
     open_pos_str = json.dumps(list(open_positions.keys())) if open_positions else "[]"
+    n_open = len(open_positions)
     mode_instruction = (
         "This is a PORTFOLIO REVIEW (Phase A). For each ticker, decide: hold, increase, decrease, or exit. "
-        "Base decisions on whether the original entry thesis remains intact."
+        "Base decisions purely on whether the original entry thesis remains intact and the position "
+        "continues to offer better risk/reward than cash. "
+        "Do NOT exit a position to redeploy into something new — only exit if the thesis has broken, "
+        "fundamentals have deteriorated materially, or the stock has hit its target and you see no further upside."
         if mode == "portfolio_review" else
-        "This is NEW OPPORTUNITY RESEARCH (Phase B). For each ticker, decide: enter_long, enter_short, or skip."
+        f"This is NEW OPPORTUNITY RESEARCH (Phase B). For each ticker, decide: enter_long, enter_short, or skip. "
+        f"Available capital to deploy: ~{available_cash_pct:.0f}% of portfolio. "
+        f"Only enter positions that fit within available cash — do not size positions so that their total "
+        f"exceeds what is actually deployable."
     )
 
     prompt = f"""You are the Investment Committee of an AI hedge fund. Today is {today}.
 Your mandate is to identify where prices are GOING, not where they have been.
 
 MACRO REGIME: {macro_regime}
-CURRENTLY OPEN POSITIONS: {open_pos_str}
+CURRENTLY OPEN POSITIONS ({n_open}): {open_pos_str}
+AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
 
 CANDIDATES FOR DELIBERATION:
@@ -306,8 +315,10 @@ KEY SIGNALS TO PRIORITISE:
   - forward_bias from Quant agent reflects where price is going next 5-10 days — weight heavily
 
 COMMITTEE RULES:
-- No fixed quota. Decide 0 to many. Never force a trade to meet a number.
-- Target 10+ simultaneous total positions when capital allows.
+- No fixed quota. Decide 0 to many. If nothing is convincing, decide nothing — cash is a position.
+- Holding cash is the correct decision when no candidate clears the quality bar. Do not force trades.
+- When genuinely good opportunities exist, be willing to deploy capital aggressively. When they don't, wait.
+- Never size new positions so that their combined notional exceeds available cash.
 - Soft 20% single-position cap. May exceed ONLY with explicit written justification.
 - Stop-losses are OPTIONAL. Set them when: next review is >24h away, around earnings,
   or on speculative positions. When set, they are hard auto-execute triggers.
@@ -430,9 +441,24 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
             "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
         }
 
+    # Fetch available cash % from last portfolio_state (written by Trade Executor)
+    available_cash_pct = 100.0
+    portfolio_state_path = REPORTS_DIR / "portfolio_state.json"
+    if portfolio_state_path.exists():
+        try:
+            with open(portfolio_state_path) as _psf:
+                _ps = json.load(_psf)
+            _pv = float(_ps.get("portfolio_value") or _ps.get("equity") or 0)
+            _cash = float(_ps.get("cash") or 0)
+            if _pv > 0:
+                available_cash_pct = round(_cash / _pv * 100, 1)
+        except Exception:
+            pass
+    logger.info("Available cash: %.0f%% of portfolio", available_cash_pct)
+
     # LLM deliberation
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # Store all decisions in memory

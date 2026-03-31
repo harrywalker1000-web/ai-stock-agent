@@ -251,6 +251,112 @@ def _log_trade(trade: dict) -> None:
 # Main run function
 # ---------------------------------------------------------------------------
 
+def reconcile_positions_with_alpaca() -> dict:
+    """
+    Synchronise positions_log.json with actual Alpaca holdings.
+    Called at the start of every pipeline run, BEFORE Phase A agents run.
+
+    Three cases handled:
+      1. PENDING positions (alpaca_order_id=None): Committee decided to enter when market was
+         closed. Place those orders now if market is open.
+      2. GHOST entries (in log with order ID but NOT in Alpaca): position was closed externally
+         (manual sell, stop triggered outside system). Record the exit, clean the log.
+      3. UNTRACKED positions (in Alpaca but NOT in log): entered manually via Alpaca dashboard.
+         Add a stub entry so Phase A reviews them correctly.
+    """
+    logger.info("=== Alpaca position reconciliation ===")
+    summary: dict = {"pending_placed": [], "ghosts_removed": [], "untracked_added": [], "errors": []}
+
+    try:
+        api = _get_alpaca_client()
+        alpaca_pos = _get_alpaca_positions(api)
+        portfolio = _get_portfolio(api)
+        safe, hours_reason = _is_safe_to_trade(api)
+    except Exception as exc:
+        logger.error("Reconciliation: cannot connect to Alpaca: %s", exc)
+        return {"error": str(exc)}
+
+    log_positions = memory.get_open_positions()
+    today = datetime.utcnow().date().isoformat()
+    portfolio_value = portfolio["portfolio_value"]
+
+    # --- Case 1: Pending positions (alpaca_order_id=None) — place now if market open ---
+    for ticker, pos_data in list(log_positions.items()):
+        if pos_data.get("alpaca_order_id") is not None:
+            continue  # Has order ID — check in Case 2
+        if safe:
+            current_price = _get_live_price(ticker)
+            if current_price is None:
+                logger.warning("Reconcile: cannot get price for pending %s", ticker)
+                summary["errors"].append(ticker)
+                continue
+            size_pct = pos_data.get("size_pct", 10.0)
+            notional = portfolio_value * size_pct / 100
+            shares = int(notional / current_price)
+            if shares < 1:
+                logger.warning("Reconcile: %s notional too small for 1 share — removing pending entry", ticker)
+                memory.remove_position(ticker)
+                summary["ghosts_removed"].append(ticker)
+                continue
+            direction = pos_data.get("direction", "LONG").upper()
+            side = "buy" if direction == "LONG" else "sell"
+            order = _place_order(api, ticker, shares, side,
+                                 f"Deferred order from {pos_data.get('entry_date', today)} — market was closed")
+            if order:
+                memory.confirm_trade_entry(ticker, order["order_id"])
+                summary["pending_placed"].append(ticker)
+                logger.info("Reconcile: placed deferred order for %s (%d shares @ ~$%.2f)",
+                            ticker, shares, current_price)
+            else:
+                summary["errors"].append(ticker)
+        else:
+            logger.info("Reconcile: %s still pending (market not open yet)", ticker)
+
+    # Refresh log after Case 1 mutations
+    log_positions = memory.get_open_positions()
+
+    # --- Case 2: Ghost entries (in log, has order ID, but NOT in Alpaca) ---
+    for ticker, pos_data in list(log_positions.items()):
+        if pos_data.get("alpaca_order_id") is None:
+            continue  # Pending — handled above
+        if ticker not in alpaca_pos:
+            logger.warning("Reconcile: %s in log but NOT in Alpaca — recording external exit", ticker)
+            current_price = _get_live_price(ticker) or pos_data.get("entry_price", 0)
+            memory.store_trade_exit(
+                ticker=ticker,
+                exit_date=today,
+                exit_price=current_price,
+                exit_reason="external_close",
+                rationale="Position closed outside the pipeline (manual action or broker event)",
+            )
+            summary["ghosts_removed"].append(ticker)
+
+    # --- Case 3: Positions in Alpaca not in log (manually entered) ---
+    log_positions = memory.get_open_positions()
+    for ticker, alpaca_data in alpaca_pos.items():
+        if ticker not in log_positions:
+            logger.warning("Reconcile: %s in Alpaca but not in log — adding stub entry", ticker)
+            memory.store_trade_entry(
+                ticker=ticker,
+                entry_date=today,
+                entry_price=alpaca_data["avg_entry_price"],
+                direction="LONG" if alpaca_data["side"] == "long" else "SHORT",
+                conviction=50,
+                size_pct=round(alpaca_data["market_value"] / portfolio_value * 100, 1) if portfolio_value else 10.0,
+                rationale="Position entered outside pipeline — stub entry added by reconciler",
+                signals=["manual_entry"],
+                alpaca_order_id="external",
+            )
+            summary["untracked_added"].append(ticker)
+
+    logger.info(
+        "Reconciliation complete: %d pending placed, %d ghosts removed, %d untracked added, %d errors",
+        len(summary["pending_placed"]), len(summary["ghosts_removed"]),
+        len(summary["untracked_added"]), len(summary["errors"]),
+    )
+    return summary
+
+
 def run(mode: str = "new_opportunities") -> dict:
     logger.info("=== Trade Executor (Agent 11) — mode: %s ===", mode)
 
@@ -365,8 +471,10 @@ def run(mode: str = "new_opportunities") -> dict:
                 order = _place_order(api, ticker, shares, side, rationale)
             else:
                 order = {"status": "market_closed_dry_run", "ticker": ticker, "qty": shares}
-                logger.info("%s: Market closed — logged but not executed", ticker)
+                logger.info("%s: Market closed — logged as PENDING, will execute at next open", ticker)
 
+            # Only store the Alpaca order ID if the order was actually placed
+            alpaca_order_id = order.get("order_id") if (safe and order) else None
             memory.store_trade_entry(
                 ticker=ticker,
                 entry_date=today,
@@ -377,6 +485,7 @@ def run(mode: str = "new_opportunities") -> dict:
                 rationale=rationale,
                 signals=decision.get("key_catalysts", []),
                 stop_loss=stop_loss,
+                alpaca_order_id=alpaca_order_id,
             )
             trade = {
                 "date": today, "ticker": ticker, "action": action,

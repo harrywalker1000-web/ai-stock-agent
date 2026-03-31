@@ -217,6 +217,24 @@ def run() -> dict:
         "memory": {},
     }
 
+    # --- Alpaca reconciliation: sync positions_log with what's actually held ---
+    # Must run BEFORE Phase A so agents only review real Alpaca positions, not phantom
+    # entries from orders logged when the market was closed.
+    try:
+        from agents import trade_executor
+        logger.info("Reconciling positions_log with Alpaca holdings...")
+        recon = trade_executor.reconcile_positions_with_alpaca()
+        summary["reconciliation"] = recon
+        if recon.get("pending_placed"):
+            logger.info("Reconciliation placed deferred orders: %s", recon["pending_placed"])
+        if recon.get("ghosts_removed"):
+            logger.info("Reconciliation removed ghost positions: %s", recon["ghosts_removed"])
+        if recon.get("untracked_added"):
+            logger.info("Reconciliation added untracked positions: %s", recon["untracked_added"])
+    except Exception as exc:
+        logger.warning("Alpaca reconciliation failed: %s — proceeding with current positions_log", exc)
+        summary["reconciliation"] = {"error": str(exc)}
+
     # --- Phase A ---
     if SKIP_PHASE_A:
         logger.info("Phase A skipped (SKIP_PHASE_A=true)")
