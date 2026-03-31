@@ -3,10 +3,63 @@
 **Project:** AI Hedge Fund Agent System
 **Owner:** Harry Walker
 **PRD:** See `PRD.md` for full specification
-**Last updated:** 2026-03-30 (session 6 — FMP integration; SQLite crash fix; dashboard data pipeline; SEC 13D/13G activist filings; unusual options activity; Phase A news agent)
+**Last updated:** 2026-03-31 (session 7 — first live pipeline run; Alpaca reconciliation; FMP endpoint migration; dashboard committed to repo; hedge fund exit logic)
 **Python:** 3.11.9 (venv at `venv/` — use `venv/bin/python` for all commands)
 **Run any agent:** `cd` to project root, then `venv/bin/python -m agents.<agent_name>`
 **Full pipeline:** `SKIP_PHASE_A=true venv/bin/python main.py`
+
+---
+
+## Session 7 — What Was Done (2026-03-31)
+
+### First live pipeline run
+- Pipeline ran successfully end-to-end (12m 27s) on run 23764278608
+- Phase B: 8 candidates analysed → 4 positions entered: LLY (75), AMCR (70), MKC (65), EL (80)
+- Market was closed at run time → orders logged as PENDING (no Alpaca order ID)
+
+### Alpaca reconciliation (`agents/trade_executor.py`)
+- `reconcile_positions_with_alpaca()`: runs at start of every pipeline, BEFORE Phase A
+- Case 1 PENDING (alpaca_order_id=None): places deferred orders when market opens
+- Case 2 GHOST (in log, has order ID, not in Alpaca): records external exit, cleans log
+- Case 3 UNTRACKED (in Alpaca, not in log): adds stub entry so Phase A reviews it
+- `memory_agent.store_trade_entry()` now stores `alpaca_order_id` (None = pending)
+- New `confirm_trade_entry()` and `remove_position()` helpers added
+
+### FMP endpoint migration (`utils/data_fetcher.py`)
+- FMP deprecated all `/api/v3/` endpoints for keys created after Aug 2025
+- Migrated to `/stable/` base URL; URL style changed from path params to query params
+- `price-target` (per-analyst, paid) → `price-target-summary` (aggregated, free)
+- `analyst-estimates` now requires `period=annual`
+- `sentiment_agent._fetch_fmp_analyst_signals()` updated for new summary format
+
+### Dashboard committed to repo + positions wired
+- `dashboard/` directory committed to git for the first time (Vercel reads from repo)
+- `scripts/sync_reports.py` now also copies `positions_log.json` → `dashboard/data/memory/`
+- `dashboard/data/memory/` directory created; positions_log and decision_log synced
+- `data/memory/` removed from `.gitignore` — positions_log/decision_log/pattern_history must persist between runs
+- Multi-path `git add` bug fixed (single command with multiple paths aborts on any missing file)
+- All 4 files now added individually in workflow
+
+### Pipeline schedule + Node.js
+- Cron changed from 14:15 UTC (9:15am EST) to 13:45 UTC (9:45am EDT / 2:45pm BST)
+- `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true` added to suppress deprecation warnings
+
+### Hedge fund exit logic (`agents/investment_committee.py`)
+- Removed "Target 10+ positions" quota pressure from prompt
+- "Cash is a position — never force a trade to meet a number"
+- Exit-to-redeploy now allowed but bar is HIGH: new opportunity must be materially better
+- Committee now receives available cash % from `portfolio_state.json` for correct sizing
+- Phase B prompt tells LLM exactly how much capital is deployable
+
+### Current open positions (as of 2026-03-30)
+| Ticker | Entry | Conviction | Size | Notes |
+|--------|-------|------------|------|-------|
+| EL | $67.80 | 80 | 10% | Dislocation long, mean reversion |
+| LLY | $885.97 | 75 | 10% | Sector momentum, fundamental quality |
+| AMCR | $38.10 | 70 | 10% | Mean reversion, oversold |
+| MKC | $53.68 | 65 | 10% | Dislocation, analyst consensus |
+
+All 4 are PENDING (alpaca_order_id=None) — orders will be placed by reconciler at next market open (2026-03-31 9:45am ET run).
 
 ---
 
