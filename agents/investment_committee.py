@@ -256,10 +256,10 @@ def _deliberate_with_llm(
     n_open = len(open_positions)
     mode_instruction = (
         "This is a PORTFOLIO REVIEW (Phase A). For each ticker, decide: hold, increase, decrease, or exit. "
-        "Base decisions purely on whether the original entry thesis remains intact and the position "
-        "continues to offer better risk/reward than cash. "
-        "Do NOT exit a position to redeploy into something new — only exit if the thesis has broken, "
-        "fundamentals have deteriorated materially, or the stock has hit its target and you see no further upside."
+        "Exit criteria (any one sufficient): thesis has broken, fundamentals have deteriorated materially, "
+        "stock has hit its target with no further upside, or a clearly superior opportunity exists and capital "
+        "redeployment would meaningfully improve portfolio risk/reward. The bar for the last reason is HIGH — "
+        "the new opportunity must be materially more compelling than the current holding, not just marginally better."
         if mode == "portfolio_review" else
         f"This is NEW OPPORTUNITY RESEARCH (Phase B). For each ticker, decide: enter_long, enter_short, or skip. "
         f"Available capital to deploy: ~{available_cash_pct:.0f}% of portfolio. "
