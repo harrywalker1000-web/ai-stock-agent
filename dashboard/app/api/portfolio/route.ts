@@ -84,6 +84,7 @@ export async function GET() {
     positions = MOCK_POSITIONS;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const activeCount = positions.filter((p: any) => p.status === "open" || p.status === "hold").length;
   const stats   = portfolioState?.portfolio_value
     ? {
