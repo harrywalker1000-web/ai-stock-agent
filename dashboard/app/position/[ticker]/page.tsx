@@ -562,43 +562,97 @@ export default function PositionPage({ params }: { params: { ticker: string } })
           ))}
         </div>
 
-        {/* ── Agent Debate (shown when score spread >= 20) ── */}
+        {/* ── Agent Debate (iterative challenge/response/resolution) ── */}
         {agentDebate && (
           <div className="card p-6 mb-6 border border-[#F59E0B]/20">
-            <div className="flex items-center gap-2 mb-4">
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Debate</h2>
-              <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#F59E0B]/15 text-[#F59E0B]">
-                Score spread ≥ 20 pts — rebuttal triggered
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
-              <div className="bg-white/03 rounded-lg p-3">
-                <p className="text-[#6B7280] uppercase tracking-wider mb-1">Higher-scoring agent</p>
-                <p className="font-semibold text-[#10B981]">{agentDebate.high_agent}</p>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Debate</h2>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#F59E0B]/15 text-[#F59E0B]">
+                  Spread {agentDebate.spread ?? "≥20"} pts
+                </span>
               </div>
-              <div className="bg-white/03 rounded-lg p-3">
-                <p className="text-[#6B7280] uppercase tracking-wider mb-1">Rebuttal from</p>
-                <p className="font-semibold text-[#F59E0B]">{agentDebate.low_agent}</p>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-[#6B7280]">
+                  <span className="text-[#10B981] font-bold">{agentDebate.high_agent}</span>
+                  {" "}({agentDebate.high_agent_score})
+                  {" vs "}
+                  <span className="text-[#F59E0B] font-bold">{agentDebate.dissenter}</span>
+                  {" "}({agentDebate.original_dissenter_score})
+                </span>
               </div>
             </div>
-            <div className="bg-white/03 rounded-xl p-4 mb-3">
-              <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-2">Rebuttal</p>
-              <p className="text-sm text-[#E8EDF2] leading-relaxed">{agentDebate.rebuttal}</p>
-            </div>
-            <div className="flex items-center gap-4 text-xs">
-              {agentDebate.revised_score != null && (
-                <div className="flex items-center gap-2">
-                  <span className="text-[#6B7280]">Revised score:</span>
-                  <span className="font-mono font-bold text-[#E8EDF2]">{agentDebate.revised_score}</span>
+
+            {/* Tension identified */}
+            {agentDebate.tension_identified && (
+              <div className="mb-4 px-4 py-3 rounded-xl bg-white/03 border border-white/06">
+                <p className="text-[10px] text-[#6B7280] uppercase tracking-wider mb-1">Tension identified</p>
+                <p className="text-xs text-[#9CA3AF] italic">{agentDebate.tension_identified}</p>
+              </div>
+            )}
+
+            {/* Exchange — 3 steps */}
+            <div className="space-y-3">
+              {/* Step 1: Committee challenge */}
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-[#0EA5E9]">C</span>
                 </div>
-              )}
-              <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
-                agentDebate.verdict === "defended"
-                  ? "bg-[#EF4444]/10 text-[#EF4444]"
-                  : "bg-[#10B981]/10 text-[#10B981]"
-              }`}>
-                {agentDebate.verdict === "defended" ? "Position defended" : "Score revised"}
-              </span>
+                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                  <p className="text-[10px] text-[#0EA5E9] uppercase tracking-wider font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
+                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.committee_challenge}</p>
+                </div>
+              </div>
+
+              {/* Step 2: Analyst response */}
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F59E0B]/15 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-[#F59E0B]">A</span>
+                </div>
+                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[10px] text-[#F59E0B] uppercase tracking-wider font-bold">{agentDebate.dissenter} response</p>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wider text-[10px] ${
+                        agentDebate.analyst_outcome === "held"
+                          ? "bg-white/08 text-[#6B7280]"
+                          : agentDebate.analyst_outcome === "revised_up"
+                          ? "bg-[#10B981]/10 text-[#10B981]"
+                          : "bg-[#EF4444]/10 text-[#EF4444]"
+                      }`}>
+                        {agentDebate.analyst_outcome === "held" ? "held" : agentDebate.analyst_outcome === "revised_up" ? `↑ +${agentDebate.analyst_score_delta}` : `↓ ${agentDebate.analyst_score_delta}`}
+                      </span>
+                      <span className="font-mono text-[#E8EDF2]">{agentDebate.analyst_revised_score ?? agentDebate.original_dissenter_score}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.analyst_response}</p>
+                </div>
+              </div>
+
+              {/* Step 3: Committee resolution */}
+              <div className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-[#0EA5E9]">R</span>
+                </div>
+                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[10px] text-[#0EA5E9] uppercase tracking-wider font-bold">Committee resolution</p>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-[#6B7280]">Final {agentDebate.dissenter} score:</span>
+                      <span className="font-mono font-bold text-[#E8EDF2]">{agentDebate.final_dissenter_score}</span>
+                      {agentDebate.final_dissenter_score !== agentDebate.original_dissenter_score && (
+                        <span className={`font-mono text-xs ${(agentDebate.final_dissenter_score ?? 0) > (agentDebate.original_dissenter_score ?? 0) ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                          ({(agentDebate.final_dissenter_score ?? 0) > (agentDebate.original_dissenter_score ?? 0) ? "+" : ""}{(agentDebate.final_dissenter_score ?? 0) - (agentDebate.original_dissenter_score ?? 0)})
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.committee_resolution}</p>
+                  {agentDebate.committee_resolution_reasoning && (
+                    <p className="text-xs text-[#6B7280] mt-2 italic">Key factor: {agentDebate.committee_resolution_reasoning}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}

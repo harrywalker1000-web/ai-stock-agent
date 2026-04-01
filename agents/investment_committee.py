@@ -446,113 +446,306 @@ Return ONLY valid JSON — an array of position_decisions:
         return []
 
 
+def _build_analyst_data_block(agent_name: str, ticker: str, fund_map: dict, quant_map: dict, sent_map: dict) -> str:
+    """
+    Build a concise but data-rich block of the analyst's own findings.
+    This is what the analyst sees when asked to respond to a challenge —
+    its own numbers, not a summary of someone else's view.
+    """
+    if agent_name == "Fundamental":
+        a = fund_map.get(ticker, {})
+        ind = a.get("indicators", {})
+        return (
+            f"YOUR DATA ({agent_name} Analyst on {ticker}):\n"
+            f"  Score: {a.get('fundamental_score', '?')}/100 | Direction: {a.get('direction', '?')}\n"
+            f"  Valuation vs peers: {a.get('valuation_vs_peers', '?')} | Price vs intrinsic: {a.get('price_vs_intrinsic_value', '?')}\n"
+            f"  P/E: {a.get('pe_ratio', '?')} vs peer avg {a.get('pe_peer_average', '?')}\n"
+            f"  Revenue growth YoY: {a.get('revenue_growth_yoy', '?')} | Op margin: {a.get('operating_margin', '?')}\n"
+            f"  ROIC: {a.get('roic', '?')} | Net debt/EBITDA: {a.get('net_debt_ebitda', '?')}\n"
+            f"  Dislocation opportunity: {a.get('dislocation_opportunity', False)}\n"
+            f"  Key strengths: {'; '.join(a.get('key_strengths', [])[:3])}\n"
+            f"  Key concerns: {'; '.join(a.get('key_concerns', [])[:3])}\n"
+            f"  Summary: {a.get('fundamental_summary', '')}"
+        )
+    elif agent_name == "Quant":
+        a = quant_map.get(ticker, {})
+        ind = a.get("indicators", {})
+        return (
+            f"YOUR DATA ({agent_name} Analyst on {ticker}):\n"
+            f"  Score: {a.get('quant_score', '?')}/100 | Direction: {a.get('direction', '?')}\n"
+            f"  Trend: {a.get('trend', '?')} | Trade type: {a.get('trade_type', '?')}\n"
+            f"  Forward bias: {a.get('forward_bias', '?')} | Mean reversion score: {a.get('mean_reversion_score', '?')}\n"
+            f"  RSI(14): {ind.get('rsi_14', '?')} | MACD: {a.get('macd_signal', '?')}\n"
+            f"  Volume trend: {a.get('volume_trend', '?')} | ATR%: {ind.get('atr_pct', '?')}\n"
+            f"  1M return: {ind.get('ret_1m', '?')}% | 3M return: {ind.get('ret_3m', '?')}%\n"
+            f"  Key patterns: {', '.join(a.get('key_patterns', [])[:4]) or 'none'}\n"
+            f"  Summary: {a.get('quant_summary', '')}"
+        )
+    else:  # Sentiment
+        a = sent_map.get(ticker, {})
+        return (
+            f"YOUR DATA ({agent_name} Analyst on {ticker}):\n"
+            f"  Score: {a.get('sentiment_score', '?')}/100 | Direction: {a.get('direction', '?')}\n"
+            f"  Analyst consensus: {a.get('analyst_consensus', '?')} | Upside to target: {a.get('price_target_upside_pct', '?')}%\n"
+            f"  News sentiment: {a.get('news_sentiment', '?')} | Short interest: {a.get('short_interest_pct', '?')}%\n"
+            f"  Short squeeze risk: {a.get('short_squeeze_risk', False)} | Retail euphoria: {a.get('retail_euphoria_warning', False)}\n"
+            f"  Contrarian signal: {a.get('contrarian_signal', False)} | Sentiment type: {a.get('sentiment_type', '?')}\n"
+            f"  Summary: {a.get('sentiment_summary', '')}"
+        )
+
+
+def _debate_one_ticker(
+    client: OpenAI,
+    sc: dict,
+    fund_map: dict,
+    quant_map: dict,
+    sent_map: dict,
+    weights: dict,
+) -> dict:
+    """
+    Run 3 sequential GPT calls for one contested ticker:
+      Call 1 — Committee issues an open, targeted challenge to the dissenting analyst
+      Call 2 — Dissenting analyst re-examines its own data and responds (free to hold/revise up/down)
+      Call 3 — Committee reads both positions and produces a resolution + score adjustment
+
+    Returns a debate record dict to be stored in sc["agent_debate"].
+    """
+    ticker = sc["ticker"]
+    scores = {
+        "Fundamental": sc["fundamental_score"],
+        "Quant": sc["quant_score"],
+        "Sentiment": sc["sentiment_score"],
+    }
+    sorted_agents = sorted(scores.items(), key=lambda x: x[1])
+    dissenter_name, dissenter_score = sorted_agents[0]
+    high_name, high_score = sorted_agents[-1]
+    mid_name, mid_score = sorted_agents[1]
+
+    # Summaries for each agent
+    summaries = {
+        "Fundamental": fund_map.get(ticker, {}).get("fundamental_summary", "No summary."),
+        "Quant": quant_map.get(ticker, {}).get("quant_summary", "No summary."),
+        "Sentiment": sent_map.get(ticker, {}).get("sentiment_summary", "No summary."),
+    }
+
+    # ── CALL 1: Committee issues a targeted, open challenge ──────────────────
+    challenge_prompt = f"""You are the Investment Committee chair for an AI hedge fund reviewing {ticker}.
+
+Three analyst agents scored this ticker and their scores diverge significantly:
+  {high_name}: {high_score}/100 — "{summaries[high_name]}"
+  {mid_name}: {mid_score}/100 — "{summaries[mid_name]}"
+  {dissenter_name}: {dissenter_score}/100 — "{summaries[dissenter_name]}"
+
+The spread between {high_name} ({high_score}) and {dissenter_name} ({dissenter_score}) is {high_score - dissenter_score} points.
+This is large enough to materially affect the composite score and your decision.
+
+Write a specific, open-ended challenge to the {dissenter_name} analyst.
+- Identify the exact tension between its view and {high_name}'s view using the data above
+- Ask a precise question that would either reconcile or sharpen the disagreement
+- Do NOT tell it to change its score. Do NOT suggest it is wrong. Ask it to explain.
+- The goal is to surface any data or reasoning that was missed, not to pressure revision.
+
+Return ONLY valid JSON:
+{{"challenge": "<2-3 sentence targeted question to the {dissenter_name} analyst>", "tension_identified": "<one sentence: what specifically contradicts between the two views>"}}"""
+
+    try:
+        r1 = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": challenge_prompt}],
+            temperature=0.3,
+            max_tokens=400,
+            response_format={"type": "json_object"},
+        )
+        call1 = json.loads(r1.choices[0].message.content)
+        challenge_text = call1.get("challenge", "")
+        tension_text = call1.get("tension_identified", "")
+    except Exception as exc:
+        logger.warning("Debate call 1 failed for %s: %s", ticker, exc)
+        return {}
+
+    # ── CALL 2: Dissenting analyst re-examines its own data and responds ─────
+    analyst_data_block = _build_analyst_data_block(dissenter_name, ticker, fund_map, quant_map, sent_map)
+
+    response_prompt = f"""You are the {dissenter_name} Analyst for an AI hedge fund. You scored {ticker} at {dissenter_score}/100.
+
+The Investment Committee has reviewed your analysis alongside {high_name}'s ({high_score}/100) and has a question for you.
+
+COMMITTEE CHALLENGE:
+"{challenge_text}"
+
+{analyst_data_block}
+
+Re-examine your own data in light of this question and respond honestly.
+You have three equally valid options — choose based purely on what your data supports:
+  (A) HOLD your score — if your data supports your original view and the challenge doesn't change the picture
+  (B) REVISE UP — if the challenge surfaces a factor you underweighted; move your score toward {high_name}'s view
+  (C) REVISE DOWN — if re-examining your data reveals you were actually too generous; reduce your score further
+
+There is NO pressure to revise. A well-reasoned defence of your original score is a good outcome.
+Do not revise for the sake of appearing responsive. Only revise if the data genuinely warrants it.
+
+Return ONLY valid JSON:
+{{
+  "response": "<3-4 sentences: your direct answer to the challenge, citing your own data>",
+  "revised_score": <integer — your updated score, or unchanged if holding>,
+  "outcome": "held" | "revised_up" | "revised_down",
+  "score_delta": <integer — how many points you moved, positive or negative, 0 if held>
+}}"""
+
+    try:
+        r2 = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": response_prompt}],
+            temperature=0.3,
+            max_tokens=500,
+            response_format={"type": "json_object"},
+        )
+        call2 = json.loads(r2.choices[0].message.content)
+        analyst_response = call2.get("response", "")
+        revised_score = int(call2.get("revised_score", dissenter_score))
+        outcome = call2.get("outcome", "held")
+        score_delta = int(call2.get("score_delta", 0))
+        # Clamp score to valid range
+        revised_score = max(0, min(100, revised_score))
+    except Exception as exc:
+        logger.warning("Debate call 2 failed for %s: %s", ticker, exc)
+        return {}
+
+    # ── CALL 3: Committee reads the exchange and resolves ────────────────────
+    resolution_prompt = f"""You are the Investment Committee chair for an AI hedge fund. You are resolving a scoring debate on {ticker}.
+
+ORIGINAL POSITIONS:
+  {high_name}: {high_score}/100 — "{summaries[high_name]}"
+  {dissenter_name}: {dissenter_score}/100 — "{summaries[dissenter_name]}"
+
+CHALLENGE YOU ISSUED:
+"{challenge_text}"
+
+{dissenter_name.upper()} ANALYST RESPONSE:
+"{analyst_response}"
+Their revised score: {revised_score}/100 (outcome: {outcome}, delta: {score_delta:+d})
+
+Assess the quality of this exchange and decide how to resolve it.
+Judge both the original challenge and the response on their merits.
+A held score with strong data support is as valid as a revision.
+
+Return ONLY valid JSON:
+{{
+  "resolution": "<2-3 sentences: how you weight each position and why, citing specific data points>",
+  "final_dissenter_score": <integer — the score you'll use for the {dissenter_name} analyst in the composite>,
+  "resolution_reasoning": "<1 sentence: the key factor that determined your resolution>"
+}}"""
+
+    try:
+        r3 = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": resolution_prompt}],
+            temperature=0.2,
+            max_tokens=400,
+            response_format={"type": "json_object"},
+        )
+        call3 = json.loads(r3.choices[0].message.content)
+        resolution_text = call3.get("resolution", "")
+        final_score = int(call3.get("final_dissenter_score", revised_score))
+        resolution_reasoning = call3.get("resolution_reasoning", "")
+        final_score = max(0, min(100, final_score))
+    except Exception as exc:
+        logger.warning("Debate call 3 failed for %s: %s", ticker, exc)
+        # Fall back to revised score from call 2
+        final_score = revised_score
+        resolution_text = "Resolution call failed — using analyst's revised score."
+        resolution_reasoning = ""
+
+    # Build debate record
+    debate_record = {
+        "dissenter": dissenter_name,
+        "high_agent": high_name,
+        "original_dissenter_score": dissenter_score,
+        "high_agent_score": high_score,
+        "spread": high_score - dissenter_score,
+        "tension_identified": tension_text,
+        "committee_challenge": challenge_text,
+        "analyst_response": analyst_response,
+        "analyst_outcome": outcome,
+        "analyst_score_delta": score_delta,
+        "analyst_revised_score": revised_score,
+        "committee_resolution": resolution_text,
+        "committee_resolution_reasoning": resolution_reasoning,
+        "final_dissenter_score": final_score,
+    }
+
+    # Update scorecard with resolved score
+    key = f"{dissenter_name.lower()}_score"
+    if key in sc:
+        sc[key] = final_score
+    sc["composite_score"] = round(
+        sc["fundamental_score"] * weights["fundamental"] +
+        sc["quant_score"] * weights["quant"] +
+        sc["sentiment_score"] * weights["sentiment"]
+    )
+
+    net_move = final_score - dissenter_score
+    logger.info(
+        "Debate %s: %s(%d) challenged by Committee → %s responded (outcome: %s, delta: %+d) → Committee resolved to %d (net: %+d)",
+        ticker, dissenter_name, dissenter_score, dissenter_name, outcome, score_delta, final_score, net_move,
+    )
+    return debate_record
+
+
 def _run_debate_round(
     scorecards: list[dict],
     fundamental: dict,
     quant: dict,
     sentiment: dict,
+    weights: dict | None = None,
 ) -> list[dict]:
     """
-    For any scorecard where the max agent spread >= 20:
-    identify the lowest-scoring agent, show it the highest-scoring agent's reasoning,
-    and ask it to defend or revise its score.
-    Returns the same scorecards list, each with an added `agent_debate` field when triggered.
+    Iterative debate mechanic: for every scorecard where agent spread >= 20,
+    run a 3-call challenge/response/resolution cycle per ticker.
+
+    Call 1: Committee issues an open, specific challenge to the dissenting analyst
+    Call 2: Dissenting analyst re-examines its own data — free to hold, revise up, or revise down
+    Call 3: Committee reads the exchange and resolves with a final score
+
+    Anti-bias guarantees:
+    - Challenge prompt is explicitly open-ended; does not suggest the dissenter is wrong
+    - Response prompt lists hold/revise-up/revise-down as equally valid; explicitly says
+      "do not revise for the sake of appearing responsive"
+    - Resolution uses the Committee's judgement, not a mechanical average
+    - Analyst response is grounded in its own raw data, not a summary of another agent's view
     """
     DEBATE_THRESHOLD = 20
-    MAX_DEBATES = 5   # cap to limit cost
+    MAX_DEBATES = 10  # raised from 5 — at ~3 calls each, still <$0.02 total at gpt-4o-mini rates
+
+    if weights is None:
+        weights = DEFAULT_WEIGHTS
 
     fund_map = {a["ticker"]: a for a in fundamental.get("fundamental_analyses", [])}
     quant_map = {a["ticker"]: a for a in quant.get("quant_analyses", [])}
     sent_map = {a["ticker"]: a for a in sentiment.get("sentiment_analyses", [])}
 
-    contested = [sc for sc in scorecards if sc["agent_spread"] >= DEBATE_THRESHOLD][:MAX_DEBATES]
+    # Sort by spread descending — debate the most contested tickers first
+    contested = sorted(
+        [sc for sc in scorecards if sc["agent_spread"] >= DEBATE_THRESHOLD],
+        key=lambda x: x["agent_spread"],
+        reverse=True,
+    )[:MAX_DEBATES]
+
     if not contested:
         return scorecards
 
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    sc_index = {sc["ticker"]: sc for sc in scorecards}
 
-    debate_blocks = []
     for sc in contested:
         ticker = sc["ticker"]
-        scores = {
-            "Fundamental": (sc["fundamental_score"], fund_map.get(ticker, {}).get("fundamental_summary", "")),
-            "Quant": (sc["quant_score"], quant_map.get(ticker, {}).get("quant_summary", "")),
-            "Sentiment": (sc["sentiment_score"], sent_map.get(ticker, {}).get("sentiment_summary", "")),
-        }
-        sorted_agents = sorted(scores.items(), key=lambda x: x[1][0])
-        low_agent, (low_score, low_summary) = sorted_agents[0]
-        high_agent, (high_score, high_summary) = sorted_agents[-1]
-
-        debate_blocks.append(
-            f"TICKER: {ticker}\n"
-            f"  HIGH AGENT: {high_agent} scored {high_score}/100 — reasoning: {high_summary[:200]}\n"
-            f"  LOW AGENT: {low_agent} scored {low_score}/100 — reasoning: {low_summary[:200]}\n"
-            f"  The {low_agent} agent should respond to {high_agent}'s reasoning."
-        )
-
-    if not debate_blocks:
-        return scorecards
-
-    prompt = f"""You are refereeing an Investment Committee debate.
-For each ticker below, one analyst agent scored significantly higher than another.
-The lower-scoring agent must now either defend its position (explain why the higher-scoring agent is wrong)
-or revise its score upward (admit the higher-scoring agent raised valid points).
-
-For each ticker produce:
-- "rebuttal": 2-3 sentence response from the low-scoring agent
-- "revised_score": integer (0-100) — updated score for the low-scoring agent (may be unchanged if defending)
-- "verdict": "defended" | "revised_up" | "revised_down"
-
-DEBATES:
-{'='*60}
-{chr(10).join(debate_blocks)}
-{'='*60}
-
-Return ONLY valid JSON: {{"debates": [{{"ticker": "X", "low_agent": "...", "high_agent": "...", "rebuttal": "...", "revised_score": 0, "verdict": "..."}}]}}"""
-
-    try:
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=1200,
-            response_format={"type": "json_object"},
-        )
-        raw = json.loads(resp.choices[0].message.content)
-        debate_results = {d["ticker"]: d for d in raw.get("debates", [])}
-
-        # Merge debate results back into scorecards
-        for sc in scorecards:
-            ticker = sc["ticker"]
-            if ticker in debate_results:
-                d = debate_results[ticker]
-                sc["agent_debate"] = {
-                    "low_agent": d.get("low_agent", ""),
-                    "high_agent": d.get("high_agent", ""),
-                    "rebuttal": d.get("rebuttal", ""),
-                    "original_low_score": d.get("original_low_score", sc.get("composite_score")),
-                    "revised_score": d.get("revised_score"),
-                    "verdict": d.get("verdict", ""),
-                }
-                # Update the low agent's score if revised
-                revised = d.get("revised_score")
-                verdict = d.get("verdict", "")
-                low_agent = d.get("low_agent", "")
-                if revised is not None and "revised" in verdict:
-                    key = f"{low_agent.lower()}_score"
-                    if key in sc:
-                        sc[key] = revised
-                    # Recompute composite with updated score
-                    w = DEFAULT_WEIGHTS
-                    sc["composite_score"] = round(
-                        sc["fundamental_score"] * w["fundamental"] +
-                        sc["quant_score"] * w["quant"] +
-                        sc["sentiment_score"] * w["sentiment"]
-                    )
-                logger.info("Debate %s: %s vs %s → %s", ticker, d.get("low_agent"), d.get("high_agent"), verdict)
-
-    except Exception as exc:
-        logger.warning("Debate round LLM call failed: %s", exc)
+        try:
+            debate_record = _debate_one_ticker(client, sc, fund_map, quant_map, sent_map, weights)
+            if debate_record:
+                sc_index[ticker]["agent_debate"] = debate_record
+        except Exception as exc:
+            logger.warning("Debate failed for %s: %s", ticker, exc)
+            continue
 
     return scorecards
 
@@ -607,11 +800,11 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
     # Build scorecards
     scorecards = _build_scorecard(candidates, fundamental, quant, sentiment, weights)
 
-    # Debate round: resolve cross-agent conflicts before main deliberation
+    # Debate round: iterative challenge/response/resolution for contested tickers
     contested_count = sum(1 for sc in scorecards if sc["agent_spread"] >= 20)
     if contested_count > 0:
-        logger.info("Running debate round for %d contested tickers (spread >= 20)...", contested_count)
-        scorecards = _run_debate_round(scorecards, fundamental, quant, sentiment)
+        logger.info("Running iterative debate for %d contested tickers (spread >= 20)...", contested_count)
+        scorecards = _run_debate_round(scorecards, fundamental, quant, sentiment, weights=weights)
 
     # Pre-filter: only debate qualifying candidates
     qualifying = [sc for sc in scorecards if sc["composite_score"] >= DELIBERATION_THRESHOLD]
