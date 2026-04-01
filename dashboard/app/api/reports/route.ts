@@ -4,7 +4,11 @@ import fs from "fs";
 import { MOCK_DAILY_REPORTS } from "@/lib/mock-data";
 
 export async function GET() {
-  const reportsDir = path.join(process.cwd(), "..", "data", "reports");
+  // On Vercel: process.cwd() = /var/task (dashboard root), data/ is bundled inside it
+  // Locally without sync: fall back to ../data/reports
+  const reportsDir = fs.existsSync(path.join(process.cwd(), "data", "reports"))
+    ? path.join(process.cwd(), "data", "reports")
+    : path.join(process.cwd(), "..", "data", "reports");
   const reports: unknown[] = [];
 
   try {

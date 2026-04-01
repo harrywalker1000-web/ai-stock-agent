@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
+import { configDir } from "@/lib/data-path";
 
 export const dynamic = "force-dynamic";
 
-const CONFIG_PATH = path.join(process.cwd(), "..", "data", "config", "analysis_mode.json");
+const CONFIG_PATH = path.join(configDir(), "analysis_mode.json");
 
 function ensureDir() {
   const dir = path.dirname(CONFIG_PATH);

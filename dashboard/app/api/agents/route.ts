@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 import { MOCK_AGENTS } from "@/lib/mock-data";
+import { reportsDir as getReportsDir } from "@/lib/data-path";
 
 export async function GET() {
-  const reportsDir = path.join(process.cwd(), "..", "data", "reports");
+  const reportsDir = getReportsDir();
   const agentData = [...MOCK_AGENTS];
 
   try {

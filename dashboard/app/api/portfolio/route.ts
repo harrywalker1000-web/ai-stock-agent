@@ -7,6 +7,7 @@ import {
   MOCK_PORTFOLIO_HISTORY,
   MOCK_SECTOR_ALLOCATION,
 } from "@/lib/mock-data";
+import { dataDir } from "@/lib/data-path";
 
 function readJson(filePath: string) {
   try {
@@ -21,19 +22,11 @@ function readJson(filePath: string) {
   return null;
 }
 
-function resolveDataDir(): string {
-  // Try dashboard/data/ (Vercel production & local after sync)
-  const local = path.join(process.cwd(), "data");
-  if (fs.existsSync(path.join(local, "reports"))) return local;
-  // Fallback: parent data/ (local dev without sync)
-  return path.join(process.cwd(), "..", "data");
-}
-
 export async function GET() {
-  const dataDir = resolveDataDir();
-  const reportsDir = path.join(dataDir, "reports");
+  const resolvedDataDir = dataDir();
+  const reportsDir = path.join(resolvedDataDir, "reports");
 
-  const positionsLog   = readJson(path.join(dataDir, "memory", "positions_log.json"));
+  const positionsLog   = readJson(path.join(resolvedDataDir, "memory", "positions_log.json"));
   const committeeReport = readJson(path.join(reportsDir, "committee_report.json"));
   const portfolioState = readJson(path.join(reportsDir, "portfolio_state.json"));
 

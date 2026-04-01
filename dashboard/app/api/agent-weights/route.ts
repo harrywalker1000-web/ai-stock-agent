@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
+import { memoryDir } from "@/lib/data-path";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const weightsPath = path.join(process.cwd(), "..", "data", "memory", "agent_weights.json");
+  const weightsPath = path.join(memoryDir(), "agent_weights.json");
 
   try {
     const raw = fs.readFileSync(weightsPath, "utf-8");
