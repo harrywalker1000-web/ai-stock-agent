@@ -81,21 +81,51 @@ try:
             elif "decrease" in a:
                 action_counts["decreases"] += 1
 
-        # Agent findings from phase_b agents
+        # Agent findings from phase_a and phase_b agents
+        phase_a = pr.get("phase_a", {})
         phase_b = pr.get("phase_b", {})
         agent_findings = []
-        for agent_key, label in [
-            ("macro", "Macro Agent"),
-            ("news", "News Agent"),
-            ("quant", "Quant Agent"),
-            ("fundamental", "Fundamental Analyst"),
-            ("sentiment", "Sentiment Agent"),
-        ]:
-            data = phase_b.get(agent_key) or pr.get("phase_a", {}).get(agent_key)
-            if data and isinstance(data, dict):
-                summary = data.get("summary") or data.get("macro_summary") or data.get("headline_summary")
-                if summary:
-                    agent_findings.append({"agent": label, "finding": str(summary)[:200]})
+
+        # Field name map: (phase_key, report_key, summary_field, label)
+        AGENT_FIELDS = [
+            ("phase_a", "macro",        "macro_summary",        "Macro Agent"),
+            ("phase_b", "news",         "news_summary",         "News Agent"),
+            ("phase_b", "sector",       "sector_summary",       "Sector Agent"),
+            ("phase_b", "quant",        None,                   "Quant Agent"),
+            ("phase_b", "fundamental",  None,                   "Fundamental Analyst"),
+            ("phase_b", "institutional",None,                   "Institutional Agent"),
+            ("phase_b", "committee",    "committee_narrative",  "Committee"),
+        ]
+        for phase_key, agent_key, summary_field, label in AGENT_FIELDS:
+            phase = phase_a if phase_key == "phase_a" else phase_b
+            data = phase.get(agent_key)
+            if not data or not isinstance(data, dict):
+                continue
+            summary = None
+            if summary_field:
+                summary = data.get(summary_field)
+            # Fallbacks for agents without a single summary field
+            if not summary and agent_key == "quant":
+                analyses = data.get("quant_analyses", [])
+                if analyses:
+                    top = sorted(analyses, key=lambda x: x.get("composite_score", 0), reverse=True)[:3]
+                    summary = "Top signals: " + ", ".join(f"{a['ticker']} ({a.get('composite_score',0):.0f})" for a in top)
+            if not summary and agent_key == "fundamental":
+                analyses = data.get("fundamental_analyses", [])
+                if analyses:
+                    top = sorted(analyses, key=lambda x: x.get("score", 0), reverse=True)[:3]
+                    summary = "Top picks: " + ", ".join(f"{a['ticker']} ({a.get('score',0):.0f}/100)" for a in top if a.get("ticker"))
+            if not summary and agent_key == "institutional":
+                buys = data.get("institutional_buys", [])
+                conv = data.get("convergence_signals", [])
+                parts = []
+                if buys:
+                    parts.append(f"{len(buys)} institutional buys tracked")
+                if conv:
+                    parts.append(f"{len(conv)} convergence signal(s): {', '.join(c.get('ticker','') for c in conv[:3])}")
+                summary = ". ".join(parts) if parts else None
+            if summary:
+                agent_findings.append({"agent": label, "finding": str(summary)[:500]})
 
         daily = {
             "date": date,
@@ -114,9 +144,10 @@ try:
                     "ticker": d.get("ticker"),
                     "action": d.get("action", "hold"),
                     "conviction": d.get("conviction", 0),
-                    "thesis": d.get("investment_thesis", "")[:200],
+                    "thesis": d.get("investment_thesis", "")[:400],
                 }
                 for d in decisions
+                if "skip" not in d.get("action", "")
             ],
         }
 

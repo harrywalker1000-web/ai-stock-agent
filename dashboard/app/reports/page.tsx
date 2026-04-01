@@ -17,6 +17,28 @@ function RegimeBadge({ regime }: { regime: string }) {
   return <span className="badge-neutral">{regime}</span>;
 }
 
+function AgentFindingCard({ finding }: { finding: AgentFinding }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = finding.finding.length > 160;
+  return (
+    <button
+      className="flex gap-3 p-3 rounded-xl bg-white/[0.02] text-left w-full hover:bg-white/[0.04] transition-colors"
+      onClick={() => isLong && setExpanded(!expanded)}
+    >
+      <div className="w-1 rounded-full bg-[#0EA5E9]/40 flex-shrink-0 mt-0.5" />
+      <div className="min-w-0">
+        <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{finding.agent}</p>
+        <p className="text-xs text-[#6B7280] leading-relaxed">
+          {expanded || !isLong ? finding.finding : finding.finding.slice(0, 160) + "…"}
+        </p>
+        {isLong && (
+          <p className="text-[10px] text-[#0EA5E9] mt-1">{expanded ? "Show less" : "Show more"}</p>
+        )}
+      </div>
+    </button>
+  );
+}
+
 function ReportCard({ report }: { report: Report }) {
   const [open, setOpen] = useState(false);
 
@@ -113,13 +135,7 @@ function ReportCard({ report }: { report: Report }) {
               <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">Agent Findings</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {report.agent_findings.map((f) => (
-                  <div key={f.agent} className="flex gap-3 p-3 rounded-xl bg-white/[0.02]">
-                    <div className="w-1 rounded-full bg-[#0EA5E9]/40 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{f.agent}</p>
-                      <p className="text-xs text-[#6B7280]">{f.finding}</p>
-                    </div>
-                  </div>
+                  <AgentFindingCard key={f.agent} finding={f} />
                 ))}
               </div>
             </div>
