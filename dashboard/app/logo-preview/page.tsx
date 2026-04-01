@@ -222,7 +222,7 @@ export default function LogoPreviewPage() {
     <div className="min-h-screen bg-[#080C10] pb-24">
       <div className="max-w-5xl mx-auto px-6 pt-12">
         <h1 className="font-display text-3xl font-bold text-[#E8EDF2] mb-2">Logo Options</h1>
-        <p className="text-[#6B7280] text-sm mb-10">Compass, scanning, AI, agent themes. Tell me the number to apply.</p>
+        <p className="text-[#6B7280] text-sm mb-10">Compass, scanning, AI, agent themes. Tell me the number to apply it.</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {LOGOS.map(({ id, name, desc, C }) => (
             <div key={id} className="card p-5 flex flex-col items-center gap-4 hover:border-[#0EA5E9]/40 transition-colors cursor-default">
