@@ -52,3 +52,77 @@ for fname in ("decision_log.json", "positions_log.json"):
         copied += 1
 
 print(f"\nSynced {copied} files → {DST}")
+
+# ── Build daily_report_{date}.json for the Reports page ──────────────────────
+try:
+    pipeline_file = SRC / "pipeline_result.json"
+    committee_file = SRC / "committee_report.json"
+    if pipeline_file.exists() and committee_file.exists():
+        with open(pipeline_file) as f:
+            pr = json.load(f)
+        with open(committee_file) as f:
+            cr = json.load(f)
+
+        date = pr.get("date", "unknown")
+
+        # Summarise actions
+        decisions = cr.get("position_decisions", [])
+        action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
+        for d in decisions:
+            a = d.get("action", "")
+            if "enter" in a:
+                action_counts["new_positions"] += 1
+            elif "exit" in a:
+                action_counts["exits"] += 1
+            elif "hold" in a or "skip" in a:
+                action_counts["holds"] += 1
+            elif "increase" in a:
+                action_counts["increases"] += 1
+            elif "decrease" in a:
+                action_counts["decreases"] += 1
+
+        # Agent findings from phase_b agents
+        phase_b = pr.get("phase_b", {})
+        agent_findings = []
+        for agent_key, label in [
+            ("macro", "Macro Agent"),
+            ("news", "News Agent"),
+            ("quant", "Quant Agent"),
+            ("fundamental", "Fundamental Analyst"),
+            ("sentiment", "Sentiment Agent"),
+        ]:
+            data = phase_b.get(agent_key) or pr.get("phase_a", {}).get(agent_key)
+            if data and isinstance(data, dict):
+                summary = data.get("summary") or data.get("macro_summary") or data.get("headline_summary")
+                if summary:
+                    agent_findings.append({"agent": label, "finding": str(summary)[:200]})
+
+        daily = {
+            "date": date,
+            "macro_regime": cr.get("macro_regime", "NEUTRAL"),
+            "new_positions": action_counts["new_positions"],
+            "exits": action_counts["exits"],
+            "holds": action_counts["holds"],
+            "increases": action_counts["increases"],
+            "decreases": action_counts["decreases"],
+            "daily_pnl": pr.get("pipeline_summary", {}).get("daily_pnl", "+$0"),
+            "summary": cr.get("committee_narrative", "")[:300] if cr.get("committee_narrative") else f"{len(decisions)} decisions made.",
+            "narrative": cr.get("committee_narrative", "No narrative available."),
+            "agent_findings": agent_findings,
+            "decisions": [
+                {
+                    "ticker": d.get("ticker"),
+                    "action": d.get("action", "hold"),
+                    "conviction": d.get("conviction", 0),
+                    "thesis": d.get("investment_thesis", "")[:200],
+                }
+                for d in decisions
+            ],
+        }
+
+        out_file = DST / f"daily_report_{date}.json"
+        with open(out_file, "w") as f:
+            json.dump(daily, f, indent=2)
+        print(f"  ✓ daily_report_{date}.json written for Reports page")
+except Exception as exc:
+    print(f"  ! Could not build daily_report: {exc}")

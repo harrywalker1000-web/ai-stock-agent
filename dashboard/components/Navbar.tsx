@@ -32,23 +32,25 @@ export default function Navbar() {
             <div
               className="flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(14,165,233,0.7)]"
             >
-              {/* Upward-trending candlestick chart logo — 4 candles, ascending left to right */}
-              <svg width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Candle 1 — small bearish (realism) */}
-                <line x1="5" y1="20" x2="5" y2="34" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="3" y="23" width="4" height="8" rx="0.5" fill="#EF4444"/>
-
-                {/* Candle 2 — medium bullish */}
-                <line x1="16" y1="14" x2="16" y2="30" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="14" y="17" width="4" height="10" rx="0.5" fill="#10B981"/>
-
-                {/* Candle 3 — tall bullish */}
-                <line x1="27" y1="8" x2="27" y2="25" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="25" y="11" width="4" height="11" rx="0.5" fill="#10B981"/>
-
-                {/* Candle 4 — tallest bullish (anchor) */}
-                <line x1="38" y1="2" x2="38" y2="19" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="36" y="5" width="4" height="12" rx="0.5" fill="#10B981"/>
+              {/* Compass logo */}
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="22" cy="22" r="19" stroke="#E8EDF2" strokeWidth="1" opacity="0.15"/>
+                <circle cx="22" cy="22" r="13" stroke="#0EA5E9" strokeWidth="1" opacity="0.3"/>
+                <line x1="22" y1="4" x2="22" y2="40" stroke="#E8EDF2" strokeWidth="0.6" opacity="0.2"/>
+                <line x1="4" y1="22" x2="40" y2="22" stroke="#E8EDF2" strokeWidth="0.6" opacity="0.2"/>
+                {/* North — green */}
+                <polygon points="22,5 25.5,22 22,19 18.5,22" fill="#10B981"/>
+                {/* South — dim */}
+                <polygon points="22,39 18.5,22 22,25 25.5,22" fill="#E8EDF2" opacity="0.25"/>
+                {/* East / West */}
+                <polygon points="39,22 22,18.5 25,22 22,25.5" fill="#E8EDF2" opacity="0.25"/>
+                <polygon points="5,22 22,25.5 19,22 22,18.5" fill="#E8EDF2" opacity="0.25"/>
+                <circle cx="22" cy="22" r="2.5" fill="#0EA5E9"/>
+                {/* Tick marks */}
+                <line x1="22" y1="9" x2="22" y2="12" stroke="#E8EDF2" strokeWidth="1" opacity="0.5"/>
+                <line x1="22" y1="32" x2="22" y2="35" stroke="#E8EDF2" strokeWidth="1" opacity="0.3"/>
+                <line x1="9" y1="22" x2="12" y2="22" stroke="#E8EDF2" strokeWidth="1" opacity="0.3"/>
+                <line x1="32" y1="22" x2="35" y2="22" stroke="#E8EDF2" strokeWidth="1" opacity="0.3"/>
               </svg>
             </div>
             <div className="hidden sm:block">

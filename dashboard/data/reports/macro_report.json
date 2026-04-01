@@ -1,40 +1,40 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "stable",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
+    "high-quality bonds",
     "commodities",
-    "healthcare",
-    "bonds"
+    "energy",
+    "healthcare"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "cyclical stocks",
-    "emerging markets"
+    "emerging markets",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Iran conflict escalation",
-    "US-Iran relations",
-    "market impact from geopolitical tensions"
+    "Iran conflict escalating",
+    "US military actions in the Middle East",
+    "oil price volatility due to geopolitical tensions"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions surrounding Iran. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, indicating a conflict in market sentiment. The yield curve remains positive, suggesting some growth, but the elevated VIX indicates market fear.",
+  "macro_summary": "The current macro environment is characterized by a RISK-OFF sentiment across all sources, with rising interest rates and inflation trends. The yield curve is inverted, indicating recession risks, while geopolitical tensions, particularly related to Iran, are contributing to market volatility. All three data sources align on the RISK-OFF classification, providing a high confidence level.",
   "signal_confidence": {
-    "level": "low",
+    "level": "high",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [],
-    "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+    "agreements": [
+      "All 3 sources agree: RISK-OFF"
     ],
-    "confidence_note": "The low confidence level reflects significant disagreement among sources regarding the current market regime."
+    "conflicts": [],
+    "confidence_note": "The high confidence level is supported by unanimous agreement across all data sources."
   },
-  "confidence": 50,
+  "confidence": 90,
   "raw_data": {
     "fed_funds_rate": 3.64,
     "us_10y_yield": 4.35,
@@ -50,24 +50,41 @@
     "dxy_current": 99.61,
     "dxy_1m_ago": 98.38,
     "dxy_trend": "strengthening",
-    "vix": 24.36,
-    "tlt_1m_change_pct": -3.74,
-    "hyg_1m_change_pct": -1.11,
+    "vix": 25.11,
+    "tlt_1m_change_pct": -3.58,
+    "hyg_1m_change_pct": -1.21,
     "macro_headlines": [
-      "Eli Lilly secures long-awaited FDA approval for its obesity pill. Here's what to know",
-      "Walmart-owned Sam's Club raises its annual membership fee to $60",
-      "Tiger Woods\u2019 future in golf is uncertain as he faces recovery after Florida crash",
       "US to leave Iran 'pretty quickly' and return if needed, Trump tells Reuters - Reuters",
       "Wall Street advances as hopes of Iran war resolution lift risk appetite - Reuters",
       "US Vice President Vance spoke to intermediaries about Iran conflict as recently as Tuesday, source says - Reuters",
       "Amazon's cloud business in Bahrain damaged in Iran strike, FT reports - Reuters",
       "Trump says Iran has asked for a ceasefire, US wants to see Hormuz open first - Reuters",
       "Intel shares jump 9% after buying back Ireland chip fab in sign of renewed strength",
-      "Beirut strike killed top Hezbollah commander, group says - Reuters"
+      "Beirut strike killed top Hezbollah commander, group says - Reuters",
+      "Iran war puts Middle East Dubai oil benchmark under stress as prices soar - Reuters",
+      "Iran says Trump's statements on Tehran requesting ceasefire are false and baseless - Reuters",
+      "Kenya tea exports hit by Iran conflict as stocks pile up - Reuters"
     ],
-    "geopolitical_headlines": [],
-    "central_bank_headlines": [],
-    "as_of": "2026-04-01 19:47 UTC"
+    "geopolitical_headlines": [
+      "Australia central bank uncertain on path for rates after March hike",
+      "Easter bank holiday weekend set to be busiest on roads in four years",
+      "'I knew something wasn't right': Wrong sperm given to families by IVF clinics",
+      "Duolingo\u2019s Luis von Ahn Wants to Delete the Blockchain",
+      "Bellroy's latest Cinch slings are ready for your everyday tech essentials \u2014 and everything else",
+      "US attacks Iranian nuclear site while Tehran hits oil tanker off the Dubai coast",
+      "Man accused of robbing local Key Bank arrested",
+      "Shuttered SC university sued over allegedly owing bank nearly $3.5 million",
+      "JPMorgan's investment in the 'American Dream' comes during a crisis of faith in capitalism",
+      "10 power players behind the data center debt boom"
+    ],
+    "central_bank_headlines": [
+      "Trump Fed pick Kevin Warsh could shake up the central bank with his \u2018family fight\u2019 model",
+      "Trump's Iran War Just Triggered A Second Shockwave \u2014 This One Is In The Bond Market",
+      "Justice\u00a0for Steve Calk",
+      "Transcript: Judd Kessler, Lucky by Design",
+      "Stocks, bonds and commodities: How global markets have traded the Iran war"
+    ],
+    "as_of": "2026-04-01 19:01 UTC"
   },
-  "generated_at": "2026-04-01T19:47:19.265517"
+  "generated_at": "2026-04-01T19:01:57.511113"
 }
