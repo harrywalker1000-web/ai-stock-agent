@@ -711,12 +711,16 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
             for t in held_tickers
         ]
         logger.info("Portfolio review mode: passing through %d held tickers", len(candidates))
-        return {
+        result = {
             "candidates": candidates,
             "total_candidates": len(candidates),
             "mode": "portfolio_review",
             "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
         }
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        with open(REPORT_OUT, "w") as f:
+            json.dump(result, f, indent=2)
+        return result
 
     # Load universe
     universe = _load_universe()
