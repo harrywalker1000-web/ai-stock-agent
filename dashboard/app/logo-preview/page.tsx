@@ -239,7 +239,7 @@ export default function LogoPreviewPage() {
             </div>
           ))}
         </div>
-        <p className="text-center text-[#6B7280] text-xs mt-10">Reply with a number and I'll apply it to the navbar.</p>
+        <p className="text-center text-[#6B7280] text-xs mt-10">Reply with a number to apply it to the navbar.</p>
       </div>
     </div>
   );
