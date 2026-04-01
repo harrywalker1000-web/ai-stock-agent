@@ -4,41 +4,42 @@
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "bonds",
     "commodities",
-    "energy"
+    "healthcare",
+    "bonds"
   ],
   "avoid_themes": [
-    "high-growth tech",
     "high-yield bonds",
-    "cyclical stocks"
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran conflict escalation",
-    "Middle East tensions affecting oil prices",
-    "potential cyber threats from Iran"
+    "Iran conflict escalation",
+    "US-Iran relations",
+    "market impact from geopolitical tensions"
   ],
-  "macro_summary": "The current macro environment is characterized by a RISK-OFF sentiment across all sources, with rising inflation indicated by a CPI increase to 327.46. The yield curve remains inverted, suggesting recession risks, while geopolitical tensions, particularly involving Iran, are contributing to market volatility and elevated fear levels as reflected by a VIX of 31.05. There are no conflicts among the sources, all agreeing on the RISK-OFF classification.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions surrounding Iran. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, indicating a conflict in market sentiment. The yield curve remains positive, suggesting some growth, but the elevated VIX indicates market fear.",
   "signal_confidence": {
-    "level": "high",
+    "level": "low",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [
-      "All 3 sources agree: RISK-OFF"
+    "agreements": [],
+    "conflicts": [
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "conflicts": [],
-    "confidence_note": "The high confidence level is supported by unanimous agreement across all data sources."
+    "confidence_note": "The low confidence level reflects significant disagreement among sources regarding the current market regime."
   },
-  "confidence": 90,
+  "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.42,
-    "us_2y_yield": 3.96,
-    "yield_curve_spread": 0.46,
+    "us_10y_yield": 4.35,
+    "us_2y_yield": 3.82,
+    "yield_curve_spread": 0.53,
     "cpi_latest": 327.46,
     "cpi_prev": 326.59,
     "cpi_trend": "rising",
@@ -46,27 +47,27 @@
     "gdp_latest": 31442.5,
     "gdp_prev": 31098.0,
     "gdp_growth": 1.11,
-    "dxy_current": 100.19,
-    "dxy_1m_ago": 97.61,
+    "dxy_current": 99.61,
+    "dxy_1m_ago": 98.38,
     "dxy_trend": "strengthening",
-    "vix": 31.05,
-    "tlt_1m_change_pct": -4.43,
-    "hyg_1m_change_pct": -1.94,
+    "vix": 24.36,
+    "tlt_1m_change_pct": -3.74,
+    "hyg_1m_change_pct": -1.11,
     "macro_headlines": [
-      "Twelve US troops wounded in Iran strike on base in Saudi Arabia, US official says - Reuters",
-      "TSA wait times: Track security lines by airport in the U.S.",
-      "Stocks tumble, Dow confirms correction territory, as Middle East tensions drag - Reuters",
-      "Cramer\u2019s game plan: Oil shock is driving this sell-off and tech won\u2019t bottom until it ends",
-      "Russian and Iranian foreign ministers discuss possibility of conflict settlement - Reuters",
-      "Iran-linked hackers breach FBI director's personal email, publish photos and documents - Reuters",
-      "Yemen's Houthis say 'fingers on the trigger' as US-Israeli war on Iran widens - Reuters",
-      "Musk joined Trump and Modi call on Iran, says New York Times - Reuters",
-      "US refining group says record biofuel quotas may worsen Iran war price spike - Reuters",
-      "Tech stocks suffer worst week in nearly a year, driven down by war worries, Meta legal woes"
+      "Eli Lilly secures long-awaited FDA approval for its obesity pill. Here's what to know",
+      "Walmart-owned Sam's Club raises its annual membership fee to $60",
+      "Tiger Woods\u2019 future in golf is uncertain as he faces recovery after Florida crash",
+      "US to leave Iran 'pretty quickly' and return if needed, Trump tells Reuters - Reuters",
+      "Wall Street advances as hopes of Iran war resolution lift risk appetite - Reuters",
+      "US Vice President Vance spoke to intermediaries about Iran conflict as recently as Tuesday, source says - Reuters",
+      "Amazon's cloud business in Bahrain damaged in Iran strike, FT reports - Reuters",
+      "Trump says Iran has asked for a ceasefire, US wants to see Hormuz open first - Reuters",
+      "Intel shares jump 9% after buying back Ireland chip fab in sign of renewed strength",
+      "Beirut strike killed top Hezbollah commander, group says - Reuters"
     ],
     "geopolitical_headlines": [],
     "central_bank_headlines": [],
-    "as_of": "2026-03-28 02:33 UTC"
+    "as_of": "2026-04-01 19:47 UTC"
   },
-  "generated_at": "2026-03-28T02:33:11.407289"
+  "generated_at": "2026-04-01T19:47:19.265517"
 }
