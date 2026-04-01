@@ -125,7 +125,7 @@ try:
                     parts.append(f"{len(conv)} convergence signal(s): {', '.join(c.get('ticker','') for c in conv[:3])}")
                 summary = ". ".join(parts) if parts else None
             if summary:
-                agent_findings.append({"agent": label, "finding": str(summary)[:500]})
+                agent_findings.append({"agent": label, "finding": str(summary)})
 
         daily = {
             "date": date,
