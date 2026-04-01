@@ -768,6 +768,8 @@ def _score_with_llm(
     direction_hint: str,
     macro_regime: str,
     position_context: dict | None = None,
+    convergence_signal: dict | None = None,
+    fund_thesis: dict | None = None,
 ) -> dict:
     """
     SCORING CALL — feeds into the composite score and Committee decisions.
@@ -900,6 +902,10 @@ LIVE PEER COMPARABLES (all from yfinance — no LLM estimates):
 DATA CONFLICTS (conservative values applied):
 {conflicts_str}
 {_fmt_position_section(position_context)}
+INSTITUTIONAL CONTEXT (from Institutional Agent — informational only, do not let this override financial metrics):
+{f"CONVERGENCE SIGNAL: {convergence_signal.get('funds')} independently initiated/increased {ticker} — thesis: {convergence_signal.get('note', '')} | Strength: {convergence_signal.get('signal_strength', '')}" if convergence_signal else "No convergence signal for this ticker."}
+{f"INFERRED FUND THESIS: {fund_thesis.get('inferred_thesis', 'unknown')} — {fund_thesis.get('thesis_reasoning', '')}" if fund_thesis else ""}
+
 SCORING RULES (numbers only):
 - fundamental_score 0-100: weight peer-relative valuation (30%), profitability vs peers (25%), balance sheet health (20%), growth vs peers (15%), data completeness (10%)
 - direction: LONG if metrics are above peer median AND no distress signals; SHORT if deteriorating vs peers
@@ -1179,6 +1185,8 @@ def _analyse_with_llm(
     direction_hint: str,
     macro_regime: str,
     position_context: dict | None = None,
+    convergence_signal: dict | None = None,
+    fund_thesis: dict | None = None,
 ) -> dict:
     """
     Orchestrates both LLM calls:
@@ -1190,7 +1198,9 @@ def _analyse_with_llm(
     # CALL 1: quantitative scoring (influences trading)
     score_result = _score_with_llm(
         ticker, metrics, conflicts, peers_snapshot, peers,
-        direction_hint, macro_regime, position_context
+        direction_hint, macro_regime, position_context,
+        convergence_signal=convergence_signal,
+        fund_thesis=fund_thesis,
     )
 
     # CALL 2: display framework (display only — never influences scoring)
@@ -1254,6 +1264,25 @@ def run(mode: str = "new_opportunities") -> dict:
             macro = json.load(f)
         macro_regime = macro.get("regime", "NEUTRAL")
 
+    # Load institutional convergence signals (from Institutional Agent)
+    convergence_by_ticker: dict[str, dict] = {}
+    fund_theses_by_ticker: dict[str, dict] = {}
+    inst_path = REPORTS_DIR / "institutional_report.json"
+    if inst_path.exists():
+        try:
+            with open(inst_path) as f:
+                inst_data = json.load(f)
+            for cs in inst_data.get("convergence_signals", []):
+                t = str(cs.get("ticker", "")).upper()
+                if t:
+                    convergence_by_ticker[t] = cs
+            for ft in inst_data.get("fund_theses", []):
+                t = str(ft.get("ticker", "")).upper()
+                if t:
+                    fund_theses_by_ticker[t] = ft
+        except Exception:
+            pass
+
     # Load SEC EDGAR CIK map (one call for all tickers)
     _load_cik_map()
 
@@ -1285,7 +1314,9 @@ def run(mode: str = "new_opportunities") -> dict:
         # LLM analysis
         llm_result = _analyse_with_llm(
             ticker, reconciled, conflicts, peers_snapshot, peers,
-            direction_hint, macro_regime, position_context
+            direction_hint, macro_regime, position_context,
+            convergence_signal=convergence_by_ticker.get(ticker),
+            fund_thesis=fund_theses_by_ticker.get(ticker),
         )
 
         # Attach data quality metadata

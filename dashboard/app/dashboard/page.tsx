@@ -55,6 +55,10 @@ export default function DashboardPage() {
   const [data, setData] = useState<PortfolioData | null>(null);
   const [timeframe, setTimeframe] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [runModal, setRunModal] = useState<"review" | "full" | null>(null);
+  const [runStatus, setRunStatus] = useState<"idle" | "running" | "done" | "error">("idle");
+  const [runLog, setRunLog] = useState<string[]>([]);
+  const [runMode, setRunMode] = useState<"review" | "full" | null>(null);
 
   useEffect(() => {
     fetch("/api/portfolio")
@@ -62,6 +66,36 @@ export default function DashboardPage() {
       .then((d) => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
+
+  const startRun = async (type: "review" | "full") => {
+    setRunModal(null);
+    setRunMode(type);
+    setRunStatus("running");
+    setRunLog([`Starting ${type === "review" ? "Position Review" : "Full Research Run"}...`]);
+    const slowMsg = setTimeout(() => {
+      setRunLog((prev) => [...prev, "Still running — this can take 10-20 minutes..."]);
+    }, 120000);
+    try {
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      clearTimeout(slowMsg);
+      const data = await res.json();
+      if (res.ok) {
+        setRunStatus("done");
+        setRunLog((prev) => [...prev, "Run complete.", data.summary ?? ""]);
+      } else {
+        setRunStatus("error");
+        setRunLog((prev) => [...prev, `Error: ${data.error ?? "unknown error"}`]);
+      }
+    } catch (e) {
+      clearTimeout(slowMsg);
+      setRunStatus("error");
+      setRunLog((prev) => [...prev, `Network error: ${String(e)}`]);
+    }
+  };
 
   const filteredHistory = data?.history?.filter((h) => {
     if (timeframe === "All") return true;
@@ -94,11 +128,72 @@ export default function DashboardPage() {
             <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Portfolio</h1>
             <p className="text-[#6B7280] text-sm mt-1">Haz Capital Management — Live Dashboard</p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass">
-            <span className="w-2 h-2 rounded-full" style={{ background: pipelineColor, boxShadow: `0 0 6px ${pipelineColor}` }} />
-            <span className="text-xs text-[#6B7280]">{pipelineLabel}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass">
+              <span className="w-2 h-2 rounded-full" style={{ background: pipelineColor, boxShadow: `0 0 6px ${pipelineColor}` }} />
+              <span className="text-xs text-[#6B7280]">{pipelineLabel}</span>
+            </div>
+            <button
+              onClick={() => setRunModal("review")}
+              disabled={runStatus === "running"}
+              className="px-4 py-2 rounded-lg text-xs font-bold text-[#0EA5E9] border border-[#0EA5E9]/30 bg-[#0EA5E9]/08 hover:bg-[#0EA5E9]/14 transition-all disabled:opacity-40"
+            >
+              Review Positions
+            </button>
+            <button
+              onClick={() => setRunModal("full")}
+              disabled={runStatus === "running"}
+              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all disabled:opacity-40"
+            >
+              Full Research Run
+            </button>
           </div>
         </div>
+
+        {/* Confirmation modal */}
+        {runModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/70" onClick={() => setRunModal(null)} />
+            <div className="relative card p-6 max-w-sm w-full mx-4">
+              <h3 className="font-display text-lg font-bold text-[#E8EDF2] mb-2">
+                {runModal === "review" ? "Review Positions" : "Full Research Run"}
+              </h3>
+              <p className="text-sm text-[#6B7280] mb-4">
+                {runModal === "review"
+                  ? "Runs Phase A only — re-evaluates all open positions and makes hold/exit/size decisions. Takes ~8-15 min."
+                  : "Runs the full daily pipeline — Phase A position review + Phase B new opportunity research. Takes ~15-45 min depending on mode."}
+              </p>
+              <div className="flex gap-3">
+                <button onClick={() => setRunModal(null)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-[#6B7280] bg-white/05 hover:bg-white/08 transition-all">Cancel</button>
+                <button onClick={() => startRun(runModal)} className="flex-1 px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all">Confirm</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Run progress panel */}
+        {runStatus !== "idle" && (
+          <div className={`card p-5 mb-6 border ${runStatus === "running" ? "border-[#0EA5E9]/30" : runStatus === "done" ? "border-[#10B981]/30" : "border-[#EF4444]/30"}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                {runStatus === "running" && <span className="w-2 h-2 rounded-full bg-[#0EA5E9] animate-pulse" />}
+                {runStatus === "done" && <span className="w-2 h-2 rounded-full bg-[#10B981]" />}
+                {runStatus === "error" && <span className="w-2 h-2 rounded-full bg-[#EF4444]" />}
+                <span className={`text-sm font-bold ${runStatus === "running" ? "text-[#0EA5E9]" : runStatus === "done" ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                  {runStatus === "running" ? `${runMode === "review" ? "Review" : "Full Run"} in progress...` : runStatus === "done" ? "Run complete" : "Run failed"}
+                </span>
+              </div>
+              {runStatus !== "running" && (
+                <button onClick={() => { setRunStatus("idle"); setRunLog([]); }} className="text-xs text-[#6B7280] hover:text-[#E8EDF2]">Dismiss</button>
+              )}
+            </div>
+            <div className="space-y-1">
+              {runLog.map((line, i) => (
+                <p key={i} className="text-xs text-[#6B7280] font-mono">{line}</p>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Stats bar */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">

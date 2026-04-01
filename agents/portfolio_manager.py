@@ -22,6 +22,7 @@ Config via environment variables:
   SKIP_PHASE_A=false   (set true to skip portfolio review, e.g. first run)
 """
 
+import json
 import os
 import time
 from datetime import datetime
@@ -37,9 +38,28 @@ logger = get_logger(__name__)
 
 ROOT = Path(__file__).resolve().parent.parent
 
-# Config
-PHASE_A_MODE = os.environ.get("PHASE_A_MODE", "Lite")   # Lite | Standard | Full
+# Config: read ANALYSIS_MODE from JSON config file, env var overrides
+_CONFIG_PATH = ROOT / "data" / "config" / "analysis_mode.json"
+
+
+def _read_analysis_mode() -> str:
+    """Read ANALYSIS_MODE from env var (highest priority) or config JSON file."""
+    env_mode = os.environ.get("ANALYSIS_MODE") or os.environ.get("PHASE_A_MODE")
+    if env_mode:
+        return env_mode.capitalize()
+    if _CONFIG_PATH.exists():
+        try:
+            with open(_CONFIG_PATH) as f:
+                data = json.load(f)
+            return str(data.get("mode", "Lite")).capitalize()
+        except Exception:
+            pass
+    return "Lite"
+
+
+PHASE_A_MODE = _read_analysis_mode()   # Lite | Standard | Full
 SKIP_PHASE_A = os.environ.get("SKIP_PHASE_A", "false").lower() == "true"
+SKIP_PHASE_B = os.environ.get("SKIP_PHASE_B", "false").lower() == "true"
 
 
 # ---------------------------------------------------------------------------
@@ -174,9 +194,12 @@ def run_phase_b(macro_already_ran: bool = False) -> dict:
     logger.info("Phase B: Quant Agent...")
     results["quant"] = quant_agent.run(mode="new_opportunities")
 
-    from agents import sentiment_agent
-    logger.info("Phase B: Sentiment Agent...")
-    results["sentiment"] = sentiment_agent.run(mode="new_opportunities")
+    if PHASE_A_MODE != "Lite":
+        from agents import sentiment_agent
+        logger.info("Phase B: Sentiment Agent (mode=%s)...", PHASE_A_MODE)
+        results["sentiment"] = sentiment_agent.run(mode="new_opportunities")
+    else:
+        logger.info("Phase B: Sentiment Agent skipped (LITE mode — set ANALYSIS_MODE=Standard or Full to enable)")
 
     # --- Phase 4: Investment Committee ---
     from agents import investment_committee
@@ -245,7 +268,11 @@ def run() -> dict:
         macro_ran_in_phase_a = not summary["phase_a"].get("skipped", False)
 
     # --- Phase B ---
-    summary["phase_b"] = run_phase_b(macro_already_ran=macro_ran_in_phase_a)
+    if SKIP_PHASE_B:
+        logger.info("Phase B skipped (SKIP_PHASE_B=true)")
+        summary["phase_b"] = {"skipped": True, "reason": "SKIP_PHASE_B env var set"}
+    else:
+        summary["phase_b"] = run_phase_b(macro_already_ran=macro_ran_in_phase_a)
 
     # --- Memory consolidation ---
     logger.info("Running Memory Agent consolidation...")

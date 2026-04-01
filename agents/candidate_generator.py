@@ -322,6 +322,72 @@ def _load_recent_candidate_tickers() -> dict[str, int]:
     return appearances
 
 
+def _load_momentum_decay() -> dict[str, int]:
+    """
+    Returns dict: ticker → consecutive days appeared in candidate list without being selected.
+    Used to apply momentum decay penalty (-1.5 per consecutive unselected day).
+    """
+    decay: dict[str, int] = {}
+    # Load committee_report.json to see which tickers were actually entered
+    committee_path = REPORTS_DIR / "committee_report.json"
+    if not committee_path.exists():
+        return decay
+
+    selected_tickers: set[str] = set()
+    try:
+        with open(committee_path) as f:
+            cr = json.load(f)
+        for d in cr.get("position_decisions", []):
+            if d.get("action", "").startswith("enter"):
+                selected_tickers.add(str(d.get("ticker", "")).upper())
+    except Exception:
+        return decay
+
+    # Count consecutive days in candidate list without selection
+    cutoff = datetime.now() - timedelta(days=FRESHNESS_LOOKBACK)
+    for path in sorted(CANDIDATES_DIR.glob("candidates_*.json"), reverse=True):
+        m = re.search(r"candidates_(\d{4}-\d{2}-\d{2})\.json", path.name)
+        if not m:
+            continue
+        file_date = datetime.strptime(m.group(1), "%Y-%m-%d")
+        if file_date < cutoff or m.group(1) == TODAY:
+            continue
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            for c in data.get("candidates", []):
+                t = str(c.get("ticker", "")).strip().upper()
+                if t and t not in selected_tickers:
+                    decay[t] = decay.get(t, 0) + 1
+        except Exception:
+            continue
+
+    return decay
+
+
+def _load_recently_seen_tickers(days: int = 5) -> set[str]:
+    """Return set of tickers that appeared in candidates list in the last `days` days."""
+    seen: set[str] = set()
+    cutoff = datetime.now() - timedelta(days=days)
+    for path in sorted(CANDIDATES_DIR.glob("candidates_*.json")):
+        m = re.search(r"candidates_(\d{4}-\d{2}-\d{2})\.json", path.name)
+        if not m:
+            continue
+        file_date = datetime.strptime(m.group(1), "%Y-%m-%d")
+        if file_date < cutoff or m.group(1) == TODAY:
+            continue
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            for c in data.get("candidates", []):
+                t = str(c.get("ticker", "")).strip().upper()
+                if t:
+                    seen.add(t)
+        except Exception:
+            continue
+    return seen
+
+
 # ---------------------------------------------------------------------------
 # Dislocation screen — forward-looking mean-reversion candidates
 # ---------------------------------------------------------------------------
@@ -384,6 +450,8 @@ def _score_candidates(
     news_signals: dict,
     recent_appearances: dict[str, int],
     dislocation_tickers: dict[str, float] | None = None,
+    momentum_decay: dict[str, int] | None = None,
+    recently_seen: set[str] | None = None,
 ) -> list[dict]:
     """
     Scores every ticker that appears in at least one signal source.
@@ -497,11 +565,18 @@ def _score_candidates(
             score += WEIGHTS["macro_tailwind"] * macro_mult
             signals_hit.append("macro_tailwind")
 
-        # --- freshness penalty ---
+        # --- freshness penalty (-1 per recent appearance) ---
         appearances = recent_appearances.get(ticker, 0)
-        freshness_penalty = -appearances  # -1 per recent appearance
+        freshness_penalty = -appearances
 
-        final_score = score + freshness_penalty
+        # --- momentum decay: -1.5 per consecutive day appeared without being selected ---
+        decay_days = (momentum_decay or {}).get(ticker, 0)
+        momentum_decay_penalty = -decay_days * 1.5
+
+        # --- recency bonus: +0.5 for tickers not seen in the last 5 days ---
+        recency_bonus = 0.5 if ticker not in (recently_seen or set()) else 0.0
+
+        final_score = score + freshness_penalty + momentum_decay_penalty + recency_bonus
 
         # Determine direction hint (majority vote)
         long_votes = direction_votes.count("LONG")
@@ -520,6 +595,8 @@ def _score_candidates(
             "score": round(final_score, 2),
             "raw_score": round(score, 2),
             "freshness_penalty": freshness_penalty,
+            "momentum_decay_penalty": round(momentum_decay_penalty, 2),
+            "recency_bonus": recency_bonus,
             "signals": signals_hit,
             "direction_hint": direction_hint,
             "sector_etf": sector_etf,
@@ -671,6 +748,14 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
     if recent_appearances:
         logger.info(f"  Freshness data: {len(recent_appearances)} tickers seen in last {FRESHNESS_LOOKBACK} days")
 
+    # Load momentum decay (consecutive days appeared without being selected)
+    momentum_decay = _load_momentum_decay()
+    if momentum_decay:
+        logger.info("  Momentum decay: %d tickers have consecutive-unselected penalty", len(momentum_decay))
+
+    # Load recently seen tickers for recency bonus
+    recently_seen = _load_recently_seen_tickers(days=5)
+
     # Dislocation screen: find S&P 500 stocks down >20% in the last month
     dislocation_tickers: dict[str, float] = {}
     if universe:
@@ -687,11 +772,35 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
     scored = _score_candidates(
         universe, macro_signals, sector_signals, inst_signals, news_signals,
         recent_appearances, dislocation_tickers,
+        momentum_decay=momentum_decay,
+        recently_seen=recently_seen,
     )
     logger.info(f"Scored {len(scored)} candidate tickers")
 
     # Apply threshold
     candidates = _apply_threshold(scored)
+
+    # Enforce minimum 20% new tickers (not seen in last 10 days)
+    new_cutoff_days = 10
+    tickers_10d = _load_recently_seen_tickers(days=new_cutoff_days)
+    new_tickers = [c for c in candidates if c["ticker"] not in tickers_10d]
+    old_tickers = [c for c in candidates if c["ticker"] in tickers_10d]
+    min_new = max(1, len(candidates) // 5)   # 20%
+    if len(new_tickers) < min_new:
+        # Pull in more new tickers from the scored list that didn't make the threshold
+        remaining_new = [c for c in scored if c["ticker"] not in tickers_10d and c not in new_tickers]
+        needed = min_new - len(new_tickers)
+        extra_new = remaining_new[:needed]
+        if extra_new:
+            # Replace the lowest-scoring old tickers with fresh ones
+            old_tickers = sorted(old_tickers, key=lambda x: x["score"])
+            old_tickers = old_tickers[len(extra_new):]  # drop weakest
+            candidates = sorted(new_tickers + extra_new + old_tickers, key=lambda x: x["score"], reverse=True)
+            logger.info("Variety enforcement: added %d fresh tickers to reach 20%% new minimum", len(extra_new))
+
+    variety_pct = round(len(new_tickers) / max(1, len(candidates)) * 100, 1)
+    logger.info("Candidate variety: %d/%d new tickers (%.0f%% not seen in last %dd)",
+                len(new_tickers), len(candidates), variety_pct, new_cutoff_days)
 
     # Generate LLM summary
     logger.info("Generating summary via GPT-4o-mini...")
@@ -715,6 +824,9 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
             "threshold_used": SCORE_THRESHOLD,
             "universe_size": len(universe) if universe else "not loaded",
             "freshness_penalised": sum(1 for t in candidates if t["freshness_penalty"] < 0),
+            "momentum_decay_applied": sum(1 for t in candidates if t.get("momentum_decay_penalty", 0) < 0),
+            "recency_bonus_applied": sum(1 for t in candidates if t.get("recency_bonus", 0) > 0),
+            "new_tickers_pct": variety_pct,
         },
         "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
     }

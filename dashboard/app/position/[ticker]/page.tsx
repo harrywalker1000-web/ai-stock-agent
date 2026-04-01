@@ -138,6 +138,8 @@ export default function PositionPage({ params }: { params: { ticker: string } })
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const technicalData = (position as any).technical_data ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agentDebate = (position as any).agent_debate ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sentimentData = (position as any).sentiment_data ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const newsCatalysts: Array<{ticker:string;catalyst:string;catalyst_type:string;direction:string;signal_confidence:string;reasoning:string}> = (position as any).news_catalysts ?? [];
@@ -559,6 +561,47 @@ export default function PositionPage({ params }: { params: { ticker: string } })
             <AgentScoreBar key={a.agent} agent={a.agent} score={a.score} view={a.view} />
           ))}
         </div>
+
+        {/* ── Agent Debate (shown when score spread >= 20) ── */}
+        {agentDebate && (
+          <div className="card p-6 mb-6 border border-[#F59E0B]/20">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Debate</h2>
+              <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#F59E0B]/15 text-[#F59E0B]">
+                Score spread ≥ 20 pts — rebuttal triggered
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
+              <div className="bg-white/03 rounded-lg p-3">
+                <p className="text-[#6B7280] uppercase tracking-wider mb-1">Higher-scoring agent</p>
+                <p className="font-semibold text-[#10B981]">{agentDebate.high_agent}</p>
+              </div>
+              <div className="bg-white/03 rounded-lg p-3">
+                <p className="text-[#6B7280] uppercase tracking-wider mb-1">Rebuttal from</p>
+                <p className="font-semibold text-[#F59E0B]">{agentDebate.low_agent}</p>
+              </div>
+            </div>
+            <div className="bg-white/03 rounded-xl p-4 mb-3">
+              <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-2">Rebuttal</p>
+              <p className="text-sm text-[#E8EDF2] leading-relaxed">{agentDebate.rebuttal}</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs">
+              {agentDebate.revised_score != null && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[#6B7280]">Revised score:</span>
+                  <span className="font-mono font-bold text-[#E8EDF2]">{agentDebate.revised_score}</span>
+                </div>
+              )}
+              <span className={`px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+                agentDebate.verdict === "defended"
+                  ? "bg-[#EF4444]/10 text-[#EF4444]"
+                  : "bg-[#10B981]/10 text-[#10B981]"
+              }`}>
+                {agentDebate.verdict === "defended" ? "Position defended" : "Score revised"}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* ── Quant Technical + Sentiment ── */}
         {(technicalData || sentimentData || newsCatalysts.length > 0) && (

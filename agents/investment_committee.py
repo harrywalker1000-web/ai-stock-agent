@@ -29,6 +29,7 @@ Rules (from PORTFOLIO_RULES.md — overrides PRD):
 
 import json
 import os
+import random
 from datetime import datetime
 from pathlib import Path
 
@@ -137,6 +138,12 @@ def _build_scorecard(
         ]
         direction = "LONG" if directions.count("LONG") >= 2 else "SHORT"
 
+        # ATR-based position sizing (Kelly-adjacent)
+        atr_pct = (q.get("indicators") or {}).get("atr_pct") or 2.0  # default 2% if missing
+        MAX_POSITION_PCT = 20.0
+        raw_kelly = (composite / 100.0) * (1.0 / (1.0 + atr_pct / 100.0)) * MAX_POSITION_PCT
+        suggested_size_pct = round(max(1.0, min(MAX_POSITION_PCT, raw_kelly)), 1)
+
         scorecards.append({
             "ticker": ticker,
             "composite_score": composite,
@@ -147,6 +154,8 @@ def _build_scorecard(
             "conflict_flag": conflict_flag,
             "overall_confidence": overall_conf,
             "direction": direction,
+            "atr_pct": atr_pct,
+            "suggested_size_pct": suggested_size_pct,
             "candidate_signals": cand.get("signals", []),
             "candidate_score": cand.get("score"),
             # Compact summaries for LLM context
@@ -181,15 +190,22 @@ def _build_scorecard(
 
 def _adjust_weights(macro_regime: str) -> dict:
     """
-    Adjust agent weights based on memory accuracy data if available.
-    Falls back to defaults if no accuracy data exists yet.
+    Use dynamic weights from agent_weights.json if 20+ closed trades exist.
+    Applies a regime overlay on top of the dynamic (or default) base.
     """
-    # Future: read accuracy per agent per regime from memory_agent
-    # For now, apply a simple regime heuristic over defaults
-    w = DEFAULT_WEIGHTS.copy()
+    # Read dynamic weights from memory agent (activates after 20 closed trades)
+    base = memory.get_agent_weights()
+    w = base.copy()
+
     if "RISK-OFF" in macro_regime:
-        # In risk-off, macro/fundamental signals matter more than momentum quant signals
-        w = {"fundamental": 0.40, "quant": 0.30, "sentiment": 0.30}
+        # In risk-off, fundamental signals matter more; quant/sentiment momentum less reliable
+        # Apply ±5% nudge over the dynamic base, not hard override
+        w["fundamental"] = min(1.0, w["fundamental"] + 0.05)
+        w["quant"] = max(0.0, w["quant"] - 0.05)
+        # Renormalise
+        total = sum(w.values())
+        w = {k: round(v / total, 4) for k, v in w.items()}
+
     return w
 
 
@@ -234,7 +250,10 @@ def _deliberate_with_llm(
         block = (
             f"TICKER: {ticker}  Composite: {sc['composite_score']}/100  "
             f"[F:{sc['fundamental_score']} Q:{sc['quant_score']} S:{sc['sentiment_score']}]  "
-            f"Dir(majority vote): {sc['direction']}  Conf: {sc['overall_confidence']}\n"
+            f"Dir(majority vote): {sc['direction']}  Conf: {sc['overall_confidence']}  "
+            f"CONVICTION_ANCHOR: {sc['composite_score']}\n"
+            f"  SUGGESTED_SIZE: {sc.get('suggested_size_pct', 5.0):.1f}%  "
+            f"(Kelly-adjusted; ATR={sc.get('atr_pct', 2.0):.1f}% of price; you may adjust ±3%)\n"
             f"{phase_a_str}"
             f"  Signals: {', '.join(sc['candidate_signals'][:4]) or 'none'}\n"
             f"  Analyst: {sc['analyst_consensus']} | Upside to target: {_f(sc.get('upside_pct'))}%\n"
@@ -340,12 +359,18 @@ ATR-BASED STOP-LOSS GUIDANCE (when setting one):
   High conviction: ATR × 1.5. Speculative: ATR × 2.5.
   Use the Quant agent's ATR data if available; otherwise omit stop-loss.
 
+CONVICTION PRECISION RULE (mandatory):
+Each ticker shows a CONVICTION_ANCHOR — the weighted composite of the three analyst scores.
+Your conviction score MUST start from that anchor and adjust based on your reasoning.
+Conviction scores MUST NOT be multiples of 5 (no 50, 55, 60, 65, 70, 75, 80, etc.).
+Use precise integers: 47, 53, 61, 68, 73, 77, 82, 88, etc. Round numbers signal lazy scoring.
+
 Return ONLY valid JSON — an array of position_decisions:
 [
   {{
     "ticker": "<ticker>",
     "action": "enter_long" | "enter_short" | "hold" | "increase" | "decrease" | "exit" | "skip",
-    "conviction": <integer 0-100>,
+    "conviction": <integer 0-100, MUST NOT be a multiple of 5>,
     "size_pct": <float — target % of portfolio, or null if skip/hold>,
     "stop_loss": <float price level or null>,
     "target_price": <float or null — checkpoint for re-evaluation, NOT auto-sell>,
@@ -357,22 +382,179 @@ Return ONLY valid JSON — an array of position_decisions:
   }}
 ]"""
 
-    try:
+    def _call_llm(prompt_text: str) -> list[dict]:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+            messages=[{"role": "user", "content": prompt_text}],
             temperature=0.2,
             max_tokens=2500,
             response_format={"type": "json_object"},
         )
         raw = json.loads(resp.choices[0].message.content)
-        # LLM may return {"position_decisions": [...]} or directly [...]
         if isinstance(raw, list):
             return raw
         return raw.get("position_decisions", raw.get("decisions", []))
+
+    def _has_rounded_convictions(decisions: list[dict]) -> bool:
+        return any(
+            d.get("conviction") is not None and int(d["conviction"]) % 5 == 0
+            for d in decisions
+            if d.get("action") != "skip"
+        )
+
+    def _fix_rounded_convictions(decisions: list[dict]) -> list[dict]:
+        """Nudge any remaining multiples-of-5 by ±1 or ±2."""
+        for d in decisions:
+            c = d.get("conviction")
+            if c is not None and int(c) % 5 == 0:
+                nudge = random.choice([-2, -1, 1, 2])
+                d["conviction"] = max(1, min(99, int(c) + nudge))
+        return decisions
+
+    try:
+        decisions = _call_llm(prompt)
+
+        # Post-processing: retry once if conviction scores are still rounded
+        if _has_rounded_convictions(decisions):
+            logger.warning("Conviction scores contain multiples of 5 — retrying with stronger instruction")
+            retry_prompt = (
+                prompt +
+                "\n\nCRITICAL: Your previous response contained conviction scores that are multiples of 5. "
+                "This is not allowed. Every conviction score MUST be a non-round integer (e.g. 47, 53, 61, 68, 73, 77, 82, 88). "
+                "Re-score all tickers with precise, non-round conviction values."
+            )
+            decisions = _call_llm(retry_prompt)
+
+        # Final safety net: nudge any still-rounded scores
+        if _has_rounded_convictions(decisions):
+            logger.warning("Rounded convictions persist after retry — applying nudge fix")
+            decisions = _fix_rounded_convictions(decisions)
+
+        # Normalise: if total sizing decisions would exceed 90% of available cash, scale down
+        sizing = [d for d in decisions if d.get("action") not in ("skip", "hold") and d.get("size_pct")]
+        total_size = sum(float(d["size_pct"]) for d in sizing)
+        cap = available_cash_pct * 0.90
+        if total_size > cap and total_size > 0:
+            scale = cap / total_size
+            for d in sizing:
+                d["size_pct"] = round(float(d["size_pct"]) * scale, 1)
+            logger.info("Position sizes scaled by %.2f to stay within %.0f%% cash cap", scale, cap)
+
+        return decisions
     except Exception as exc:
         logger.error("Committee LLM call failed: %s", exc)
         return []
+
+
+def _run_debate_round(
+    scorecards: list[dict],
+    fundamental: dict,
+    quant: dict,
+    sentiment: dict,
+) -> list[dict]:
+    """
+    For any scorecard where the max agent spread >= 20:
+    identify the lowest-scoring agent, show it the highest-scoring agent's reasoning,
+    and ask it to defend or revise its score.
+    Returns the same scorecards list, each with an added `agent_debate` field when triggered.
+    """
+    DEBATE_THRESHOLD = 20
+    MAX_DEBATES = 5   # cap to limit cost
+
+    fund_map = {a["ticker"]: a for a in fundamental.get("fundamental_analyses", [])}
+    quant_map = {a["ticker"]: a for a in quant.get("quant_analyses", [])}
+    sent_map = {a["ticker"]: a for a in sentiment.get("sentiment_analyses", [])}
+
+    contested = [sc for sc in scorecards if sc["agent_spread"] >= DEBATE_THRESHOLD][:MAX_DEBATES]
+    if not contested:
+        return scorecards
+
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+    debate_blocks = []
+    for sc in contested:
+        ticker = sc["ticker"]
+        scores = {
+            "Fundamental": (sc["fundamental_score"], fund_map.get(ticker, {}).get("fundamental_summary", "")),
+            "Quant": (sc["quant_score"], quant_map.get(ticker, {}).get("quant_summary", "")),
+            "Sentiment": (sc["sentiment_score"], sent_map.get(ticker, {}).get("sentiment_summary", "")),
+        }
+        sorted_agents = sorted(scores.items(), key=lambda x: x[1][0])
+        low_agent, (low_score, low_summary) = sorted_agents[0]
+        high_agent, (high_score, high_summary) = sorted_agents[-1]
+
+        debate_blocks.append(
+            f"TICKER: {ticker}\n"
+            f"  HIGH AGENT: {high_agent} scored {high_score}/100 — reasoning: {high_summary[:200]}\n"
+            f"  LOW AGENT: {low_agent} scored {low_score}/100 — reasoning: {low_summary[:200]}\n"
+            f"  The {low_agent} agent should respond to {high_agent}'s reasoning."
+        )
+
+    if not debate_blocks:
+        return scorecards
+
+    prompt = f"""You are refereeing an Investment Committee debate.
+For each ticker below, one analyst agent scored significantly higher than another.
+The lower-scoring agent must now either defend its position (explain why the higher-scoring agent is wrong)
+or revise its score upward (admit the higher-scoring agent raised valid points).
+
+For each ticker produce:
+- "rebuttal": 2-3 sentence response from the low-scoring agent
+- "revised_score": integer (0-100) — updated score for the low-scoring agent (may be unchanged if defending)
+- "verdict": "defended" | "revised_up" | "revised_down"
+
+DEBATES:
+{'='*60}
+{chr(10).join(debate_blocks)}
+{'='*60}
+
+Return ONLY valid JSON: {{"debates": [{{"ticker": "X", "low_agent": "...", "high_agent": "...", "rebuttal": "...", "revised_score": 0, "verdict": "..."}}]}}"""
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=1200,
+            response_format={"type": "json_object"},
+        )
+        raw = json.loads(resp.choices[0].message.content)
+        debate_results = {d["ticker"]: d for d in raw.get("debates", [])}
+
+        # Merge debate results back into scorecards
+        for sc in scorecards:
+            ticker = sc["ticker"]
+            if ticker in debate_results:
+                d = debate_results[ticker]
+                sc["agent_debate"] = {
+                    "low_agent": d.get("low_agent", ""),
+                    "high_agent": d.get("high_agent", ""),
+                    "rebuttal": d.get("rebuttal", ""),
+                    "original_low_score": d.get("original_low_score", sc.get("composite_score")),
+                    "revised_score": d.get("revised_score"),
+                    "verdict": d.get("verdict", ""),
+                }
+                # Update the low agent's score if revised
+                revised = d.get("revised_score")
+                verdict = d.get("verdict", "")
+                low_agent = d.get("low_agent", "")
+                if revised is not None and "revised" in verdict:
+                    key = f"{low_agent.lower()}_score"
+                    if key in sc:
+                        sc[key] = revised
+                    # Recompute composite with updated score
+                    w = DEFAULT_WEIGHTS
+                    sc["composite_score"] = round(
+                        sc["fundamental_score"] * w["fundamental"] +
+                        sc["quant_score"] * w["quant"] +
+                        sc["sentiment_score"] * w["sentiment"]
+                    )
+                logger.info("Debate %s: %s vs %s → %s", ticker, d.get("low_agent"), d.get("high_agent"), verdict)
+
+    except Exception as exc:
+        logger.warning("Debate round LLM call failed: %s", exc)
+
+    return scorecards
 
 
 def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
@@ -424,6 +606,12 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
 
     # Build scorecards
     scorecards = _build_scorecard(candidates, fundamental, quant, sentiment, weights)
+
+    # Debate round: resolve cross-agent conflicts before main deliberation
+    contested_count = sum(1 for sc in scorecards if sc["agent_spread"] >= 20)
+    if contested_count > 0:
+        logger.info("Running debate round for %d contested tickers (spread >= 20)...", contested_count)
+        scorecards = _run_debate_round(scorecards, fundamental, quant, sentiment)
 
     # Pre-filter: only debate qualifying candidates
     qualifying = [sc for sc in scorecards if sc["composite_score"] >= DELIBERATION_THRESHOLD]
@@ -518,6 +706,8 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
         }
         framework_fields["key_catalysts"] = d.get("key_catalysts", [])
         framework_fields["key_risks_committee"] = d.get("key_risks", [])
+        if sc.get("agent_debate"):
+            framework_fields["agent_debate"] = sc["agent_debate"]
         if framework_fields:
             memory.enrich_position_framework(ticker_d, framework_fields)
 

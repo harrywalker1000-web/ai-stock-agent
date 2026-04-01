@@ -42,6 +42,7 @@ SWARM_DB = ROOT / ".swarm" / "memory.db"
 PATTERN_HISTORY_PATH = MEMORY_DIR / "pattern_history.json"
 POSITIONS_LOG_PATH = MEMORY_DIR / "positions_log.json"
 DECISION_LOG_PATH = MEMORY_DIR / "decision_log.json"
+AGENT_WEIGHTS_PATH = MEMORY_DIR / "agent_weights.json"
 
 MEMORY_DIR.mkdir(parents=True, exist_ok=True)
 SWARM_DB.parent.mkdir(parents=True, exist_ok=True)
@@ -396,6 +397,91 @@ def _update_pattern_history(signals: list[str], conviction: int, pnl_pct: float)
 # Daily consolidation run
 # ---------------------------------------------------------------------------
 
+def compute_and_save_agent_weights() -> dict:
+    """
+    Compute per-agent win rates from closed trade outcomes.
+    Activates only when >= 20 closed trades exist.
+    Saves result to data/memory/agent_weights.json.
+
+    Formula: new_weight = base × (1 + (win_rate - 0.50) × 0.5)
+    Weights normalised to sum to 1.0.
+    """
+    BASE_WEIGHTS = {"fundamental": 0.35, "quant": 0.35, "sentiment": 0.30}
+    ACTIVATION_THRESHOLD = 20
+
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT content FROM memory_entries WHERE namespace='stock_agent_outcomes' AND status='active'"
+        ).fetchall()
+
+    outcomes = []
+    for row in rows:
+        try:
+            outcomes.append(json.loads(row["content"]))
+        except Exception:
+            pass
+
+    closed_count = len(outcomes)
+    if closed_count < ACTIVATION_THRESHOLD:
+        logger.info("Agent weighting inactive — only %d closed trades (need %d)", closed_count, ACTIVATION_THRESHOLD)
+        weights = {**BASE_WEIGHTS, "active": False, "closed_trade_count": closed_count}
+        _save_json(AGENT_WEIGHTS_PATH, weights)
+        return weights
+
+    # Compute per-agent win rates: a win = trade closed with pnl_pct > 0
+    # We use the agent score at entry — whichever agent scored highest and the trade won → credit
+    agent_stats: dict[str, dict] = {a: {"wins": 0, "total": 0} for a in BASE_WEIGHTS}
+    for outcome in outcomes:
+        pnl = outcome.get("pnl_pct", 0)
+        agent_scores = outcome.get("agent_scores", {})
+        if not agent_scores:
+            continue
+        win = pnl > 0
+        for agent in agent_stats:
+            score = agent_scores.get(agent)
+            if score is not None:
+                agent_stats[agent]["total"] += 1
+                if win:
+                    agent_stats[agent]["wins"] += 1
+
+    raw_weights = {}
+    for agent, stats in agent_stats.items():
+        total = stats["total"]
+        if total == 0:
+            raw_weights[agent] = BASE_WEIGHTS[agent]
+            continue
+        win_rate = stats["wins"] / total
+        raw_weights[agent] = BASE_WEIGHTS[agent] * (1 + (win_rate - 0.50) * 0.5)
+
+    # Normalise to sum to 1.0
+    total_w = sum(raw_weights.values())
+    normalised = {a: round(w / total_w, 4) for a, w in raw_weights.items()}
+
+    win_rates = {a: round(agent_stats[a]["wins"] / max(1, agent_stats[a]["total"]) * 100, 1)
+                 for a in agent_stats}
+
+    result = {
+        **normalised,
+        "active": True,
+        "closed_trade_count": closed_count,
+        "win_rates_pct": win_rates,
+        "computed_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+    }
+    _save_json(AGENT_WEIGHTS_PATH, result)
+    logger.info("Agent weights computed from %d trades: F=%.2f Q=%.2f S=%.2f",
+                closed_count, normalised["fundamental"], normalised["quant"], normalised["sentiment"])
+    return result
+
+
+def get_agent_weights() -> dict:
+    """Return agent weights from file, or base weights if not computed yet."""
+    BASE_WEIGHTS = {"fundamental": 0.35, "quant": 0.35, "sentiment": 0.30}
+    data = _load_json(AGENT_WEIGHTS_PATH, default={})
+    if not data.get("active"):
+        return BASE_WEIGHTS
+    return {k: data[k] for k in ("fundamental", "quant", "sentiment") if k in data}
+
+
 def run() -> dict:
     """
     Daily consolidation step — called at the end of each full pipeline run.
@@ -466,6 +552,10 @@ def run() -> dict:
         "pattern_history_entries": _count_pattern_combos(),
         "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
     }
+
+    # Compute and save agent weights (activates after 20 closed trades)
+    weights = compute_and_save_agent_weights()
+    summary["agent_weights"] = weights
 
     logger.info("=== Memory Agent consolidation complete ===")
     return summary

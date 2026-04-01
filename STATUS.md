@@ -3,10 +3,107 @@
 **Project:** AI Hedge Fund Agent System
 **Owner:** Harry Walker
 **PRD:** See `PRD.md` for full specification
-**Last updated:** 2026-03-31 (session 7 — first live pipeline run; Alpaca reconciliation; FMP endpoint migration; dashboard committed to repo; hedge fund exit logic)
+**Last updated:** 2026-04-01 (session 8 — full v1 upgrade: logo, conviction precision, Kelly sizing, debate mechanic, dynamic weighting, candidate variety, institutional thesis, analysis modes, run buttons, report generator)
 **Python:** 3.11.9 (venv at `venv/` — use `venv/bin/python` for all commands)
 **Run any agent:** `cd` to project root, then `venv/bin/python -m agents.<agent_name>`
 **Full pipeline:** `SKIP_PHASE_A=true venv/bin/python main.py`
+
+---
+
+## Session 8 — What Was Done (2026-04-01)
+
+### V1 Upgrade — all 10 sections of CHANGES_V1_PRD.md implemented
+
+#### 1. Logo Redesign (`dashboard/components/Navbar.tsx`)
+- Replaced candlestick-H logo with a 4-candle upward-trending chart
+- Candle 1: small bearish (realism); Candles 2-4: green bullish, ascending height left-to-right
+- Clean wicks, no grid, works white-on-dark across all pages
+
+#### 2. Conviction Score Precision (`agents/investment_committee.py`)
+- Each candidate block now shows `CONVICTION_ANCHOR` (weighted composite score)
+- Prompt explicitly prohibits multiples of 5; schema hint added
+- Post-processing retry: if rounded scores returned, retries with stronger instruction
+- Final fallback: ±1–2 nudge to break any remaining pattern
+
+#### 3. Position Sizing — Kelly-adjacent formula (`agents/investment_committee.py`)
+- Formula: `(conviction/100) × (1/(1+atr_pct/100)) × 20%`
+- `atr_pct` read from quant_report per ticker; falls back to 2% if missing
+- LLM receives `SUGGESTED_SIZE: x.x%` with `±3% adjustment allowed` instruction
+- Post-normalisation: if total sizing exceeds 90% of available cash, all sizes scaled down proportionally
+
+#### 4. Committee-Led Debate (`agents/investment_committee.py`, `dashboard/app/position/[ticker]/page.tsx`)
+- `_run_debate_round()`: triggers when agent score spread ≥ 20 points (max 5 debates per run)
+- Lower-scoring agent given higher-scoring agent's reasoning; produces rebuttal + revised score
+- Result stored in `agent_debate` field of positions_log via `enrich_position_framework()`
+- Position detail page shows "Agent Debate" card when debate was triggered
+
+#### 5. Dynamic Agent Weighting (`agents/memory_agent.py`, `agents/investment_committee.py`)
+- `compute_and_save_agent_weights()`: activates after 20 closed trades
+- Formula: `base × (1 + (win_rate - 0.50) × 0.5)`, normalised to sum to 1.0
+- Written to `data/memory/agent_weights.json`; `get_agent_weights()` reads it
+- Committee's `_adjust_weights()` now reads from file instead of using fixed defaults
+- Team page shows Dynamic Agent Weighting panel with live/dormant status and win rates
+
+#### 6. Candidate Variety (`agents/candidate_generator.py`)
+- Momentum decay: -1.5 pts per consecutive day appeared without being selected
+- Recency bonus: +0.5 pts for tickers not seen in last 5 days
+- 20% new ticker minimum enforced: swaps out weakest old tickers if needed
+- Variety metrics logged to `candidates_report.json`
+
+#### 7. Institutional Analyst Upgrade (`agents/institutional_agent.py`, `agents/fundamental_analyst.py`)
+- LLM now infers fund thesis per holding: value / growth / momentum / catalyst_driven / activist / income
+- Convergence detection: flags when 2+ independent funds initiated/increased same ticker within 45 days
+- `convergence_signals` and `fund_theses` arrays added to institutional_report.json schema
+- Fundamental Analyst reads convergence signals and passes as informational context to scoring LLM
+
+#### 8. Framework Timing + Analysis Modes (`agents/portfolio_manager.py`, website settings)
+- `_read_analysis_mode()`: reads from `data/config/analysis_mode.json`; env var overrides
+- LITE mode: Phase B skips Sentiment agent (Phase A was already LITE-aware)
+- `SKIP_PHASE_B` env var added to skip Phase B entirely (used by run buttons)
+- `/settings` page: click to select LITE/STANDARD/FULL, persists to JSON file
+- `/api/settings` GET+POST route: reads/writes `data/config/analysis_mode.json`
+- Settings added to Navbar
+
+#### 9. Website Run Buttons (`dashboard/app/dashboard/page.tsx`, `/api/run/route.ts`)
+- "Review Positions" button: Phase A only (`--phase-a-only` flag → `SKIP_PHASE_B=true`)
+- "Full Research Run" button: full pipeline
+- Confirmation modal before each run
+- Live progress panel: shows running/done/error state with log messages
+- "Still running..." message after 2 min timeout
+- `/api/run` POST route: spawns `python3 main.py` with appropriate flags; 15 min timeout
+- `main.py` updated to support `--phase-a-only` flag
+
+#### 10. Website Report Generator
+- `/reports/adhoc` page: ticker input + Generate Report button
+- `scripts/adhoc_report.py`: lightweight quant + fundamental fetch + GPT-4o-mini pitch
+- Output: bull/bear case, verdict, conviction, entry/exit/stop-loss levels, risk factors, catalysts
+- Saves to `data/reports/adhoc_reports/{TICKER}_{date}.json`; cached if same-day request
+- `/api/report/[ticker]` route: returns cached report or triggers fresh generation
+- Print/export button
+- "Research any ticker" link added to Daily Reports page header
+
+### Files changed this session
+- `dashboard/components/Navbar.tsx` — new logo + Settings nav link
+- `agents/investment_committee.py` — conviction precision, Kelly sizing, debate mechanic, dynamic weighting
+- `agents/memory_agent.py` — `compute_and_save_agent_weights()`, `get_agent_weights()`, `AGENT_WEIGHTS_PATH`
+- `agents/candidate_generator.py` — momentum decay, recency bonus, 20% new ticker minimum
+- `agents/institutional_agent.py` — fund thesis inference, convergence detection in schema + instructions
+- `agents/fundamental_analyst.py` — reads institutional convergence; passes to scoring LLM
+- `agents/portfolio_manager.py` — `_read_analysis_mode()`, `SKIP_PHASE_B`, analysis mode toggle
+- `main.py` — `--phase-a-only` flag support
+- `dashboard/app/position/[ticker]/page.tsx` — Agent Debate section
+- `dashboard/app/team/page.tsx` — Dynamic Agent Weighting panel
+- `dashboard/app/reports/page.tsx` — "Research any ticker" link
+- `dashboard/app/dashboard/page.tsx` — Run buttons + confirmation modal + progress panel
+- `dashboard/app/settings/page.tsx` — NEW: Analysis Mode settings page
+- `dashboard/app/reports/adhoc/page.tsx` — NEW: Ad-hoc report generator page
+- `dashboard/app/api/agent-weights/route.ts` — NEW
+- `dashboard/app/api/settings/route.ts` — NEW
+- `dashboard/app/api/run/route.ts` — NEW
+- `dashboard/app/api/report/[ticker]/route.ts` — NEW
+- `scripts/adhoc_report.py` — NEW
+- `data/config/` — NEW directory for analysis_mode.json
+- `CHANGES_V1_PRD.md` — NEW: full PRD with implementation tracker
 
 ---
 

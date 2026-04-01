@@ -240,16 +240,34 @@ const PIPELINE_LEVELS = [
   { label: "Execution", agents: ["executor"] },
 ];
 
+interface AgentWeights {
+  fundamental: number;
+  quant: number;
+  sentiment: number;
+  active: boolean;
+  closed_trade_count: number;
+  win_rates_pct?: { fundamental: number; quant: number; sentiment: number };
+  computed_at?: string;
+}
+
 export default function TeamPage() {
   const [agents, setAgents] = useState<Agent[]>(MOCK_AGENTS);
   const [chatAgent, setChatAgent] = useState<Agent | null>(null);
   const [flipped, setFlipped] = useState<string | null>(null);
+  const [agentWeights, setAgentWeights] = useState<AgentWeights | null>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     fetch("/api/agents")
       .then((r) => r.json())
       .then(setAgents)
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/agent-weights")
+      .then((r) => r.json())
+      .then(setAgentWeights)
       .catch(() => {});
   }, []);
 
@@ -323,6 +341,49 @@ export default function TeamPage() {
             ))}
           </div>
         </div>
+
+        {/* Agent Weighting Panel */}
+        {agentWeights && (
+          <div className="card p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Dynamic Agent Weighting</h2>
+                <p className="text-xs text-[#6B7280] mt-0.5">
+                  {agentWeights.active
+                    ? `Active — calibrated from ${agentWeights.closed_trade_count} closed trades`
+                    : `Inactive — requires 20 closed trades (${agentWeights.closed_trade_count || 0} so far)`}
+                </p>
+              </div>
+              <span className={`text-xs font-bold px-2 py-1 rounded-md ${agentWeights.active ? "bg-[#10B981]/15 text-[#10B981]" : "bg-white/05 text-[#6B7280]"}`}>
+                {agentWeights.active ? "Live" : "Dormant"}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              {(["fundamental", "quant", "sentiment"] as const).map((agent) => {
+                const weight = agentWeights[agent] ?? (agent === "sentiment" ? 0.30 : 0.35);
+                const winRate = agentWeights.win_rates_pct?.[agent];
+                const color = weight >= 0.37 ? "#10B981" : weight >= 0.30 ? "#0EA5E9" : "#F59E0B";
+                return (
+                  <div key={agent} className="bg-white/03 rounded-xl p-4">
+                    <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-2 capitalize">{agent}</p>
+                    <div className="flex items-end gap-2 mb-2">
+                      <span className="text-2xl font-bold font-mono" style={{ color }}>{(weight * 100).toFixed(0)}%</span>
+                      {agentWeights.active && winRate != null && (
+                        <span className="text-xs text-[#6B7280] mb-0.5">WR: {winRate}%</span>
+                      )}
+                    </div>
+                    <div className="h-1 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${weight * 100 * 2}%`, background: color }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {agentWeights.computed_at && (
+              <p className="text-[10px] text-[#4B5563] mt-3 text-right">Updated: {agentWeights.computed_at}</p>
+            )}
+          </div>
+        )}
 
         {/* Agent detail cards */}
         <h2 className="font-display text-xl font-bold text-[#E8EDF2] mb-6">Agent Profiles</h2>

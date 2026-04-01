@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/reports", label: "Daily Reports" },
   { href: "/team", label: "Meet the Team" },
+  { href: "/settings", label: "Settings" },
   { href: "/about", label: "About" },
 ];
 
@@ -31,38 +32,23 @@ export default function Navbar() {
             <div
               className="flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(14,165,233,0.7)]"
             >
-              {/* Candlestick H logo: 3 tall candles | 2 mid-height (crossbar) | 3 tall candles */}
-              <svg width="60" height="36" viewBox="0 0 60 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Subtle chart grid */}
-                <line x1="0" y1="12" x2="60" y2="12" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="2,3"/>
-                <line x1="0" y1="24" x2="60" y2="24" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="2,3"/>
+              {/* Upward-trending candlestick chart logo — 4 candles, ascending left to right */}
+              <svg width="44" height="36" viewBox="0 0 44 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Candle 1 — small bearish (realism) */}
+                <line x1="5" y1="20" x2="5" y2="34" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round"/>
+                <rect x="3" y="23" width="4" height="8" rx="0.5" fill="#EF4444"/>
 
-                {/* LEFT COLUMN — H left bar */}
-                <line x1="3" y1="1" x2="3" y2="35" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="1" y="3" width="4" height="28" rx="0.5" fill="#10B981"/>
+                {/* Candle 2 — medium bullish */}
+                <line x1="16" y1="14" x2="16" y2="30" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
+                <rect x="14" y="17" width="4" height="10" rx="0.5" fill="#10B981"/>
 
-                <line x1="10" y1="1" x2="10" y2="35" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="8" y="5" width="4" height="25" rx="0.5" fill="#EF4444"/>
+                {/* Candle 3 — tall bullish */}
+                <line x1="27" y1="8" x2="27" y2="25" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
+                <rect x="25" y="11" width="4" height="11" rx="0.5" fill="#10B981"/>
 
-                <line x1="17" y1="1" x2="17" y2="35" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="15" y="2" width="4" height="30" rx="0.5" fill="#10B981"/>
-
-                {/* CROSSBAR — H middle (shorter candles at mid height) */}
-                <line x1="24" y1="13" x2="24" y2="23" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="22" y="15" width="4" height="6" rx="0.5" fill="#EF4444"/>
-
-                <line x1="31" y1="12" x2="31" y2="22" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="29" y="14" width="4" height="6" rx="0.5" fill="#10B981"/>
-
-                {/* RIGHT COLUMN — H right bar */}
-                <line x1="39" y1="1" x2="39" y2="35" stroke="#EF4444" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="37" y="4" width="4" height="26" rx="0.5" fill="#EF4444"/>
-
-                <line x1="46" y1="1" x2="46" y2="35" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="44" y="3" width="4" height="28" rx="0.5" fill="#10B981"/>
-
-                <line x1="53" y1="1" x2="53" y2="35" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
-                <rect x="51" y="2" width="4" height="30" rx="0.5" fill="#10B981"/>
+                {/* Candle 4 — tallest bullish (anchor) */}
+                <line x1="38" y1="2" x2="38" y2="19" stroke="#10B981" strokeWidth="1.2" strokeLinecap="round"/>
+                <rect x="36" y="5" width="4" height="12" rx="0.5" fill="#10B981"/>
               </svg>
             </div>
             <div className="hidden sm:block">

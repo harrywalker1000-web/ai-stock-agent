@@ -101,7 +101,15 @@ def _print_summary(result: dict):
 def main() -> int:
     """
     Returns exit code: 0 = success, 1 = pipeline error.
+    Flags:
+      --phase-a-only   Run Phase A (position review) only, skip Phase B
     """
+    import os
+    phase_a_only = "--phase-a-only" in sys.argv
+    if phase_a_only:
+        os.environ["SKIP_PHASE_B"] = "true"
+        logger.info("Flag: --phase-a-only — Phase B (new opportunity research) will be skipped")
+
     _print_banner()
     start = time.time()
 

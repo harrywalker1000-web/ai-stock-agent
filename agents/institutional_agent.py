@@ -719,7 +719,25 @@ Output this JSON schema:
     }
   ],
   "top_institutional_signals": ["list of 5-8 tickers — ONLY include medium or high confidence signals; activist filings + unusual options count as corroborating sources"],
-  "institutional_summary": "4-5 sentence paragraph; lead with any 13D/13G filings and unusual options as highest-recency signals; state confidence levels explicitly",
+  "fund_theses": [
+    {
+      "ticker": "string",
+      "funds": ["fund names holding this position"],
+      "inferred_thesis": "value | growth | momentum | catalyst_driven | activist | income",
+      "thesis_reasoning": "1-2 sentences explaining WHY funds likely hold this (e.g. deep value, catalyst catalyst, activist pressure)",
+      "conviction": "high | medium | low"
+    }
+  ],
+  "convergence_signals": [
+    {
+      "ticker": "string",
+      "funds": ["fund 1", "fund 2"],
+      "convergence_type": "new_stake | increased_stake | activist",
+      "signal_strength": "strong | moderate",
+      "note": "2+ independent funds initiated/increased within 45 days — coordinated interest or shared thesis"
+    }
+  ],
+  "institutional_summary": "4-5 sentence paragraph; lead with any 13D/13G filings and unusual options as highest-recency signals; state confidence levels explicitly; mention any convergence signals",
   "confidence": <0-100>
 }"""
 
@@ -762,6 +780,8 @@ INSTRUCTIONS:
 4. A 13F holding alone = low confidence — note it but do NOT put it in top_institutional_signals.
 5. Populate signal_confidence using the pre-computed block above for each signal.
 6. Flag any ticker where sources conflict (e.g. unusual put activity but analyst consensus is bullish).
+7. FUND THESES: For each ticker held by 2+ funds in the data, infer the likely investment thesis. Classify as: value (trading below intrinsic value), growth (high revenue/earnings growth expectations), momentum (price trend following), catalyst_driven (pending merger, spin-off, FDA approval, etc.), activist (13D filing — fund wants change), or income (dividend/yield play). Use fund reputation to help: Berkshire = value, ARK = growth, Pershing Square = activist, Greenlight = contrarian value, etc.
+8. CONVERGENCE: If 2+ independent funds appear to have initiated or significantly increased the same ticker position (based on filing dates within 45 days of each other), flag it as a convergence_signal. This is a strong signal — independent smart money reaching the same conclusion simultaneously.
 
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 

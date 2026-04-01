@@ -145,11 +145,22 @@ export default function ReportsPage() {
     <div className="min-h-screen bg-[#080C10] pb-16">
       <div className="max-w-5xl mx-auto px-6 pt-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Daily Reports</h1>
-          <p className="text-[#6B7280] text-sm mt-1">
-            Committee narratives and daily pipeline decisions
-          </p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Daily Reports</h1>
+            <p className="text-[#6B7280] text-sm mt-1">
+              Committee narratives and daily pipeline decisions
+            </p>
+          </div>
+          <a
+            href="/reports/adhoc"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#0EA5E9] border border-[#0EA5E9]/30 bg-[#0EA5E9]/08 hover:bg-[#0EA5E9]/14 transition-all"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Research any ticker
+          </a>
         </div>
 
         {loading ? (
