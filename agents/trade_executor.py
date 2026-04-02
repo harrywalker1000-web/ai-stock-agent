@@ -132,27 +132,21 @@ def _get_live_price(ticker: str) -> float | None:
 
 def _is_safe_to_trade(api) -> tuple[bool, str]:
     """
-    Returns (safe, reason). Blocks trading in first/last 15 min of session.
-    Also blocks when market is not open.
+    Returns (safe, reason). Only blocks when market is closed or within
+    MARKET_CLOSE_BUFFER_MIN of close (to avoid MOC chaos).
     """
     try:
         clock = api.get_clock()
         if not clock.is_open:
             return False, "Market is closed"
-        now = clock.timestamp
-        # Convert to EST offset (Alpaca returns UTC)
-        # Simple approach: check the time component via Alpaca's next_open / next_close
-        import dateutil.parser
-        next_open = dateutil.parser.parse(str(clock.next_open))
-        next_close = dateutil.parser.parse(str(clock.next_close))
-        now_aware = dateutil.parser.parse(str(clock.timestamp))
-        minutes_from_open = (now_aware - next_open).total_seconds() / 60 + 390  # 6.5h trading day
-        minutes_to_close = (next_close - now_aware).total_seconds() / 60
-        if minutes_from_open < MARKET_OPEN_BUFFER_MIN:
-            return False, f"Too close to market open ({MARKET_OPEN_BUFFER_MIN} min buffer)"
-        if minutes_to_close < MARKET_CLOSE_BUFFER_MIN:
-            return False, f"Too close to market close ({MARKET_CLOSE_BUFFER_MIN} min buffer)"
-        return True, "Market open and safe window"
+        if MARKET_CLOSE_BUFFER_MIN > 0:
+            import dateutil.parser
+            next_close = dateutil.parser.parse(str(clock.next_close))
+            now_aware = dateutil.parser.parse(str(clock.timestamp))
+            minutes_to_close = (next_close - now_aware).total_seconds() / 60
+            if minutes_to_close < MARKET_CLOSE_BUFFER_MIN:
+                return False, f"Too close to market close ({MARKET_CLOSE_BUFFER_MIN} min buffer)"
+        return True, "Market open"
     except Exception as exc:
         logger.warning("Market hours check failed: %s — defaulting to safe", exc)
         return True, "Hours check unavailable — proceeding"
