@@ -63,6 +63,32 @@ async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> 
   } catch { return []; }
 }
 
+// Static sector + company map for known tickers
+const TICKER_META: Record<string, { sector: string; company: string }> = {
+  NVDA:  { sector: "Technology",    company: "NVIDIA" },
+  AMD:   { sector: "Technology",    company: "AMD" },
+  SMCI:  { sector: "Technology",    company: "Super Micro" },
+  AMZN:  { sector: "Consumer Disc", company: "Amazon" },
+  NKE:   { sector: "Consumer Disc", company: "Nike" },
+  LLY:   { sector: "Healthcare",    company: "Eli Lilly" },
+  MRK:   { sector: "Healthcare",    company: "Merck" },
+  AMCR:  { sector: "Materials",     company: "Amcor" },
+  MKC:   { sector: "Consumer Stap", company: "McCormick" },
+  EL:    { sector: "Consumer Stap", company: "Estée Lauder" },
+  LUV:   { sector: "Industrials",   company: "Southwest Air" },
+};
+
+const SECTOR_COLORS: Record<string, string> = {
+  "Technology":    "#0EA5E9",
+  "Consumer Disc": "#10B981",
+  "Healthcare":    "#8B5CF6",
+  "Consumer Stap": "#F59E0B",
+  "Materials":     "#06B6D4",
+  "Industrials":   "#F97316",
+  "Cash":          "#374151",
+  "Other":         "#6B7280",
+};
+
 function readJson(filePath: string) {
   try {
     if (fs.existsSync(filePath)) {
@@ -79,141 +105,130 @@ function readJson(filePath: string) {
 export async function GET() {
   const resolvedDataDir = dataDir();
   const reportsDir = path.join(resolvedDataDir, "reports");
-
-  const positionsLog    = readJson(path.join(resolvedDataDir, "memory", "positions_log.json"));
   const committeeReport = readJson(path.join(reportsDir, "committee_report.json"));
+  const positionsLog    = readJson(path.join(resolvedDataDir, "memory", "positions_log.json"));
 
-  // Fetch live data from Alpaca
+  // Fetch live data from Alpaca in parallel
   const [alpacaPositions, alpacaAccount, alpacaHistory] = await Promise.all([
     fetchAlpacaPositions(),
     fetchAlpacaAccount(),
     fetchAlpacaHistory(),
   ]);
 
-  // Build positions: merge positions_log (entry data) with live Alpaca prices
+  // ── Positions: Alpaca is source of truth ──────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let positions: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const alpacaMap: Record<string, any> = {};
-  if (alpacaPositions) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const p of alpacaPositions) alpacaMap[p.symbol] = p;
-  }
 
-  if (positionsLog && Object.keys(positionsLog).length > 0) {
+  if (alpacaPositions && alpacaPositions.length > 0) {
+    const equity = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    positions = Object.values(positionsLog).map((p: any) => {
-      const live = alpacaMap[p.ticker?.toUpperCase()];
-      const currentPrice  = live ? parseFloat(live.current_price)  : (p.current_price ?? p.entry_price ?? 0);
-      const entryPrice    = live ? parseFloat(live.avg_entry_price) : (p.entry_price ?? 0);
-      const qty           = live ? parseFloat(live.qty)             : 0;
-      const marketValue   = live ? parseFloat(live.market_value)    : 0;
-      const unrealisedPnl = live ? parseFloat(live.unrealized_pl)   : 0;
-      const unrealisedPct = live ? parseFloat(live.unrealized_plpc) * 100 : 0;
-      const portfolioVal  = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
+    positions = alpacaPositions.map((p: any) => {
+      const ticker      = p.symbol as string;
+      const meta        = TICKER_META[ticker] ?? { sector: "Other", company: ticker };
+      const logEntry    = positionsLog?.[ticker];
+      const marketValue = Math.abs(parseFloat(p.market_value));
+      const unrealisedPct = parseFloat(p.unrealized_plpc) * 100;
       return {
-        ticker:        p.ticker ?? "—",
-        company:       p.company ?? p.ticker ?? "—",
-        sector:        p.sector ?? "—",
-        direction:     (p.direction ?? "long").toLowerCase(),
-        entry_price:   entryPrice,
-        current_price: currentPrice,
+        ticker,
+        company:       logEntry?.company ?? meta.company,
+        sector:        logEntry?.sector  ?? meta.sector,
+        direction:     p.side === "short" ? "short" : "long",
+        entry_price:   parseFloat(p.avg_entry_price),
+        current_price: parseFloat(p.current_price),
         pct_change:    parseFloat(unrealisedPct.toFixed(2)),
-        pnl_absolute:  parseFloat(unrealisedPnl.toFixed(2)),
+        pnl_absolute:  parseFloat(parseFloat(p.unrealized_pl).toFixed(2)),
         position_size: parseFloat(marketValue.toFixed(2)),
-        pct_portfolio: parseFloat((marketValue / portfolioVal * 100).toFixed(2)),
-        qty:           qty,
-        entry_date:    p.entry_date ?? "—",
-        conviction:    p.conviction ?? 70,
-        status:        live ? "open" : (p.status ?? "pending"),
-        setup_type:    p.setup_type ?? "Pipeline",
-        expected_roi:  p.expected_roi ?? "—",
-        _live:         !!live,
+        pct_portfolio: parseFloat((marketValue / equity * 100).toFixed(2)),
+        qty:           parseFloat(p.qty),
+        entry_date:    logEntry?.entry_date ?? "—",
+        conviction:    logEntry?.conviction ?? 70,
+        status:        "open",
+        setup_type:    logEntry?.setup_type ?? "Pipeline",
+        expected_roi:  logEntry?.expected_roi ?? "—",
       };
     });
-  } else if (committeeReport?.position_decisions?.length > 0) {
-    const decisionDate = committeeReport.generated_at?.split(" ")[0] ?? new Date().toISOString().split("T")[0];
-    positions = committeeReport.position_decisions
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((d: any) => d.action?.includes("long") || d.action?.includes("short"))
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .map((d: any) => {
-        const live = alpacaMap[d.ticker?.toUpperCase()];
-        return {
-          ticker:        d.ticker,
-          company:       d.ticker,
-          sector:        "—",
-          direction:     d.action?.includes("short") ? "short" : "long",
-          entry_price:   live ? parseFloat(live.avg_entry_price) : 0,
-          current_price: live ? parseFloat(live.current_price) : 0,
-          pct_change:    live ? parseFloat(live.unrealized_plpc) * 100 : 0,
-          pnl_absolute:  live ? parseFloat(live.unrealized_pl) : 0,
-          position_size: live ? parseFloat(live.market_value) : 0,
-          pct_portfolio: d.size_pct ?? 0,
-          qty:           live ? parseFloat(live.qty) : 0,
-          entry_date:    decisionDate,
-          conviction:    d.conviction ?? 70,
-          status:        live ? "open" : "pending",
-          setup_type:    "Pipeline",
-          expected_roi:  d.target_price ? `Target: $${d.target_price}` : "—",
-          _live:         !!live,
-        };
-      });
+  } else if (positionsLog && Object.keys(positionsLog).length > 0) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    positions = Object.values(positionsLog).map((p: any) => ({
+      ticker:        p.ticker ?? "—",
+      company:       p.company ?? TICKER_META[p.ticker]?.company ?? p.ticker,
+      sector:        p.sector  ?? TICKER_META[p.ticker]?.sector  ?? "—",
+      direction:     (p.direction ?? "long").toLowerCase(),
+      entry_price:   p.entry_price ?? 0,
+      current_price: p.current_price ?? p.entry_price ?? 0,
+      pct_change:    0,
+      pnl_absolute:  0,
+      position_size: 0,
+      pct_portfolio: p.size_pct ?? 0,
+      qty:           0,
+      entry_date:    p.entry_date ?? "—",
+      conviction:    p.conviction ?? 70,
+      status:        p.status ?? "pending",
+      setup_type:    p.setup_type ?? "Pipeline",
+      expected_roi:  p.expected_roi ?? "—",
+    }));
   } else {
     positions = MOCK_POSITIONS;
   }
 
-  // Stats from live Alpaca account
-  const activeCount = positions.length;
+  // ── Stats: all from live Alpaca account ───────────────────────────────────
   let stats;
   if (alpacaAccount) {
-    const equity      = parseFloat(alpacaAccount.equity);
-    const cash        = parseFloat(alpacaAccount.cash);
-    const longMv      = parseFloat(alpacaAccount.long_market_value  ?? "0");
-    const shortMv     = Math.abs(parseFloat(alpacaAccount.short_market_value ?? "0"));
-    const deployed    = longMv + shortMv;
-    // last_equity is equity at previous market close
-    const lastEquity  = parseFloat(alpacaAccount.last_equity ?? alpacaAccount.equity);
-    const dailyPnl    = equity - lastEquity;
-    const totalPnl    = equity - 100000; // vs starting $100k paper balance
+    const equity     = parseFloat(alpacaAccount.equity);
+    const longMv     = parseFloat(alpacaAccount.long_market_value  ?? "0");
+    const shortMv    = Math.abs(parseFloat(alpacaAccount.short_market_value ?? "0"));
+    const deployed   = longMv + shortMv;
+    const lastEquity = parseFloat(alpacaAccount.last_equity ?? alpacaAccount.equity);
+    const dailyPnl   = equity - lastEquity;
+    const totalPnl   = equity - 100000;
+    // deployed_pct capped at 100% for display — margin is a separate flag
+    const deployedPct = Math.min((deployed / equity) * 100, 100);
+    const usingMargin = deployed > equity;
     stats = {
       total_value:        equity,
-      cash:               Math.max(cash, 0),   // never show negative cash — that's margin, not real cash
+      cash:               Math.max(parseFloat(alpacaAccount.cash), 0),
       deployed:           deployed,
-      deployed_pct:       equity > 0 ? (deployed / equity) * 100 : 0,
-      total_pnl_pct:      (totalPnl / 100000) * 100,
-      total_pnl_absolute: totalPnl,
-      daily_pnl_pct:      lastEquity > 0 ? (dailyPnl / lastEquity) * 100 : 0,
-      daily_pnl_absolute: dailyPnl,
-      active_positions:   activeCount,
+      deployed_pct:       parseFloat(deployedPct.toFixed(1)),
+      total_pnl_pct:      parseFloat(((totalPnl / 100000) * 100).toFixed(2)),
+      total_pnl_absolute: parseFloat(totalPnl.toFixed(2)),
+      daily_pnl_pct:      parseFloat((lastEquity > 0 ? (dailyPnl / lastEquity) * 100 : 0).toFixed(2)),
+      daily_pnl_absolute: parseFloat(dailyPnl.toFixed(2)),
+      active_positions:   positions.length,
       pipeline_status:    "success",
       pipeline_last_run:  committeeReport?.generated_at ?? "—",
+      margin_warning:     usingMargin,
       _source:            "alpaca_live",
     };
   } else {
-    stats = { ...MOCK_PORTFOLIO_STATS, active_positions: activeCount,
-              pipeline_last_run: committeeReport?.generated_at ?? "—" };
+    stats = {
+      ...MOCK_PORTFOLIO_STATS,
+      active_positions:  positions.length,
+      pipeline_last_run: committeeReport?.generated_at ?? "—",
+    };
   }
 
-  // Sector allocation from real positions
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const sectorMap: Record<string, number> = {};
-  const totalDeployed = stats.deployed || 1;
+  // ── Sector allocation: from real positions + Cash slice ───────────────────
+  const sectorDollars: Record<string, number> = {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const p of positions as any[]) {
     if (p.position_size > 0) {
-      const s = p.sector || "Other";
-      sectorMap[s] = (sectorMap[s] ?? 0) + p.position_size;
+      const s = (p.sector && p.sector !== "—") ? p.sector : "Other";
+      sectorDollars[s] = (sectorDollars[s] ?? 0) + p.position_size;
     }
   }
-  const SECTOR_COLORS = ["#0EA5E9","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#84CC16","#F97316"];
-  const sectors = Object.entries(sectorMap).length > 0
-    ? Object.entries(sectorMap)
+  // Add cash as its own slice (use equity as base so it adds to 100%)
+  const equity = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
+  const deployedTotal = Object.values(sectorDollars).reduce((a, b) => a + b, 0);
+  const cashSlice = Math.max(equity - deployedTotal, 0);
+  if (cashSlice > 0) sectorDollars["Cash"] = cashSlice;
+
+  const sectors = Object.entries(sectorDollars).length > 0
+    ? Object.entries(sectorDollars)
         .sort((a, b) => b[1] - a[1])
-        .map(([sector, value], i) => ({
+        .map(([sector, dollars]) => ({
           sector,
-          value: parseFloat(((value / totalDeployed) * 100).toFixed(1)),
-          color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+          value: parseFloat(((dollars / equity) * 100).toFixed(1)),
+          color: SECTOR_COLORS[sector] ?? "#6B7280",
         }))
     : MOCK_SECTOR_ALLOCATION;
 
@@ -224,6 +239,6 @@ export async function GET() {
     stats,
     history,
     sectors,
-    _source:  alpacaAccount ? "alpaca_live" : positionsLog ? "positions_log" : "mock",
+    _source: alpacaAccount ? "alpaca_live" : positionsLog ? "positions_log" : "mock",
   });
 }

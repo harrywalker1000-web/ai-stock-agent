@@ -21,6 +21,7 @@ interface PortfolioData {
     total_pnl_pct: number; total_pnl_absolute: number;
     daily_pnl_pct: number; daily_pnl_absolute: number;
     active_positions: number; pipeline_status: string; pipeline_last_run: string;
+    margin_warning?: boolean;
   };
   history: Array<{ date: string; value: number }>;
   sectors: Array<{ sector: string; value: number; color: string }>;
@@ -226,15 +227,21 @@ export default function DashboardPage() {
             value={loading ? "—" : String(stats?.active_positions ?? 0)}
             sub="active"
           />
-          <StatCard
-            label="Deployed"
-            value={loading ? "—" : `${(stats?.deployed_pct ?? 0).toFixed(1)}%`}
-            sub={loading ? "" : `$${((stats?.deployed ?? 0) / 1000).toFixed(1)}K`}
-          />
+          <div className="card p-5">
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">Deployed</p>
+            <p className={`font-display text-3xl font-bold ${stats?.margin_warning ? "text-[#F59E0B]" : "text-[#E8EDF2]"}`}>
+              {loading ? "—" : `${(stats?.deployed_pct ?? 0).toFixed(1)}%`}
+            </p>
+            <p className="text-xs text-[#6B7280] mt-1">
+              {loading ? "" : stats?.margin_warning
+                ? "⚠ Margin in use"
+                : `$${((stats?.deployed ?? 0) / 1000).toFixed(1)}K`}
+            </p>
+          </div>
           <StatCard
             label="Cash"
             value={loading ? "—" : `$${((stats?.cash ?? 0) / 1000).toFixed(1)}K`}
-            sub={loading ? "" : `${(100 - (stats?.deployed_pct ?? 0)).toFixed(1)}% idle`}
+            sub={loading ? "" : `${Math.max(100 - (stats?.deployed_pct ?? 0), 0).toFixed(1)}% idle`}
           />
           <StatCard
             label="Mode"
