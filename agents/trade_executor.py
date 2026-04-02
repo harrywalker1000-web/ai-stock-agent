@@ -48,9 +48,9 @@ TRADES_DIR.mkdir(parents=True, exist_ok=True)
 
 # Safety rails
 HARD_MAX_POSITION_PCT = 30.0   # Never exceed this regardless of Committee instruction
-HARD_MIN_CASH_PCT = 5.0        # Never let cash drop below this
-MARKET_OPEN_BUFFER_MIN = 15    # Don't trade in first 15 min (09:30-09:45 EST)
-MARKET_CLOSE_BUFFER_MIN = 15   # Don't trade in last 15 min (15:45-16:00 EST)
+HARD_MIN_CASH_PCT = 0.0        # No minimum cash reserve — fully deploy if Committee decides
+MARKET_OPEN_BUFFER_MIN = 0     # No open buffer — pipeline is already scheduled 15min after open
+MARKET_CLOSE_BUFFER_MIN = 5    # Only block final 5 min to avoid MOC chaos
 
 # Paper vs live guard
 _PAPER_BASE_URL = "https://paper-api.alpaca.markets"
