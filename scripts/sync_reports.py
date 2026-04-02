@@ -108,13 +108,50 @@ try:
             if not summary and agent_key == "quant":
                 analyses = data.get("quant_analyses", [])
                 if analyses:
-                    top = sorted(analyses, key=lambda x: x.get("composite_score", 0), reverse=True)[:3]
-                    summary = "Top signals: " + ", ".join(f"{a['ticker']} ({a.get('composite_score',0):.0f})" for a in top)
+                    top = sorted(analyses, key=lambda x: x.get("quant_score", 0), reverse=True)[:5]
+                    parts = []
+                    for a in top:
+                        ticker = a.get("ticker", "?")
+                        score = a.get("quant_score", 0)
+                        rsi = a.get("rsi_14")
+                        trend = a.get("trend", "")
+                        bias = a.get("forward_bias", "")
+                        support = a.get("support")
+                        resistance = a.get("resistance")
+                        detail = f"{ticker} {score:.0f}/100"
+                        if rsi is not None:
+                            detail += f" RSI={rsi:.0f}"
+                        if trend:
+                            detail += f" {trend}"
+                        if support and resistance:
+                            detail += f" S/R={support:.0f}/{resistance:.0f}"
+                        if bias:
+                            detail += f" [{bias}]"
+                        parts.append(detail)
+                    summary = "Top quant signals: " + " | ".join(parts)
             if not summary and agent_key == "fundamental":
                 analyses = data.get("fundamental_analyses", [])
                 if analyses:
-                    top = sorted(analyses, key=lambda x: x.get("score", 0), reverse=True)[:3]
-                    summary = "Top picks: " + ", ".join(f"{a['ticker']} ({a.get('score',0):.0f}/100)" for a in top if a.get("ticker"))
+                    top = sorted(analyses, key=lambda x: x.get("fundamental_score", 0), reverse=True)[:5]
+                    parts = []
+                    for a in top:
+                        ticker = a.get("ticker", "?")
+                        score = a.get("fundamental_score", 0)
+                        pe = a.get("pe_ratio")
+                        rev_growth = a.get("revenue_growth_yoy")
+                        margin = a.get("operating_margin")
+                        roic = a.get("roic")
+                        detail = f"{ticker} {score:.0f}/100"
+                        if pe is not None:
+                            detail += f" P/E={pe:.1f}"
+                        if rev_growth is not None:
+                            detail += f" RevG={rev_growth:.1f}%"
+                        if margin is not None:
+                            detail += f" OpM={margin:.1f}%"
+                        if roic is not None:
+                            detail += f" ROIC={roic:.1f}%"
+                        parts.append(detail)
+                    summary = "Top fundamental picks: " + " | ".join(parts)
             if not summary and agent_key == "institutional":
                 buys = data.get("institutional_buys", [])
                 conv = data.get("convergence_signals", [])

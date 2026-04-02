@@ -38,7 +38,21 @@ export async function GET(
 ) {
   const ticker = context.params.ticker.toUpperCase();
 
-  // ── Load all agent reports ──────────────────────────────────────────────────
+  // ── Load all agent reports + positions_log ──────────────────────────────────
+  const positionsLog = (() => {
+    const candidates = [
+      path.join(process.cwd(), "data", "memory", "positions_log.json"),
+      path.join(process.cwd(), "..", "data", "memory", "positions_log.json"),
+    ];
+    for (const p of candidates) {
+      try {
+        if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf-8"));
+      } catch { /* try next */ }
+    }
+    return null;
+  })();
+  const positionEntry = positionsLog?.[ticker] ?? null;
+
   const committeeReport   = readReport("committee_report.json");
   const fundamentalReport = readReport("fundamental_report.json");
   const quantReport       = readReport("quant_report.json");
@@ -212,19 +226,23 @@ export async function GET(
   } : null;
 
   const result = {
-    // Core position fields — live price, mock entry for now
+    // Core position fields — real entry from positions_log, live price from Yahoo
     ticker,
     company:        liveQuote?.company ?? ticker,
     sector:         liveQuote?.sector ?? MOCK_POSITION_DETAIL.sector,
-    direction:      (scorecard?.direction ?? "LONG").toLowerCase(),
-    entry_price:    MOCK_POSITION_DETAIL.entry_price,
-    current_price:  liveQuote?.current_price ?? MOCK_POSITION_DETAIL.current_price,
-    pct_change:     MOCK_POSITION_DETAIL.pct_change,
-    pnl_absolute:   MOCK_POSITION_DETAIL.pnl_absolute,
-    position_size:  MOCK_POSITION_DETAIL.position_size,
-    pct_portfolio:  MOCK_POSITION_DETAIL.pct_portfolio,
-    entry_date:     MOCK_POSITION_DETAIL.entry_date,
-    conviction:     decision?.conviction ?? MOCK_POSITION_DETAIL.conviction,
+    direction:      (positionEntry?.direction ?? scorecard?.direction ?? "LONG").toLowerCase(),
+    entry_price:    positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.entry_price,
+    current_price:  liveQuote?.current_price ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.current_price,
+    pct_change:     liveQuote?.current_price && positionEntry?.entry_price
+                      ? ((liveQuote.current_price - positionEntry.entry_price) / positionEntry.entry_price) * 100
+                      : 0,
+    pnl_absolute:   liveQuote?.current_price && positionEntry?.entry_price && positionEntry?.size_pct
+                      ? (liveQuote.current_price - positionEntry.entry_price) / positionEntry.entry_price * (positionEntry.size_pct / 100) * 100000
+                      : 0,
+    position_size:  positionEntry?.size_pct ? positionEntry.size_pct * 1000 : MOCK_POSITION_DETAIL.position_size,
+    pct_portfolio:  positionEntry?.size_pct ?? MOCK_POSITION_DETAIL.pct_portfolio,
+    entry_date:     positionEntry?.entry_date ?? MOCK_POSITION_DETAIL.entry_date,
+    conviction:     positionEntry?.conviction ?? decision?.conviction ?? MOCK_POSITION_DETAIL.conviction,
     scenario:       scorecard?.overall_confidence === "high" ? "A" : scorecard?.overall_confidence === "medium" ? "B" : "C",
 
     // Real agent data
