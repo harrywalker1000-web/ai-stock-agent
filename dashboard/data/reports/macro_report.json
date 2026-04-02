@@ -1,13 +1,11 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "rising",
+  "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "high-quality bonds",
     "commodities",
-    "energy",
-    "healthcare"
+    "high-quality bonds"
   ],
   "avoid_themes": [
     "high-yield bonds",
@@ -15,31 +13,32 @@
     "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Iran conflict escalating",
-    "US military actions in the Middle East",
-    "oil price volatility due to geopolitical tensions"
+    "US-Iran conflict escalation",
+    "Russia's involvement in Middle East tensions",
+    "potential disruptions in oil supply through the Strait of Hormuz"
   ],
-  "macro_summary": "The current macro environment is characterized by a RISK-OFF sentiment across all sources, with rising interest rates and inflation trends. The yield curve is inverted, indicating recession risks, while geopolitical tensions, particularly related to Iran, are contributing to market volatility. All three data sources align on the RISK-OFF classification, providing a high confidence level.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to the US-Iran conflict. While the Fed Funds Rate remains stable, the yield curve is inverted, suggesting recession risks. Conflicts arise from differing signals, with FRED and newsapi_finnhub indicating RISK-OFF while yfinance_market remains NEUTRAL, leading to a low confidence level.",
   "signal_confidence": {
-    "level": "high",
+    "level": "low",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [
-      "All 3 sources agree: RISK-OFF"
+    "agreements": [],
+    "conflicts": [
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "conflicts": [],
-    "confidence_note": "The high confidence level is supported by unanimous agreement across all data sources."
+    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
   },
-  "confidence": 90,
+  "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.35,
-    "us_2y_yield": 3.82,
-    "yield_curve_spread": 0.53,
+    "us_10y_yield": 4.3,
+    "us_2y_yield": 3.79,
+    "yield_curve_spread": 0.51,
     "cpi_latest": 327.46,
     "cpi_prev": 326.59,
     "cpi_trend": "rising",
@@ -47,27 +46,27 @@
     "gdp_latest": 31442.5,
     "gdp_prev": 31098.0,
     "gdp_growth": 1.11,
-    "dxy_current": 99.61,
+    "dxy_current": 100.14,
     "dxy_1m_ago": 98.38,
     "dxy_trend": "strengthening",
-    "vix": 25.11,
-    "tlt_1m_change_pct": -3.58,
-    "hyg_1m_change_pct": -1.21,
+    "vix": 27.07,
+    "tlt_1m_change_pct": -3.28,
+    "hyg_1m_change_pct": -0.84,
     "macro_headlines": [
-      "US to leave Iran 'pretty quickly' and return if needed, Trump tells Reuters - Reuters",
-      "Wall Street advances as hopes of Iran war resolution lift risk appetite - Reuters",
-      "US Vice President Vance spoke to intermediaries about Iran conflict as recently as Tuesday, source says - Reuters",
-      "Amazon's cloud business in Bahrain damaged in Iran strike, FT reports - Reuters",
-      "Trump says Iran has asked for a ceasefire, US wants to see Hormuz open first - Reuters",
-      "Intel shares jump 9% after buying back Ireland chip fab in sign of renewed strength",
-      "Beirut strike killed top Hezbollah commander, group says - Reuters",
-      "Iran war puts Middle East Dubai oil benchmark under stress as prices soar - Reuters",
-      "Iran says Trump's statements on Tehran requesting ceasefire are false and baseless - Reuters",
-      "Kenya tea exports hit by Iran conflict as stocks pile up - Reuters"
+      "Givers\u2019 regret: What happens when wealthy parents try to claw back fortunes from their kids",
+      "Wall St futures tumble as Trump signals more Iran strikes - Reuters",
+      "Russia's Putin to host Egypt's foreign minister, focus on Iran war and Middle East - Reuters",
+      "Stellantis-backed Leapmotor delivers more than 100,000 EVs for fourth-straight quarter as BYD sales fall",
+      "Iran executes man arrested over January protests - Reuters",
+      "UK to host talks with 35 countries on reopening Strait of Hormuz - Reuters",
+      "Russia says it's ready to help resolve Iran conflict - Reuters",
+      "Iran to allow safe passage of Philippine ships, fuel supply through Strait of Hormuz, says Manila - Reuters",
+      "Exclusive: Vietnam aims to shore up battered stocks with stabilisation fund and influencers, documents show - Reuters",
+      "Iran army chief tells commanders to prepare for any attack, state media reports - Reuters"
     ],
     "geopolitical_headlines": [
       "Australia central bank uncertain on path for rates after March hike",
-      "Easter bank holiday weekend set to be busiest on roads in four years",
+      "Amazon is offering up to 50 percent off chargers from Anker and others for its Big Spring Sale",
       "'I knew something wasn't right': Wrong sperm given to families by IVF clinics",
       "Duolingo\u2019s Luis von Ahn Wants to Delete the Blockchain",
       "Bellroy's latest Cinch slings are ready for your everyday tech essentials \u2014 and everything else",
@@ -78,13 +77,14 @@
       "10 power players behind the data center debt boom"
     ],
     "central_bank_headlines": [
+      "Who is Kevin Warsh? Trump\u2019s Fed pick wants \u2018regime change\u2019 at central bank",
       "Trump Fed pick Kevin Warsh could shake up the central bank with his \u2018family fight\u2019 model",
       "Trump's Iran War Just Triggered A Second Shockwave \u2014 This One Is In The Bond Market",
       "Justice\u00a0for Steve Calk",
       "Transcript: Judd Kessler, Lucky by Design",
       "Stocks, bonds and commodities: How global markets have traded the Iran war"
     ],
-    "as_of": "2026-04-01 19:01 UTC"
+    "as_of": "2026-04-02 13:49 UTC"
   },
-  "generated_at": "2026-04-01T19:01:57.511113"
+  "generated_at": "2026-04-02T13:50:01.262809"
 }
