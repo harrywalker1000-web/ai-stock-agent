@@ -41,6 +41,28 @@ async function fetchAlpacaAccount(): Promise<any | null> {
   } catch { return null; }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> {
+  const key    = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return [];
+  try {
+    const res = await fetch(`${base}/v2/account/portfolio/history?period=1M&timeframe=1D`, {
+      headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data: any = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (data.timestamp ?? []).map((ts: number, i: number) => ({
+      date: new Date(ts * 1000).toISOString().split("T")[0],
+      value: data.equity[i] ?? 0,
+    })).filter((d: { value: number }) => d.value > 0);
+  } catch { return []; }
+}
+
 function readJson(filePath: string) {
   try {
     if (fs.existsSync(filePath)) {
@@ -62,9 +84,10 @@ export async function GET() {
   const committeeReport = readJson(path.join(reportsDir, "committee_report.json"));
 
   // Fetch live data from Alpaca
-  const [alpacaPositions, alpacaAccount] = await Promise.all([
+  const [alpacaPositions, alpacaAccount, alpacaHistory] = await Promise.all([
     fetchAlpacaPositions(),
     fetchAlpacaAccount(),
+    fetchAlpacaHistory(),
   ]);
 
   // Build positions: merge positions_log (entry data) with live Alpaca prices
@@ -141,28 +164,30 @@ export async function GET() {
   }
 
   // Stats from live Alpaca account
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const activeCount = positions.filter((p: any) => p.status === "open" || p.status === "hold").length;
+  const activeCount = positions.length;
   let stats;
   if (alpacaAccount) {
     const equity      = parseFloat(alpacaAccount.equity);
     const cash        = parseFloat(alpacaAccount.cash);
+    const longMv      = parseFloat(alpacaAccount.long_market_value  ?? "0");
+    const shortMv     = Math.abs(parseFloat(alpacaAccount.short_market_value ?? "0"));
+    const deployed    = longMv + shortMv;
+    // last_equity is equity at previous market close
     const lastEquity  = parseFloat(alpacaAccount.last_equity ?? alpacaAccount.equity);
     const dailyPnl    = equity - lastEquity;
-    const totalPnl    = equity - 100000; // vs starting $100k
+    const totalPnl    = equity - 100000; // vs starting $100k paper balance
     stats = {
       total_value:        equity,
-      cash:               cash,
-      deployed:           equity - cash,
-      deployed_pct:       equity > 0 ? ((equity - cash) / equity) * 100 : 0,
-      total_pnl_pct:      ((totalPnl / 100000) * 100),
+      cash:               Math.max(cash, 0),   // never show negative cash — that's margin, not real cash
+      deployed:           deployed,
+      deployed_pct:       equity > 0 ? (deployed / equity) * 100 : 0,
+      total_pnl_pct:      (totalPnl / 100000) * 100,
       total_pnl_absolute: totalPnl,
       daily_pnl_pct:      lastEquity > 0 ? (dailyPnl / lastEquity) * 100 : 0,
       daily_pnl_absolute: dailyPnl,
       active_positions:   activeCount,
       pipeline_status:    "success",
       pipeline_last_run:  committeeReport?.generated_at ?? "—",
-      buying_power:       parseFloat(alpacaAccount.buying_power ?? "0"),
       _source:            "alpaca_live",
     };
   } else {
@@ -170,11 +195,35 @@ export async function GET() {
               pipeline_last_run: committeeReport?.generated_at ?? "—" };
   }
 
+  // Sector allocation from real positions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sectorMap: Record<string, number> = {};
+  const totalDeployed = stats.deployed || 1;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const p of positions as any[]) {
+    if (p.position_size > 0) {
+      const s = p.sector || "Other";
+      sectorMap[s] = (sectorMap[s] ?? 0) + p.position_size;
+    }
+  }
+  const SECTOR_COLORS = ["#0EA5E9","#10B981","#F59E0B","#8B5CF6","#EF4444","#06B6D4","#84CC16","#F97316"];
+  const sectors = Object.entries(sectorMap).length > 0
+    ? Object.entries(sectorMap)
+        .sort((a, b) => b[1] - a[1])
+        .map(([sector, value], i) => ({
+          sector,
+          value: parseFloat(((value / totalDeployed) * 100).toFixed(1)),
+          color: SECTOR_COLORS[i % SECTOR_COLORS.length],
+        }))
+    : MOCK_SECTOR_ALLOCATION;
+
+  const history = alpacaHistory.length > 0 ? alpacaHistory : MOCK_PORTFOLIO_HISTORY;
+
   return NextResponse.json({
     positions,
     stats,
-    history:  MOCK_PORTFOLIO_HISTORY,
-    sectors:  MOCK_SECTOR_ALLOCATION,
+    history,
+    sectors,
     _source:  alpacaAccount ? "alpaca_live" : positionsLog ? "positions_log" : "mock",
   });
 }

@@ -48,7 +48,7 @@ TRADES_DIR.mkdir(parents=True, exist_ok=True)
 
 # Safety rails
 HARD_MAX_POSITION_PCT = 30.0   # Never exceed this regardless of Committee instruction
-HARD_MIN_CASH_PCT = 0.0        # No minimum cash reserve — fully deploy if Committee decides
+HARD_MIN_CASH_PCT = 2.0        # Keep 2% cash buffer — prevents margin use entirely
 MARKET_OPEN_BUFFER_MIN = 0     # No open buffer — pipeline is already scheduled 15min after open
 MARKET_CLOSE_BUFFER_MIN = 5    # Only block final 5 min to avoid MOC chaos
 
@@ -452,6 +452,14 @@ def run(mode: str = "new_opportunities") -> dict:
                 size_pct = HARD_MAX_POSITION_PCT
 
             notional = portfolio_value * size_pct / 100
+            # Hard cap: never use margin — limit notional to available cash minus buffer
+            available_cash = portfolio.get("cash", 0)
+            min_cash_floor = portfolio_value * HARD_MIN_CASH_PCT / 100
+            max_notional = max(0, available_cash - min_cash_floor)
+            if notional > max_notional:
+                logger.warning("%s: notional $%.0f capped to $%.0f (cash $%.0f, floor $%.0f) — no margin",
+                               ticker, notional, max_notional, available_cash, min_cash_floor)
+                notional = max_notional
             shares = int(notional / current_price)
             if shares < 1:
                 logger.warning("%s: notional $%.2f too small for 1 share at $%.2f — skipping",
