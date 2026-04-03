@@ -756,21 +756,51 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
         return "No positions initiated today."
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     acting = [d for d in decisions if d.get("action") not in ("skip",)]
-    tickers_str = ", ".join(f"{d['ticker']} ({d['action']})" for d in acting[:8])
+
+    # Build rich per-ticker context so the LLM can write specific, data-driven prose
+    ticker_lines = []
+    for d in acting[:8]:
+        ticker = d.get("ticker", "?")
+        action = (d.get("action") or "?").replace("_", " ")
+        conviction = d.get("conviction")
+        thesis = (d.get("investment_thesis") or "")[:200]
+        catalysts = d.get("key_catalysts") or []
+        risks = d.get("key_risks") or []
+
+        line = f"- {ticker}: {action}"
+        if conviction:
+            line += f" (conviction {conviction}/100)"
+        if thesis:
+            line += f" — {thesis}"
+        if catalysts:
+            line += f". Catalyst: {str(catalysts[0])[:100]}"
+        if risks:
+            line += f". Risk: {str(risks[0])[:80]}"
+        ticker_lines.append(line)
+
+    if not ticker_lines:
+        return f"Committee held all existing positions. Macro regime: {macro_regime}."
+
+    context = "\n".join(ticker_lines)
     try:
         resp = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": (
-                f"Write 2-3 sentences summarising today's Investment Committee decisions for an AI hedge fund. "
-                f"Macro regime: {macro_regime}. "
-                f"Actions taken: {tickers_str or 'none'}. "
-                f"Be concise, confident, and analytical."
+                f"You are writing the Investment Committee narrative for a daily hedge fund report. "
+                f"Macro regime: {macro_regime}.\n\n"
+                f"Today's decisions:\n{context}\n\n"
+                f"Write 3-4 sentences summarising the committee's rationale. "
+                f"Requirements: Name specific tickers. Reference conviction scores, catalysts, or risks where available. "
+                f"Do NOT use vague phrases like 'strong fundamentals', 'resilience', 'confidence in', or 'robust'. "
+                f"Be direct and analytical — the reader is the portfolio manager, not a marketing audience."
             )}],
-            temperature=0.3, max_tokens=200,
+            temperature=0.4, max_tokens=300,
         )
         return resp.choices[0].message.content.strip()
     except Exception:
-        return f"Committee deliberation complete. Actions: {tickers_str or 'none'}."
+        return "Committee deliberation complete. Actions: " + ", ".join(
+            f"{d['ticker']} ({d.get('action', '?')})" for d in acting[:8]
+        ) + "."
 
 
 # ---------------------------------------------------------------------------

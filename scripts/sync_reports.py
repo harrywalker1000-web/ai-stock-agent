@@ -64,22 +64,66 @@ try:
             cr = json.load(f)
 
         date = pr.get("date", "unknown")
+        ps = pr.get("pipeline_summary", {})
 
-        # Summarise actions
-        decisions = cr.get("position_decisions", [])
+        # Phase B = new opportunities deliberated by committee
+        phase_b_decisions = cr.get("position_decisions", [])
+        # Phase A = hold/exit decisions on existing open positions
+        phase_a_decisions = pr.get("phase_a", {}).get("committee", {}).get("position_decisions", [])
+
         action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
-        for d in decisions:
+
+        # Count Phase B decisions (new entries, skips)
+        for d in phase_b_decisions:
             a = d.get("action", "")
             if "enter" in a:
                 action_counts["new_positions"] += 1
             elif "exit" in a:
                 action_counts["exits"] += 1
-            elif "hold" in a or "skip" in a:
+            elif "hold" in a:
                 action_counts["holds"] += 1
             elif "increase" in a:
                 action_counts["increases"] += 1
             elif "decrease" in a:
                 action_counts["decreases"] += 1
+
+        # Count Phase A decisions (holds/exits on existing positions)
+        for d in phase_a_decisions:
+            a = d.get("action", "")
+            if "exit" in a:
+                action_counts["exits"] += 1
+            elif "hold" in a:
+                action_counts["holds"] += 1
+            elif "increase" in a:
+                action_counts["increases"] += 1
+            elif "decrease" in a:
+                action_counts["decreases"] += 1
+
+        # Fallback: if Phase A wrote no committee decisions, use pipeline_summary
+        if not phase_a_decisions:
+            reviewed = ps.get("phase_a_positions_reviewed", 0)
+            if reviewed > 0:
+                # Holds = positions reviewed minus any exits/size changes already counted
+                implicit_holds = reviewed - action_counts["exits"] - action_counts["increases"] - action_counts["decreases"]
+                action_counts["holds"] += max(0, implicit_holds)
+
+        # Merge Phase A + Phase B for the decisions list (exclude skips)
+        decisions = phase_b_decisions
+
+        # Detect market closure from executor output
+        pb_executor = pr.get("phase_b", {}).get("executor", {})
+        pa_executor = pr.get("phase_a", {}).get("executor", {})
+        market_closed = False
+        deferred_tickers = []
+        for executor in (pb_executor, pa_executor):
+            for trade in executor.get("executed_trades", []):
+                if trade.get("order", {}).get("status") == "market_closed_dry_run":
+                    market_closed = True
+                    t = trade.get("ticker")
+                    if t and t not in deferred_tickers:
+                        deferred_tickers.append(t)
+        if not market_closed and pb_executor.get("market_safe") is False:
+            market_closed = True
 
         # Agent findings from phase_a and phase_b agents
         phase_a = pr.get("phase_a", {})
@@ -94,7 +138,8 @@ try:
             ("phase_b", "quant",        None,                   "Quant Agent"),
             ("phase_b", "fundamental",  None,                   "Fundamental Analyst"),
             ("phase_b", "institutional",None,                   "Institutional Agent"),
-            ("phase_b", "committee",    "committee_narrative",  "Committee"),
+            ("phase_a", "committee",    "committee_narrative",  "Committee — Portfolio Review"),
+            ("phase_b", "committee",    "committee_narrative",  "Committee — New Opportunities"),
         ]
         for phase_key, agent_key, summary_field, label in AGENT_FIELDS:
             phase = phase_a if phase_key == "phase_a" else phase_b
@@ -118,17 +163,20 @@ try:
                         bias = a.get("forward_bias", "")
                         support = a.get("support")
                         resistance = a.get("resistance")
-                        detail = f"{ticker} {score:.0f}/100"
+                        meta = []
                         if rsi is not None:
-                            detail += f" RSI={rsi:.0f}"
+                            meta.append(f"RSI {rsi:.0f}")
                         if trend:
-                            detail += f" {trend}"
+                            meta.append(trend)
                         if support and resistance:
-                            detail += f" S/R={support:.0f}/{resistance:.0f}"
+                            meta.append(f"S/R ${support:.0f}/${resistance:.0f}")
                         if bias:
-                            detail += f" [{bias}]"
+                            meta.append(bias)
+                        detail = f"{ticker} scored {score:.0f}/100"
+                        if meta:
+                            detail += f" ({', '.join(meta)})"
                         parts.append(detail)
-                    summary = "Top quant signals: " + " | ".join(parts)
+                    summary = "Top quant signals: " + "; ".join(parts) + "."
             if not summary and agent_key == "fundamental":
                 analyses = data.get("fundamental_analyses", [])
                 if analyses:
@@ -141,26 +189,32 @@ try:
                         rev_growth = a.get("revenue_growth_yoy")
                         margin = a.get("operating_margin")
                         roic = a.get("roic")
-                        detail = f"{ticker} {score:.0f}/100"
+                        meta = []
                         if pe is not None:
-                            detail += f" P/E={pe:.1f}"
+                            meta.append(f"P/E {pe:.1f}x")
                         if rev_growth is not None:
-                            detail += f" RevG={rev_growth:.1f}%"
+                            meta.append(f"{rev_growth:.1f}% revenue growth")
                         if margin is not None:
-                            detail += f" OpM={margin:.1f}%"
+                            meta.append(f"{margin:.1f}% operating margin")
                         if roic is not None:
-                            detail += f" ROIC={roic:.1f}%"
+                            meta.append(f"ROIC {roic:.1f}%")
+                        detail = f"{ticker} scored {score:.0f}/100"
+                        if meta:
+                            detail += f" ({', '.join(meta)})"
                         parts.append(detail)
-                    summary = "Top fundamental picks: " + " | ".join(parts)
+                    summary = "Top fundamental picks: " + "; ".join(parts) + "."
             if not summary and agent_key == "institutional":
                 buys = data.get("institutional_buys", [])
                 conv = data.get("convergence_signals", [])
                 parts = []
                 if buys:
-                    parts.append(f"{len(buys)} institutional buys tracked")
+                    buy_tickers = [b.get("ticker", "") for b in buys[:4] if b.get("ticker")]
+                    parts.append(f"{len(buys)} institutional buy signal{'s' if len(buys) != 1 else ''} tracked" +
+                                 (f" ({', '.join(buy_tickers)})" if buy_tickers else ""))
                 if conv:
-                    parts.append(f"{len(conv)} convergence signal(s): {', '.join(c.get('ticker','') for c in conv[:3])}")
-                summary = ". ".join(parts) if parts else None
+                    conv_tickers = [c.get("ticker", "") for c in conv[:3] if c.get("ticker")]
+                    parts.append(f"{len(conv)} AI-institutional convergence: {', '.join(conv_tickers)}")
+                summary = ". ".join(parts) + "." if parts else None
             if summary:
                 agent_findings.append({"agent": label, "finding": str(summary)})
 
@@ -173,8 +227,19 @@ try:
             "increases": action_counts["increases"],
             "decreases": action_counts["decreases"],
             "daily_pnl": pr.get("pipeline_summary", {}).get("daily_pnl", "+$0"),
+            "market_closed": market_closed,
+            "market_closed_note": (
+                f"Market was closed on {date} — {len(deferred_tickers)} order(s) deferred to next trading session"
+                + (f" ({', '.join(deferred_tickers)})" if deferred_tickers else "") + "."
+                if market_closed else None
+            ),
             "summary": cr.get("committee_narrative", "")[:300] if cr.get("committee_narrative") else f"{len(decisions)} decisions made.",
-            "narrative": cr.get("committee_narrative", "No narrative available."),
+            "narrative": (
+                (f"⚠ Market closed on {date}. Decisions recorded but orders deferred to next session"
+                 + (f": {', '.join(deferred_tickers)}" if deferred_tickers else "") + ".\n\n"
+                 if market_closed else "")
+                + cr.get("committee_narrative", "No narrative available.")
+            ),
             "agent_findings": agent_findings,
             "decisions": [
                 {
@@ -183,9 +248,10 @@ try:
                     "conviction": d.get("conviction", 0),
                     "thesis": d.get("investment_thesis", "")[:400],
                 }
-                for d in decisions
+                for d in (phase_a_decisions + decisions)
                 if "skip" not in d.get("action", "")
             ],
+            "open_positions_after": ps.get("open_positions_after", 0),
         }
 
         out_file = DST / f"daily_report_{date}.json"
