@@ -1,763 +1,250 @@
 "use client";
-
+// Design 7: OBSIDIAN — Deep black + gold accents + hot cyan grid floor. Positions ticker tape. Huge portfolio number.
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-// ---------------------------------------------------------------------------
-// HeroCanvas — floating ticker particles (unchanged from original)
-// ---------------------------------------------------------------------------
-function HeroCanvas() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
+function ObsidianCanvas() {
+  const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = ref.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-
-    const resize = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
+    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
     resize();
     window.addEventListener("resize", resize);
-
-    const tickers = [
-      "AAPL", "MSFT", "NVDA", "GOOGL", "META", "AMZN", "TSLA", "UNH",
-      "SPY", "DG", "EL", "CRM", "MKC", "COIN", "GS", "JPM", "BRK",
-      "+2.4%", "-1.8%", "+5.2%", "-3.1%", "+8.7%", "BUY", "LONG",
-    ];
-
-    const particles: Array<{
-      x: number; y: number; vx: number; vy: number;
-      alpha: number; size: number; text: string; color: string;
-    }> = [];
-
-    const colors = ["#0EA5E9", "#06B6D4", "rgba(14,165,233,0.5)", "rgba(255,255,255,0.3)"];
-
-    for (let i = 0; i < 40; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        alpha: Math.random() * 0.4 + 0.1,
-        size: Math.floor(Math.random() * 4) + 8,
-        text: tickers[Math.floor(Math.random() * tickers.length)],
-        color: colors[Math.floor(Math.random() * colors.length)],
-      });
-    }
-
-    let frame: number;
-    const animate = () => {
+    type Star = { x: number; y: number; r: number; p: number };
+    const stars: Star[] = Array.from({ length: 300 }, () => ({ x: Math.random(), y: Math.random() * 0.7, r: Math.random() * 1 + 0.2, p: Math.random() * Math.PI * 2 }));
+    let t = 0; let frame: number;
+    const draw = () => {
+      t += 0.006;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const W = canvas.width; const H = canvas.height;
 
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < -50) p.x = canvas.width + 50;
-        if (p.x > canvas.width + 50) p.x = -50;
-        if (p.y < -20) p.y = canvas.height + 20;
-        if (p.y > canvas.height + 20) p.y = -20;
-
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.color;
-        ctx.font = `${p.size}px "Space Grotesk", monospace`;
-        ctx.fillText(p.text, p.x, p.y);
+      // Stars
+      stars.forEach(s => {
+        ctx.globalAlpha = 0.1 + 0.15 * Math.abs(Math.sin(t + s.p));
+        ctx.fillStyle = "white";
+        ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2); ctx.fill();
       });
 
+      // Gold glow top-centre
+      const gg = ctx.createRadialGradient(W / 2, 0, 0, W / 2, 0, W * 0.5);
+      gg.addColorStop(0, "rgba(245,166,35,0.12)"); gg.addColorStop(1, "transparent");
+      ctx.globalAlpha = 1; ctx.fillStyle = gg; ctx.fillRect(0, 0, W, H);
+
+      // Pink glow bottom-left
+      const pg = ctx.createRadialGradient(W * 0.1, H * 0.9, 0, W * 0.1, H * 0.9, W * 0.4);
+      pg.addColorStop(0, "rgba(255,0,110,0.1)"); pg.addColorStop(1, "transparent");
+      ctx.fillStyle = pg; ctx.fillRect(0, 0, W, H);
+
+      // Cyan grid floor (bottom 35%)
+      const gy = H * 0.65;
+      ctx.strokeStyle = "rgba(0,212,255,0.14)"; ctx.lineWidth = 1;
+      for (let i = -20; i <= 20; i++) {
+        ctx.beginPath(); ctx.moveTo(W / 2 + i * 65, H); ctx.lineTo(W / 2, gy); ctx.stroke();
+      }
+      for (let j = 0; j < 10; j++) {
+        const progress = ((j / 10) + t * 0.2) % 1;
+        const y = gy + (H - gy) * progress;
+        const spread = (y - gy) / (H - gy);
+        ctx.globalAlpha = spread * 0.45;
+        ctx.beginPath(); ctx.moveTo(W / 2 - spread * W * 0.8, y); ctx.lineTo(W / 2 + spread * W * 0.8, y); ctx.stroke();
+      }
       ctx.globalAlpha = 1;
-      frame = requestAnimationFrame(animate);
+      frame = requestAnimationFrame(draw);
     };
-    animate();
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", resize);
-    };
+    draw();
+    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", resize); };
   }, []);
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full" aria-hidden />;
+}
 
+// Rotating gold ring — title-sized
+function GoldRingTitle() {
+  const [deg, setDeg] = useState(0);
+  useEffect(() => { const t = setInterval(() => setDeg(d => d + 0.12), 16); return () => clearInterval(t); }, []);
+  const r = 90; const cx = 100; const cy = 100;
+  const label = "HAZ·CAPITAL·AUTONOMOUS·TRADING·2024·";
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full opacity-20"
-      aria-hidden
-    />
+    <svg width={200} height={200} viewBox="0 0 200 200" style={{ filter: "drop-shadow(0 0 30px rgba(245,166,35,0.4))" }}>
+      <defs>
+        <path id="d7path" d={`M ${cx},${cy - r} A ${r},${r} 0 1,1 ${cx - 0.01},${cy - r}`} />
+        <radialGradient id="d7core" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#FEF3C7" />
+          <stop offset="50%" stopColor="#F5A623" />
+          <stop offset="100%" stopColor="#92400E" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F5A623" strokeWidth="0.5" strokeOpacity="0.3" />
+      <g style={{ transformOrigin: `${cx}px ${cy}px`, transform: `rotate(${deg}deg)` }}>
+        <text fontSize={7} fill="rgba(245,166,35,0.5)" letterSpacing={2.5} fontFamily="monospace">
+          <textPath href="#d7path">{label}{label}</textPath>
+        </text>
+      </g>
+      <circle cx={cx} cy={cy} r={30} fill="url(#d7core)" />
+      <circle cx={cx} cy={cy} r={14} fill="#F5A623" opacity="0.9" />
+      <text x={cx} y={cy + 4} textAnchor="middle" fontSize={8} fill="#020B18" fontWeight={900} letterSpacing={2} fontFamily="monospace">H</text>
+    </svg>
   );
 }
 
-// ---------------------------------------------------------------------------
-// AIEntity — central geometric entity (unchanged from original)
-// ---------------------------------------------------------------------------
-function AIEntity() {
+// Ticker tape
+function Tape({ positions }: { positions: { ticker: string; pct_change: number }[] }) {
+  const items = [...positions, ...positions, ...positions];
   return (
-    <div className="relative w-64 h-64 flex items-center justify-center">
-      {/* Outer rotating ring */}
-      <div
-        className="absolute w-64 h-64 rounded-full border border-[#0EA5E9]/20 animate-[spin_25s_linear_infinite]"
-        style={{
-          backgroundImage: "conic-gradient(from 0deg, transparent 70%, rgba(14,165,233,0.3) 100%)",
-        }}
-      />
-      {/* Middle pulsing ring */}
-      <div
-        className="absolute w-48 h-48 rounded-full border border-[#0EA5E9]/30 animate-[spin_15s_linear_infinite_reverse]"
-        style={{
-          backgroundImage: "conic-gradient(from 180deg, transparent 60%, rgba(6,182,212,0.4) 100%)",
-        }}
-      />
-      {/* Inner ring */}
-      <div className="absolute w-32 h-32 rounded-full border border-[#0EA5E9]/40 animate-pulse-slow" />
-
-      {/* Core hexagon */}
-      <div
-        className="relative z-10 w-24 h-24 flex items-center justify-center"
-        style={{
-          background: "linear-gradient(135deg, rgba(14,165,233,0.15) 0%, rgba(6,182,212,0.1) 100%)",
-          boxShadow: "0 0 60px rgba(14,165,233,0.3), inset 0 0 30px rgba(14,165,233,0.1)",
-          borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%",
-          border: "1px solid rgba(14,165,233,0.4)",
-        }}
-      >
-        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="3" fill="#0EA5E9" />
-          <circle cx="8" cy="12" r="2" fill="#06B6D4" />
-          <circle cx="32" cy="12" r="2" fill="#06B6D4" />
-          <circle cx="8" cy="28" r="2" fill="#06B6D4" />
-          <circle cx="32" cy="28" r="2" fill="#06B6D4" />
-          <circle cx="20" cy="6" r="1.5" fill="#0EA5E9" opacity="0.7" />
-          <circle cx="20" cy="34" r="1.5" fill="#0EA5E9" opacity="0.7" />
-          <line x1="20" y1="20" x2="8" y2="12" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.6" />
-          <line x1="20" y1="20" x2="32" y2="12" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.6" />
-          <line x1="20" y1="20" x2="8" y2="28" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.6" />
-          <line x1="20" y1="20" x2="32" y2="28" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.6" />
-          <line x1="20" y1="20" x2="20" y2="6" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.4" />
-          <line x1="20" y1="20" x2="20" y2="34" stroke="#0EA5E9" strokeWidth="0.8" strokeOpacity="0.4" />
-          <line x1="8" y1="12" x2="32" y2="12" stroke="#06B6D4" strokeWidth="0.5" strokeOpacity="0.3" />
-          <line x1="8" y1="28" x2="32" y2="28" stroke="#06B6D4" strokeWidth="0.5" strokeOpacity="0.3" />
-          <line x1="8" y1="12" x2="8" y2="28" stroke="#06B6D4" strokeWidth="0.5" strokeOpacity="0.3" />
-          <line x1="32" y1="12" x2="32" y2="28" stroke="#06B6D4" strokeWidth="0.5" strokeOpacity="0.3" />
-        </svg>
-      </div>
-
-      {/* Orbiting data points */}
-      {[0, 72, 144, 216, 288].map((deg, i) => (
-        <div
-          key={i}
-          className="absolute w-2 h-2 rounded-full bg-[#0EA5E9]"
-          style={{
-            transform: `rotate(${deg}deg) translateX(96px)`,
-            opacity: 0.6,
-            boxShadow: "0 0 6px rgba(14,165,233,0.8)",
-            animation: `spin ${20 + i * 3}s linear infinite`,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-interface PortfolioStats {
-  total_value: number;
-  daily_pnl_absolute: number;
-  daily_pnl_pct: number;
-  total_pnl_absolute: number;
-  total_pnl_pct: number;
-  active_positions: number;
-}
-
-interface Position {
-  ticker: string;
-  direction: string;
-  pct_change: number;
-  entry_date: string;
-}
-
-interface PortfolioData {
-  stats: PortfolioStats;
-  positions: Position[];
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-function fmt(value: number): string {
-  if (value >= 0) return `+${value.toFixed(2)}`;
-  return `${value.toFixed(2)}`;
-}
-
-function fmtUsd(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
-// ---------------------------------------------------------------------------
-// LiveStatsStrip
-// ---------------------------------------------------------------------------
-function SkeletonPill() {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="h-3 w-16 rounded bg-white/10 animate-pulse" />
-      <div className="h-6 w-24 rounded bg-white/10 animate-pulse" />
-      <div className="h-3 w-12 rounded bg-white/10 animate-pulse" />
-    </div>
-  );
-}
-
-function LiveStatsStrip({ data, loading }: { data: PortfolioData | null; loading: boolean }) {
-  const positive = (n: number) => n >= 0;
-
-  return (
-    <div
-      className="absolute bottom-0 left-0 right-0 z-20 border-t border-white/[0.06]"
-      style={{ background: "rgba(8,12,16,0.85)", backdropFilter: "blur(16px)" }}
-    >
-      <div className="max-w-5xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
-        {loading || !data ? (
-          <>
-            <SkeletonPill />
-            <SkeletonPill />
-            <SkeletonPill />
-            <SkeletonPill />
-          </>
-        ) : (
-          <>
-            {/* Portfolio Value */}
-            <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[10px] uppercase tracking-widest text-[#6B7280] font-medium">Portfolio Value</span>
-              <span className="text-xl font-bold text-[#E8EDF2] font-display tabular-nums">
-                {fmtUsd(data.stats.total_value)}
-              </span>
-              <span className="text-[11px] text-[#6B7280]">paper trading</span>
-            </div>
-
-            {/* Daily P&L */}
-            <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[10px] uppercase tracking-widest text-[#6B7280] font-medium">Daily P&amp;L</span>
-              <span
-                className="text-xl font-bold font-display tabular-nums"
-                style={{ color: positive(data.stats.daily_pnl_absolute) ? "#10B981" : "#EF4444" }}
-              >
-                {fmt(data.stats.daily_pnl_absolute)}
-              </span>
-              <span
-                className="text-[11px] font-medium"
-                style={{ color: positive(data.stats.daily_pnl_pct) ? "#10B981" : "#EF4444" }}
-              >
-                {fmt(data.stats.daily_pnl_pct)}%
-              </span>
-            </div>
-
-            {/* Active Positions */}
-            <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[10px] uppercase tracking-widest text-[#6B7280] font-medium">Active Positions</span>
-              <span className="text-xl font-bold text-[#E8EDF2] font-display tabular-nums">
-                {data.stats.active_positions}
-              </span>
-              <span className="text-[11px] text-[#6B7280]">open trades</span>
-            </div>
-
-            {/* Total P&L */}
-            <div className="flex flex-col items-center gap-0.5">
-              <span className="text-[10px] uppercase tracking-widest text-[#6B7280] font-medium">Total P&amp;L</span>
-              <span
-                className="text-xl font-bold font-display tabular-nums"
-                style={{ color: positive(data.stats.total_pnl_absolute) ? "#10B981" : "#EF4444" }}
-              >
-                {fmt(data.stats.total_pnl_absolute)}
-              </span>
-              <span
-                className="text-[11px] font-medium"
-                style={{ color: positive(data.stats.total_pnl_pct) ? "#10B981" : "#EF4444" }}
-              >
-                {fmt(data.stats.total_pnl_pct)}%
-              </span>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Pipeline agents
-// ---------------------------------------------------------------------------
-const AGENTS = [
-  { icon: "🌐", name: "Macro", desc: "Fed policy, rates, global regime" },
-  { icon: "📰", name: "News", desc: "Real-time sentiment from headlines" },
-  { icon: "📊", name: "Sector", desc: "Rotation and relative strength" },
-  { icon: "🔢", name: "Quant", desc: "Statistical signals and momentum" },
-  { icon: "📈", name: "Fundamental", desc: "Earnings, margins, valuation" },
-  { icon: "💬", name: "Sentiment", desc: "Options flow and social signal" },
-  { icon: "🏦", name: "Institutional", desc: "13F filings and block trades" },
-  { icon: "⚖️", name: "Committee", desc: "Consensus vote and sizing" },
-];
-
-function PipelineSection() {
-  return (
-    <section className="py-20 px-6">
-      <div className="max-w-7xl mx-auto">
-        <p className="text-[10px] uppercase tracking-widest text-[#0EA5E9] font-medium mb-3 text-center">
-          Agent Pipeline
-        </p>
-        <h2 className="text-3xl font-bold text-[#E8EDF2] font-display text-center mb-12">
-          Eight specialists. One decision.
-        </h2>
-
-        {/* Horizontally scrollable strip */}
-        <div className="overflow-x-auto pb-4 -mx-6 px-6">
-          <div className="flex items-center gap-0 min-w-max mx-auto">
-            {AGENTS.map((agent, i) => (
-              <div key={agent.name} className="flex items-center">
-                {/* Card */}
-                <div
-                  className="group relative w-36 rounded-xl p-4 cursor-default transition-all duration-300
-                    hover:scale-[1.04] hover:-translate-y-1"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 0 24px rgba(14,165,233,0.25)";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(14,165,233,0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
-                  }}
-                >
-                  <div className="text-2xl mb-2">{agent.icon}</div>
-                  <div className="text-sm font-semibold text-[#E8EDF2] mb-1">{agent.name}</div>
-                  <div className="text-[11px] text-[#6B7280] leading-snug">{agent.desc}</div>
-
-                  {/* Step number */}
-                  <div
-                    className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-[#0EA5E9]"
-                    style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)" }}
-                  >
-                    {i + 1}
-                  </div>
-                </div>
-
-                {/* Connector arrow */}
-                {i < AGENTS.length - 1 && (
-                  <div className="flex items-center px-1">
-                    <svg width="20" height="12" viewBox="0 0 20 12" fill="none">
-                      <path
-                        d="M0 6h16M12 1l5 5-5 5"
-                        stroke="rgba(14,165,233,0.35)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Live Positions section
-// ---------------------------------------------------------------------------
-function PositionCard({ pos }: { pos: Position }) {
-  const isLong = pos.direction === "long";
-  const positive = pos.pct_change >= 0;
-
-  return (
-    <Link href={`/position/${pos.ticker}`}>
-      <div
-        className="rounded-xl p-5 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5"
-        style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.08)",
-        }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "0 0 20px rgba(14,165,233,0.15)";
-          (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(14,165,233,0.3)";
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-          (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
-        }}
-      >
-        <div className="flex items-start justify-between mb-3">
-          <span className="text-lg font-bold text-[#E8EDF2] font-display">{pos.ticker}</span>
-          <span
-            className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
-            style={{
-              background: isLong ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
-              color: isLong ? "#10B981" : "#EF4444",
-              border: `1px solid ${isLong ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`,
-            }}
-          >
-            {pos.direction}
+    <div style={{ overflow: "hidden" }}>
+      <div style={{ display: "flex", gap: 48, whiteSpace: "nowrap", animation: "d7tape 25s linear infinite" }}>
+        {items.map((p, i) => (
+          <span key={i} style={{ fontSize: 11, letterSpacing: 2, fontFamily: "monospace", color: p.pct_change >= 0 ? "#00FF87" : "#FF4141" }}>
+            {p.ticker}&nbsp;&nbsp;{p.pct_change >= 0 ? "▲" : "▼"}&nbsp;{Math.abs(p.pct_change).toFixed(2)}%
+            <span style={{ opacity: 0.15, margin: "0 24px" }}>|</span>
           </span>
-        </div>
-
-        <div
-          className="text-2xl font-bold font-display tabular-nums mb-1"
-          style={{ color: positive ? "#10B981" : "#EF4444" }}
-        >
-          {fmt(pos.pct_change)}%
-        </div>
-
-        <div className="text-[11px] text-[#6B7280]">
-          Entry: {pos.entry_date !== "—" ? pos.entry_date : "pending"}
-        </div>
+        ))}
       </div>
-    </Link>
+      <style>{`@keyframes d7tape { from { transform: translateX(0) } to { transform: translateX(-33.33%) } }`}</style>
+    </div>
   );
 }
 
-function LivePositionsSection({ positions }: { positions: Position[] }) {
-  const top3 = positions.slice(0, 3);
-  if (top3.length === 0) return null;
+interface Stats { total_value: number; daily_pnl_absolute: number; daily_pnl_pct: number; total_pnl_absolute: number; total_pnl_pct: number; active_positions: number; }
+interface PData { stats: Stats; positions: { ticker: string; pct_change: number; direction: string }[]; }
+
+export default function Design7() {
+  const [data, setData] = useState<PData | null>(null);
+  useEffect(() => { fetch("/api/portfolio").then(r => r.json()).then(setData).catch(() => {}); }, []);
+  const s = data?.stats;
+  const fmtUsd = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+  const fmt = (v: number) => (v >= 0 ? "+" : "") + v.toFixed(2);
+
+  const glassCard = {
+    background: "rgba(255,255,255,0.035)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)" as string,
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 14,
+  };
 
   return (
-    <section className="py-16 px-6">
-      <div className="max-w-3xl mx-auto">
-        <p className="text-[10px] uppercase tracking-widest text-[#0EA5E9] font-medium mb-3 text-center">
-          Live Positions
-        </p>
-        <h2 className="text-2xl font-bold text-[#E8EDF2] font-display text-center mb-8">
-          Current holdings
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {top3.map((pos) => (
-            <PositionCard key={pos.ticker} pos={pos} />
+    <div style={{ background: "#030005", minHeight: "100vh", overflowY: "auto", color: "white", fontFamily: "system-ui, sans-serif" }}>
+      <div className="fixed inset-0"><ObsidianCanvas /></div>
+
+      {/* Gold top line */}
+      <div style={{ position: "relative", zIndex: 30, height: 2, background: "linear-gradient(to right, transparent, #F5A623, #00D4FF, transparent)" }} />
+
+      {/* Nav */}
+      <nav style={{ position: "relative", zIndex: 20, padding: "20px 52px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <GoldRingTitle />
+        </div>
+        <div style={{ display: "flex", gap: 8, ...glassCard, padding: "10px 20px" }}>
+          {[["PORTFOLIO", "/dashboard", "#F5A623"], ["REPORTS", "/reports", "rgba(255,255,255,0.4)"], ["TEAM", "/team", "rgba(255,255,255,0.4)"]].map(([label, href, color]) => (
+            <Link key={label} href={href} style={{ textDecoration: "none", fontSize: 10, letterSpacing: 3, color, padding: "0 12px" }}>{label}</Link>
           ))}
         </div>
-        <div className="text-center mt-6">
-          <Link
-            href="/dashboard"
-            className="text-sm text-[#0EA5E9] hover:text-[#38BDF8] transition-colors duration-200 underline underline-offset-4"
-          >
-            View all positions
+      </nav>
+
+      {/* Hero */}
+      <div style={{ position: "relative", zIndex: 10, padding: "20px 60px 0", display: "grid", gridTemplateColumns: "1fr 300px", gap: 48, alignItems: "start" }}>
+        {/* Left */}
+        <div>
+          {/* Giant portfolio value */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 9, letterSpacing: 5, color: "#F5A623", marginBottom: 12, opacity: 0.8 }}>LIVE NET ASSET VALUE</div>
+            <div style={{ fontSize: "clamp(56px,10vw,110px)", fontWeight: 900, letterSpacing: -5, lineHeight: 1,
+              background: "linear-gradient(135deg, #FEF3C7 0%, #F5A623 60%, #D97706 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+              textShadow: "none", filter: "drop-shadow(0 0 40px rgba(245,166,35,0.3))",
+            }}>
+              {s ? fmtUsd(s.total_value) : "———"}
+            </div>
+          </div>
+
+          <div style={{ fontSize: 9, letterSpacing: 3, color: "rgba(255,255,255,0.2)", marginBottom: 40 }}>PAPER TRADING · ALPACA API · UPDATED DAILY 09:45 ET</div>
+
+          <h1 style={{ fontSize: "clamp(52px,8vw,90px)", fontWeight: 900, letterSpacing: -4, lineHeight: 0.92, marginBottom: 28 }}>
+            Eight agents.<br />
+            <span style={{ color: "#00D4FF", textShadow: "0 0 40px rgba(0,212,255,0.5)" }}>One position.</span>
+          </h1>
+
+          <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", maxWidth: 460, lineHeight: 1.9, marginBottom: 44 }}>
+            Macro regime, news sentiment, quant signals, fundamental value and institutional flow — converged by committee vote every market morning.
+          </p>
+
+          {/* Stat cards row */}
+          {s && (
+            <div style={{ display: "flex", gap: 10, marginBottom: 44 }}>
+              {[
+                { label: "Daily P&L", val: fmt(s.daily_pnl_pct) + "%", sub: fmtUsd(s.daily_pnl_absolute), color: s.daily_pnl_pct >= 0 ? "#00FF87" : "#FF4141" },
+                { label: "Total P&L", val: fmt(s.total_pnl_pct) + "%", sub: fmtUsd(s.total_pnl_absolute), color: s.total_pnl_pct >= 0 ? "#00FF87" : "#FF4141" },
+                { label: "Positions", val: String(s.active_positions), sub: "open trades", color: "#00D4FF" },
+                { label: "Pipeline", val: "LIVE", sub: "GitHub Actions", color: "#F5A623" },
+              ].map(item => (
+                <div key={item.label} style={{ flex: 1, ...glassCard, padding: "18px 16px", borderTop: `2px solid ${item.color}60` }}>
+                  <div style={{ fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>{item.label.toUpperCase()}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: item.color, letterSpacing: -0.5 }}>{item.val}</div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", marginTop: 4, fontFamily: "monospace" }}>{item.sub}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 12 }}>
+            <Link href="/dashboard">
+              <button style={{ padding: "16px 40px", background: "linear-gradient(135deg,#F5A623,#D97706)", color: "#030005", border: "none", fontSize: 13, fontWeight: 800, letterSpacing: 3, cursor: "pointer", borderRadius: 10, boxShadow: "0 0 40px rgba(245,166,35,0.4)" }}>
+                ENTER PORTFOLIO
+              </button>
+            </Link>
+            <Link href="/reports">
+              <button style={{ padding: "16px 40px", ...glassCard, color: "#00D4FF", fontSize: 13, fontWeight: 600, letterSpacing: 2, cursor: "pointer", boxShadow: "0 0 20px rgba(0,212,255,0.15)" }}>
+                DAILY REPORTS
+              </button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Right: position list */}
+        <div style={{ ...glassCard, padding: "24px 20px", borderTop: "2px solid rgba(255,0,110,0.3)" }}>
+          <div style={{ fontSize: 8, letterSpacing: 4, color: "#FF99CC", marginBottom: 18 }}>LIVE POSITIONS</div>
+          {(data?.positions ?? []).slice(0, 11).map(p => (
+            <Link href={`/position/${p.ticker}`} key={p.ticker} style={{ textDecoration: "none" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer" }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.8)" }}>{p.ticker}</div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", letterSpacing: 1 }}>{p.direction.toUpperCase()}</div>
+                </div>
+                <div style={{ fontSize: 12, color: p.pct_change >= 0 ? "#00FF87" : "#FF4141", fontFamily: "monospace", fontWeight: 600 }}>
+                  {p.pct_change >= 0 ? "+" : ""}{p.pct_change.toFixed(2)}%
+                </div>
+              </div>
+            </Link>
+          ))}
+          <Link href="/dashboard">
+            <div style={{ marginTop: 14, fontSize: 10, color: "#F5A623", textAlign: "center", letterSpacing: 2, cursor: "pointer" }}>ALL POSITIONS →</div>
           </Link>
         </div>
       </div>
-    </section>
-  );
-}
 
-// ---------------------------------------------------------------------------
-// How It Works section
-// ---------------------------------------------------------------------------
-const HOW_IT_WORKS = [
-  {
-    time: "9:45 AM ET",
-    title: "Daily Analysis",
-    desc: "All agents analyse the full market universe — macro, news, sector rotation, quant signals, fundamentals, and sentiment.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10" />
-        <polyline points="12 6 12 12 16 14" />
-      </svg>
-    ),
-  },
-  {
-    time: "Committee Vote",
-    title: "Committee Vote",
-    desc: "Every agent scores each candidate. The committee aggregates scores, resolves conflicts, and determines sizing with conviction weighting.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-        <circle cx="9" cy="7" r="4" />
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-      </svg>
-    ),
-  },
-  {
-    time: "Automated",
-    title: "Execution",
-    desc: "Orders are placed automatically via Alpaca paper trading. Positions are tracked in real time and reviewed each morning.",
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-      </svg>
-    ),
-  },
-];
+      {/* Ticker tape */}
+      {(data?.positions ?? []).length > 0 && (
+        <div style={{ position: "relative", zIndex: 10, padding: "32px 0", borderTop: "1px solid rgba(255,255,255,0.05)", marginTop: 48 }}>
+          <Tape positions={data!.positions} />
+        </div>
+      )}
 
-function HowItWorksSection() {
-  return (
-    <section className="py-20 px-6">
-      <div className="max-w-4xl mx-auto">
-        <p className="text-[10px] uppercase tracking-widest text-[#0EA5E9] font-medium mb-3 text-center">
-          How It Works
-        </p>
-        <h2 className="text-3xl font-bold text-[#E8EDF2] font-display text-center mb-12">
-          From signal to execution
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {HOW_IT_WORKS.map((step) => (
-            <div
-              key={step.title}
-              className="rounded-2xl p-6 transition-all duration-300 hover:scale-[1.02]"
-              style={{
-                background: "rgba(255,255,255,0.025)",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-            >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center mb-4"
-                style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)" }}
-              >
-                {step.icon}
-              </div>
-              <div className="text-[10px] uppercase tracking-widest text-[#0EA5E9] font-medium mb-1">
-                {step.time}
-              </div>
-              <h3 className="text-base font-bold text-[#E8EDF2] mb-2">{step.title}</h3>
-              <p className="text-sm text-[#6B7280] leading-relaxed">{step.desc}</p>
+      {/* Agent strip */}
+      <div style={{ position: "relative", zIndex: 10, padding: "20px 60px 48px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(8,1fr)", gap: 6 }}>
+          {["Macro", "News", "Sector", "Quant", "Fundamental", "Sentiment", "Institutional", "Committee"].map((name, i) => (
+            <div key={name} style={{
+              ...glassCard, padding: "16px 10px", textAlign: "center",
+              borderTop: i === 7 ? "2px solid rgba(245,166,35,0.5)" : "2px solid rgba(255,255,255,0.05)",
+            }}>
+              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginBottom: 6, fontFamily: "monospace" }}>{String(i + 1).padStart(2, "0")}</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: i === 7 ? "#F5A623" : "rgba(255,255,255,0.6)" }}>{name}</div>
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Footer CTA
-// ---------------------------------------------------------------------------
-function FooterCTA() {
-  return (
-    <section className="py-24 px-6 text-center">
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden
-        style={{
-          background:
-            "radial-gradient(ellipse 600px 300px at 50% 50%, rgba(14,165,233,0.06) 0%, transparent 70%)",
-        }}
-      />
-      <p className="text-[10px] uppercase tracking-widest text-[#0EA5E9] font-medium mb-4">
-        Ready to explore?
-      </p>
-      <h2 className="text-4xl font-bold text-[#E8EDF2] font-display mb-10">
-        The portfolio is live.
-      </h2>
-      <div className="flex flex-col items-center gap-4">
-        <Link href="/dashboard">
-          <button
-            className="px-10 py-4 rounded-xl font-semibold text-white text-base transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
-            style={{
-              background: "linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)",
-              boxShadow: "0 0 40px rgba(14,165,233,0.4)",
-            }}
-          >
-            Enter Portfolio
-          </button>
-        </Link>
-        <Link
-          href="/reports"
-          className="text-sm text-[#6B7280] hover:text-[#E8EDF2] transition-colors duration-200 underline underline-offset-4"
-        >
-          View Reports
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Divider
-// ---------------------------------------------------------------------------
-function Divider() {
-  return (
-    <div className="max-w-4xl mx-auto px-6">
-      <div
-        className="h-px w-full"
-        style={{ background: "linear-gradient(to right, transparent, rgba(14,165,233,0.2), transparent)" }}
-      />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main page
-// ---------------------------------------------------------------------------
-export default function HomePage() {
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/portfolio")
-      .then((r) => r.json())
-      .then((data: PortfolioData) => {
-        setPortfolioData(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  return (
-    <div className="bg-[#080C10] text-[#E8EDF2] min-h-screen overflow-y-auto">
-
-      {/* ------------------------------------------------------------------ */}
-      {/* SECTION 1 — HERO (100vh)                                            */}
-      {/* ------------------------------------------------------------------ */}
-      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
-        {/* Grid background */}
-        <div
-          className="absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(14,165,233,1) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,1) 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
-          }}
-          aria-hidden
-        />
-
-        {/* Floating tickers */}
-        <HeroCanvas />
-
-        {/* Ambient orbs */}
-        <div
-          className="orb w-[600px] h-[600px]"
-          style={{
-            background: "#0EA5E9",
-            top: "-100px",
-            left: "-100px",
-            animation: "orb 14s ease-in-out infinite",
-          }}
-          aria-hidden
-        />
-        <div
-          className="orb w-[500px] h-[500px]"
-          style={{
-            background: "#06B6D4",
-            bottom: "-100px",
-            right: "-100px",
-            animation: "orb 18s ease-in-out infinite reverse",
-          }}
-          aria-hidden
-        />
-
-        {/* Main hero content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl pb-32">
-          <div className="flex justify-center mb-10">
-            <AIEntity />
-          </div>
-
-          <h1
-            className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold text-[#E8EDF2] tracking-tight leading-tight mb-4"
-            style={{ textShadow: "0 0 60px rgba(14,165,233,0.15)" }}
-          >
-            The market doesn&apos;t wait.
-            <br />
-            <span
-              style={{
-                background: "linear-gradient(135deg, #0EA5E9 0%, #06B6D4 50%, #E8EDF2 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}
-            >
-              Neither do we.
-            </span>
-          </h1>
-
-          <p className="text-[#6B7280] text-lg sm:text-xl mb-10 max-w-xl mx-auto font-light tracking-wide">
-            A fully autonomous AI hedge fund.{" "}
-            <span className="text-[#E8EDF2]/60">11 agents. One portfolio.</span>
-          </p>
-
-          <div className="flex items-center justify-center gap-3 mb-10 flex-wrap">
-            {["11 Agents", "Daily Pipeline", "Paper Trading", "Forward-Looking"].map((tag) => (
-              <span
-                key={tag}
-                className="text-xs font-medium text-[#6B7280] px-3 py-1.5 rounded-full"
-                style={{ border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Link href="/dashboard">
-              <button
-                className="px-8 py-4 rounded-xl font-semibold text-white text-sm transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
-                style={{
-                  background: "linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)",
-                  boxShadow: "0 0 30px rgba(14,165,233,0.35)",
-                }}
-              >
-                View Portfolio
-              </button>
-            </Link>
-            <Link href="/team">
-              <button
-                className="px-8 py-4 rounded-xl font-semibold text-[#E8EDF2] text-sm transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] hover:border-[#0EA5E9]/50"
-                style={{
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  backdropFilter: "blur(12px)",
-                }}
-              >
-                Meet the Team
-              </button>
-            </Link>
-          </div>
-        </div>
-
-        {/* Bottom fade */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none z-10"
-          style={{ background: "linear-gradient(to top, #080C10, transparent)" }}
-          aria-hidden
-        />
-
-        {/* Live stats strip */}
-        <LiveStatsStrip data={portfolioData} loading={loading} />
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* SECTION 2 — PIPELINE FLOW                                           */}
-      {/* ------------------------------------------------------------------ */}
-      <PipelineSection />
-
-      <Divider />
-
-      {/* ------------------------------------------------------------------ */}
-      {/* SECTION 3 — LIVE POSITIONS (conditional)                            */}
-      {/* ------------------------------------------------------------------ */}
-      {portfolioData && portfolioData.positions.length > 0 && (
-        <>
-          <LivePositionsSection positions={portfolioData.positions} />
-          <Divider />
-        </>
-      )}
-
-      {/* ------------------------------------------------------------------ */}
-      {/* SECTION 4 — HOW IT WORKS                                            */}
-      {/* ------------------------------------------------------------------ */}
-      <HowItWorksSection />
-
-      <Divider />
-
-      {/* ------------------------------------------------------------------ */}
-      {/* SECTION 5 — FOOTER CTA                                              */}
-      {/* ------------------------------------------------------------------ */}
-      <div className="relative">
-        <FooterCTA />
       </div>
     </div>
   );

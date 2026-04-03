@@ -2,7 +2,7 @@
 
 const TECH_STACK = [
   { name: "Python 3.11", category: "Runtime", color: "#F59E0B" },
-  { name: "OpenAI GPT-4o-mini", category: "Intelligence", color: "#0EA5E9" },
+  { name: "OpenAI GPT-4o-mini", category: "Intelligence", color: "#F5A623" },
   { name: "yfinance", category: "Market Data", color: "#10B981" },
   { name: "SEC EDGAR", category: "Fundamentals", color: "#8B5CF6" },
   { name: "Alpha Vantage", category: "Financials", color: "#06B6D4" },
@@ -41,7 +41,7 @@ export default function AboutPage() {
         {/* Header */}
         <div className="mb-16">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-medium"
-            style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)", color: "#0EA5E9" }}>
+            style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)", color: "#F5A623" }}>
             Fund Overview
           </div>
           <h1 className="font-display text-5xl font-bold text-[#E8EDF2] leading-tight mb-4">
@@ -74,7 +74,7 @@ export default function AboutPage() {
           <div className="card p-8">
             <div className="flex items-start gap-4 mb-6 pb-6 border-b border-white/06">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%)", boxShadow: "0 0 20px rgba(14,165,233,0.3)" }}>
+                style={{ background: "linear-gradient(135deg, #F5A623 0%, #06B6D4 100%)", boxShadow: "0 0 20px rgba(14,165,233,0.3)" }}>
                 <span className="font-display text-lg font-bold text-white">H</span>
               </div>
               <div>
@@ -95,7 +95,7 @@ export default function AboutPage() {
                 <p className="text-[#6B7280] text-sm">Claude Code built the entire system across multiple sessions. GPT-4o-mini runs inside every agent as the reasoning engine — analysing financial data, producing structured outputs, and reasoning about forward price movements.</p>
               </div>
             </div>
-            <p className="text-[#6B7280] text-sm mt-6 italic border-l-2 border-[#0EA5E9]/30 pl-4">
+            <p className="text-[#6B7280] text-sm mt-6 italic border-l-2 border-[#F5A623]/30 pl-4">
               The AI-assisted development approach isn&apos;t a disclaimer — it&apos;s the whole point. This system is a demonstration of what can be built when a human with domain expertise and financial judgment works closely with an AI with engineering capabilities.
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {PHILOSOPHY_POINTS.map((p) => (
               <div key={p.title} className="card p-6">
-                <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#0EA5E9] to-[#06B6D4] mb-4" />
+                <div className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#F5A623] to-[#06B6D4] mb-4" />
                 <h3 className="font-display text-base font-bold text-[#E8EDF2] mb-2">{p.title}</h3>
                 <p className="text-[#6B7280] text-sm leading-relaxed">{p.body}</p>
               </div>

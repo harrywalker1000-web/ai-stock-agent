@@ -10,27 +10,27 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          base: "#080C10",
-          deep: "#04060A",
+          base: "#030005",
+          deep: "#010002",
           surface: "rgba(255,255,255,0.04)",
           elevated: "rgba(255,255,255,0.07)",
         },
         accent: {
-          DEFAULT: "#0EA5E9",
-          dim: "#0284C7",
-          glow: "rgba(14,165,233,0.2)",
-          cyan: "#06B6D4",
+          DEFAULT: "#F5A623",
+          dim: "#D97706",
+          glow: "rgba(245,166,35,0.2)",
+          cyan: "#00D4FF",
         },
         border: {
           DEFAULT: "rgba(255,255,255,0.08)",
-          accent: "rgba(14,165,233,0.3)",
+          accent: "rgba(245,166,35,0.3)",
           strong: "rgba(255,255,255,0.15)",
         },
         text: {
           primary: "#E8EDF2",
           secondary: "#6B7280",
           muted: "#4B5563",
-          accent: "#0EA5E9",
+          accent: "#F5A623",
         },
         profit: "#10B981",
         loss: "#EF4444",
@@ -44,8 +44,8 @@ const config: Config = {
       boxShadow: {
         glass: "0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)",
         "glass-lg": "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08)",
-        accent: "0 0 20px rgba(14,165,233,0.25)",
-        "accent-lg": "0 0 40px rgba(14,165,233,0.3)",
+        accent: "0 0 20px rgba(245,166,35,0.25)",
+        "accent-lg": "0 0 40px rgba(245,166,35,0.3)",
         profit: "0 0 20px rgba(16,185,129,0.2)",
         loss: "0 0 20px rgba(239,68,68,0.2)",
       },
@@ -62,8 +62,8 @@ const config: Config = {
           "50%": { transform: "translateY(-10px)" },
         },
         glow: {
-          "0%": { boxShadow: "0 0 20px rgba(14,165,233,0.2)" },
-          "100%": { boxShadow: "0 0 40px rgba(14,165,233,0.5)" },
+          "0%": { boxShadow: "0 0 20px rgba(245,166,35,0.2)" },
+          "100%": { boxShadow: "0 0 40px rgba(245,166,35,0.5)" },
         },
         orb: {
           "0%, 100%": { transform: "translate(0, 0) scale(1)" },

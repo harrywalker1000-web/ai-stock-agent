@@ -98,16 +98,16 @@ export default function SettingsPage() {
                   disabled={saving}
                   className={`text-left p-5 rounded-xl border transition-all duration-200 ${
                     isSelected
-                      ? "border-[#0EA5E9] bg-[#0EA5E9]/08"
+                      ? "border-[#F5A623] bg-[#F5A623]/08"
                       : "border-white/08 bg-white/02 hover:border-white/15 hover:bg-white/04"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-[#0EA5E9]" : "border-white/20"}`}>
-                        {isSelected && <div className="w-2 h-2 rounded-full bg-[#0EA5E9]" />}
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-[#F5A623]" : "border-white/20"}`}>
+                        {isSelected && <div className="w-2 h-2 rounded-full bg-[#F5A623]" />}
                       </div>
-                      <span className={`font-bold text-sm ${isSelected ? "text-[#0EA5E9]" : "text-[#E8EDF2]"}`}>{m}</span>
+                      <span className={`font-bold text-sm ${isSelected ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{m}</span>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
                       <span className="text-[#6B7280]">{info.time}</span>
@@ -142,9 +142,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Info card */}
-        <div className="card p-5 bg-[#0EA5E9]/04 border border-[#0EA5E9]/10">
+        <div className="card p-5 bg-[#F5A623]/04 border border-[#F5A623]/10">
           <p className="text-xs text-[#6B7280] leading-relaxed">
-            <span className="text-[#0EA5E9] font-semibold">Note:</span> The pipeline runs daily at 9:45am ET.
+            <span className="text-[#F5A623] font-semibold">Note:</span> The pipeline runs daily at 9:45am ET.
             Changes made here apply to the next scheduled run. You can also override this at runtime by setting
             the <code className="text-[#E8EDF2]">ANALYSIS_MODE</code> environment variable.
           </p>

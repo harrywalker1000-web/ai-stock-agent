@@ -16,7 +16,7 @@ function SectionCard({ title, children, dataSource }: { title: string; children:
     : dataSource === "llm"
     ? { label: "LLM estimate — may be stale", color: "#F59E0B" }
     : dataSource === "mixed"
-    ? { label: "Live + LLM", color: "#0EA5E9" }
+    ? { label: "Live + LLM", color: "#F5A623" }
     : null;
   return (
     <div className="card p-6">
@@ -185,7 +185,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                 <h1 className="font-display text-4xl font-bold text-[#E8EDF2]">{position.ticker}</h1>
                 <span className={position.direction === "long" ? "badge-long" : "badge-short"}>{position.direction}</span>
                 <span className="text-xs font-medium text-[#6B7280] px-2.5 py-1 rounded-lg bg-white/05 border border-white/08">{position.sector}</span>
-                <span className="text-xs font-bold text-[#0EA5E9] px-2.5 py-1 rounded-lg bg-[#0EA5E9]/10">
+                <span className="text-xs font-bold text-[#F5A623] px-2.5 py-1 rounded-lg bg-[#F5A623]/10">
                   Scenario {position.scenario ?? "B"}
                 </span>
                 {fm?.setup_type && (
@@ -240,7 +240,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                 <span className="font-mono font-bold text-[#E8EDF2]">{rec.conviction ?? position.conviction}/100</span>
               </div>
               <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${rec.conviction ?? position.conviction}%` }} />
+                <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${rec.conviction ?? position.conviction}%` }} />
               </div>
               {rec.stop_loss_note && (
                 <p className="text-xs text-[#6B7280] mt-3 leading-relaxed">{rec.stop_loss_note}</p>
@@ -249,12 +249,12 @@ export default function PositionPage({ params }: { params: { ticker: string } })
           </div>
 
           {/* Investment thesis bullets */}
-          <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-[#0EA5E9]/10 to-transparent border border-[#0EA5E9]/20">
+          <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-[#F5A623]/10 to-transparent border border-[#F5A623]/20">
             <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Investment Thesis</h2>
             <ul className="space-y-2.5">
               {thesisBullets.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-[#0EA5E9]/20 text-[#0EA5E9] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="w-5 h-5 rounded-full bg-[#F5A623]/20 text-[#F5A623] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
                   <span className="text-sm text-[#E8EDF2] leading-relaxed">{b}</span>
                 </li>
               ))}
@@ -367,7 +367,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
           <SectionCard title="Peer Comparables" dataSource={liveComps ? "live" : "mixed"}>
             {compsLoading ? (
               <div className="flex items-center gap-2 py-4 text-xs text-[#6B7280]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#0EA5E9] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#F5A623] animate-pulse" />
                 Fetching live data from Yahoo Finance...
               </div>
             ) : (
@@ -395,10 +395,10 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                         return sv <= peer.pe_ratio ? "text-[#10B981]" : "text-[#EF4444]";
                       }
                       return (
-                        <tr key={c.ticker} className={`border-b border-white/04 ${isSubject ? "bg-[#0EA5E9]/05" : ""}`}>
+                        <tr key={c.ticker} className={`border-b border-white/04 ${isSubject ? "bg-[#F5A623]/05" : ""}`}>
                           <td className="py-2">
-                            <span className={`font-mono font-bold ${isSubject ? "text-[#0EA5E9]" : "text-[#E8EDF2]"}`}>{c.ticker}</span>
-                            {isSubject && <span className="ml-1 text-[#0EA5E9] text-xs">(us)</span>}
+                            <span className={`font-mono font-bold ${isSubject ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{c.ticker}</span>
+                            {isSubject && <span className="ml-1 text-[#F5A623] text-xs">(us)</span>}
                           </td>
                           <td className="py-2 text-right font-mono text-[#E8EDF2]">{lc.revenue_bn != null ? `$${lc.revenue_bn.toFixed(1)}B` : "—"}</td>
                           <td className={`py-2 text-right font-mono font-semibold ${isSubject ? "text-[#E8EDF2]" : peColor(lc)}`}>{lc.pe_ratio != null ? lc.pe_ratio.toFixed(1) + "x" : "—"}</td>
@@ -595,11 +595,11 @@ export default function PositionPage({ params }: { params: { ticker: string } })
             <div className="space-y-3">
               {/* Step 1: Committee challenge */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[#0EA5E9]">C</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F5A623]/15 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-[#F5A623]">C</span>
                 </div>
                 <div className="flex-1 bg-white/03 rounded-xl p-4">
-                  <p className="text-[10px] text-[#0EA5E9] uppercase tracking-wider font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
+                  <p className="text-[10px] text-[#F5A623] uppercase tracking-wider font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
                   <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.committee_challenge}</p>
                 </div>
               </div>
@@ -631,12 +631,12 @@ export default function PositionPage({ params }: { params: { ticker: string } })
 
               {/* Step 3: Committee resolution */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#0EA5E9]/15 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[#0EA5E9]">R</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F5A623]/15 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-[#F5A623]">R</span>
                 </div>
                 <div className="flex-1 bg-white/03 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-[10px] text-[#0EA5E9] uppercase tracking-wider font-bold">Committee resolution</p>
+                    <p className="text-[10px] text-[#F5A623] uppercase tracking-wider font-bold">Committee resolution</p>
                     <div className="flex items-center gap-2 text-xs">
                       <span className="text-[#6B7280]">Final {agentDebate.dissenter} score:</span>
                       <span className="font-mono font-bold text-[#E8EDF2]">{agentDebate.final_dissenter_score}</span>
@@ -679,7 +679,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                 </div>
                 <div className="mb-2">
                   <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">Trade Type</p>
-                  <span className="text-xs font-bold text-[#0EA5E9] bg-[#0EA5E9]/10 px-2 py-0.5 rounded">{technicalData.trade_type ?? "—"}</span>
+                  <span className="text-xs font-bold text-[#F5A623] bg-[#F5A623]/10 px-2 py-0.5 rounded">{technicalData.trade_type ?? "—"}</span>
                   <span className={`ml-2 text-xs font-bold px-2 py-0.5 rounded ${technicalData.forward_bias === "bullish" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#EF4444] bg-[#EF4444]/10"}`}>{technicalData.forward_bias ?? "—"}</span>
                 </div>
                 {technicalData.key_patterns?.length > 0 && (
@@ -793,7 +793,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                       <span className="text-xs text-[#E8EDF2]">{h.name}</span>
                       <div className="flex items-center gap-2">
                         <div className="w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${Math.min(h.pct * 3, 100)}%` }} />
+                          <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${Math.min(h.pct * 3, 100)}%` }} />
                         </div>
                         <span className="text-xs font-mono text-[#6B7280] w-8 text-right">{h.pct}%</span>
                       </div>
@@ -837,7 +837,7 @@ export default function PositionPage({ params }: { params: { ticker: string } })
                         <span className="text-[#6B7280] font-mono">{seg.weight_pct}%</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${seg.weight_pct}%` }} />
+                        <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${seg.weight_pct}%` }} />
                       </div>
                     </div>
                   ))}

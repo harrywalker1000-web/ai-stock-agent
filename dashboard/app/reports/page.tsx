@@ -25,14 +25,14 @@ function AgentFindingCard({ finding }: { finding: AgentFinding }) {
       className="flex gap-3 p-3 rounded-xl bg-white/[0.02] text-left w-full hover:bg-white/[0.04] transition-colors"
       onClick={() => isLong && setExpanded(!expanded)}
     >
-      <div className="w-1 rounded-full bg-[#0EA5E9]/40 flex-shrink-0 mt-0.5" />
+      <div className="w-1 rounded-full bg-[#F5A623]/40 flex-shrink-0 mt-0.5" />
       <div className="min-w-0">
         <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{finding.agent}</p>
         <p className="text-xs text-[#6B7280] leading-relaxed">
           {expanded || !isLong ? finding.finding : finding.finding.slice(0, 160) + "…"}
         </p>
         {isLong && (
-          <p className="text-[10px] text-[#0EA5E9] mt-1">{expanded ? "Show less" : "Show more"}</p>
+          <p className="text-[10px] text-[#F5A623] mt-1">{expanded ? "Show less" : "Show more"}</p>
         )}
       </div>
     </button>
@@ -64,7 +64,7 @@ function ReportCard({ report }: { report: Report }) {
                 <span className="text-[#6B7280]">{report.holds} holds</span>
               )}
               {report.increases > 0 && (
-                <span className="text-[#0EA5E9]">{report.increases} increases</span>
+                <span className="text-[#F5A623]">{report.increases} increases</span>
               )}
             </div>
           </div>
@@ -119,7 +119,7 @@ function ReportCard({ report }: { report: Report }) {
                       <div className="flex-1">
                         <p className="text-xs text-[#6B7280]">{d.thesis}</p>
                       </div>
-                      <div className="text-xs font-mono text-[#0EA5E9] self-start whitespace-nowrap">
+                      <div className="text-xs font-mono text-[#F5A623] self-start whitespace-nowrap">
                         {d.conviction}/100
                       </div>
                     </div>
@@ -170,7 +170,7 @@ export default function ReportsPage() {
           </div>
           <a
             href="/reports/adhoc"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#0EA5E9] border border-[#0EA5E9]/30 bg-[#0EA5E9]/08 hover:bg-[#0EA5E9]/14 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#F5A623] border border-[#F5A623]/30 bg-[#F5A623]/08 hover:bg-[#F5A623]/14 transition-all"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />

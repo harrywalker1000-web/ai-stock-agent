@@ -17,20 +17,20 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Don't show navbar on login page
-  if (pathname === "/login") return null;
+  // Don't show navbar on login or homepage (homepage has its own nav)
+  if (pathname === "/login" || pathname === "/") return null;
 
   return (
     <>
       <nav
         className="fixed top-0 left-0 right-0 z-50 glass-nav"
-        style={{ height: "64px" }}
+        style={{ height: "64px", borderTop: "2px solid transparent", background: "linear-gradient(rgba(3,0,5,0.88),rgba(3,0,5,0.88)) padding-box, linear-gradient(to right, transparent, rgba(245,166,35,0.5), rgba(0,212,255,0.3), transparent) border-box" }}
       >
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div
-              className="flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(14,165,233,0.7)]"
+              className="flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(245,166,35,0.7)]"
             >
               {/* Compass logo */}
               <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -45,7 +45,7 @@ export default function Navbar() {
                 {/* East / West */}
                 <polygon points="39,22 22,18.5 25,22 22,25.5" fill="#E8EDF2" opacity="0.25"/>
                 <polygon points="5,22 22,25.5 19,22 22,18.5" fill="#E8EDF2" opacity="0.25"/>
-                <circle cx="22" cy="22" r="2.5" fill="#0EA5E9"/>
+                <circle cx="22" cy="22" r="2.5" fill="#F5A623"/>
                 {/* Tick marks */}
                 <line x1="22" y1="9" x2="22" y2="12" stroke="#E8EDF2" strokeWidth="1" opacity="0.5"/>
                 <line x1="22" y1="32" x2="22" y2="35" stroke="#E8EDF2" strokeWidth="1" opacity="0.3"/>
@@ -76,7 +76,7 @@ export default function Navbar() {
                   href={link.href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "text-[#0EA5E9] bg-[#0EA5E9]/10"
+                      ? "text-[#F5A623] bg-[#F5A623]/10"
                       : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
                   }`}
                 >
@@ -119,7 +119,7 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 md:hidden pt-16">
           <div
-            className="absolute inset-0 bg-[#080C10]/90"
+            className="absolute inset-0 bg-[#030005]/90"
             onClick={() => setMobileOpen(false)}
           />
           <div className="relative glass-nav border-t border-white/06 px-6 py-4 space-y-1">
@@ -135,7 +135,7 @@ export default function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className={`block px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                     isActive
-                      ? "text-[#0EA5E9] bg-[#0EA5E9]/10"
+                      ? "text-[#F5A623] bg-[#F5A623]/10"
                       : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
                   }`}
                 >

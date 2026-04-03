@@ -35,7 +35,7 @@ function PipelineNode({ agent, onClick, onChat }: {
       <div
         className="relative w-20 h-20 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
         style={{
-          background: `rgba(${agent.color === "#0EA5E9" ? "14,165,233" : agent.color === "#06B6D4" ? "6,182,212" : agent.color === "#8B5CF6" ? "139,92,246" : agent.color === "#F59E0B" ? "245,158,11" : agent.color === "#10B981" ? "16,185,129" : agent.color === "#EF4444" ? "239,68,68" : "107,114,128"},0.12)`,
+          background: `rgba(${agent.color === "#F5A623" ? "14,165,233" : agent.color === "#06B6D4" ? "6,182,212" : agent.color === "#8B5CF6" ? "139,92,246" : agent.color === "#F59E0B" ? "245,158,11" : agent.color === "#10B981" ? "16,185,129" : agent.color === "#EF4444" ? "239,68,68" : "107,114,128"},0.12)`,
           border: `1px solid ${agent.color}40`,
           boxShadow: `0 0 20px ${agent.color}15`,
         }}
@@ -213,7 +213,7 @@ function ChatPanel({ agent, onClose }: { agent: Agent; onClose: () => void }) {
             onKeyDown={(e) => e.key === "Enter" && send()}
             placeholder={`Ask ${agent.name.split(" ")[0]}...`}
             className="flex-1 bg-white border border-white/20 rounded-xl px-4 py-2.5 text-sm text-black placeholder-[#9CA3AF]
-                       focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
+                       focus:outline-none focus:border-[#F5A623]/50 transition-all"
           />
           <button
             onClick={send}
@@ -330,8 +330,8 @@ export default function TeamPage() {
                 {li < PIPELINE_LEVELS.length - 1 && (
                   <div className="flex justify-center mt-4">
                     <div className="flex flex-col items-center gap-1">
-                      <div className="w-px h-4 bg-gradient-to-b from-[#0EA5E9]/40 to-[#0EA5E9]/0" />
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="#0EA5E9" opacity="0.4">
+                      <div className="w-px h-4 bg-gradient-to-b from-[#F5A623]/40 to-[#F5A623]/0" />
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="#F5A623" opacity="0.4">
                         <path d="M0 0 L5 6 L10 0 Z" />
                       </svg>
                     </div>
@@ -362,7 +362,7 @@ export default function TeamPage() {
               {(["fundamental", "quant", "sentiment"] as const).map((agent) => {
                 const weight = agentWeights[agent] ?? (agent === "sentiment" ? 0.30 : 0.35);
                 const winRate = agentWeights.win_rates_pct?.[agent];
-                const color = weight >= 0.37 ? "#10B981" : weight >= 0.30 ? "#0EA5E9" : "#F59E0B";
+                const color = weight >= 0.37 ? "#10B981" : weight >= 0.30 ? "#F5A623" : "#F59E0B";
                 return (
                   <div key={agent} className="bg-white/03 rounded-xl p-4">
                     <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-2 capitalize">{agent}</p>

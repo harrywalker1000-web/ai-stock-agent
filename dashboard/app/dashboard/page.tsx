@@ -135,14 +135,14 @@ export default function DashboardPage() {
             <button
               onClick={() => setRunModal("review")}
               disabled={runStatus === "running"}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-[#0EA5E9] border border-[#0EA5E9]/30 bg-[#0EA5E9]/08 hover:bg-[#0EA5E9]/14 transition-all disabled:opacity-40"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-[#F5A623] border border-[#F5A623]/30 bg-[#F5A623]/08 hover:bg-[#F5A623]/14 transition-all disabled:opacity-40"
             >
               Review Positions
             </button>
             <button
               onClick={() => setRunModal("full")}
               disabled={runStatus === "running"}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all disabled:opacity-40"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#F5A623] hover:bg-[#F5A623]/90 transition-all disabled:opacity-40"
             >
               Full Research Run
             </button>
@@ -164,7 +164,7 @@ export default function DashboardPage() {
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setRunModal(null)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-[#6B7280] bg-white/05 hover:bg-white/08 transition-all">Cancel</button>
-                <button onClick={() => startRun(runModal)} className="flex-1 px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all">Confirm</button>
+                <button onClick={() => startRun(runModal)} className="flex-1 px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#F5A623] hover:bg-[#F5A623]/90 transition-all">Confirm</button>
               </div>
             </div>
           </div>
@@ -172,13 +172,13 @@ export default function DashboardPage() {
 
         {/* Run progress panel */}
         {runStatus !== "idle" && (
-          <div className={`card p-5 mb-6 border ${runStatus === "running" ? "border-[#0EA5E9]/30" : runStatus === "done" ? "border-[#10B981]/30" : "border-[#EF4444]/30"}`}>
+          <div className={`card p-5 mb-6 border ${runStatus === "running" ? "border-[#F5A623]/30" : runStatus === "done" ? "border-[#10B981]/30" : "border-[#EF4444]/30"}`}>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                {runStatus === "running" && <span className="w-2 h-2 rounded-full bg-[#0EA5E9] animate-pulse" />}
+                {runStatus === "running" && <span className="w-2 h-2 rounded-full bg-[#F5A623] animate-pulse" />}
                 {runStatus === "done" && <span className="w-2 h-2 rounded-full bg-[#10B981]" />}
                 {runStatus === "error" && <span className="w-2 h-2 rounded-full bg-[#EF4444]" />}
-                <span className={`text-sm font-bold ${runStatus === "running" ? "text-[#0EA5E9]" : runStatus === "done" ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                <span className={`text-sm font-bold ${runStatus === "running" ? "text-[#F5A623]" : runStatus === "done" ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                   {runStatus === "running" ? `${runMode === "review" ? "Review" : "Full Run"} in progress...` : runStatus === "done" ? "Run complete" : "Run failed"}
                 </span>
               </div>
@@ -262,7 +262,7 @@ export default function DashboardPage() {
                     onClick={() => setTimeframe(tf)}
                     className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
                       timeframe === tf
-                        ? "bg-[#0EA5E9]/20 text-[#0EA5E9]"
+                        ? "bg-[#F5A623]/20 text-[#F5A623]"
                         : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
                     }`}
                   >
@@ -275,8 +275,8 @@ export default function DashboardPage() {
               <LineChart data={filteredHistory}>
                 <defs>
                   <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0EA5E9" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#0EA5E9" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#F5A623" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#F5A623" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -307,10 +307,10 @@ export default function DashboardPage() {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#0EA5E9"
+                  stroke="#F5A623"
                   strokeWidth={2}
                   dot={false}
-                  activeDot={{ r: 4, fill: "#0EA5E9" }}
+                  activeDot={{ r: 4, fill: "#F5A623" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -407,14 +407,14 @@ export default function DashboardPage() {
                         <span className={pos.direction === "long" ? "badge-long" : "badge-short"}>{pos.direction}</span>
                       </td>
                       <td className="px-2 py-3">
-                        <span className="text-xs text-[#0EA5E9] bg-[#0EA5E9]/10 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
+                        <span className="text-xs text-[#F5A623] bg-[#F5A623]/10 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
                           {pos.setup_type ?? "—"}
                         </span>
                       </td>
                       <td className="px-2 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                            <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${pos.conviction}%` }} />
+                            <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${pos.conviction}%` }} />
                           </div>
                           <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
                         </div>
@@ -454,14 +454,14 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-[#E8EDF2] font-medium w-28">{a.name}</span>
                       <span className="text-[#6B7280]">{a.count} position{a.count !== 1 ? "s" : ""}</span>
-                      <span className="font-mono font-bold text-[#0EA5E9]">{a.score}/100</span>
+                      <span className="font-mono font-bold text-[#F5A623]">{a.score}/100</span>
                     </div>
                     <div className="h-2 rounded-full bg-white/08 overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
                           width: `${a.score}%`,
-                          background: a.score >= 70 ? "#10B981" : a.score >= 50 ? "#0EA5E9" : "#F59E0B",
+                          background: a.score >= 70 ? "#10B981" : a.score >= 50 ? "#F5A623" : "#F59E0B",
                         }}
                       />
                     </div>
