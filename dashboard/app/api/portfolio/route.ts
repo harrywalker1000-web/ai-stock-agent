@@ -255,11 +255,7 @@ export async function GET() {
     { label: "Quant",       key: "quant_score" },
     { label: "Sentiment",   key: "sentiment_score" },
   ];
-  // Also pull from decision_log for macro/news which aren't in scorecards
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recentDecisions: any[] = Array.isArray(decisionLog)
-    ? decisionLog.filter((d) => d.ticker !== "TEST" && d.action?.includes("enter"))
-    : [];
+  void decisionLog; // reserved for future accuracy tracking when positions close
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const agentConviction = AGENT_KEYS.map(({ label, key }) => {
