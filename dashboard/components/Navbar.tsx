@@ -17,8 +17,8 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Don't show navbar on login or homepage (homepage has its own nav)
-  if (pathname === "/login" || pathname === "/") return null;
+  // Don't show navbar on login page
+  if (pathname === "/login") return null;
 
   return (
     <>

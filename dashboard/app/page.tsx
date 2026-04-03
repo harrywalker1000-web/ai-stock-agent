@@ -60,34 +60,6 @@ function ObsidianCanvas() {
   return <canvas ref={ref} className="absolute inset-0 w-full h-full" aria-hidden />;
 }
 
-// Rotating gold ring — title-sized
-function GoldRingTitle() {
-  const [deg, setDeg] = useState(0);
-  useEffect(() => { const t = setInterval(() => setDeg(d => d + 0.12), 16); return () => clearInterval(t); }, []);
-  const r = 90; const cx = 100; const cy = 100;
-  const label = "HAZ·CAPITAL·AUTONOMOUS·TRADING·2024·";
-  return (
-    <svg width={200} height={200} viewBox="0 0 200 200" style={{ filter: "drop-shadow(0 0 30px rgba(245,166,35,0.4))" }}>
-      <defs>
-        <path id="d7path" d={`M ${cx},${cy - r} A ${r},${r} 0 1,1 ${cx - 0.01},${cy - r}`} />
-        <radialGradient id="d7core" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FEF3C7" />
-          <stop offset="50%" stopColor="#F5A623" />
-          <stop offset="100%" stopColor="#92400E" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F5A623" strokeWidth="0.5" strokeOpacity="0.3" />
-      <g style={{ transformOrigin: `${cx}px ${cy}px`, transform: `rotate(${deg}deg)` }}>
-        <text fontSize={7} fill="rgba(245,166,35,0.5)" letterSpacing={2.5} fontFamily="monospace">
-          <textPath href="#d7path">{label}{label}</textPath>
-        </text>
-      </g>
-      <circle cx={cx} cy={cy} r={30} fill="url(#d7core)" />
-      <circle cx={cx} cy={cy} r={14} fill="#F5A623" opacity="0.9" />
-      <text x={cx} y={cy + 4} textAnchor="middle" fontSize={8} fill="#020B18" fontWeight={900} letterSpacing={2} fontFamily="monospace">H</text>
-    </svg>
-  );
-}
 
 // Ticker tape
 function Tape({ positions }: { positions: { ticker: string; pct_change: number }[] }) {
@@ -129,23 +101,8 @@ export default function Design7() {
     <div style={{ background: "#030005", minHeight: "100vh", overflowY: "auto", color: "white", fontFamily: "system-ui, sans-serif" }}>
       <div className="fixed inset-0"><ObsidianCanvas /></div>
 
-      {/* Gold top line */}
-      <div style={{ position: "relative", zIndex: 30, height: 2, background: "linear-gradient(to right, transparent, #F5A623, #00D4FF, transparent)" }} />
-
-      {/* Nav */}
-      <nav style={{ position: "relative", zIndex: 20, padding: "20px 52px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <GoldRingTitle />
-        </div>
-        <div style={{ display: "flex", gap: 8, ...glassCard, padding: "10px 20px" }}>
-          {[["PORTFOLIO", "/dashboard", "#F5A623"], ["REPORTS", "/reports", "rgba(255,255,255,0.4)"], ["TEAM", "/team", "rgba(255,255,255,0.4)"]].map(([label, href, color]) => (
-            <Link key={label} href={href} style={{ textDecoration: "none", fontSize: 10, letterSpacing: 3, color, padding: "0 12px" }}>{label}</Link>
-          ))}
-        </div>
-      </nav>
-
       {/* Hero */}
-      <div style={{ position: "relative", zIndex: 10, padding: "20px 60px 0", display: "grid", gridTemplateColumns: "1fr 300px", gap: 48, alignItems: "start" }}>
+      <div style={{ position: "relative", zIndex: 10, padding: "32px 60px 0", display: "grid", gridTemplateColumns: "1fr 300px", gap: 48, alignItems: "start" }}>
         {/* Left */}
         <div>
           {/* Giant portfolio value */}
