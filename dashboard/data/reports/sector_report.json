@@ -1,115 +1,41 @@
 {
   "top_sectors": [
-    "XLE",
-    "XLK",
-    "XLF",
-    "XLV"
+    "ICLN"
   ],
   "avoid_sectors": [
-    "XLP",
-    "XLI"
+    "XLK",
+    "XLF",
+    "XLE"
   ],
   "emerging_themes": [
-    "energy stocks",
-    "defensive equities",
-    "inflation-protected securities"
+    "inflation-protected securities",
+    "defensive stocks",
+    "clean energy"
   ],
   "sector_rankings": [
     {
-      "sector": "XLE",
-      "name": "Energy",
-      "score": 85,
-      "ret_1m": 5.52,
-      "ret_3m": 30.64,
-      "rs_vs_spy_1m": 8.86,
-      "momentum_accelerating": false,
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_momentum",
-          "news_flow"
-        ],
-        "conflicts": []
-      },
-      "reasoning": "Medium confidence due to positive price momentum and relevant news flow."
-    },
-    {
-      "sector": "XLK",
-      "name": "Technology",
-      "score": 70,
-      "ret_1m": -0.98,
-      "ret_3m": -5.64,
-      "rs_vs_spy_1m": 2.36,
-      "momentum_accelerating": true,
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_momentum",
-          "news_flow"
-        ],
-        "conflicts": []
-      },
-      "reasoning": "Medium confidence with positive price momentum and supportive news."
-    },
-    {
-      "sector": "XLF",
-      "name": "Financials",
-      "score": 65,
-      "ret_1m": -2.78,
-      "ret_3m": -9.37,
-      "rs_vs_spy_1m": 0.56,
-      "momentum_accelerating": true,
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_momentum",
-          "news_flow"
-        ],
-        "conflicts": []
-      },
-      "reasoning": "Medium confidence due to positive price momentum and relevant news."
-    },
-    {
-      "sector": "XLV",
-      "name": "Healthcare",
-      "score": 60,
-      "ret_1m": -5.95,
-      "ret_3m": -5.21,
-      "rs_vs_spy_1m": -2.61,
-      "momentum_accelerating": false,
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_momentum",
-          "news_flow"
-        ],
-        "conflicts": [
-          "Price momentum is negative but news flow is positive \u2014 divergence"
-        ]
-      },
-      "reasoning": "Medium confidence but with a conflict between price momentum and news flow."
-    }
-  ],
-  "thematic_rankings": [
-    {
-      "etf": "ICLN",
+      "sector": "ICLN",
       "name": "Clean Energy",
-      "score": 75,
+      "score": 70,
       "ret_1m": 1.86,
+      "ret_3m": 5.56,
       "rs_vs_spy_1m": 5.2,
+      "momentum_accelerating": false,
       "signal_confidence": {
-        "level": "high",
-        "sources_count": 3
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "price_momentum",
+          "volume_confirmation"
+        ],
+        "conflicts": []
       },
-      "reasoning": "High confidence due to strong performance and multiple supportive signals."
+      "reasoning": "ICLN has medium confidence due to price momentum and volume confirmation, showing positive relative strength."
     }
   ],
-  "sector_summary": "The energy sector (XLE) shows strong relative strength and medium confidence, making it a top pick. Technology (XLK) and Financials (XLF) also have medium confidence but weaker performance. Healthcare (XLV) has a conflict between negative price momentum and positive news flow, suggesting caution. Consumer Staples (XLP) and Industrials (XLI) are weak and should be avoided.",
-  "confidence": 80,
+  "thematic_rankings": [],
+  "sector_summary": "The Clean Energy sector (ICLN) shows medium confidence and positive relative strength, making it a viable option in the current risk-off environment. Other sectors like Technology (XLK), Financials (XLF), and Energy (XLE) have low confidence and should be avoided. No sectors exhibited conflicting signals between price and news.",
+  "confidence": 70,
   "raw_data": {
     "etf_stats": {
       "XLK": {
@@ -455,33 +381,28 @@
     },
     "etf_confidence": {
       "XLK": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
-        "agreements": [
-          "News flow (positive) confirms price direction"
-        ],
+        "agreements": [],
         "conflicts": []
       },
       "XLF": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLE": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
@@ -496,16 +417,13 @@
         "conflicts": []
       },
       "XLV": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
-        "conflicts": [
-          "Price momentum is negative but news flow is positive \u2014 divergence"
-        ]
+        "conflicts": []
       },
       "XLI": {
         "level": "low",
@@ -517,51 +435,46 @@
         "conflicts": []
       },
       "XLU": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLRE": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLY": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLB": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLC": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
@@ -585,49 +498,42 @@
         "conflicts": []
       },
       "ICLN": {
-        "level": "high",
-        "sources_count": 3,
-        "sources": [
-          "price_momentum",
-          "volume_confirmation",
-          "news_flow"
-        ],
-        "agreements": [
-          "Elevated volume (1.5x avg) confirms momentum",
-          "News flow (positive) confirms price direction"
-        ],
-        "conflicts": []
-      },
-      "ITA": {
         "level": "medium",
         "sources_count": 2,
         "sources": [
           "price_momentum",
-          "news_flow"
+          "volume_confirmation"
+        ],
+        "agreements": [
+          "Elevated volume (1.5x avg) confirms momentum"
+        ],
+        "conflicts": []
+      },
+      "ITA": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "NLR": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XBI": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "price_momentum",
-          "news_flow"
+          "price_momentum"
         ],
-        "agreements": [
-          "News flow (positive) confirms price direction"
-        ],
+        "agreements": [],
         "conflicts": []
       }
     },
@@ -659,105 +565,40 @@
       "XBI": "Biotech"
     },
     "sector_news_map": {
-      "XLK": [
-        "The Biggest Photography Stories of March 2026",
-        "What to Expect From Lam Research\u2019s Next Quarterly Earnings Report",
-        "Commentary: AI efficiency shock rattles memory stocks, tests chip demand narrative",
-        "5 Cloud and AI Infrastructure Stocks Powering the Next Wave of AI",
-        "Taiwan Semiconductor Manufacturing Company Limited (TSM) Gains from Strong Demand and Its Industry-Leading Manufacturing Capabilities"
-      ],
-      "XLF": [
-        "Remortgaging: why delaying a phone call can cost you more than a car"
-      ],
-      "XLE": [
-        "Iran Strikes Fully Laden Kuwait Oil Tanker in Dubai Port",
-        "Gas prices top $4 a gallon as Iran war triggers global oil shock",
-        "Russian tanker reaches Cuba amid critical energy shortage",
-        "Trump wants to \u2018take Iran\u2019s oil\u2019: Can he, and what would that mean?",
-        "Trump wants to invade Iran to seize oil, calls US objectors \u2018stupid people\u2019"
-      ],
+      "XLK": [],
+      "XLF": [],
+      "XLE": [],
       "XLP": [],
-      "XLV": [
-        "FDA warns consumers not to purchase or use EzriCare Artificial Tears due to potential contamination",
-        "FDA warns consumers not to purchase or use certain eye drops from several major brands due to risk of eye infection",
-        "Zymeworks Appoints Kristin Stafford as Chief Financial Officer",
-        "US pharma giant Eli Lilly, Insilico Medicine secure deal worth $2.75 billion to bring AI-developed drugs to market",
-        "Liposomal Doxorubicin Market Insights Report 2026: Cancer Incidence Surge Fuels Market Growth, Asia-Pacific Emerges as Fastest-Growing Region"
-      ],
+      "XLV": [],
       "XLI": [],
-      "XLU": [
-        "Data centres: Blackout worries trigger new electricity protocols",
-        "ThinkLabs AI Closes $28 M Series A Led by Energy Impact Partners, Backed by NVentures and Edison International",
-        "The Iran war is accelerating plans for Southeast Asia to go nuclear. Experts say it won\u2019t be easy",
-        "ThinkLabs AI Closes $28 M Series A Led by Energy Impact Partners, Backed by NVentures and Edison International",
-        "UK's National Grid invest up to $400 million for an India GCC"
-      ],
-      "XLRE": [
-        "Buy the Dip: These 3 Over-$100 Stocks Just Hit New 52-Week Lows"
-      ],
-      "XLY": [
-        "Target Is Up 44%. Has It Finally Turned the Corner on Its Troubles?",
-        "Retail Sales Blow Past Expectations in February as Consumers Bounce Back",
-        "Average U.S. gas price hits $4 for the first time since 2022",
-        "Retail sales tick up 0.6% in February before Iran war, gas price spike"
-      ],
-      "XLB": [
-        "How A Magnet Shortage Could Bring The $10 Trillion Tech Sector to a Halt",
-        "ASX 200 mining shares ride a rollercoaster in March quarter",
-        "Latin Metals Provides Update on Expanded Cerro Bayo Drill Program",
-        "Critical Minerals Boom: Nickel\u2013Cobalt Market Races Toward $35B+ Valuation",
-        "Eagle Nuclear Energy Announces Plans to Conduct a 27,000 Ft Drill Program To Advance Aurora Toward a Pre-Feasibility Study"
-      ],
-      "XLC": [
-        "The Great Convergence: Why The Creator Economy\u2019s Future Belongs To Those Who Unite Social, Brand, And Talent",
-        "Artemis II Launch: What Time to Watch NASA\u2019s Mission Live Today?",
-        "JSA #18 Preview: Golden Oldies Save Gotham from Gloom",
-        "Artemis II Launch: Who Are the Astronauts Flying on NASA\u2019s Mission?",
-        "The Story-Centric Shift: Designing the Multi-Platform Newsroom for the Streaming Era"
-      ],
-      "ITA": [
-        "US-Israeli aggression on Iran: What happened on 29th day of the imposed war"
-      ],
-      "NLR": [
-        "California's last nuclear power plant has turned to AI to solve its big paperwork problem",
-        "US attacks Iranian nuclear site while Tehran hits oil tanker off the Dubai coast",
-        "Trump issues new threat to Iran's civilian infrastructure if a ceasefire isn't reached 'shortly'",
-        "New Process Shortens Nuclear Waste Timeline From 100,000 Years To Only Hundreds",
-        "Nuclear Batteries Could Change Everything, And China Is Already Ahead"
-      ],
-      "ICLN": [
-        "Trump Isn\u2019t Letting an Energy Crisis Get in the Way of His Vendetta Against Wind Energy",
-        "NY energy experts, advocates say Iran war shows need for Hochul to implement climate law",
-        "African Clean-Energy Sovereignty Can\u2019t Wait",
-        "The world added 692 GW of renewables in 2025 \u2013 here\u2019s what it means",
-        "Why Solar Panels Took Over Calculators (And Not Much Else)"
-      ],
-      "XBI": [
-        "Former investor says he's disappointed by Moose Jaw scientist Goodenowe's 'new lies and new promises'",
-        "Quantum BioPharma Submits Investigational New Drug (IND) Application to United States Food and Drug Administration (FDA) for Lucid-MS Phase Two Clinical Trial in Multiple Sclerosis",
-        "Quantum BioPharma Submits Investigational New Drug (IND) Application to United States Food and Drug Administration (FDA) for Lucid-MS Phase Two Clinical Trial in Multiple Sclerosis",
-        "Systemic Lupus Erythematosus Clinical Trial Pipeline Accelerates as 120+ Pharma Companies Rigorously Developing Drugs for Market Entry | DelveInsight",
-        "Palvella Therapeutics Announces Scientific Publication in Journal of Vascular Anomalies Highlighting the Infiltrative Growth and Therapeutic Challenges of Microcystic Lymphatic Malformations"
-      ]
+      "XLU": [],
+      "XLRE": [],
+      "XLY": [],
+      "XLB": [],
+      "XLC": [],
+      "ITA": [],
+      "NLR": [],
+      "ICLN": [],
+      "XBI": []
     },
     "headlines": [
-      "The cost to fly private is up as much as 20% with fuel prices soaring",
-      "United unveils basic Polaris business fare in premium cabin overhaul",
-      "Trump's anger over Iran thrusts NATO into fresh crisis - Reuters",
+      "US fighter jet shot down over Iran, search underway for crew, US official says - Reuters",
+      "I study happiness for a living: The most emotionally secure people share these 7 'quietly powerful' traits",
+      "Iran leaders join crowds on Tehran's streets to project control in wartime - Reuters",
       "World food price rise set to continue if Iran war lasts, FAO says - Reuters",
+      "These master's degrees lead to fast-growing, in-demand jobs\u2014but offer low ROI",
+      "The cost to fly private is up as much as 20% with fuel prices soaring",
+      "Trump says US can take Strait of Hormuz with more time - Reuters",
+      "French-owned CMA CGM container ship passes Strait of Hormuz, data shows - Reuters",
+      "United unveils basic Polaris business fare in premium cabin overhaul",
+      "Drone hits aid warehouse in Iran, Red Cross says - Reuters",
+      "Pope Leo urges Israel's Herzog to end Iran war in phone call, Vatican says - Reuters",
       "Drones hit Kuwait's Mina al-Ahmadi refinery, fires reported, no injuries - Reuters",
       "Bangladesh cuts working hours to save energy amid Middle East crisis - Reuters",
       "Trump vows to hit more Iranian infrastructure as nations seek to open Hormuz - Reuters",
-      "BOJ keeps rate\u2011hike door open even as Iran war squeezes firms - Reuters",
-      "Trump threatens to strike Iran's bridges and electric power plants - Reuters",
-      "US experts say American strikes on Iran may amount to war crimes - Reuters",
-      "A year after 'Liberation Day,' Trump sets new drug tariffs, adjusts metals duties - Reuters",
-      "Iran war exposes frailties of 'no-hire' US economy - Reuters",
-      "Wall Street ends mixed as worries linger before Good Friday break - Reuters",
-      "Cramer\u2019s week ahead: Two key economic reports and earnings from Levi's, Delta",
-      "Zelenskiy offers Ukraine's maritime expertise with Strait of Hormuz - Reuters"
+      "BOJ keeps rate\u2011hike door open even as Iran war squeezes firms - Reuters"
     ],
-    "as_of": "2026-04-03 13:26 UTC"
+    "as_of": "2026-04-03 15:59 UTC"
   },
-  "generated_at": "2026-04-03T13:27:09.539172"
+  "generated_at": "2026-04-03T15:59:43.955825"
 }
