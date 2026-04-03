@@ -377,8 +377,42 @@ def run(mode: str = "new_opportunities") -> dict:
         return {"error": str(exc), "executed_trades": [], "generated_at": datetime.utcnow().isoformat()}
 
     portfolio_value = portfolio["portfolio_value"]
+    cash = portfolio["cash"]
     logger.info("Portfolio: $%.2f total | $%.2f cash | %d positions",
-                portfolio_value, portfolio["cash"], len(alpaca_positions))
+                portfolio_value, cash, len(alpaca_positions))
+
+    # ── Margin unwind: if cash is negative, close smallest long positions
+    # until cash >= 0. No leverage ever. ─────────────────────────────────────
+    if cash < 0:
+        logger.warning("Cash is $%.2f — margin detected. Unwinding smallest positions to eliminate leverage.", cash)
+        safe_now, _ = _is_safe_to_trade(api)
+        if safe_now:
+            # Sort longs by market value ascending (close smallest first)
+            longs = sorted(
+                [(t, d) for t, d in alpaca_positions.items() if float(d.get("qty", 0)) > 0],
+                key=lambda x: float(x[1].get("market_value", 0))
+            )
+            remaining_margin = abs(cash)
+            for ticker_u, pos_u in longs:
+                if remaining_margin <= 0:
+                    break
+                qty_u = int(float(pos_u.get("qty", 0)))
+                mv_u = float(pos_u.get("market_value", 0))
+                if qty_u < 1:
+                    continue
+                order_u = _place_order(api, ticker_u, qty_u, "sell",
+                                       "Margin unwind — eliminating leverage")
+                if order_u:
+                    remaining_margin -= mv_u
+                    memory.remove_position(ticker_u)
+                    logger.info("Margin unwind: closed %s (%d shares, $%.0f) — margin remaining: $%.0f",
+                                ticker_u, qty_u, mv_u, max(remaining_margin, 0))
+            # Refresh portfolio after unwind
+            portfolio = _get_portfolio(api)
+            portfolio_value = portfolio["portfolio_value"]
+            alpaca_positions = _get_alpaca_positions(api)
+        else:
+            logger.warning("Market closed — cannot unwind margin now. Will retry at next open.")
 
     # Market hours check
     safe, hours_reason = _is_safe_to_trade(api)
