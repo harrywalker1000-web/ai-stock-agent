@@ -387,10 +387,11 @@ def run(mode: str = "new_opportunities") -> dict:
         logger.warning("Cash is $%.2f — margin detected. Unwinding smallest positions to eliminate leverage.", cash)
         safe_now, _ = _is_safe_to_trade(api)
         if safe_now:
-            # Sort longs by market value ascending (close smallest first)
+            # Sort longs by conviction ascending (close least confident first)
+            open_pos = memory.get_open_positions()
             longs = sorted(
                 [(t, d) for t, d in alpaca_positions.items() if float(d.get("qty", 0)) > 0],
-                key=lambda x: float(x[1].get("market_value", 0))
+                key=lambda x: open_pos.get(x[0], {}).get("conviction", 50)
             )
             remaining_margin = abs(cash)
             for ticker_u, pos_u in longs:

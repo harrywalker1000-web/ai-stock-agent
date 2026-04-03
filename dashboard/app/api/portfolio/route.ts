@@ -107,6 +107,7 @@ export async function GET() {
   const reportsDir = path.join(resolvedDataDir, "reports");
   const committeeReport = readJson(path.join(reportsDir, "committee_report.json"));
   const positionsLog    = readJson(path.join(resolvedDataDir, "memory", "positions_log.json"));
+  const decisionLog     = readJson(path.join(resolvedDataDir, "memory", "decision_log.json"));
 
   // Fetch live data from Alpaca in parallel
   const [alpacaPositions, alpacaAccount, alpacaHistory] = await Promise.all([
@@ -121,11 +122,19 @@ export async function GET() {
 
   if (alpacaPositions && alpacaPositions.length > 0) {
     const equity = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
+  // Build scorecard map from committee report for per-agent scores
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const scorecardMap: Record<string, any> = {};
+  for (const sc of committeeReport?.scorecards ?? []) {
+    scorecardMap[sc.ticker] = sc;
+  }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     positions = alpacaPositions.map((p: any) => {
       const ticker      = p.symbol as string;
       const meta        = TICKER_META[ticker] ?? { sector: "Other", company: ticker };
       const logEntry    = positionsLog?.[ticker];
+      const sc          = scorecardMap[ticker];
       const marketValue = Math.abs(parseFloat(p.market_value));
       const unrealisedPct = parseFloat(p.unrealized_plpc) * 100;
       return {
@@ -143,8 +152,12 @@ export async function GET() {
         entry_date:    logEntry?.entry_date ?? "—",
         conviction:    logEntry?.conviction ?? 70,
         status:        "open",
-        setup_type:    logEntry?.setup_type ?? "Pipeline",
-        expected_roi:  logEntry?.expected_roi ?? "—",
+        setup_type:         logEntry?.setup_type ?? "Pipeline",
+        expected_roi:       logEntry?.expected_roi ?? "—",
+        fundamental_score:  sc?.fundamental_score ?? null,
+        quant_score:        sc?.quant_score ?? null,
+        sentiment_score:    sc?.sentiment_score ?? null,
+        composite_score:    sc?.composite_score ?? null,
       };
     });
   } else if (positionsLog && Object.keys(positionsLog).length > 0) {
@@ -234,11 +247,37 @@ export async function GET() {
 
   const history = alpacaHistory.length > 0 ? alpacaHistory : MOCK_PORTFOLIO_HISTORY;
 
+  // ── Agent conviction: avg score per agent across entered positions ─────────
+  // Sourced from committee scorecards — honest signal strength, NOT accuracy.
+  // Real accuracy tracking starts when positions close (needs closed P&L).
+  const AGENT_KEYS = [
+    { label: "Fundamental", key: "fundamental_score" },
+    { label: "Quant",       key: "quant_score" },
+    { label: "Sentiment",   key: "sentiment_score" },
+  ];
+  // Also pull from decision_log for macro/news which aren't in scorecards
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recentDecisions: any[] = Array.isArray(decisionLog)
+    ? decisionLog.filter((d) => d.ticker !== "TEST" && d.action?.includes("enter"))
+    : [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agentConviction = AGENT_KEYS.map(({ label, key }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const scores = (positions as any[])
+      .map((p) => p[key])
+      .filter((s: unknown) => typeof s === "number" && (s as number) > 0) as number[];
+    const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    return { name: label, score: avg, count: scores.length, source: "committee_scorecard" };
+  });
+
   return NextResponse.json({
     positions,
     stats,
     history,
     sectors,
+    agent_conviction: agentConviction,
+    _positions_closed: 0, // increment when exits start — enables real accuracy
     _source: alpacaAccount ? "alpaca_live" : positionsLog ? "positions_log" : "mock",
   });
 }

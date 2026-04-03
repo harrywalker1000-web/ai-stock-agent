@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar,
+  ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 
 interface Position {
@@ -25,6 +25,8 @@ interface PortfolioData {
   };
   history: Array<{ date: string; value: number }>;
   sectors: Array<{ sector: string; value: number; color: string }>;
+  agent_conviction?: Array<{ name: string; score: number; count: number; source: string }>;
+  _positions_closed?: number;
 }
 
 function fmt(n: number, decimals = 2) {
@@ -109,12 +111,8 @@ export default function DashboardPage() {
   const stats = data?.stats;
   const positions = data?.positions ?? [];
 
-  const agentAccuracy = [
-    { name: "Quant", score: 76 }, { name: "Memory", score: 80 },
-    { name: "Committee", score: 73 }, { name: "Fundamental", score: 71 },
-    { name: "Macro", score: 72 }, { name: "Sentiment", score: 69 },
-    { name: "Sector", score: 68 }, { name: "News", score: 63 },
-  ];
+  const agentConviction = data?.agent_conviction ?? [];
+  const positionsClosed = data?._positions_closed ?? 0;
 
   const pipelineStatus = stats?.pipeline_status ?? "unknown";
   const pipelineColor = pipelineStatus === "success" ? "#10B981" : pipelineStatus === "failed" ? "#EF4444" : "#6B7280";
@@ -438,27 +436,39 @@ export default function DashboardPage() {
 
         {/* Bottom analytics row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Agent accuracy */}
+          {/* Agent conviction */}
           <div className="lg:col-span-2 card p-6">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-5">Agent Signal Accuracy</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={agentAccuracy} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-                <XAxis type="number" domain={[0, 100]} tick={{ fill: "#6B7280", fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="name" tick={{ fill: "#6B7280", fontSize: 11 }} axisLine={false} tickLine={false} width={75} />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(8,12,16,0.95)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "10px",
-                    color: "#E8EDF2",
-                    fontSize: "12px",
-                  }}
-                  formatter={(v) => [`${Number(v)}%`, "Accuracy"]}
-                />
-                <Bar dataKey="score" fill="#0EA5E9" radius={[0, 4, 4, 0]} opacity={0.8} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="flex items-start justify-between mb-1">
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Conviction</h2>
+              <span className="text-[10px] text-[#6B7280] bg-white/05 px-2 py-1 rounded-md mt-0.5">
+                {positionsClosed === 0 ? "Accuracy tracking starts on first exit" : `${positionsClosed} closed positions`}
+              </span>
+            </div>
+            <p className="text-xs text-[#6B7280] mb-4">Avg score each agent gave to current positions — not accuracy (no exits yet)</p>
+            {agentConviction.length === 0 ? (
+              <p className="text-sm text-[#6B7280]">No scorecard data yet</p>
+            ) : (
+              <div className="space-y-3">
+                {agentConviction.map((a) => (
+                  <div key={a.name}>
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="text-[#E8EDF2] font-medium w-28">{a.name}</span>
+                      <span className="text-[#6B7280]">{a.count} position{a.count !== 1 ? "s" : ""}</span>
+                      <span className="font-mono font-bold text-[#0EA5E9]">{a.score}/100</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/08 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${a.score}%`,
+                          background: a.score >= 70 ? "#10B981" : a.score >= 50 ? "#0EA5E9" : "#F59E0B",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick stats */}
