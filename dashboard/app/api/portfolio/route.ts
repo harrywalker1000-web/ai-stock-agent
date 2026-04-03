@@ -150,7 +150,7 @@ export async function GET() {
         pct_portfolio: parseFloat((marketValue / equity * 100).toFixed(2)),
         qty:           parseFloat(p.qty),
         entry_date:    logEntry?.entry_date ?? "—",
-        conviction:    logEntry?.conviction ?? 70,
+        conviction:    sc?.composite_score ?? logEntry?.conviction ?? null,
         status:        "open",
         setup_type:         logEntry?.setup_type ?? "Pipeline",
         expected_roi:       logEntry?.expected_roi ?? "—",

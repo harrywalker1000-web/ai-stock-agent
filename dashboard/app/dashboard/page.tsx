@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<PortfolioData | null>(null);
   const [timeframe, setTimeframe] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [showAllPositions, setShowAllPositions] = useState(false);
   const [runModal, setRunModal] = useState<"review" | "full" | null>(null);
   const [runStatus, setRunStatus] = useState<"idle" | "running" | "done" | "error">("idle");
   const [runLog, setRunLog] = useState<string[]>([]);
@@ -109,7 +110,8 @@ export default function DashboardPage() {
   }) ?? [];
 
   const stats = data?.stats;
-  const positions = data?.positions ?? [];
+  const positions = [...(data?.positions ?? [])].sort((a, b) => b.pct_portfolio - a.pct_portfolio);
+  const visiblePositions = showAllPositions ? positions : positions.slice(0, 10);
 
   const agentConviction = data?.agent_conviction ?? [];
   const positionsClosed = data?._positions_closed ?? 0;
@@ -362,19 +364,22 @@ export default function DashboardPage() {
 
         {/* Positions table */}
         <div className="card p-6 mb-6">
-          <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-5">Active Positions</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Active Positions</h2>
+            <span className="text-xs text-[#6B7280]">{positions.length} total · sorted by weight</span>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/06">
-                  {["Ticker", "Company", "Dir", "Setup Type", "Conviction", "Exp. ROI", "P&L %", "Entry Date"].map((h) => (
+                  {["Ticker", "Dir", "P&L %", "Weight", "Setup", "Conviction", "Exp. ROI", "Entry"].map((h) => (
                     <th key={h} className="text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider pb-3 px-2">{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
+                  Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i}>
                       {Array.from({ length: 8 }).map((_, j) => (
                         <td key={j} className="px-2 py-3"><div className="skeleton h-4 w-16" /></td>
@@ -388,50 +393,85 @@ export default function DashboardPage() {
                     </td>
                   </tr>
                 ) : (
-                  positions.map((pos) => (
+                  visiblePositions.map((pos) => (
                     <tr
                       key={pos.ticker}
                       className="tr-hover border-b border-white/04 transition-colors cursor-pointer"
                       onClick={() => window.location.href = `/position/${pos.ticker}`}
                     >
+                      {/* Ticker + company */}
                       <td className="px-2 py-3">
                         <div>
                           <span className="font-mono font-bold text-[#E8EDF2]">{pos.ticker}</span>
-                          <p className="text-xs text-[#6B7280] mt-0.5">{pos.sector}</p>
+                          <p className="text-[11px] text-[#6B7280] mt-0.5 truncate max-w-[120px]">{pos.company}</p>
                         </div>
                       </td>
-                      <td className="px-2 py-3">
-                        <span className="text-[#6B7280] max-w-[130px] block truncate text-xs">{pos.company}</span>
-                      </td>
+                      {/* Direction */}
                       <td className="px-2 py-3">
                         <span className={pos.direction === "long" ? "badge-long" : "badge-short"}>{pos.direction}</span>
                       </td>
+                      {/* P&L % */}
+                      <td className={`px-2 py-3 font-mono font-bold text-sm ${pos.pct_change >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                        {fmt(pos.pct_change)}%
+                        <p className="text-[10px] font-normal" style={{ color: pos.pnl_absolute >= 0 ? "#10B981" : "#EF4444" }}>
+                          {fmtCurrency(pos.pnl_absolute)}
+                        </p>
+                      </td>
+                      {/* Portfolio weight */}
+                      <td className="px-2 py-3">
+                        <span className="text-sm font-mono font-semibold text-[#E8EDF2]">{pos.pct_portfolio.toFixed(1)}%</span>
+                        <p className="text-[10px] text-[#6B7280] mt-0.5">${(pos.position_size / 1000).toFixed(1)}K</p>
+                      </td>
+                      {/* Setup type */}
                       <td className="px-2 py-3">
                         <span className="text-xs text-[#F5A623] bg-[#F5A623]/10 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
                           {pos.setup_type ?? "—"}
                         </span>
                       </td>
+                      {/* Conviction */}
                       <td className="px-2 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                            <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${pos.conviction}%` }} />
+                        {pos.conviction != null ? (
+                          <div className="flex items-center gap-2">
+                            <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                              <div
+                                className="h-full rounded-full"
+                                style={{
+                                  width: `${pos.conviction}%`,
+                                  background: pos.conviction >= 70 ? "#10B981" : pos.conviction >= 55 ? "#F5A623" : "#6B7280",
+                                }}
+                              />
+                            </div>
+                            <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
                           </div>
-                          <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
-                        </div>
+                        ) : (
+                          <span className="text-xs text-[#6B7280]">—</span>
+                        )}
                       </td>
+                      {/* Exp ROI */}
                       <td className="px-2 py-3">
-                        <span className="text-xs font-mono font-semibold text-[#10B981]">{pos.expected_roi ?? "—"}</span>
+                        <span className="text-xs font-mono text-[#6B7280]">{pos.expected_roi && pos.expected_roi !== "—" ? pos.expected_roi : "—"}</span>
                       </td>
-                      <td className={`px-2 py-3 font-mono font-semibold text-sm ${pos.pct_change >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                        {fmt(pos.pct_change)}%
-                      </td>
-                      <td className="px-2 py-3 text-xs text-[#6B7280] font-mono">{pos.entry_date}</td>
+                      {/* Entry date */}
+                      <td className="px-2 py-3 text-xs text-[#6B7280] font-mono whitespace-nowrap">{pos.entry_date}</td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
           </div>
+          {/* See more / collapse */}
+          {positions.length > 10 && (
+            <div className="mt-4 pt-4 border-t border-white/06 text-center">
+              <button
+                onClick={() => setShowAllPositions(!showAllPositions)}
+                className="text-sm text-[#F5A623] hover:text-[#FDE68A] font-medium transition-colors"
+              >
+                {showAllPositions
+                  ? "Show less ↑"
+                  : `Show ${positions.length - 10} more positions ↓`}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Bottom analytics row */}
