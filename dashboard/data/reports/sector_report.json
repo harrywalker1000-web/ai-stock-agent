@@ -1,437 +1,487 @@
 {
-  "top_sectors": [],
-  "avoid_sectors": [
+  "top_sectors": [
     "XLE",
-    "XLP",
+    "XLK",
+    "XLF",
     "XLV"
   ],
-  "emerging_themes": [],
+  "avoid_sectors": [
+    "XLP",
+    "XLI"
+  ],
+  "emerging_themes": [
+    "energy stocks",
+    "defensive equities",
+    "inflation-protected securities"
+  ],
   "sector_rankings": [
     {
       "sector": "XLE",
       "name": "Energy",
-      "score": 30,
-      "ret_1m": 4.41,
-      "ret_3m": 30.44,
-      "rs_vs_spy_1m": 8.87,
+      "score": 85,
+      "ret_1m": 5.52,
+      "ret_3m": 30.64,
+      "rs_vs_spy_1m": 8.86,
       "momentum_accelerating": false,
       "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "conflicts": []
       },
-      "reasoning": "Low confidence due to reliance on price momentum only."
+      "reasoning": "Medium confidence due to positive price momentum and relevant news flow."
     },
     {
-      "sector": "XLP",
-      "name": "Consumer Staples",
-      "score": 25,
-      "ret_1m": -7.37,
-      "ret_3m": 5.77,
-      "rs_vs_spy_1m": -2.91,
-      "momentum_accelerating": false,
+      "sector": "XLK",
+      "name": "Technology",
+      "score": 70,
+      "ret_1m": -0.98,
+      "ret_3m": -5.64,
+      "rs_vs_spy_1m": 2.36,
+      "momentum_accelerating": true,
       "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "conflicts": []
       },
-      "reasoning": "Low confidence due to reliance on price momentum only."
+      "reasoning": "Medium confidence with positive price momentum and supportive news."
+    },
+    {
+      "sector": "XLF",
+      "name": "Financials",
+      "score": 65,
+      "ret_1m": -2.78,
+      "ret_3m": -9.37,
+      "rs_vs_spy_1m": 0.56,
+      "momentum_accelerating": true,
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "price_momentum",
+          "news_flow"
+        ],
+        "conflicts": []
+      },
+      "reasoning": "Medium confidence due to positive price momentum and relevant news."
     },
     {
       "sector": "XLV",
       "name": "Healthcare",
-      "score": 20,
-      "ret_1m": -7.2,
-      "ret_3m": -5.39,
-      "rs_vs_spy_1m": -2.74,
+      "score": 60,
+      "ret_1m": -5.95,
+      "ret_3m": -5.21,
+      "rs_vs_spy_1m": -2.61,
       "momentum_accelerating": false,
       "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
-        "conflicts": []
+        "conflicts": [
+          "Price momentum is negative but news flow is positive \u2014 divergence"
+        ]
       },
-      "reasoning": "Low confidence due to reliance on price momentum only."
+      "reasoning": "Medium confidence but with a conflict between price momentum and news flow."
     }
   ],
-  "thematic_rankings": [],
-  "sector_summary": "All sectors analyzed have low confidence levels, relying solely on price momentum without supporting signals. There are no sectors with medium or high confidence to recommend for investment.",
-  "confidence": 0,
+  "thematic_rankings": [
+    {
+      "etf": "ICLN",
+      "name": "Clean Energy",
+      "score": 75,
+      "ret_1m": 1.86,
+      "rs_vs_spy_1m": 5.2,
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3
+      },
+      "reasoning": "High confidence due to strong performance and multiple supportive signals."
+    }
+  ],
+  "sector_summary": "The energy sector (XLE) shows strong relative strength and medium confidence, making it a top pick. Technology (XLK) and Financials (XLF) also have medium confidence but weaker performance. Healthcare (XLV) has a conflict between negative price momentum and positive news flow, suggesting caution. Consumer Staples (XLP) and Industrials (XLI) are weak and should be avoided.",
+  "confidence": 80,
   "raw_data": {
     "etf_stats": {
       "XLK": {
         "ticker": "XLK",
-        "ret_1w": 4.09,
-        "ret_1m": -2.97,
-        "ret_3m": -6.16,
-        "ret_6m": -5.22,
-        "rs_1w": 0.96,
-        "rs_1m": 1.49,
-        "rs_3m": -2.15,
-        "price": 135.24,
+        "ret_1w": 4.67,
+        "ret_1m": -0.98,
+        "ret_3m": -5.64,
+        "ret_6m": -4.21,
+        "rs_1w": 1.24,
+        "rs_1m": 2.36,
+        "rs_3m": -1.9,
+        "price": 135.99,
         "high_6m": 151.65,
         "low_6m": 127.5,
-        "pct_from_high": -10.82,
+        "pct_from_high": -10.33,
         "volume": {
-          "avg_20d": 18816939.0,
-          "latest": 8030534.0,
-          "ratio": 0.43
+          "avg_20d": 18942135.0,
+          "latest": 12246600.0,
+          "ratio": 0.65
         },
         "momentum_accelerating": true
       },
       "XLF": {
         "ticker": "XLF",
-        "ret_1w": 3.57,
-        "ret_1m": -2.98,
-        "ret_3m": -9.39,
-        "ret_6m": -6.39,
-        "rs_1w": 0.44,
-        "rs_1m": 1.48,
-        "rs_3m": -5.38,
-        "price": 49.51,
+        "ret_1w": 3.6,
+        "ret_1m": -2.78,
+        "ret_3m": -9.37,
+        "ret_6m": -7.0,
+        "rs_1w": 0.17,
+        "rs_1m": 0.56,
+        "rs_3m": -5.63,
+        "price": 49.53,
         "high_6m": 56.11,
         "low_6m": 47.81,
-        "pct_from_high": -11.76,
+        "pct_from_high": -11.73,
         "volume": {
-          "avg_20d": 60842135.0,
-          "latest": 26165348.0,
-          "ratio": 0.43
+          "avg_20d": 61020783.0,
+          "latest": 39512600.0,
+          "ratio": 0.65
         },
         "momentum_accelerating": true
       },
       "XLE": {
         "ticker": "XLE",
-        "ret_1w": -5.43,
-        "ret_1m": 4.41,
-        "ret_3m": 30.44,
-        "ret_6m": 35.81,
-        "rs_1w": -8.56,
-        "rs_1m": 8.87,
-        "rs_3m": 34.45,
-        "price": 59.16,
+        "ret_1w": -5.29,
+        "ret_1m": 5.52,
+        "ret_3m": 30.64,
+        "ret_6m": 35.3,
+        "rs_1w": -8.72,
+        "rs_1m": 8.86,
+        "rs_3m": 34.38,
+        "price": 59.25,
         "high_6m": 62.56,
         "low_6m": 41.98,
-        "pct_from_high": -5.43,
+        "pct_from_high": -5.29,
         "volume": {
-          "avg_20d": 70053277.0,
-          "latest": 42401145.0,
-          "ratio": 0.61
+          "avg_20d": 67985726.0,
+          "latest": 60368200.0,
+          "ratio": 0.89
         },
         "momentum_accelerating": false
       },
       "XLP": {
         "ticker": "XLP",
-        "ret_1w": -0.09,
-        "ret_1m": -7.37,
-        "ret_3m": 5.77,
-        "ret_6m": 6.27,
-        "rs_1w": -3.22,
-        "rs_1m": -2.91,
-        "rs_3m": 9.78,
-        "price": 81.71,
+        "ret_1w": 0.13,
+        "ret_1m": -6.14,
+        "ret_3m": 6.0,
+        "ret_6m": 6.38,
+        "rs_1w": -3.3,
+        "rs_1m": -2.8,
+        "rs_3m": 9.74,
+        "price": 81.89,
         "high_6m": 89.51,
         "low_6m": 74.58,
-        "pct_from_high": -8.71,
+        "pct_from_high": -8.51,
         "volume": {
-          "avg_20d": 20482549.0,
-          "latest": 13181482.0,
-          "ratio": 0.64
+          "avg_20d": 20500074.0,
+          "latest": 20708000.0,
+          "ratio": 1.01
         },
         "momentum_accelerating": false
       },
       "XLV": {
         "ticker": "XLV",
-        "ret_1w": 2.28,
-        "ret_1m": -7.2,
-        "ret_3m": -5.39,
-        "ret_6m": 3.18,
-        "rs_1w": -0.85,
-        "rs_1m": -2.74,
-        "rs_3m": -1.38,
-        "price": 146.52,
+        "ret_1w": 2.48,
+        "ret_1m": -5.95,
+        "ret_3m": -5.21,
+        "ret_6m": 2.22,
+        "rs_1w": -0.95,
+        "rs_1m": -2.61,
+        "rs_3m": -1.47,
+        "price": 146.81,
         "high_6m": 159.54,
         "low_6m": 140.77,
-        "pct_from_high": -8.16,
+        "pct_from_high": -7.98,
         "volume": {
-          "avg_20d": 16218483.0,
-          "latest": 7061801.0,
-          "ratio": 0.44
+          "avg_20d": 16288961.0,
+          "latest": 11087100.0,
+          "ratio": 0.68
         },
         "momentum_accelerating": false
       },
       "XLI": {
         "ticker": "XLI",
-        "ret_1w": 2.72,
-        "ret_1m": -8.34,
-        "ret_3m": 3.8,
-        "ret_6m": 6.71,
-        "rs_1w": -0.41,
-        "rs_1m": -3.88,
-        "rs_3m": 7.81,
-        "price": 163.52,
+        "ret_1w": 2.87,
+        "ret_1m": -6.39,
+        "ret_3m": 3.96,
+        "ret_6m": 6.72,
+        "rs_1w": -0.56,
+        "rs_1m": -3.05,
+        "rs_3m": 7.7,
+        "price": 163.77,
         "high_6m": 178.4,
         "low_6m": 146.91,
-        "pct_from_high": -8.34,
+        "pct_from_high": -8.2,
         "volume": {
-          "avg_20d": 16144200.0,
-          "latest": 7701890.0,
-          "ratio": 0.48
+          "avg_20d": 16041039.0,
+          "latest": 11096600.0,
+          "ratio": 0.69
         },
         "momentum_accelerating": false
       },
       "XLU": {
         "ticker": "XLU",
-        "ret_1w": 1.58,
-        "ret_1m": -1.55,
-        "ret_3m": 8.0,
-        "ret_6m": 6.91,
-        "rs_1w": -1.55,
-        "rs_1m": 2.91,
-        "rs_3m": 12.01,
-        "price": 46.31,
+        "ret_1w": 1.65,
+        "ret_1m": -0.86,
+        "ret_3m": 8.07,
+        "ret_6m": 5.76,
+        "rs_1w": -1.78,
+        "rs_1m": 2.48,
+        "rs_3m": 11.81,
+        "price": 46.34,
         "high_6m": 47.4,
         "low_6m": 41.58,
-        "pct_from_high": -2.3,
+        "pct_from_high": -2.24,
         "volume": {
-          "avg_20d": 28606700.0,
-          "latest": 9417102.0,
-          "ratio": 0.33
+          "avg_20d": 28755513.0,
+          "latest": 17319900.0,
+          "ratio": 0.6
         },
         "momentum_accelerating": false
       },
       "XLRE": {
         "ticker": "XLRE",
-        "ret_1w": 3.07,
-        "ret_1m": -5.47,
-        "ret_3m": 2.82,
-        "ret_6m": 0.15,
-        "rs_1w": -0.06,
-        "rs_1m": -1.01,
-        "rs_3m": 6.83,
-        "price": 41.24,
+        "ret_1w": 4.0,
+        "ret_1m": -4.14,
+        "ret_3m": 3.74,
+        "ret_6m": 0.64,
+        "rs_1w": 0.57,
+        "rs_1m": -0.8,
+        "rs_3m": 7.48,
+        "price": 41.61,
         "high_6m": 43.65,
         "low_6m": 39.63,
-        "pct_from_high": -5.52,
+        "pct_from_high": -4.67,
         "volume": {
-          "avg_20d": 9996031.0,
-          "latest": 2831051.0,
-          "ratio": 0.28
+          "avg_20d": 10048700.0,
+          "latest": 7354700.0,
+          "ratio": 0.73
         },
         "momentum_accelerating": false
       },
       "XLY": {
         "ticker": "XLY",
-        "ret_1w": 2.4,
-        "ret_1m": -6.05,
-        "ret_3m": -8.38,
-        "ret_6m": -9.23,
-        "rs_1w": -0.73,
-        "rs_1m": -1.59,
-        "rs_3m": -4.37,
-        "price": 108.21,
+        "ret_1w": 2.34,
+        "ret_1m": -5.24,
+        "ret_3m": -8.43,
+        "ret_6m": -8.7,
+        "rs_1w": -1.09,
+        "rs_1m": -1.9,
+        "rs_3m": -4.69,
+        "price": 108.15,
         "high_6m": 124.27,
         "low_6m": 105.66,
-        "pct_from_high": -12.92,
+        "pct_from_high": -12.97,
         "volume": {
-          "avg_20d": 12401959.0,
-          "latest": 5469523.0,
-          "ratio": 0.44
+          "avg_20d": 12332896.0,
+          "latest": 9684700.0,
+          "ratio": 0.79
         },
         "momentum_accelerating": true
       },
       "XLB": {
         "ticker": "XLB",
-        "ret_1w": 2.58,
-        "ret_1m": -5.37,
-        "ret_3m": 9.27,
-        "ret_6m": 12.93,
-        "rs_1w": -0.55,
-        "rs_1m": -0.91,
-        "rs_3m": 13.28,
-        "price": 50.17,
+        "ret_1w": 3.07,
+        "ret_1m": -2.51,
+        "ret_3m": 9.79,
+        "ret_6m": 13.28,
+        "rs_1w": -0.36,
+        "rs_1m": 0.83,
+        "rs_3m": 13.53,
+        "price": 50.41,
         "high_6m": 53.38,
         "low_6m": 41.83,
-        "pct_from_high": -6.01,
+        "pct_from_high": -5.56,
         "volume": {
-          "avg_20d": 17651956.0,
-          "latest": 6714748.0,
-          "ratio": 0.38
+          "avg_20d": 17882157.0,
+          "latest": 13798900.0,
+          "ratio": 0.77
         },
         "momentum_accelerating": false
       },
       "XLC": {
         "ticker": "XLC",
-        "ret_1w": 4.1,
-        "ret_1m": -5.16,
-        "ret_3m": -4.38,
-        "ret_6m": -3.69,
-        "rs_1w": 0.97,
-        "rs_1m": -0.7,
-        "rs_3m": -0.37,
-        "price": 111.43,
+        "ret_1w": 4.35,
+        "ret_1m": -5.0,
+        "ret_3m": -4.14,
+        "ret_6m": -3.41,
+        "rs_1w": 0.92,
+        "rs_1m": -1.66,
+        "rs_3m": -0.4,
+        "price": 111.7,
         "high_6m": 119.7,
         "low_6m": 107.04,
-        "pct_from_high": -6.91,
+        "pct_from_high": -6.68,
         "volume": {
-          "avg_20d": 9105271.0,
-          "latest": 3337908.0,
-          "ratio": 0.37
+          "avg_20d": 9144052.0,
+          "latest": 5590500.0,
+          "ratio": 0.61
         },
         "momentum_accelerating": false
       },
       "ARKK": {
         "ticker": "ARKK",
-        "ret_1w": 5.54,
-        "ret_1m": -8.1,
-        "ret_3m": -12.9,
-        "ret_6m": -23.55,
-        "rs_1w": 2.41,
-        "rs_1m": -3.64,
-        "rs_3m": -8.89,
-        "price": 68.21,
+        "ret_1w": 6.08,
+        "ret_1m": -5.12,
+        "ret_3m": -12.45,
+        "ret_6m": -22.37,
+        "rs_1w": 2.65,
+        "rs_1m": -1.78,
+        "rs_3m": -8.71,
+        "price": 68.56,
         "high_6m": 92.53,
         "low_6m": 63.52,
-        "pct_from_high": -26.28,
+        "pct_from_high": -25.91,
         "volume": {
-          "avg_20d": 11907846.0,
-          "latest": 8187695.0,
-          "ratio": 0.69
+          "avg_20d": 12054413.0,
+          "latest": 11725400.0,
+          "ratio": 0.97
         },
         "momentum_accelerating": true
       },
       "BOTZ": {
         "ticker": "BOTZ",
-        "ret_1w": 2.77,
-        "ret_1m": -12.65,
-        "ret_3m": -9.13,
-        "ret_6m": -7.73,
-        "rs_1w": -0.36,
-        "rs_1m": -8.19,
-        "rs_3m": -5.12,
-        "price": 33.36,
+        "ret_1w": 2.9,
+        "ret_1m": -9.49,
+        "ret_3m": -9.02,
+        "ret_6m": -8.72,
+        "rs_1w": -0.53,
+        "rs_1m": -6.15,
+        "rs_3m": -5.28,
+        "price": 33.4,
         "high_6m": 39.66,
         "low_6m": 31.99,
-        "pct_from_high": -15.89,
+        "pct_from_high": -15.78,
         "volume": {
-          "avg_20d": 1007563.0,
-          "latest": 408208.0,
-          "ratio": 0.41
+          "avg_20d": 1003578.0,
+          "latest": 701900.0,
+          "ratio": 0.7
         },
         "momentum_accelerating": false
       },
       "ICLN": {
         "ticker": "ICLN",
-        "ret_1w": 1.2,
-        "ret_1m": -1.45,
-        "ret_3m": 5.64,
-        "ret_6m": 14.57,
-        "rs_1w": -1.93,
-        "rs_1m": 3.01,
-        "rs_3m": 9.65,
-        "price": 18.07,
+        "ret_1w": 1.12,
+        "ret_1m": 1.86,
+        "ret_3m": 5.56,
+        "ret_6m": 13.83,
+        "rs_1w": -2.31,
+        "rs_1m": 5.2,
+        "rs_3m": 9.3,
+        "price": 18.05,
         "high_6m": 19.19,
         "low_6m": 15.66,
-        "pct_from_high": -5.84,
+        "pct_from_high": -5.94,
         "volume": {
-          "avg_20d": 5108882.0,
-          "latest": 4890071.0,
-          "ratio": 0.96
+          "avg_20d": 5191370.0,
+          "latest": 7989900.0,
+          "ratio": 1.54
         },
         "momentum_accelerating": false
       },
       "ITA": {
         "ticker": "ITA",
-        "ret_1w": 2.58,
-        "ret_1m": -11.5,
-        "ret_3m": -0.11,
-        "ret_6m": 5.91,
-        "rs_1w": -0.55,
-        "rs_1m": -7.04,
-        "rs_3m": 3.9,
-        "price": 221.62,
+        "ret_1w": 2.72,
+        "ret_1m": -9.36,
+        "ret_3m": 0.02,
+        "ret_6m": 5.97,
+        "rs_1w": -0.71,
+        "rs_1m": -6.02,
+        "rs_3m": 3.76,
+        "price": 221.91,
         "high_6m": 250.42,
         "low_6m": 198.1,
-        "pct_from_high": -11.5,
+        "pct_from_high": -11.38,
         "volume": {
-          "avg_20d": 1699952.0,
-          "latest": 340538.0,
-          "ratio": 0.2
+          "avg_20d": 1676843.0,
+          "latest": 800700.0,
+          "ratio": 0.48
         },
         "momentum_accelerating": false
       },
       "NLR": {
         "ticker": "NLR",
-        "ret_1w": 2.39,
-        "ret_1m": -13.38,
-        "ret_3m": 0.15,
-        "ret_6m": -3.76,
-        "rs_1w": -0.74,
-        "rs_1m": -8.92,
-        "rs_3m": 4.16,
-        "price": 133.24,
+        "ret_1w": 2.72,
+        "ret_1m": -6.96,
+        "ret_3m": 0.47,
+        "ret_6m": -3.1,
+        "rs_1w": -0.71,
+        "rs_1m": -3.62,
+        "rs_3m": 4.21,
+        "price": 133.67,
         "high_6m": 164.37,
         "low_6m": 118.08,
-        "pct_from_high": -18.94,
+        "pct_from_high": -18.68,
         "volume": {
-          "avg_20d": 434411.0,
-          "latest": 151764.0,
-          "ratio": 0.35
+          "avg_20d": 430057.0,
+          "latest": 227800.0,
+          "ratio": 0.53
         },
         "momentum_accelerating": false
       },
       "XBI": {
         "ticker": "XBI",
-        "ret_1w": 7.07,
-        "ret_1m": 1.19,
-        "ret_3m": 5.37,
-        "ret_6m": 25.23,
-        "rs_1w": 3.94,
-        "rs_1m": 5.65,
-        "rs_3m": 9.38,
-        "price": 128.05,
+        "ret_1w": 7.84,
+        "ret_1m": 4.42,
+        "ret_3m": 6.12,
+        "ret_6m": 24.89,
+        "rs_1w": 4.41,
+        "rs_1m": 7.76,
+        "rs_3m": 9.86,
+        "price": 128.96,
         "high_6m": 131.57,
-        "low_6m": 102.25,
-        "pct_from_high": -2.68,
+        "low_6m": 103.26,
+        "pct_from_high": -1.98,
         "volume": {
-          "avg_20d": 10668222.0,
-          "latest": 5089232.0,
-          "ratio": 0.48
+          "avg_20d": 10936022.0,
+          "latest": 9894900.0,
+          "ratio": 0.9
         },
         "momentum_accelerating": false
       }
     },
     "etf_confidence": {
       "XLK": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
-        "agreements": [],
+        "agreements": [
+          "News flow (positive) confirms price direction"
+        ],
         "conflicts": []
       },
       "XLF": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLE": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
@@ -446,13 +496,16 @@
         "conflicts": []
       },
       "XLV": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
-        "conflicts": []
+        "conflicts": [
+          "Price momentum is negative but news flow is positive \u2014 divergence"
+        ]
       },
       "XLI": {
         "level": "low",
@@ -464,46 +517,51 @@
         "conflicts": []
       },
       "XLU": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLRE": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLY": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLB": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XLC": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
@@ -527,47 +585,57 @@
         "conflicts": []
       },
       "ICLN": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "high",
+        "sources_count": 3,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "volume_confirmation",
+          "news_flow"
         ],
-        "agreements": [],
+        "agreements": [
+          "Elevated volume (1.5x avg) confirms momentum",
+          "News flow (positive) confirms price direction"
+        ],
         "conflicts": []
       },
       "ITA": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "NLR": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
         "agreements": [],
         "conflicts": []
       },
       "XBI": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "price_momentum"
+          "price_momentum",
+          "news_flow"
         ],
-        "agreements": [],
+        "agreements": [
+          "News flow (positive) confirms price direction"
+        ],
         "conflicts": []
       }
     },
     "spy_returns": {
-      "1w": 3.13,
-      "1m": -4.46,
-      "3m": -4.01,
-      "6m": -1.72
+      "1w": 3.43,
+      "1m": -3.34,
+      "3m": -3.74,
+      "6m": -1.44
     },
     "sector_etfs": {
       "XLK": "Technology",
@@ -591,40 +659,105 @@
       "XBI": "Biotech"
     },
     "sector_news_map": {
-      "XLK": [],
-      "XLF": [],
-      "XLE": [],
+      "XLK": [
+        "The Biggest Photography Stories of March 2026",
+        "What to Expect From Lam Research\u2019s Next Quarterly Earnings Report",
+        "Commentary: AI efficiency shock rattles memory stocks, tests chip demand narrative",
+        "5 Cloud and AI Infrastructure Stocks Powering the Next Wave of AI",
+        "Taiwan Semiconductor Manufacturing Company Limited (TSM) Gains from Strong Demand and Its Industry-Leading Manufacturing Capabilities"
+      ],
+      "XLF": [
+        "Remortgaging: why delaying a phone call can cost you more than a car"
+      ],
+      "XLE": [
+        "Iran Strikes Fully Laden Kuwait Oil Tanker in Dubai Port",
+        "Gas prices top $4 a gallon as Iran war triggers global oil shock",
+        "Russian tanker reaches Cuba amid critical energy shortage",
+        "Trump wants to \u2018take Iran\u2019s oil\u2019: Can he, and what would that mean?",
+        "Trump wants to invade Iran to seize oil, calls US objectors \u2018stupid people\u2019"
+      ],
       "XLP": [],
-      "XLV": [],
+      "XLV": [
+        "FDA warns consumers not to purchase or use EzriCare Artificial Tears due to potential contamination",
+        "FDA warns consumers not to purchase or use certain eye drops from several major brands due to risk of eye infection",
+        "Zymeworks Appoints Kristin Stafford as Chief Financial Officer",
+        "US pharma giant Eli Lilly, Insilico Medicine secure deal worth $2.75 billion to bring AI-developed drugs to market",
+        "Liposomal Doxorubicin Market Insights Report 2026: Cancer Incidence Surge Fuels Market Growth, Asia-Pacific Emerges as Fastest-Growing Region"
+      ],
       "XLI": [],
-      "XLU": [],
-      "XLRE": [],
-      "XLY": [],
-      "XLB": [],
-      "XLC": [],
-      "ITA": [],
-      "NLR": [],
-      "ICLN": [],
-      "XBI": []
+      "XLU": [
+        "Data centres: Blackout worries trigger new electricity protocols",
+        "ThinkLabs AI Closes $28 M Series A Led by Energy Impact Partners, Backed by NVentures and Edison International",
+        "The Iran war is accelerating plans for Southeast Asia to go nuclear. Experts say it won\u2019t be easy",
+        "ThinkLabs AI Closes $28 M Series A Led by Energy Impact Partners, Backed by NVentures and Edison International",
+        "UK's National Grid invest up to $400 million for an India GCC"
+      ],
+      "XLRE": [
+        "Buy the Dip: These 3 Over-$100 Stocks Just Hit New 52-Week Lows"
+      ],
+      "XLY": [
+        "Target Is Up 44%. Has It Finally Turned the Corner on Its Troubles?",
+        "Retail Sales Blow Past Expectations in February as Consumers Bounce Back",
+        "Average U.S. gas price hits $4 for the first time since 2022",
+        "Retail sales tick up 0.6% in February before Iran war, gas price spike"
+      ],
+      "XLB": [
+        "How A Magnet Shortage Could Bring The $10 Trillion Tech Sector to a Halt",
+        "ASX 200 mining shares ride a rollercoaster in March quarter",
+        "Latin Metals Provides Update on Expanded Cerro Bayo Drill Program",
+        "Critical Minerals Boom: Nickel\u2013Cobalt Market Races Toward $35B+ Valuation",
+        "Eagle Nuclear Energy Announces Plans to Conduct a 27,000 Ft Drill Program To Advance Aurora Toward a Pre-Feasibility Study"
+      ],
+      "XLC": [
+        "The Great Convergence: Why The Creator Economy\u2019s Future Belongs To Those Who Unite Social, Brand, And Talent",
+        "Artemis II Launch: What Time to Watch NASA\u2019s Mission Live Today?",
+        "JSA #18 Preview: Golden Oldies Save Gotham from Gloom",
+        "Artemis II Launch: Who Are the Astronauts Flying on NASA\u2019s Mission?",
+        "The Story-Centric Shift: Designing the Multi-Platform Newsroom for the Streaming Era"
+      ],
+      "ITA": [
+        "US-Israeli aggression on Iran: What happened on 29th day of the imposed war"
+      ],
+      "NLR": [
+        "California's last nuclear power plant has turned to AI to solve its big paperwork problem",
+        "US attacks Iranian nuclear site while Tehran hits oil tanker off the Dubai coast",
+        "Trump issues new threat to Iran's civilian infrastructure if a ceasefire isn't reached 'shortly'",
+        "New Process Shortens Nuclear Waste Timeline From 100,000 Years To Only Hundreds",
+        "Nuclear Batteries Could Change Everything, And China Is Already Ahead"
+      ],
+      "ICLN": [
+        "Trump Isn\u2019t Letting an Energy Crisis Get in the Way of His Vendetta Against Wind Energy",
+        "NY energy experts, advocates say Iran war shows need for Hochul to implement climate law",
+        "African Clean-Energy Sovereignty Can\u2019t Wait",
+        "The world added 692 GW of renewables in 2025 \u2013 here\u2019s what it means",
+        "Why Solar Panels Took Over Calculators (And Not Much Else)"
+      ],
+      "XBI": [
+        "Former investor says he's disappointed by Moose Jaw scientist Goodenowe's 'new lies and new promises'",
+        "Quantum BioPharma Submits Investigational New Drug (IND) Application to United States Food and Drug Administration (FDA) for Lucid-MS Phase Two Clinical Trial in Multiple Sclerosis",
+        "Quantum BioPharma Submits Investigational New Drug (IND) Application to United States Food and Drug Administration (FDA) for Lucid-MS Phase Two Clinical Trial in Multiple Sclerosis",
+        "Systemic Lupus Erythematosus Clinical Trial Pipeline Accelerates as 120+ Pharma Companies Rigorously Developing Drugs for Market Entry | DelveInsight",
+        "Palvella Therapeutics Announces Scientific Publication in Journal of Vascular Anomalies Highlighting the Infiltrative Growth and Therapeutic Challenges of Microcystic Lymphatic Malformations"
+      ]
     },
     "headlines": [
-      "Britain says 40 countries discuss reopening Strait of Hormuz after Iran blockade - Reuters",
-      "The mood of the stock market is changing fast during Iran war. How to navigate the confusion",
-      "Wall St pares losses as investors anticipate reopening of Strait of Hormuz - Reuters",
-      "Regional sports networks are faltering even as ratings soar",
-      "UK to host talks with 35 countries on reopening Strait of Hormuz - Reuters",
+      "The cost to fly private is up as much as 20% with fuel prices soaring",
+      "United unveils basic Polaris business fare in premium cabin overhaul",
+      "Trump's anger over Iran thrusts NATO into fresh crisis - Reuters",
+      "World food price rise set to continue if Iran war lasts, FAO says - Reuters",
+      "Drones hit Kuwait's Mina al-Ahmadi refinery, fires reported, no injuries - Reuters",
+      "Bangladesh cuts working hours to save energy amid Middle East crisis - Reuters",
+      "Trump vows to hit more Iranian infrastructure as nations seek to open Hormuz - Reuters",
+      "BOJ keeps rate\u2011hike door open even as Iran war squeezes firms - Reuters",
+      "Trump threatens to strike Iran's bridges and electric power plants - Reuters",
+      "US experts say American strikes on Iran may amount to war crimes - Reuters",
+      "A year after 'Liberation Day,' Trump sets new drug tariffs, adjusts metals duties - Reuters",
       "Iran war exposes frailties of 'no-hire' US economy - Reuters",
-      "US defense stocks see no Iran war lift after early surge - Reuters",
-      "Macron says it is unrealistic to open Hormuz Strait by force - Reuters",
-      "Givers\u2019 regret: What happens when wealthy parents try to claw back fortunes from their kids",
-      "Russia's Putin to host Egypt's foreign minister, focus on Iran war and Middle East - Reuters",
-      "Stellantis-backed Leapmotor delivers more than 100,000 EVs for fourth-straight quarter as BYD sales fall",
-      "Iran executes man arrested over January protests - Reuters",
-      "Russia says it's ready to help resolve Iran conflict - Reuters",
-      "Iran to allow safe passage of Philippine ships, fuel supply through Strait of Hormuz, says Manila - Reuters",
-      "Exclusive: Vietnam aims to shore up battered stocks with stabilisation fund and influencers, documents show - Reuters"
+      "Wall Street ends mixed as worries linger before Good Friday break - Reuters",
+      "Cramer\u2019s week ahead: Two key economic reports and earnings from Levi's, Delta",
+      "Zelenskiy offers Ukraine's maritime expertise with Strait of Hormuz - Reuters"
     ],
-    "as_of": "2026-04-02 17:07 UTC"
+    "as_of": "2026-04-03 13:26 UTC"
   },
-  "generated_at": "2026-04-02T17:08:00.618659"
+  "generated_at": "2026-04-03T13:27:09.539172"
 }
