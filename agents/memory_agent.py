@@ -223,6 +223,23 @@ def store_trade_entry(
     logger.info("Trade entry stored: %s %s @ $%.2f (%.0f%%)", direction, ticker, entry_price, size_pct)
 
 
+def update_position(ticker: str, conviction: int | None = None, size_pct: float | None = None) -> None:
+    """
+    Update conviction and/or size_pct on an existing positions_log entry.
+    Called after increase/decrease decisions so the dashboard shows current, not entry, values.
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    if ticker not in positions:
+        logger.debug("update_position: %s not in positions_log — skipping", ticker)
+        return
+    if conviction is not None:
+        positions[ticker]["conviction"] = conviction
+    if size_pct is not None:
+        positions[ticker]["size_pct"] = size_pct
+    _save_json(POSITIONS_LOG_PATH, positions)
+    logger.debug("Updated positions_log: %s conviction=%s size_pct=%s", ticker, conviction, size_pct)
+
+
 def store_trade_exit(
     ticker: str,
     exit_date: str,

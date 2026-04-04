@@ -578,6 +578,7 @@ def run(mode: str = "new_opportunities") -> dict:
                     side = "buy" if direction == "LONG" else "sell"
                     order = _place_order(api, ticker, shares, side, f"Increasing position: {rationale}")
                     if order:
+                        memory.update_position(ticker, conviction=conviction, size_pct=size_pct)
                         trade = {
                             "date": today, "ticker": ticker, "action": "increase",
                             "direction": direction, "shares": shares, "price": current_price,
@@ -595,6 +596,7 @@ def run(mode: str = "new_opportunities") -> dict:
                     side = "sell" if direction == "LONG" else "buy"
                     order = _place_order(api, ticker, shares, side, f"Reducing position: {rationale}")
                     if order:
+                        memory.update_position(ticker, conviction=conviction, size_pct=size_pct)
                         trade = {
                             "date": today, "ticker": ticker, "action": "decrease",
                             "direction": direction, "shares": shares, "price": current_price,

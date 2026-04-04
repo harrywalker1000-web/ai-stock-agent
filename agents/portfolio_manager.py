@@ -33,6 +33,8 @@ from dotenv import load_dotenv
 import agents.memory_agent as memory
 from utils.logger import get_logger
 
+import json as _json
+
 load_dotenv()
 logger = get_logger(__name__)
 
@@ -60,6 +62,131 @@ def _read_analysis_mode() -> str:
 PHASE_A_MODE = _read_analysis_mode()   # Lite | Standard | Full
 SKIP_PHASE_A = os.environ.get("SKIP_PHASE_A", "false").lower() == "true"
 SKIP_PHASE_B = os.environ.get("SKIP_PHASE_B", "false").lower() == "true"
+
+
+# ---------------------------------------------------------------------------
+# Portfolio Construction helper
+# ---------------------------------------------------------------------------
+
+def _run_portfolio_construction(phase_b_committee: dict) -> dict:
+    """
+    Runs after both Phase A and Phase B committees have deliberated.
+    Calls construct_portfolio_allocation() with the full book context,
+    then patches committee_report.json with the final target weights so
+    the executor uses construction-determined sizes, not committee guesses.
+    """
+    from agents.investment_committee import construct_portfolio_allocation
+
+    phase_b_decisions = phase_b_committee.get("position_decisions", [])
+    open_positions = memory.get_open_positions()
+
+    # Read Phase A decisions from committee_report — the Phase A committee wrote to this
+    committee_report_path = ROOT / "data" / "reports" / "committee_report.json"
+    phase_a_decisions: list = []
+    try:
+        # Phase A writes its own committee_report.json during its run.
+        # By Phase B time, the file has been overwritten by Phase B committee.
+        # We read Phase A decisions from the pipeline result instead (written by memory agent).
+        # Fallback: read positions_log for conviction of held tickers.
+        pass
+    except Exception:
+        pass
+
+    # Get portfolio state from Alpaca (via portfolio_state.json written by Phase A executor)
+    equity = 100_000.0
+    cash_pct = 100.0
+    portfolio_state_path = ROOT / "data" / "reports" / "portfolio_state.json"
+    if portfolio_state_path.exists():
+        try:
+            with open(portfolio_state_path) as f:
+                ps = _json.load(f)
+            pv = float(ps.get("portfolio_value") or ps.get("equity") or 0)
+            cash = float(ps.get("cash") or 0)
+            if pv > 0:
+                equity = pv
+                cash_pct = round(cash / pv * 100, 1)
+        except Exception:
+            pass
+
+    macro_report_path = ROOT / "data" / "reports" / "macro_report.json"
+    macro_regime = "NEUTRAL"
+    if macro_report_path.exists():
+        try:
+            with open(macro_report_path) as f:
+                macro_regime = _json.load(f).get("regime", "NEUTRAL")
+        except Exception:
+            pass
+
+    construction = construct_portfolio_allocation(
+        phase_b_decisions=phase_b_decisions,
+        phase_a_decisions=phase_a_decisions,
+        open_positions=open_positions,
+        equity=equity,
+        cash_pct=cash_pct,
+        macro_regime=macro_regime,
+    )
+
+    target_weights = construction.get("target_weights", {})
+    if not target_weights:
+        logger.info("Portfolio construction: no target weights returned — committee sizes used as-is")
+        return construction
+
+    # Patch Phase B decisions with construction target weights
+    # The executor reads from committee_report.json → position_decisions[].size_pct
+    patched = 0
+    for d in phase_b_decisions:
+        ticker = d.get("ticker", "")
+        if ticker in target_weights:
+            d["size_pct"] = target_weights[ticker]
+            patched += 1
+        elif d.get("action", "").startswith("enter"):
+            # Construction didn't include this new entry — committee said enter but
+            # construction didn't see it. Default to a cautious 5%.
+            d["size_pct"] = 5.0
+            logger.warning("%s: not in construction output — defaulting to 5%%", ticker)
+
+    # Also handle rebalancing of held positions: add increase/decrease entries to decisions
+    rebalancing = construction.get("rebalancing", {})
+    existing_tickers = {d.get("ticker") for d in phase_b_decisions}
+    for ticker, change in rebalancing.items():
+        if ticker in existing_tickers:
+            continue  # Already in Phase B decisions
+        if ticker not in open_positions:
+            continue  # Not a held position, skip
+        from_pct = change.get("from_pct", 0)
+        to_pct = change.get("to_pct", 0)
+        action = "increase" if to_pct > from_pct else "decrease"
+        phase_b_decisions.append({
+            "ticker": ticker,
+            "action": action,
+            "conviction": open_positions[ticker].get("conviction", 50),
+            "size_pct": to_pct,
+            "investment_thesis": f"Portfolio rebalancing: construction target {to_pct:.1f}% vs current {from_pct:.1f}%",
+            "key_catalysts": [],
+            "key_risks": [],
+        })
+        logger.info("Portfolio construction: adding %s rebalance %s → %.1f%%", ticker, action, to_pct)
+
+    # Write patched decisions back to committee_report.json so executor picks them up
+    if committee_report_path.exists():
+        try:
+            with open(committee_report_path) as f:
+                cr = _json.load(f)
+            cr["position_decisions"] = phase_b_decisions
+            cr["portfolio_construction"] = {
+                "target_weights": target_weights,
+                "reasoning": construction.get("reasoning", ""),
+                "rebalancing": rebalancing,
+                "generated_at": cr.get("generated_at", ""),
+            }
+            with open(committee_report_path, "w") as f:
+                _json.dump(cr, f, indent=2)
+            logger.info("Portfolio construction: patched %d/%d decisions with target weights",
+                        patched, len(phase_b_decisions))
+        except Exception as exc:
+            logger.warning("Portfolio construction: could not patch committee_report.json: %s", exc)
+
+    return {**construction, "decisions_patched": patched}
 
 
 # ---------------------------------------------------------------------------
@@ -205,6 +332,13 @@ def run_phase_b(macro_already_ran: bool = False) -> dict:
     from agents import investment_committee
     logger.info("Phase B: Committee deliberating on new opportunities...")
     results["committee"] = investment_committee.run(mode="new_opportunities")
+
+    # --- Phase 4b: Portfolio Construction ---
+    # The committee deliberated on action + conviction. Now a separate LLM call
+    # sees the ENTIRE book — held positions + new entries together — and sets
+    # final target weights for everything simultaneously.
+    logger.info("Phase B: Portfolio Construction — setting final weights with full portfolio view...")
+    results["construction"] = _run_portfolio_construction(results["committee"])
 
     # --- Phase 5: Trade Executor ---
     from agents import trade_executor

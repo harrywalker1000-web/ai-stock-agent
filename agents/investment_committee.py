@@ -371,7 +371,6 @@ Return ONLY valid JSON — an array of position_decisions:
     "ticker": "<ticker>",
     "action": "enter_long" | "enter_short" | "hold" | "increase" | "decrease" | "exit" | "skip",
     "conviction": <integer 0-100, MUST NOT be a multiple of 5>,
-    "size_pct": <float — target % of portfolio, or null if skip/hold>,
     "stop_loss": <float price level or null>,
     "target_price": <float or null — checkpoint for re-evaluation, NOT auto-sell>,
     "investment_thesis": "<2-3 sentence rationale>",
@@ -380,7 +379,11 @@ Return ONLY valid JSON — an array of position_decisions:
     "conflict_resolution": "<how you resolved cross-agent disagreements, or 'No conflict'>",
     "skip_reason": "<only if action=skip — why passing on this>"
   }}
-]"""
+]
+
+NOTE: Do NOT include size_pct. Position sizing is handled by a separate Portfolio Construction
+step that sees the entire book simultaneously and assigns final weights based on all positions
+together. Your job is purely: action + conviction + rationale."""
 
     def _call_llm(prompt_text: str) -> list[dict]:
         resp = client.chat.completions.create(
@@ -429,16 +432,6 @@ Return ONLY valid JSON — an array of position_decisions:
         if _has_rounded_convictions(decisions):
             logger.warning("Rounded convictions persist after retry — applying nudge fix")
             decisions = _fix_rounded_convictions(decisions)
-
-        # Normalise: if total sizing decisions would exceed 90% of available cash, scale down
-        sizing = [d for d in decisions if d.get("action") not in ("skip", "hold") and d.get("size_pct")]
-        total_size = sum(float(d["size_pct"]) for d in sizing)
-        cap = available_cash_pct * 0.90
-        if total_size > cap and total_size > 0:
-            scale = cap / total_size
-            for d in sizing:
-                d["size_pct"] = round(float(d["size_pct"]) * scale, 1)
-            logger.info("Position sizes scaled by %.2f to stay within %.0f%% cash cap", scale, cap)
 
         return decisions
     except Exception as exc:
@@ -748,6 +741,154 @@ def _run_debate_round(
             continue
 
     return scorecards
+
+
+def construct_portfolio_allocation(
+    phase_b_decisions: list[dict],
+    phase_a_decisions: list[dict],
+    open_positions: dict,
+    equity: float,
+    cash_pct: float,
+    macro_regime: str,
+) -> dict:
+    """
+    Portfolio Construction: a single LLM call that sees the ENTIRE book simultaneously.
+
+    Runs after both Phase A and Phase B committees have deliberated.
+    Takes their action/conviction outputs and determines the final target weight
+    for every position — both existing holds and new entries.
+
+    This prevents the blindness problem where Phase B sizes positions based on
+    whatever cash happened to be left after Phase A, without seeing the full picture.
+
+    Returns:
+        {
+          "target_weights": {"TICKER": <float % of portfolio>},
+          "rebalancing": {"TICKER": {"from_pct": x, "to_pct": y}},
+          "reasoning": "<narrative>"
+        }
+    """
+    if not phase_b_decisions and not open_positions:
+        return {"target_weights": {}, "rebalancing": {}, "reasoning": "No positions to construct."}
+
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    today = datetime.utcnow().date().isoformat()
+
+    # Build context: existing holdings after Phase A decisions
+    # Map Phase A outcomes
+    phase_a_map = {d["ticker"]: d for d in phase_a_decisions if d.get("ticker")}
+    held_lines = []
+    for ticker, pos in open_positions.items():
+        pa = phase_a_map.get(ticker, {})
+        action = pa.get("action", "hold")
+        if action == "exit":
+            continue  # Already exiting — don't include
+        conviction = pa.get("conviction") or pos.get("conviction") or 50
+        size_pct = pos.get("size_pct") or 0
+        sector = pos.get("sector") or "Unknown"
+        direction = pos.get("direction", "LONG")
+        thesis = (pa.get("investment_thesis") or pos.get("entry_thesis") or "")[:150]
+        held_lines.append(
+            f"  {ticker}: {direction} | action={action.upper()} | "
+            f"conviction={conviction}/100 | current_weight={size_pct:.1f}% | "
+            f"sector={sector} | thesis={thesis}"
+        )
+
+    # Build context: Phase B new entries
+    new_entry_lines = []
+    for d in phase_b_decisions:
+        if "enter" not in d.get("action", ""):
+            continue
+        conviction = d.get("conviction", 50)
+        thesis = (d.get("investment_thesis") or "")[:150]
+        catalysts = ", ".join(d.get("key_catalysts") or [])[:80]
+        f_score = d.get("fundamental_score") or "?"
+        q_score = d.get("quant_score") or "?"
+        s_score = d.get("sentiment_score") or "?"
+        new_entry_lines.append(
+            f"  {d['ticker']}: {d['action'].upper()} | conviction={conviction}/100 | "
+            f"F:{f_score} Q:{q_score} S:{s_score} | thesis={thesis} | catalyst={catalysts}"
+        )
+
+    held_block = "\n".join(held_lines) if held_lines else "  (none)"
+    new_block = "\n".join(new_entry_lines) if new_entry_lines else "  (none)"
+
+    prompt = f"""You are the Portfolio Manager of an AI hedge fund. Today is {today}.
+
+Your job is PORTFOLIO CONSTRUCTION — setting the final target allocation for every position.
+
+The research team and investment committee have already decided WHAT to buy/sell.
+You decide HOW MUCH of each position to hold.
+
+PORTFOLIO STATE:
+  Total equity: ${equity:,.0f}
+  Available cash: ~{cash_pct:.1f}% of portfolio
+  Macro regime: {macro_regime}
+
+EXISTING POSITIONS (after today's committee review):
+{held_block}
+
+NEW ENTRIES approved by committee:
+{new_block}
+
+YOUR TASK:
+Assign a target weight (% of total portfolio) to every position you want the fund to hold.
+Use your full judgement. Consider:
+- Higher conviction = generally larger allocation
+- How positions interact (e.g. two correlated names in same sector shouldn't both be max size)
+- Portfolio balance: you don't HAVE to be diversified, but concentrated bets need conviction to match
+- Cash is fine — if allocations only sum to 70%, 30% stays in cash. That's a valid decision.
+- Positions not listed in your output are assumed to be held at their current weight (no change needed)
+
+RULES:
+- No single position above 25% of portfolio
+- All new entries must fit within available cash ({cash_pct:.1f}%) — do not use margin
+- Positions the committee decided to EXIT should not appear in your output
+- You may include rebalancing for held positions if you think current weights are wrong
+
+Return ONLY valid JSON:
+{{
+  "target_weights": {{
+    "TICKER": <float — target % of total portfolio>,
+    ...
+  }},
+  "reasoning": "<2-3 sentences on overall portfolio construction decisions>"
+}}
+
+Only include tickers where you want to SET or CHANGE the weight. Omit tickers you're leaving unchanged."""
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=800,
+            response_format={"type": "json_object"},
+        )
+        result = json.loads(resp.choices[0].message.content)
+        target_weights = result.get("target_weights", {})
+        reasoning = result.get("reasoning", "")
+
+        # Compute rebalancing diff vs current positions
+        rebalancing = {}
+        for ticker, target in target_weights.items():
+            pos = open_positions.get(ticker, {})
+            pa = phase_a_map.get(ticker, {})
+            current = pos.get("size_pct") or 0
+            if abs(target - current) >= 0.5:  # Only flag meaningful changes
+                rebalancing[ticker] = {"from_pct": round(current, 1), "to_pct": round(target, 1)}
+
+        logger.info("Portfolio construction complete: %d targets set | reasoning: %s",
+                    len(target_weights), reasoning[:100])
+        return {
+            "target_weights": {k: round(float(v), 1) for k, v in target_weights.items()},
+            "rebalancing": rebalancing,
+            "reasoning": reasoning,
+        }
+
+    except Exception as exc:
+        logger.warning("Portfolio construction LLM failed: %s — using committee sizes as-is", exc)
+        return {"target_weights": {}, "rebalancing": {}, "reasoning": f"Construction failed: {exc}"}
 
 
 def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
