@@ -433,6 +433,27 @@ together. Your job is purely: action + conviction + rationale."""
             logger.warning("Rounded convictions persist after retry — applying nudge fix")
             decisions = _fix_rounded_convictions(decisions)
 
+        # Deduplicate: if LLM produced multiple decisions for the same ticker,
+        # keep the one with the highest conviction (or first non-skip if tied).
+        seen: dict[str, dict] = {}
+        for d in decisions:
+            t = d.get("ticker", "")
+            if not t:
+                continue
+            if t not in seen:
+                seen[t] = d
+            else:
+                existing_conv = seen[t].get("conviction") or 0
+                this_conv = d.get("conviction") or 0
+                if this_conv > existing_conv:
+                    logger.warning("Dedup: %s appeared twice — keeping conviction %d over %d (%s over %s)",
+                                   t, this_conv, existing_conv, d.get("action"), seen[t].get("action"))
+                    seen[t] = d
+                else:
+                    logger.warning("Dedup: %s appeared twice — discarding lower conviction %d (%s)",
+                                   t, this_conv, d.get("action"))
+        decisions = list(seen.values())
+
         return decisions
     except Exception as exc:
         logger.error("Committee LLM call failed: %s", exc)

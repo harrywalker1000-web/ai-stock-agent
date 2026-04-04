@@ -343,6 +343,43 @@ def reconcile_positions_with_alpaca() -> dict:
             )
             summary["untracked_added"].append(ticker)
 
+    # --- Case 4: Direction mismatch — log says LONG but Alpaca says SHORT (or vice versa) ---
+    # This happens when the committee produces conflicting enter_long + enter_short decisions
+    # for the same ticker in one run (both execute, last one wins in positions_log).
+    log_positions = memory.get_open_positions()
+    for ticker, alpaca_data in alpaca_pos.items():
+        if ticker not in log_positions:
+            continue  # Handled above
+        alpaca_direction = "LONG" if alpaca_data.get("side") == "long" else "SHORT"
+        log_direction = log_positions[ticker].get("direction", "LONG").upper()
+        if alpaca_direction != log_direction:
+            logger.warning(
+                "Reconcile: %s direction mismatch — log=%s Alpaca=%s — correcting log to match Alpaca",
+                ticker, log_direction, alpaca_direction,
+            )
+            memory.update_position(ticker, conviction=log_positions[ticker].get("conviction"), size_pct=None)
+            # Full correction: reload and patch direction directly
+            import json as _rjson
+            from pathlib import Path as _P
+            _log_path = _P(__file__).resolve().parent.parent / "data" / "memory" / "positions_log.json"
+            try:
+                with open(_log_path) as _f:
+                    _positions = _rjson.load(_f)
+                if ticker in _positions:
+                    _positions[ticker]["direction"] = alpaca_direction
+                    _positions[ticker]["size_pct"] = round(
+                        abs(float(alpaca_data.get("market_value", 0))) / portfolio_value * 100, 1
+                    ) if portfolio_value else _positions[ticker].get("size_pct", 10.0)
+                    with open(_log_path, "w") as _f:
+                        _rjson.dump(_positions, _f, indent=2)
+                    logger.info("Reconcile: corrected %s direction to %s in positions_log", ticker, alpaca_direction)
+                    if "direction_corrected" not in summary:
+                        summary["direction_corrected"] = []
+                    summary["direction_corrected"].append(ticker)
+            except Exception as _exc:
+                logger.warning("Reconcile: could not correct direction for %s: %s", ticker, _exc)
+                summary["errors"].append(ticker)
+
     logger.info(
         "Reconciliation complete: %d pending placed, %d ghosts removed, %d untracked added, %d errors",
         len(summary["pending_placed"]), len(summary["ghosts_removed"]),
