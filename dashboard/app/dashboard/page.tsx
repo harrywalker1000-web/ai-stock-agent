@@ -121,7 +121,7 @@ export default function DashboardPage() {
   const pipelineLabel = pipelineStatus === "success" ? "Pipeline OK" : pipelineStatus === "failed" ? "Pipeline Failed" : "Not Yet Run";
 
   return (
-    <div className="min-h-screen bg-[#080C10] pb-16">
+    <div className="min-h-screen bg-[#030005] pb-16">
       <div className="max-w-7xl mx-auto px-6 pt-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -349,7 +349,7 @@ export default function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-1.5 mt-2">
-              {(data?.sectors ?? []).slice(0, 5).map((s) => (
+              {(data?.sectors ?? []).map((s) => (
                 <div key={s.sector} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
@@ -358,6 +358,14 @@ export default function DashboardPage() {
                   <span className="text-[#E8EDF2] font-medium">{s.value.toFixed(1)}%</span>
                 </div>
               ))}
+              {(data?.sectors ?? []).length > 0 && (
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/06 mt-1">
+                  <span className="text-[#6B7280]">Total</span>
+                  <span className="text-[#F5A623] font-semibold">
+                    {(data?.sectors ?? []).reduce((sum, s) => sum + s.value, 0).toFixed(1)}%
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -547,14 +555,18 @@ export default function DashboardPage() {
             <div className="card p-5">
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Best Performer</p>
               {positions.length > 0 ? (() => {
-                const best = [...positions].sort((a, b) => b.pct_change - a.pct_change)[0];
+                // Sort by unrealised P&L in dollars — works correctly for both longs and shorts
+                const best = [...positions].sort((a, b) => b.pnl_absolute - a.pnl_absolute)[0];
+                const isProfit = best.pnl_absolute >= 0;
                 return (
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-[#E8EDF2]">{best.ticker}</span>
-                      <span className="text-[#10B981] font-semibold text-lg">{fmt(best.pct_change)}%</span>
+                      <span className={`font-semibold text-lg ${isProfit ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                        {fmtCurrency(best.pnl_absolute)}
+                      </span>
                     </div>
-                    <p className="text-xs text-[#6B7280] mt-1 truncate">{best.company}</p>
+                    <p className="text-xs text-[#6B7280] mt-1 truncate">{best.company} · {fmt(best.pct_change)}% move</p>
                   </div>
                 );
               })() : <p className="text-[#6B7280] text-sm">No positions yet</p>}
@@ -563,16 +575,17 @@ export default function DashboardPage() {
             <div className="card p-5">
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Worst Performer</p>
               {positions.length > 0 ? (() => {
-                const worst = [...positions].sort((a, b) => a.pct_change - b.pct_change)[0];
+                const worst = [...positions].sort((a, b) => a.pnl_absolute - b.pnl_absolute)[0];
+                const isProfit = worst.pnl_absolute >= 0;
                 return (
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="font-mono font-bold text-[#E8EDF2]">{worst.ticker}</span>
-                      <span className={`font-semibold text-lg ${worst.pct_change >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                        {fmt(worst.pct_change)}%
+                      <span className={`font-semibold text-lg ${isProfit ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                        {fmtCurrency(worst.pnl_absolute)}
                       </span>
                     </div>
-                    <p className="text-xs text-[#6B7280] mt-1 truncate">{worst.company}</p>
+                    <p className="text-xs text-[#6B7280] mt-1 truncate">{worst.company} · {fmt(worst.pct_change)}% move</p>
                   </div>
                 );
               })() : <p className="text-[#6B7280] text-sm">No positions yet</p>}

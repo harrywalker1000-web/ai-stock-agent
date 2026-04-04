@@ -65,17 +65,37 @@ async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> 
 
 // Static sector + company map for known tickers
 const TICKER_META: Record<string, { sector: string; company: string }> = {
+  // Technology
   NVDA:  { sector: "Technology",    company: "NVIDIA" },
   AMD:   { sector: "Technology",    company: "AMD" },
   SMCI:  { sector: "Technology",    company: "Super Micro" },
+  AAPL:  { sector: "Technology",    company: "Apple" },
+  MSFT:  { sector: "Technology",    company: "Microsoft" },
+  GOOGL: { sector: "Technology",    company: "Alphabet" },
+  META:  { sector: "Technology",    company: "Meta" },
+  // Consumer Discretionary
   AMZN:  { sector: "Consumer Disc", company: "Amazon" },
   NKE:   { sector: "Consumer Disc", company: "Nike" },
+  TSLA:  { sector: "Consumer Disc", company: "Tesla" },
+  // Healthcare
   LLY:   { sector: "Healthcare",    company: "Eli Lilly" },
   MRK:   { sector: "Healthcare",    company: "Merck" },
-  AMCR:  { sector: "Materials",     company: "Amcor" },
+  JNJ:   { sector: "Healthcare",    company: "Johnson & Johnson" },
+  ABBV:  { sector: "Healthcare",    company: "AbbVie" },
+  // Consumer Staples
   MKC:   { sector: "Consumer Stap", company: "McCormick" },
   EL:    { sector: "Consumer Stap", company: "Estée Lauder" },
+  PG:    { sector: "Consumer Stap", company: "Procter & Gamble" },
+  KO:    { sector: "Consumer Stap", company: "Coca-Cola" },
+  // Materials
+  AMCR:  { sector: "Materials",     company: "Amcor" },
+  // Industrials
   LUV:   { sector: "Industrials",   company: "Southwest Air" },
+  // Retail
+  DG:    { sector: "Consumer Disc", company: "Dollar General" },
+  HD:    { sector: "Consumer Disc", company: "Home Depot" },
+  // Homebuilders
+  LEN:   { sector: "Consumer Disc", company: "Lennar" },
 };
 
 const SECTOR_COLORS: Record<string, string> = {
@@ -221,6 +241,11 @@ export async function GET() {
   }
 
   // ── Sector allocation: from real positions + Cash slice ───────────────────
+  // Always use equity as the denominator so percentages reflect share of NAV.
+  // Cash = equity minus sum of |market values|. When margin is in use,
+  // deployedTotal > equity, so cashSlice is 0 and sectors sum to >100% of equity —
+  // we normalise the whole thing so it always adds to exactly 100%.
+  const equity = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
   const sectorDollars: Record<string, number> = {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const p of positions as any[]) {
@@ -229,18 +254,18 @@ export async function GET() {
       sectorDollars[s] = (sectorDollars[s] ?? 0) + p.position_size;
     }
   }
-  // Add cash as its own slice (use equity as base so it adds to 100%)
-  const equity = alpacaAccount ? parseFloat(alpacaAccount.equity) : 100000;
   const deployedTotal = Object.values(sectorDollars).reduce((a, b) => a + b, 0);
   const cashSlice = Math.max(equity - deployedTotal, 0);
   if (cashSlice > 0) sectorDollars["Cash"] = cashSlice;
 
-  const sectors = Object.entries(sectorDollars).length > 0
+  // Normalise: sum everything then express each as % of total (always adds to 100)
+  const grandTotal = Object.values(sectorDollars).reduce((a, b) => a + b, 0);
+  const sectors = grandTotal > 0
     ? Object.entries(sectorDollars)
         .sort((a, b) => b[1] - a[1])
         .map(([sector, dollars]) => ({
           sector,
-          value: parseFloat(((dollars / equity) * 100).toFixed(1)),
+          value: parseFloat(((dollars / grandTotal) * 100).toFixed(1)),
           color: SECTOR_COLORS[sector] ?? "#6B7280",
         }))
     : MOCK_SECTOR_ALLOCATION;
