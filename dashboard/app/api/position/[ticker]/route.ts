@@ -4,6 +4,39 @@ import fs from "fs";
 import { MOCK_POSITION_DETAIL } from "@/lib/mock-data";
 import YahooFinanceClass from "yahoo-finance2";
 
+// Fetch a single position from Alpaca
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAlpacaPosition(ticker: string): Promise<any | null> {
+  const key    = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return null;
+  try {
+    const res = await fetch(`${base}/v2/positions/${ticker}`, {
+      headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
+  const key    = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return null;
+  try {
+    const res = await fetch(`${base}/v2/account`, {
+      headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { equity: parseFloat(data.equity) };
+  } catch { return null; }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
@@ -32,26 +65,45 @@ function findByTicker(arr: any[], ticker: string) {
   return arr?.find((x: { ticker?: string }) => x.ticker?.toUpperCase() === ticker) ?? null;
 }
 
+function readMemory(name: string) {
+  const candidates = [
+    path.join(process.cwd(), "data", "memory", name),
+    path.join(process.cwd(), "..", "data", "memory", name),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf-8"));
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
 export async function GET(
   _req: NextRequest,
   context: { params: { ticker: string } }
 ) {
   const ticker = context.params.ticker.toUpperCase();
 
-  // ── Load all agent reports + positions_log ──────────────────────────────────
-  const positionsLog = (() => {
-    const candidates = [
-      path.join(process.cwd(), "data", "memory", "positions_log.json"),
-      path.join(process.cwd(), "..", "data", "memory", "positions_log.json"),
-    ];
-    for (const p of candidates) {
-      try {
-        if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf-8"));
-      } catch { /* try next */ }
-    }
-    return null;
-  })();
+  // ── Load all agent reports + positions_log + decision_log ───────────────────
+  const positionsLog = readMemory("positions_log.json");
   const positionEntry = positionsLog?.[ticker] ?? null;
+
+  // Build review timeline from decision_log filtered to this ticker
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const decisionLog: any[] = readMemory("decision_log.json") ?? [];
+  const reviewTimeline = decisionLog
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter((d: any) => d.ticker?.toUpperCase() === ticker)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .sort((a: any, b: any) => (a.date ?? "").localeCompare(b.date ?? ""))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((d: any) => ({
+      date:      d.date,
+      decision:  d.action,
+      rationale: d.rationale ?? "—",
+      conviction: d.conviction ?? null,
+      size_pct:  d.size_pct ?? null,
+    }));
 
   const committeeReport   = readReport("committee_report.json");
   const fundamentalReport = readReport("fundamental_report.json");
@@ -77,7 +129,12 @@ export async function GET(
 
   const hasPipelineData = !!(scorecard || fundamental || quant || sentiment);
 
-  // ── Fetch live price & stats from Yahoo Finance ────────────────────────────
+  // ── Fetch live data in parallel: Yahoo Finance + Alpaca ───────────────────
+  const [alpacaPosition, alpacaAccount] = await Promise.all([
+    fetchAlpacaPosition(ticker),
+    fetchAlpacaAccount(),
+  ]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let liveQuote: any = null;
   try {
@@ -225,25 +282,45 @@ export async function GET(
     num_analysts:           liveQuote?.number_of_analyst_opinions,
   } : null;
 
+  // ── Compute live position stats (Alpaca is source of truth) ─────────────────
+  const alpacaMarketValue = alpacaPosition ? Math.abs(parseFloat(alpacaPosition.market_value)) : null;
+  const alpacaEquity      = alpacaAccount?.equity ?? null;
+  const alpacaUnrealPct   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_plpc) * 100 : null;
+  const alpacaUnrealAbs   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_pl) : null;
+  const alpacaCurrentPrice= alpacaPosition ? parseFloat(alpacaPosition.current_price) : null;
+  const alpacaEntryPrice  = alpacaPosition ? parseFloat(alpacaPosition.avg_entry_price) : null;
+  const alpacaQty         = alpacaPosition ? parseFloat(alpacaPosition.qty) : null;
+
+  const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.current_price;
+  const liveEntryPrice   = alpacaEntryPrice ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.entry_price;
+  const liveMarketValue  = alpacaMarketValue ?? (liveCurrentPrice && alpacaQty ? liveCurrentPrice * alpacaQty : null);
+  const livePctPortfolio = (liveMarketValue && alpacaEquity && alpacaEquity > 0)
+    ? parseFloat((liveMarketValue / alpacaEquity * 100).toFixed(2))
+    : positionEntry?.size_pct ?? MOCK_POSITION_DETAIL.pct_portfolio;
+  const livePctChange = alpacaUnrealPct ?? (liveCurrentPrice && liveEntryPrice
+    ? ((liveCurrentPrice - liveEntryPrice) / liveEntryPrice) * 100
+    : 0);
+  const livePnlAbs = alpacaUnrealAbs ?? (liveMarketValue && livePctChange
+    ? (livePctChange / 100) * liveMarketValue
+    : 0);
+
   const result = {
-    // Core position fields — real entry from positions_log, live price from Yahoo
+    // Core position fields — Alpaca is source of truth for live metrics
     ticker,
     company:        liveQuote?.company ?? ticker,
     sector:         liveQuote?.sector ?? MOCK_POSITION_DETAIL.sector,
-    direction:      (positionEntry?.direction ?? scorecard?.direction ?? "LONG").toLowerCase(),
-    entry_price:    positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.entry_price,
-    current_price:  liveQuote?.current_price ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.current_price,
-    pct_change:     liveQuote?.current_price && positionEntry?.entry_price
-                      ? ((liveQuote.current_price - positionEntry.entry_price) / positionEntry.entry_price) * 100
-                      : 0,
-    pnl_absolute:   liveQuote?.current_price && positionEntry?.entry_price && positionEntry?.size_pct
-                      ? (liveQuote.current_price - positionEntry.entry_price) / positionEntry.entry_price * (positionEntry.size_pct / 100) * 100000
-                      : 0,
-    position_size:  positionEntry?.size_pct ? positionEntry.size_pct * 1000 : MOCK_POSITION_DETAIL.position_size,
-    pct_portfolio:  positionEntry?.size_pct ?? MOCK_POSITION_DETAIL.pct_portfolio,
+    direction:      alpacaPosition?.side === "short" ? "short" : (positionEntry?.direction ?? "LONG").toLowerCase(),
+    entry_price:    parseFloat(liveEntryPrice.toFixed(2)),
+    current_price:  parseFloat(liveCurrentPrice.toFixed(2)),
+    pct_change:     parseFloat(livePctChange.toFixed(2)),
+    pnl_absolute:   parseFloat(livePnlAbs.toFixed(2)),
+    position_size:  liveMarketValue ? parseFloat(liveMarketValue.toFixed(2)) : MOCK_POSITION_DETAIL.position_size,
+    qty:            alpacaQty ?? null,
+    pct_portfolio:  livePctPortfolio,
     entry_date:     positionEntry?.entry_date ?? MOCK_POSITION_DETAIL.entry_date,
     conviction:     positionEntry?.conviction ?? decision?.conviction ?? MOCK_POSITION_DETAIL.conviction,
     scenario:       scorecard?.overall_confidence === "high" ? "A" : scorecard?.overall_confidence === "medium" ? "B" : "C",
+    review_timeline: reviewTimeline.length > 0 ? reviewTimeline : undefined,
 
     // Real agent data
     agent_scores:            agentScores,

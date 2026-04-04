@@ -95,8 +95,7 @@ type LiveComp = {
 export default function PositionPage({ params }: { params: { ticker: string } }) {
   const { ticker } = params;
   const [position, setPosition] = useState<PositionDetail | null>(null);
-  const [expanded, setExpanded] = useState<number | null>(null);
-  const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: string } | null>(null);
+const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: string } | null>(null);
   const [compsLoading, setCompsLoading] = useState(true);
 
   useEffect(() => {
@@ -862,22 +861,32 @@ export default function PositionPage({ params }: { params: { ticker: string } })
         <div className="card p-6">
           <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Daily Review Timeline</h2>
           <div className="space-y-3">
-            {(position.review_timeline ?? MOCK_POSITION_DETAIL.review_timeline).map((r, i) => {
+            {(position.review_timeline && position.review_timeline.length > 0
+              ? position.review_timeline
+              : MOCK_POSITION_DETAIL.review_timeline
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ).map((r: any, i: number) => {
               const actionColor = r.decision === "enter_long" || r.decision === "hold" || r.decision === "increase"
                 ? "#10B981" : r.decision === "decrease" ? "#F59E0B" : "#EF4444";
+              const timelineLength = position.review_timeline?.length ?? MOCK_POSITION_DETAIL.review_timeline.length;
               return (
-                <div key={i} className="flex gap-4 pb-3 border-b border-white/06 last:border-0 cursor-pointer"
-                  onClick={() => setExpanded(expanded === i ? null : i)}>
+                <div key={i} className="flex gap-4 pb-3 border-b border-white/06 last:border-0">
                   <div className="flex flex-col items-center gap-1">
                     <div className="w-2.5 h-2.5 rounded-full mt-1.5" style={{ background: actionColor }} />
-                    {i < (position.review_timeline?.length ?? 0) - 1 && <div className="w-px flex-1 bg-white/08" />}
+                    {i < timelineLength - 1 && <div className="w-px flex-1 bg-white/08" />}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
+                    <div className="flex items-center gap-3 mb-1 flex-wrap">
                       <span className="text-xs font-mono text-[#6B7280]">{r.date}</span>
                       <span className="text-xs font-bold uppercase px-2 py-0.5 rounded-md" style={{ color: actionColor, background: `${actionColor}20` }}>
                         {r.decision.replace(/_/g, " ")}
                       </span>
+                      {r.conviction != null && (
+                        <span className="text-xs text-[#6B7280]">conviction {r.conviction}/100</span>
+                      )}
+                      {r.size_pct != null && (
+                        <span className="text-xs text-[#6B7280]">→ {r.size_pct}% portfolio</span>
+                      )}
                     </div>
                     <p className="text-sm text-[#6B7280]">{r.rationale}</p>
                   </div>
