@@ -5,7 +5,7 @@ type Interval = "15m" | "1h" | "1d" | "1wk";
 
 // yahoo-finance2 v3 requires instantiation
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const yf = new (YahooFinanceClass as any)();
+const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
 function getConfig(tf: string): { period1: Date; interval: Interval } {
   const now = new Date();

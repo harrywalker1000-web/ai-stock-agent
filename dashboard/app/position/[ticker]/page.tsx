@@ -147,9 +147,12 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const macroRegime: string | undefined = (position as any)._macro_regime;
   const qe = position.quality_of_earnings ?? MOCK_POSITION_DETAIL.quality_of_earnings;
-  const mgmt = position.management_team ?? MOCK_POSITION_DETAIL.management_team;
-  const arh = position.analyst_rating_history ?? MOCK_POSITION_DETAIL.analyst_rating_history;
-  const ct = position.cap_table ?? MOCK_POSITION_DETAIL.cap_table;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mgmt = (position as any).management_team ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const arh = (position as any).analyst_rating_history ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ct = (position as any).cap_table ?? null;
   const sc = position.setup_checklist ?? MOCK_POSITION_DETAIL.setup_checklist;
   const val = position.valuation ?? MOCK_POSITION_DETAIL.valuation;
   const rec = position.recommendation ?? MOCK_POSITION_DETAIL.recommendation;
@@ -230,7 +233,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               </div>
               <div>
                 <p className="text-3xl font-display font-bold text-[#E8EDF2]">{val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
-                <p className="text-xs text-[#6B7280]">Expected ROI (2-3yr)</p>
+                <p className="text-xs text-[#6B7280]">Expected Return</p>
               </div>
             </div>
             <div>
@@ -516,7 +519,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <SectionCard title="Market Timing" dataSource="mixed">
             <div className="p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 mb-4">
               <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider mb-2">Why Entry NOW</p>
-              <p className="text-sm text-[#E8EDF2] leading-relaxed">{position.market_timing ?? MOCK_POSITION_DETAIL.market_timing}</p>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+              <p className="text-sm text-[#E8EDF2] leading-relaxed">{(position as any).market_timing ?? "Quant timing signals not available for this position."}</p>
             </div>
             {arh && (
               <div>
@@ -787,7 +791,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 </div>
                 <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Major Holders</p>
                 <div className="space-y-2">
-                  {(ct.major_holders ?? []).map((h) => (
+                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                  {((ct as any).major_holders ?? []).map((h: any) => (
                     <div key={h.name} className="flex items-center justify-between">
                       <span className="text-xs text-[#E8EDF2]">{h.name}</span>
                       <div className="flex items-center gap-2">
@@ -863,7 +868,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <div className="space-y-3">
             {(position.review_timeline && position.review_timeline.length > 0
               ? position.review_timeline
-              : MOCK_POSITION_DETAIL.review_timeline
+              : []
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ).map((r: any, i: number) => {
               const actionColor = r.decision === "enter_long" || r.decision === "hold" || r.decision === "increase"

@@ -270,11 +270,13 @@ def run_phase_a() -> dict:
 # Phase B — New Opportunity Research
 # ---------------------------------------------------------------------------
 
-def run_phase_b(macro_already_ran: bool = False) -> dict:
+def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = None) -> dict:
     """
     Full pipeline for identifying new positions to enter.
     Phase 1 runs sequentially (could be parallelised in future).
     Macro is skipped if it already ran in Phase A.
+    phase_a_exits: list of tickers Phase A exited today — passed to Phase B committee
+                   as a cooldown signal so it doesn't re-enter same-day exits.
     """
     logger.info("Phase B: New Opportunity Research")
     results: dict = {}
@@ -331,7 +333,10 @@ def run_phase_b(macro_already_ran: bool = False) -> dict:
     # --- Phase 4: Investment Committee ---
     from agents import investment_committee
     logger.info("Phase B: Committee deliberating on new opportunities...")
-    results["committee"] = investment_committee.run(mode="new_opportunities")
+    if phase_a_exits:
+        logger.info("Phase B: Passing %d Phase A exits to committee as same-day cooldown: %s",
+                    len(phase_a_exits), phase_a_exits)
+    results["committee"] = investment_committee.run(mode="new_opportunities", exited_today=phase_a_exits)
 
     # --- Phase 4b: Portfolio Construction ---
     # The committee deliberated on action + conviction. Now a separate LLM call
@@ -406,7 +411,13 @@ def run() -> dict:
         logger.info("Phase B skipped (SKIP_PHASE_B=true)")
         summary["phase_b"] = {"skipped": True, "reason": "SKIP_PHASE_B env var set"}
     else:
-        summary["phase_b"] = run_phase_b(macro_already_ran=macro_ran_in_phase_a)
+        # Extract tickers Phase A exited today so Phase B committee knows not to re-enter them
+        phase_a_committee = summary["phase_a"].get("committee", {})
+        phase_a_exits = [
+            d["ticker"] for d in phase_a_committee.get("position_decisions", [])
+            if d.get("action") == "exit" and d.get("ticker")
+        ]
+        summary["phase_b"] = run_phase_b(macro_already_ran=macro_ran_in_phase_a, phase_a_exits=phase_a_exits or None)
 
     # --- Memory consolidation ---
     logger.info("Running Memory Agent consolidation...")

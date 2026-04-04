@@ -448,15 +448,18 @@ def _fetch_fmp_metrics(ticker: str) -> dict:
         km = fetch_fmp_key_metrics(ticker, limit=1)
         if km:
             m = km[0]
-            result["pe_trailing"] = m.get("peRatio")
-            result["pb_ratio"] = m.get("pbRatio")
-            result["ev_to_ebitda"] = m.get("evToEbitda") or m.get("enterpriseValueOverEBITDA")
-            result["roic"] = m.get("roic")
-            result["debt_to_equity"] = m.get("debtToEquity")
-            result["price_to_sales"] = m.get("priceToSalesRatio") or m.get("priceSalesRatio")
+            # FMP /stable/ endpoint uses different field names from the old /api/v3/ endpoint.
+            ey = m.get("earningsYield")
+            result["pe_trailing"] = round(1 / ey, 1) if ey and ey != 0 else None
+            result["pb_ratio"] = m.get("pbRatio")  # not in free key-metrics; stays None
+            result["ev_to_ebitda"] = m.get("evToEBITDA") or m.get("evToEbitda")
+            result["roic"] = m.get("returnOnInvestedCapital") or m.get("roic")
+            result["return_on_equity"] = m.get("returnOnEquity")
+            result["debt_to_equity"] = m.get("debtToEquity")  # not in /stable/ key-metrics
+            result["price_to_sales"] = m.get("evToSales") or m.get("priceToSalesRatio")
             result["net_debt_ebitda"] = m.get("netDebtToEBITDA")
             result["current_ratio"] = m.get("currentRatio")
-            result["free_cashflow"] = m.get("freeCashFlowPerShare")  # per share — context only
+            result["free_cashflow"] = m.get("freeCashFlowYield") or m.get("freeCashFlowPerShare")
             result["dividend_yield"] = m.get("dividendYield")
     except Exception as exc:
         logger.warning("FMP key metrics parse failed for %s: %s", ticker, exc)

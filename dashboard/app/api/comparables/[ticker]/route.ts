@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import path from "path";
+import fs from "fs";
 import YahooFinanceClass from "yahoo-finance2";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -6,13 +8,59 @@ const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
 // Analyst-defined peer groups — selection is based on sector/subsector overlap
 const PEER_MAP: Record<string, { tickers: string[]; note: string }> = {
-  UNH:  { tickers: ["CVS", "HUM", "CI", "ELV", "MOH"],       note: "US Managed Care / Health Insurance" },
+  // Technology — Semiconductors
+  NVDA: { tickers: ["AMD", "INTC", "AVGO", "QCOM", "TXN"],   note: "Semiconductors / AI Chips" },
+  AMD:  { tickers: ["NVDA", "INTC", "AVGO", "QCOM"],          note: "Semiconductors" },
+  SMCI: { tickers: ["HPE", "DELL", "NTAP", "PSTG"],           note: "Server Infrastructure" },
+  // Technology — Mega Cap
+  AAPL: { tickers: ["MSFT", "GOOGL", "META", "AMZN"],         note: "Mega Cap Technology" },
+  MSFT: { tickers: ["AAPL", "GOOGL", "AMZN", "CRM", "NOW"],  note: "Mega Cap / Cloud" },
+  GOOGL:{ tickers: ["META", "MSFT", "AMZN", "SNAP", "PINS"],  note: "Digital Advertising / Cloud" },
+  META: { tickers: ["GOOGL", "SNAP", "PINS", "RDDT", "TTD"],  note: "Social Media / Digital Ads" },
+  // Consumer Discretionary
+  AMZN: { tickers: ["EBAY", "CPNG", "DDS", "OLLI", "ETSY"],  note: "E-Commerce / Cloud" },
+  TSLA: { tickers: ["F", "GM", "RIVN", "NIO", "LCID"],        note: "EV / Automotive" },
+  NKE:  { tickers: ["ADDYY", "UAA", "LULU", "SKX", "HBI"],    note: "Footwear / Apparel" },
   DG:   { tickers: ["DLTR", "WMT", "TGT", "COST"],            note: "Discount & Value Retail" },
-  EL:   { tickers: ["COTY", "ULTA", "CHD", "CLX"],            note: "Beauty / Personal Care" },
-  CRM:  { tickers: ["ORCL", "WDAY", "NOW", "MSFT", "SAP"],   note: "Enterprise Cloud SaaS" },
+  HD:   { tickers: ["LOW", "SHW", "WSM", "RH", "TSCO"],       note: "Home Improvement Retail" },
+  LEN:  { tickers: ["DHI", "PHM", "TOL", "NVR", "KBH"],       note: "Homebuilders" },
+  // Healthcare
+  LLY:  { tickers: ["NVO", "PFE", "MRK", "ABBV", "BMY"],     note: "Large Cap Pharma / GLP-1" },
+  MRK:  { tickers: ["LLY", "PFE", "ABBV", "BMY", "AZN"],     note: "Large Cap Pharma" },
+  JNJ:  { tickers: ["ABT", "MDT", "SYK", "BSX", "ZBH"],      note: "Diversified Healthcare" },
+  ABBV: { tickers: ["LLY", "MRK", "PFE", "BMY", "AMGN"],     note: "Biopharmaceuticals" },
+  // Consumer Staples
   MKC:  { tickers: ["HRL", "CPB", "SJM", "K", "GIS"],        note: "Consumer Packaged Goods" },
+  KO:   { tickers: ["PEP", "MNST", "KDP", "SAM", "CELH"],    note: "Beverages" },
+  PG:   { tickers: ["CL", "CLX", "KMB", "CHD", "EL"],        note: "Consumer Staples" },
+  EL:   { tickers: ["COTY", "ULTA", "CHD", "CLX"],            note: "Beauty / Personal Care" },
+  // Materials
+  AMCR: { tickers: ["IP", "PKG", "SEE", "BERY", "GPK"],       note: "Packaging Materials" },
+  // Industrials
+  LUV:  { tickers: ["DAL", "UAL", "AAL", "ALK", "JBLU"],     note: "US Airlines" },
+  // Enterprise Software
+  CRM:  { tickers: ["ORCL", "WDAY", "NOW", "MSFT", "SAP"],   note: "Enterprise Cloud SaaS" },
   COIN: { tickers: ["HOOD", "ICE", "CME", "MSTR"],            note: "Crypto / Financial Exchanges" },
+  UNH:  { tickers: ["CVS", "HUM", "CI", "ELV", "MOH"],       note: "US Managed Care / Health Insurance" },
 };
+
+function readFundamentalPeers(ticker: string): string[] | null {
+  const candidates = [
+    path.join(process.cwd(), "data", "reports", "fundamental_report.json"),
+    path.join(process.cwd(), "..", "data", "reports", "fundamental_report.json"),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) {
+        const data = JSON.parse(fs.readFileSync(p, "utf-8"));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const entry = (data.fundamental_analyses ?? []).find((x: any) => x.ticker?.toUpperCase() === ticker);
+        if (entry?.peers_used?.length > 0) return entry.peers_used;
+      }
+    } catch { /* try next */ }
+  }
+  return null;
+}
 
 type CompRow = {
   ticker: string;
@@ -63,7 +111,15 @@ export async function GET(
   context: { params: { ticker: string } }
 ) {
   const ticker = context.params.ticker.toUpperCase();
-  const group = PEER_MAP[ticker];
+  let group = PEER_MAP[ticker];
+
+  // Fallback: if ticker not in PEER_MAP, use peers_used from fundamental_report.json
+  if (!group) {
+    const fundamentalPeers = readFundamentalPeers(ticker);
+    if (fundamentalPeers && fundamentalPeers.length > 0) {
+      group = { tickers: fundamentalPeers, note: `Pipeline-identified peers for ${ticker}` };
+    }
+  }
 
   if (!group) {
     // Ticker not in peer map — return subject-only

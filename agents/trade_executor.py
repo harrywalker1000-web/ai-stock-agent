@@ -601,6 +601,83 @@ def run(mode: str = "new_opportunities") -> dict:
             _log_trade(trade)
             executed_trades.append({**trade, "order": order})
 
+        elif action == "reverse":
+            # Close existing position then open opposite direction.
+            reverse_direction = str(decision.get("reverse_direction") or "").upper()
+            if reverse_direction not in ("LONG", "SHORT"):
+                logger.warning("%s: reverse missing valid reverse_direction — skipping", ticker)
+                errors.append({"ticker": ticker, "error": "reverse_direction missing or invalid"})
+                continue
+
+            alpaca_pos_r = alpaca_positions.get(ticker)
+            existing_qty = int(alpaca_pos_r["qty"]) if alpaca_pos_r else 0
+            existing_dir = open_positions.get(ticker, {}).get("direction", "LONG").upper()
+
+            if existing_qty <= 0:
+                logger.warning("%s: reverse requested but no Alpaca position — skipping", ticker)
+                errors.append({"ticker": ticker, "error": "no position to reverse"})
+                continue
+
+            # Step 1: close existing
+            close_side = "sell" if existing_dir == "LONG" else "buy"
+            close_order = _place_order(api, ticker, existing_qty, close_side,
+                                       f"Reversing {existing_dir}: {rationale}") if safe else {"status": "market_closed_dry_run"}
+            entry_price_r = open_positions.get(ticker, {}).get("entry_price")
+            pnl_r = round((current_price - entry_price_r) / entry_price_r * 100, 2) if entry_price_r else None
+            if existing_dir == "SHORT" and pnl_r is not None:
+                pnl_r = -pnl_r
+            memory.store_trade_exit(
+                ticker=ticker, exit_date=today, exit_price=current_price,
+                exit_reason="reversal",
+                rationale=f"Reversed {existing_dir}→{reverse_direction}: {rationale}",
+            )
+            _log_trade({
+                "date": today, "ticker": ticker, "action": "reverse_close",
+                "direction": existing_dir, "shares": existing_qty, "price": current_price,
+                "notional": round(existing_qty * current_price, 2),
+                "pnl_pct": pnl_r, "conviction": conviction, "rationale": rationale[:200],
+            })
+
+            # Step 2: open reversed position
+            reverse_size_pct = float(decision.get("reverse_size_pct") or 5.0)
+            reverse_size_pct = min(reverse_size_pct, HARD_MAX_POSITION_PCT)
+            new_notional = min(
+                portfolio_value * reverse_size_pct / 100,
+                max(0, portfolio.get("cash", 0) + existing_qty * current_price - portfolio_value * HARD_MIN_CASH_PCT / 100),
+            )
+            new_shares = int(new_notional / current_price)
+            new_order = None
+            if new_shares >= 1:
+                new_side = "buy" if reverse_direction == "LONG" else "sell"
+                new_order = _place_order(api, ticker, new_shares, new_side,
+                                         f"[REVERSAL→{reverse_direction}] {rationale}") if safe else {"status": "market_closed_dry_run"}
+                alpaca_oid = new_order.get("order_id") if (safe and new_order) else None
+                memory.store_trade_entry(
+                    ticker=ticker, entry_date=today, entry_price=current_price,
+                    direction=reverse_direction, conviction=conviction,
+                    size_pct=reverse_size_pct, rationale=f"[REVERSAL] {rationale}",
+                    signals=decision.get("key_catalysts", []),
+                    stop_loss=stop_loss, alpaca_order_id=alpaca_oid,
+                )
+                _log_trade({
+                    "date": today, "ticker": ticker, "action": "reverse_open",
+                    "direction": reverse_direction, "shares": new_shares, "price": current_price,
+                    "notional": round(new_shares * current_price, 2),
+                    "pnl_pct": None, "conviction": conviction, "rationale": rationale[:200],
+                })
+                logger.info("%s: REVERSED %s→%s | closed %d, opened %d @ $%.2f",
+                            ticker, existing_dir, reverse_direction, existing_qty, new_shares, current_price)
+            else:
+                logger.warning("%s: reverse open skipped — insufficient cash for 1 share", ticker)
+
+            executed_trades.append({
+                "date": today, "ticker": ticker, "action": "reverse",
+                "from_direction": existing_dir, "to_direction": reverse_direction,
+                "closed_shares": existing_qty, "opened_shares": new_shares,
+                "price": current_price, "pnl_pct": pnl_r, "conviction": conviction,
+                "close_order": close_order, "open_order": new_order,
+            })
+
         elif action in ("increase", "decrease"):
             alpaca_pos = alpaca_positions.get(ticker, {})
             current_value = float(alpaca_pos.get("market_value", 0))

@@ -201,47 +201,65 @@ export async function GET(
     peers_used:        fundamental.peers_used,
     data_confidence:   fundamental.data_confidence,
     data_conflicts:    fundamental.data_conflicts,
+    // Pipeline historical + forward data (real per-ticker data)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    historical:        (fundamental as any).financial_snapshot?.historical ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    forward:           (fundamental as any).financial_snapshot?.forward ?? null,
     // Live from Yahoo Finance
     revenue_ttm:       liveQuote?.revenue_ttm,
     ebitda_live:       liveQuote?.ebitda,
     gross_margins:     liveQuote?.gross_margins,
     ebitda_margins:    liveQuote?.ebitda_margins,
     profit_margins:    liveQuote?.profit_margins,
-    // Keep historical mock for now — will be replaced by FMP
-    historical:        MOCK_POSITION_DETAIL.financial_snapshot?.historical,
-    forward:           MOCK_POSITION_DETAIL.financial_snapshot?.forward,
   } : MOCK_POSITION_DETAIL.financial_snapshot;
 
-  // Build market analysis from real macro + sector
+  // Build market analysis from real fundamental + macro + sector
   const marketAnalysis = {
-    tam_usd:               MOCK_POSITION_DETAIL.market_analysis?.tam_usd,
-    growth_rate:           sectorReport ? `${sectorReport.sector_rankings?.[0]?.growth_outlook ?? "—"}` : MOCK_POSITION_DETAIL.market_analysis?.growth_rate,
-    competition_intensity: MOCK_POSITION_DETAIL.market_analysis?.competition_intensity,
-    sector_trends:         sectorReport?.sector_summary ?? MOCK_POSITION_DETAIL.market_analysis?.sector_trends,
-    macro_factors:         macroReport?.macro_summary ?? MOCK_POSITION_DETAIL.market_analysis?.macro_factors,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tam_usd:               (fundamental as any)?.market_analysis?.tam_usd ?? "—",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    growth_rate:           (fundamental as any)?.market_analysis?.growth_rate ?? (sectorReport ? `${sectorReport.sector_rankings?.[0]?.growth_outlook ?? "—"}` : "—"),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    competition_intensity: (fundamental as any)?.market_analysis?.competition_intensity ?? "—",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sector_trends:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.sector_trends ?? sectorReport?.sector_summary ?? "—",
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    macro_factors:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.macro_factors ?? "—",
     _macro_regime:         macroReport?.regime,
     _favoured_themes:      macroReport?.favoured_themes,
     _avoid_themes:         macroReport?.avoid_themes,
     _source:               "live_pipeline",
   };
 
-  // Quality of earnings from fundamental report
+  // Quality of earnings — from fundamental.quality_of_earnings (real per-ticker data)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fundamentalQoE = (fundamental as any)?.quality_of_earnings ?? null;
   const qualityOfEarnings = fundamental ? {
-    ...(MOCK_POSITION_DETAIL.quality_of_earnings ?? {}),
-    valuation_assessment: fundamental.valuation_vs_peers,
-    price_vs_intrinsic:   fundamental.price_vs_intrinsic_value,
-    dislocation:          fundamental.dislocation_opportunity,
-    key_strengths:        fundamental.key_strengths,
-    key_concerns:         fundamental.key_concerns,
-    data_confidence:      fundamental.data_confidence,
+    moat:                  fundamentalQoE?.moat ?? "—",
+    competitive_advantages: fundamentalQoE?.competitive_advantages ?? [],
+    barriers_to_entry:     fundamentalQoE?.barriers_to_entry ?? "—",
+    sustainability:        fundamentalQoE?.sustainability ?? "—",
+    valuation_assessment:  fundamental.valuation_vs_peers,
+    price_vs_intrinsic:    fundamental.price_vs_intrinsic_value,
+    dislocation:           fundamental.dislocation_opportunity,
+    key_strengths:         fundamental.key_strengths,
+    key_concerns:          fundamental.key_concerns,
+    data_confidence:       fundamental.data_confidence,
   } : MOCK_POSITION_DETAIL.quality_of_earnings;
 
-  // Recommendation from committee decision
+  // Recommendation — add direction derived from decision action / held position
+  const recDirection = decision?.action === "enter_long" ? "LONG"
+    : decision?.action === "enter_short" ? "SHORT"
+    : (alpacaPosition?.side === "short" || positionEntry?.direction?.toUpperCase() === "SHORT") ? "SHORT"
+    : "LONG";
   const recommendation = decision ? {
+    direction:      recDirection,
     action:         decision.action?.toUpperCase().replace("_", " ") ?? "HOLD",
     conviction:     decision.conviction,
     target_price:   decision.target_price,
     stop_loss:      decision.stop_loss,
+    stop_loss_note: decision.stop_loss ? `Stop loss: $${decision.stop_loss}` : null,
     conflict_note:  decision.conflict_resolution,
     composite_score: scorecard?.composite_score,
     overall_confidence: scorecard?.overall_confidence,
@@ -281,6 +299,103 @@ export async function GET(
     recommendation_key:     liveQuote?.recommendation_key,
     num_analysts:           liveQuote?.number_of_analyst_opinions,
   } : null;
+
+  // ── Setup Checklist — built from fundamental pipeline data ───────────────────
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const setupChecklist: { item: string; detail: string }[] = fundamental ? (() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const f = fundamental as any;
+    const items: { item: string; detail: string }[] = [];
+    if (f.setup_type) items.push({ item: "Setup type", detail: `${f.setup_type}${f.fundamental_summary ? ` — ${String(f.fundamental_summary).slice(0, 200)}` : ""}` });
+    if (f.revenue_growth_yoy != null) items.push({ item: "Revenue growth YoY", detail: `${Number(f.revenue_growth_yoy).toFixed(1)}% — ${Number(f.revenue_growth_yoy) >= 10 ? "above" : "below"} 10% threshold. Margin trend: ${f.margin_trend ?? "—"}` });
+    if (f.operating_margin != null) items.push({ item: "Operating margin", detail: `${Number(f.operating_margin).toFixed(1)}%` });
+    if (f.fcf_positive != null) items.push({ item: "FCF status", detail: f.fcf_positive ? "Positive — cash generation intact" : "Negative — burning cash, monitor closely" });
+    if (f.default_risk) items.push({ item: "Default risk", detail: String(f.default_risk) });
+    if (f.leverage_vs_peers) items.push({ item: "Leverage vs peers", detail: String(f.leverage_vs_peers) });
+    const strengths: string[] = f.key_strengths ?? [];
+    if (strengths.length > 0) items.push({ item: "Key strengths", detail: strengths.slice(0, 3).join("; ") });
+    const concerns: string[] = f.key_concerns ?? [];
+    if (concerns.length > 0) items.push({ item: "Key concerns", detail: concerns.slice(0, 3).join("; ") });
+    return items;
+  })() : MOCK_POSITION_DETAIL.setup_checklist as unknown as { item: string; detail: string }[];
+
+  // ── Mandate Checklist — built from fund_mandate in fundamental report ─────────
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fundMandateData = (fundamental as any)?.fund_mandate ?? null;
+  const mandateChecklist: { item: string; pass: boolean }[] = fundMandateData ? (() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fm = fundMandateData as any;
+    const items: { item: string; pass: boolean }[] = [];
+    if (fm.asset_class || fm.exchange) items.push({ item: `Asset class — ${fm.asset_class ?? "Equity"} (${fm.exchange ?? "—"})`, pass: true });
+    if (fm.market_cap_figure) items.push({ item: `Market cap: ${fm.market_cap_figure}`, pass: true });
+    if (fm.sector) items.push({ item: `Sector in universe: ${fm.sector}`, pass: true });
+    if (fm.avg_daily_volume_usd) {
+      items.push({ item: `Avg daily volume: $${fm.avg_daily_volume_usd}`, pass: true });
+    } else {
+      items.push({ item: "Avg daily volume — data unavailable", pass: false });
+    }
+    const gf = fm.geography_flags ?? {};
+    const sanctionsClean = !gf.russia_exposure && !gf.mongolia_exposure && !gf.cambodia_exposure;
+    items.push({ item: `Sanctions check — ${sanctionsClean ? "Clean" : "FLAGGED"} (${gf.exposure_detail ?? "—"})`, pass: sanctionsClean });
+    const pepsClean = fm.peps_check?.clean !== false;
+    items.push({ item: `PEPs check — ${fm.peps_check?.notes ?? "manual check required"}`, pass: pepsClean });
+    if (fm.setup_type) items.push({ item: `Setup type identified: ${fm.setup_type}`, pass: true });
+    if (fm.float_pct != null) items.push({ item: `Float: ${fm.float_pct}%`, pass: Number(fm.float_pct) > 20 });
+    return items;
+  })() : MOCK_POSITION_DETAIL.mandate_checklist as unknown as { item: string; pass: boolean }[];
+
+  // ── Valuation — built from decision + scorecard + fundamental ─────────────────
+  const valuation = (() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const f = fundamental as any;
+    if (!f && !decision) return MOCK_POSITION_DETAIL.valuation;
+    return {
+      trade_type_classification: f?.setup_type ?? (decision?.action?.includes("long") ? "Long momentum" : "Tactical/Swing"),
+      methodology: "Peer comps + technical signals",
+      analyst_consensus_target: decision?.target_price ?? liveQuote?.analyst_target ?? null,
+      implied_multiples: f?.valuation_vs_peers ?? "—",
+      is_forecast_realistic: f?.price_vs_intrinsic_value ?? "—",
+      expected_roi_2_3yr: decision?.target_price
+        ? `Target: $${decision.target_price}${decision.stop_loss ? `, stop $${decision.stop_loss}` : ""}. Conviction: ${decision.conviction ?? "—"}/100`
+        : "—",
+      moic_estimate: "—",
+    };
+  })();
+
+  // ── Analyst rating history — from live Yahoo Finance data ────────────────────
+  const analystRatingHistory = liveQuote ? {
+    current_consensus: liveQuote.recommendation_key
+      ? (liveQuote.recommendation_key as string).replace(/_/g, " ").split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+      : "—",
+    num_analysts:      liveQuote.number_of_analyst_opinions ?? null,
+    avg_target_price:  liveQuote.analyst_target ?? null,
+    implied_upside_pct: (liveQuote.analyst_target && liveQuote.current_price)
+      ? parseFloat(((liveQuote.analyst_target - liveQuote.current_price) / liveQuote.current_price * 100).toFixed(1))
+      : null,
+    trend_24m: "—",
+    summary: [
+      liveQuote.number_of_analyst_opinions ? `${liveQuote.number_of_analyst_opinions} analysts covering.` : "",
+      liveQuote.analyst_target ? `Mean target $${Number(liveQuote.analyst_target).toFixed(0)}` : "",
+      (liveQuote.analyst_low && liveQuote.analyst_high) ? `(range $${Number(liveQuote.analyst_low).toFixed(0)}–$${Number(liveQuote.analyst_high).toFixed(0)}).` : "",
+      liveQuote.recommendation_key ? `Consensus: ${String(liveQuote.recommendation_key).replace(/_/g, " ")}.` : "",
+    ].filter(Boolean).join(" "),
+  } : null;
+
+  // ── Market timing — from quant signals + entry thesis ────────────────────────
+  const marketTiming = (() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const q = quant as any;
+    if (!q) return positionEntry?.entry_thesis ?? null;
+    const parts: string[] = [];
+    if (q.rsi_14 != null) parts.push(`RSI(14) at ${Number(q.rsi_14).toFixed(0)}${Number(q.rsi_14) < 30 ? " — oversold" : Number(q.rsi_14) > 70 ? " — overbought" : " — neutral"}`);
+    if (q.macd_signal) parts.push(`MACD: ${q.macd_signal}`);
+    if (q.support) parts.push(`Support: $${q.support}`);
+    if (q.resistance) parts.push(`Resistance: $${q.resistance}`);
+    if (q.forward_bias) parts.push(`Bias: ${q.forward_bias}`);
+    if (q.quant_summary) parts.push(q.quant_summary);
+    if (catalysts.length > 0) parts.push(`Catalyst: ${catalysts[0].catalyst}`);
+    return parts.length > 0 ? parts.join(". ") : (positionEntry?.entry_thesis ?? null);
+  })();
 
   // ── Compute live position stats (Alpaca is source of truth) ─────────────────
   const alpacaMarketValue = alpacaPosition ? Math.abs(parseFloat(alpacaPosition.market_value)) : null;
@@ -335,15 +450,19 @@ export async function GET(
     key_catalysts:           decision?.key_catalysts ?? [],
     key_risks:               decision?.key_risks ?? [],
 
-    // Keep mock data for sections not yet wired to pipeline
-    company_info:         MOCK_POSITION_DETAIL.company_info,
-    management_team:      MOCK_POSITION_DETAIL.management_team,
-    analyst_rating_history: MOCK_POSITION_DETAIL.analyst_rating_history,
-    cap_table:            MOCK_POSITION_DETAIL.cap_table,
-    fund_mandate:         MOCK_POSITION_DETAIL.fund_mandate,
-    setup_checklist:      MOCK_POSITION_DETAIL.setup_checklist,
-    mandate_checklist:    MOCK_POSITION_DETAIL.mandate_checklist,
-    valuation:            MOCK_POSITION_DETAIL.valuation,
+    // Ticker-specific data from pipeline + live sources
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    company_info:         (fundamental as any)?.company_info ?? null,
+    fund_mandate:         fundMandateData,
+    setup_checklist:      setupChecklist,
+    mandate_checklist:    mandateChecklist,
+    valuation,
+    analyst_rating_history: analystRatingHistory,
+    market_timing:        marketTiming,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    comparables:          (fundamental as any)?.comparables ?? MOCK_POSITION_DETAIL.comparables,
+    management_team:      null,
+    cap_table:            null,
 
     _source:              "pipeline",
     _pipeline_date:       committeeReport?.generated_at ?? fundamentalReport?.generated_at ?? "—",

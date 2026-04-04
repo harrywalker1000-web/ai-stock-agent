@@ -188,6 +188,60 @@ def _build_scorecard(
     return scorecards
 
 
+def _build_portfolio_context(open_positions: dict) -> str:
+    """
+    Build a rich portfolio context block for LLM prompts.
+    Shows direction, size, conviction, days held, sector, and entry thesis for every
+    open position, plus sector exposure totals. Replaces the sparse ticker list
+    so the committee knows the full book state when making new decisions.
+    """
+    if not open_positions:
+        return "CURRENT BOOK: No open positions."
+
+    today = datetime.utcnow().date()
+    sector_totals: dict[str, float] = {}
+    total_deployed = 0.0
+    lines = []
+
+    for ticker, pos in open_positions.items():
+        direction = (pos.get("direction") or "LONG").upper()
+        size_pct = float(pos.get("size_pct") or 0)
+        conviction = pos.get("conviction") or "?"
+        entry_date_str = pos.get("entry_date") or ""
+        sector = pos.get("sector") or "Unknown"
+        thesis = (pos.get("entry_thesis") or "")[:120]
+
+        days_held = ""
+        if entry_date_str and entry_date_str not in ("—", ""):
+            try:
+                entry_dt = datetime.strptime(entry_date_str, "%Y-%m-%d").date()
+                days_held = f" | {(today - entry_dt).days}d held"
+            except Exception:
+                pass
+
+        lines.append(
+            f"  {ticker}: {direction} | {size_pct:.1f}% of portfolio | "
+            f"conviction {conviction}/100{days_held} | sector: {sector}"
+        )
+        if thesis:
+            lines.append(f"    Thesis: \"{thesis}\"")
+
+        sector_totals[sector] = round(sector_totals.get(sector, 0.0) + size_pct, 1)
+        total_deployed += size_pct
+
+    cash_pct = round(max(0.0, 100.0 - total_deployed), 1)
+    sector_totals["Cash"] = cash_pct
+
+    sector_str = " | ".join(
+        f"{s}: {v:.0f}%" for s, v in sorted(sector_totals.items(), key=lambda x: -x[1])
+    )
+    header = (
+        f"CURRENT BOOK ({len(open_positions)} open positions | "
+        f"{total_deployed:.0f}% deployed | {cash_pct:.0f}% cash):"
+    )
+    return header + "\n" + "\n".join(lines) + "\n\nSECTOR EXPOSURE: " + sector_str
+
+
 def _adjust_weights(macro_regime: str) -> dict:
     """
     Use dynamic weights from agent_weights.json if 20+ closed trades exist.
@@ -219,6 +273,7 @@ def _deliberate_with_llm(
     open_positions: dict,
     mode: str,
     available_cash_pct: float = 100.0,
+    exited_today: list[str] | None = None,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -271,28 +326,51 @@ def _deliberate_with_llm(
         )
         candidate_blocks.append(block)
 
-    open_pos_str = json.dumps(list(open_positions.keys())) if open_positions else "[]"
     n_open = len(open_positions)
+    portfolio_context_block = _build_portfolio_context(open_positions)
+
+    # Same-day cooldown block: tickers exited by Phase A should not be re-entered without exceptional cause
+    cooldown_block = ""
+    if exited_today:
+        cooldown_block = (
+            "\nPOSITIONS EXITED TODAY — SAME-DAY COOLDOWN:\n"
+            "The Phase A committee already reviewed and CLOSED these positions today. "
+            "Do NOT re-enter them without an extraordinary catalyst that fundamentally changes the thesis "
+            "(e.g. surprise earnings, major acquisition, regulatory ruling). "
+            "A position exited in the morning should not be re-entered the same afternoon — "
+            "that is a sign of confused deliberation, not opportunity:\n"
+            + "\n".join(f"  {t}: EXITED TODAY" for t in exited_today)
+            + "\n"
+        )
+
     mode_instruction = (
-        "This is a PORTFOLIO REVIEW (Phase A). For each ticker, decide: hold, increase, decrease, or exit. "
-        "Exit criteria (any one sufficient): thesis has broken, fundamentals have deteriorated materially, "
-        "stock has hit its target with no further upside, or a clearly superior opportunity exists and capital "
-        "redeployment would meaningfully improve portfolio risk/reward. The bar for the last reason is HIGH — "
-        "the new opportunity must be materially more compelling than the current holding, not just marginally better."
+        "This is a PORTFOLIO REVIEW (Phase A). For each ticker, decide: hold, increase, decrease, exit, or — in extraordinary circumstances — reverse.\n"
+        "Exit criteria (any one sufficient): thesis has broken, fundamentals deteriorated materially, "
+        "stock hit target with no further upside, or clearly superior opportunity warrants redeployment (bar is HIGH).\n"
+        "REVERSE: the rarest action. Only valid when ALL three conditions are simultaneously true:\n"
+        "  (1) The thesis has COMPLETELY inverted — not weakened, but fully flipped to the opposing direction with new conviction ≥ 68\n"
+        "  (2) A specific named catalyst drove the reversal (earnings miss, regulatory ruling, major macro shock, etc.) — cite it explicitly\n"
+        "  (3) The new directional thesis is as well-supported as the original entry thesis was\n"
+        "If reversing: conviction = conviction for the NEW direction. Include reverse_direction and reverse_size_pct in your output.\n"
+        "Expect 0-2 reverse decisions per month across the whole book. Multiple reversals in one session is almost certainly wrong."
         if mode == "portfolio_review" else
         f"This is NEW OPPORTUNITY RESEARCH (Phase B). For each ticker, decide: enter_long, enter_short, or skip. "
         f"Available capital to deploy: ~{available_cash_pct:.0f}% of portfolio. "
         f"Only enter positions that fit within available cash — do not size positions so that their total "
-        f"exceeds what is actually deployable."
+        f"exceeds what is actually deployable. "
+        f"Do NOT recommend entering a position in the opposite direction to one already held — "
+        f"that is a Phase A portfolio review decision, not a new opportunity."
     )
 
     prompt = f"""You are the Investment Committee of an AI hedge fund. Today is {today}.
 Your mandate is to identify where prices are GOING, not where they have been.
 
 MACRO REGIME: {macro_regime}
-CURRENTLY OPEN POSITIONS ({n_open}): {open_pos_str}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
+
+{portfolio_context_block}
+{cooldown_block}
 
 CANDIDATES FOR DELIBERATION:
 {'=' * 60}
@@ -333,6 +411,16 @@ KEY SIGNALS TO PRIORITISE:
   - retail_euphoria_warning=true + weak fundamentals → Scenario C
   - forward_bias from Quant agent reflects where price is going next 5-10 days — weight heavily
 
+INVESTMENT HORIZON (mandatory framing):
+This fund operates on a tactical/swing basis. Typical holding periods: days to a few weeks.
+- Catalysts must be near-term (1-30 days): earnings releases, macro data prints, product launches,
+  technical breakouts, regulatory decisions. Multi-year growth stories are context, not catalysts.
+- Price targets should be the next meaningful technical level (resistance/support), NOT a DCF fair value.
+  A target 5-20% from entry is normal. A "3-year fair value" target is meaningless here.
+- When a trade thesis plays out in 3 days, that is a win — exit and redeploy capital.
+- Every position needs an explicit exit condition: what would prove the thesis wrong?
+- Do NOT hold positions "indefinitely hoping for long-term appreciation." That is not this fund's mandate.
+
 COMMITTEE RULES:
 - No fixed quota. Decide 0 to many. If nothing is convincing, decide nothing — cash is a position.
 - Holding cash is the correct decision when no candidate clears the quality bar. Do not force trades.
@@ -341,7 +429,7 @@ COMMITTEE RULES:
 - Soft 20% single-position cap. May exceed ONLY with explicit written justification.
 - Stop-losses are OPTIONAL. Set them when: next review is >24h away, around earnings,
   or on speculative positions. When set, they are hard auto-execute triggers.
-- Price targets are RE-EVALUATION checkpoints, not automatic sell triggers.
+- Price targets are near-term technical levels — the next resistance (long) or support (short) to test.
 - In Phase B: prefer diversification across sectors when conviction is similar.
 - Reject any ticker with retail euphoria warning unless the bear case is exceptional.
 - For conflicts (agent spread >= 25): state which agent takes precedence and why.
@@ -369,15 +457,17 @@ Return ONLY valid JSON — an array of position_decisions:
 [
   {{
     "ticker": "<ticker>",
-    "action": "enter_long" | "enter_short" | "hold" | "increase" | "decrease" | "exit" | "skip",
+    "action": "enter_long" | "enter_short" | "hold" | "increase" | "decrease" | "exit" | "reverse" | "skip",
     "conviction": <integer 0-100, MUST NOT be a multiple of 5>,
     "stop_loss": <float price level or null>,
-    "target_price": <float or null — checkpoint for re-evaluation, NOT auto-sell>,
-    "investment_thesis": "<2-3 sentence rationale>",
-    "key_catalysts": ["<catalyst 1>", "<catalyst 2>"],
+    "target_price": <float or null — near-term technical level (next resistance/support), NOT a DCF fair value>,
+    "investment_thesis": "<2-3 sentence rationale including a specific near-term catalyst and an explicit exit condition>",
+    "key_catalysts": ["<catalyst 1 — must be a specific event within 1-30 days>", "<catalyst 2>"],
     "key_risks": ["<risk 1>"],
     "conflict_resolution": "<how you resolved cross-agent disagreements, or 'No conflict'>",
-    "skip_reason": "<only if action=skip — why passing on this>"
+    "skip_reason": "<only if action=skip — why passing on this>",
+    "reverse_direction": "<'LONG' or 'SHORT' — only required if action=reverse, the NEW direction after closing current>",
+    "reverse_size_pct": <float — only if action=reverse, target size for the NEW reversed position, e.g. 5.0>
   }}
 ]
 
@@ -453,6 +543,37 @@ together. Your job is purely: action + conviction + rationale."""
                     logger.warning("Dedup: %s appeared twice — discarding lower conviction %d (%s)",
                                    t, this_conv, d.get("action"))
         decisions = list(seen.values())
+
+        # Phase B hard guard: cannot propose opposing direction to an already-held position.
+        # e.g. if NVDA is held SHORT, Phase B cannot enter_long NVDA.
+        # Only Phase A (portfolio_review) can change direction — via decrease/exit/reverse.
+        if mode != "portfolio_review":
+            guarded = []
+            for d in decisions:
+                t = d.get("ticker", "")
+                act = d.get("action", "")
+                if act in ("enter_long", "enter_short") and t in open_positions:
+                    held_dir = open_positions[t].get("direction", "LONG").upper()
+                    proposed_dir = "LONG" if act == "enter_long" else "SHORT"
+                    if held_dir != proposed_dir:
+                        logger.warning(
+                            "Phase B direction guard: %s proposed %s but already held %s — "
+                            "converting to skip. Phase A must handle direction changes.",
+                            t, proposed_dir, held_dir,
+                        )
+                        guarded.append({
+                            "ticker": t,
+                            "action": "skip",
+                            "conviction": d.get("conviction"),
+                            "skip_reason": (
+                                f"Direction conflict: already held {held_dir}. "
+                                "Phase A portfolio review must handle direction changes — "
+                                "Phase B cannot enter a position opposing an existing holding."
+                            ),
+                        })
+                        continue
+                guarded.append(d)
+            decisions = guarded
 
         return decisions
     except Exception as exc:
@@ -969,7 +1090,7 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
 # Main run function
 # ---------------------------------------------------------------------------
 
-def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) -> dict:
+def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, exited_today: list[str] | None = None) -> dict:
     logger.info("=== Investment Committee (Agent 10) — mode: %s ===", mode)
     today = datetime.utcnow().date().isoformat()
 
@@ -1031,7 +1152,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
 
     # LLM deliberation
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # Store all decisions in memory

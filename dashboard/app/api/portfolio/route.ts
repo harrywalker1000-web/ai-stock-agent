@@ -258,9 +258,9 @@ export async function GET() {
   const cashSlice = Math.max(equity - deployedTotal, 0);
   if (cashSlice > 0) sectorDollars["Cash"] = cashSlice;
 
-  // Normalise: sum everything then express each as % of total (always adds to 100)
+  // Normalise: divide each sector by grandTotal so values always sum to 100%.
   const grandTotal = Object.values(sectorDollars).reduce((a, b) => a + b, 0);
-  const sectors = grandTotal > 0
+  let sectors = grandTotal > 0
     ? Object.entries(sectorDollars)
         .sort((a, b) => b[1] - a[1])
         .map(([sector, dollars]) => ({
@@ -269,6 +269,16 @@ export async function GET() {
           color: SECTOR_COLORS[sector] ?? "#6B7280",
         }))
     : MOCK_SECTOR_ALLOCATION;
+
+  // Safety net: floating-point rounding or upstream data issues can cause drift.
+  // Re-normalise if the sum is meaningfully off from 100%.
+  const sectorSum = sectors.reduce((s, e) => s + e.value, 0);
+  if (sectorSum > 0 && Math.abs(sectorSum - 100) > 0.2) {
+    sectors = sectors.map((e) => ({
+      ...e,
+      value: parseFloat(((e.value / sectorSum) * 100).toFixed(1)),
+    }));
+  }
 
   const history = alpacaHistory.length > 0 ? alpacaHistory : MOCK_PORTFOLIO_HISTORY;
 

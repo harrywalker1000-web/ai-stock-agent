@@ -1,20 +1,21 @@
 {
   "quant_analyses": [
     {
-      "ticker": "TSLA",
-      "quant_score": 35,
+      "ticker": "AMZN",
+      "quant_score": 45,
       "direction": "LONG",
       "trade_type": "mean_reversion",
-      "forward_bias": "neutral",
-      "mean_reversion_score": 23,
+      "forward_bias": "bullish",
+      "mean_reversion_score": 15,
       "trend": "downtrend",
-      "rsi_14": 38.9,
-      "macd_signal": "bearish",
-      "volume_trend": "distribution",
-      "support": null,
-      "resistance": 416.38,
+      "rsi_14": 50.8,
+      "macd_signal": "bullish",
+      "volume_trend": "neutral",
+      "support": 202.48,
+      "resistance": 220.47,
       "key_patterns": [
-        "lower_highs_lower_lows"
+        "bearish_ma_stack",
+        "bb_midband_coil"
       ],
       "signal_confidence": {
         "level": "high",
@@ -28,61 +29,64 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a downtrend with lower highs and lower lows, suggesting continued bearish momentum. However, with the stock being oversold and a mean reversion score of 23, there is potential for a bounce in the next 5-10 days, albeit with low confidence.",
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "AMZN is currently in a downtrend but shows signs of potential mean reversion due to selling exhaustion. In the next 5-10 days, a bounce towards resistance at $220.47 is likely as momentum indicators suggest a bullish shift.",
       "mean_reversion_signals": [
-        "Price 9% below SMA200",
-        "Stochastic oversold"
+        "Declining volume on selloff \u2014 selling exhaustion"
       ],
       "indicators": {
-        "rsi_14": 38.9,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 16.4,
-        "bb_pct": 0.101,
-        "volume_ratio": 1.31,
+        "rsi_14": 50.8,
+        "macd_bullish": true,
+        "macd_histogram_expanding": true,
+        "stoch_k": 71.3,
+        "bb_pct": 0.561,
+        "volume_ratio": 0.71,
         "obv_trend": "down",
-        "sma_50": 403.48,
-        "sma_200": 396.92,
+        "sma_50": 215.44,
+        "sma_200": 224.58,
         "cross_signal": null,
-        "ret_1w": -0.0034,
-        "ret_1m": -0.1109,
-        "ret_3m": -0.1769,
-        "week52_high": 498.83,
-        "week52_low": 214.25,
-        "pct_from_52w_high": -27.7,
-        "atr_14": 14.35,
-        "atr_pct": 3.98
+        "ret_1w": 0.0164,
+        "ret_1m": -0.0271,
+        "ret_3m": -0.0861,
+        "week52_high": 258.6,
+        "week52_low": 161.38,
+        "pct_from_52w_high": -18.4,
+        "atr_14": 5.92,
+        "atr_pct": 2.81
       },
       "key_levels": {
-        "support": null,
-        "resistance": 416.38,
-        "support_levels": [],
+        "support": 202.48,
+        "resistance": 220.47,
+        "support_levels": [
+          202.48,
+          196.0
+        ],
         "resistance_levels": [
-          416.38,
-          420.34,
-          436.35
+          220.47,
+          238.97,
+          247.78
         ]
       },
-      "candidate_score": 5.5,
+      "candidate_score": 5.75,
       "candidate_signals": [
         "institutional_signal",
-        "activist_13g",
-        "unusual_calls(15.4x_vol_oi)"
+        "analyst_upgrade",
+        "fresh_catalyst",
+        "unusual_calls(15.2x_vol_oi)"
       ],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "NVDA",
-      "quant_score": 45,
+      "quant_score": 35,
       "direction": "LONG",
-      "trade_type": "momentum",
+      "trade_type": "mean_reversion",
       "forward_bias": "bullish",
-      "mean_reversion_score": 0,
+      "mean_reversion_score": 15,
       "trend": "downtrend",
-      "rsi_14": 49.1,
-      "macd_signal": "bullish",
-      "volume_trend": "neutral",
+      "rsi_14": 47.3,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
       "support": 179.17,
       "resistance": 187.99,
       "key_patterns": [
@@ -90,40 +94,41 @@
         "bb_midband_coil"
       ],
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "high",
+        "sources_count": 3,
         "sources": [
           "price_action",
-          "volume"
+          "volume",
+          "momentum_oscillators"
         ],
-        "conflicts": [
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: RSI bearish but MACD bullish"
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The current technical setup indicates a potential for a short-term bounce despite the overall downtrend. In the next 5-10 days, NVDA may experience upward movement towards resistance levels, driven by bullish momentum signals.",
-      "mean_reversion_signals": [],
+      "pattern_learning_note": "No prior trade history in this system yet; applying neutral historical weighting to all signals.",
+      "quant_summary": "The current technical setup indicates a downtrend with potential for a bounce due to selling exhaustion. Over the next 5-10 days, NVDA may experience a reversal towards the resistance level of $187.99 as the market seeks to correct the recent downward momentum.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
       "indicators": {
-        "rsi_14": 49.1,
-        "macd_bullish": true,
+        "rsi_14": 47.3,
+        "macd_bullish": false,
         "macd_histogram_expanding": true,
-        "stoch_k": 53.3,
-        "bb_pct": 0.489,
-        "volume_ratio": 0.8,
+        "stoch_k": 47.0,
+        "bb_pct": 0.406,
+        "volume_ratio": 0.68,
         "obv_trend": "down",
-        "sma_50": 182.64,
-        "sma_200": 179.8,
+        "sma_50": 182.76,
+        "sma_200": 179.64,
         "cross_signal": null,
-        "ret_1w": 0.0589,
-        "ret_1m": -0.0324,
-        "ret_3m": -0.0606,
+        "ret_1w": 0.0268,
+        "ret_1m": -0.0393,
+        "ret_3m": -0.0572,
         "week52_high": 212.17,
         "week52_low": 86.6,
-        "pct_from_52w_high": -16.4,
-        "atr_14": 5.67,
-        "atr_pct": 3.19
+        "pct_from_52w_high": -17.1,
+        "atr_14": 5.63,
+        "atr_pct": 3.2
       },
       "key_levels": {
         "support": 179.17,
@@ -139,102 +144,30 @@
           190.43
         ]
       },
-      "candidate_score": 5.0,
+      "candidate_score": 5.75,
       "candidate_signals": [
         "institutional_signal",
-        "activist_13g",
-        "unusual_calls(5.0x_vol_oi)"
+        "analyst_upgrade",
+        "unusual_calls(14.6x_vol_oi)",
+        "sector_momentum"
       ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "EL",
+      "ticker": "AMD",
       "quant_score": 65,
       "direction": "LONG",
-      "trade_type": "mean_reversion",
+      "trade_type": "momentum",
       "forward_bias": "bullish",
-      "mean_reversion_score": 55,
-      "trend": "downtrend",
-      "rsi_14": 27.6,
-      "macd_signal": "bearish",
-      "volume_trend": "distribution",
-      "support": null,
-      "resistance": 109.28,
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 54.1,
+      "macd_signal": "bullish",
+      "volume_trend": "neutral",
+      "support": 199.8,
+      "resistance": 209.21,
       "key_patterns": [
-        "lower_highs_lower_lows",
-        "oversold_potential_reversal"
-      ],
-      "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The current technical setup indicates a potential for mean reversion given the oversold conditions and a mean reversion score of 55. In the next 5-10 days, a bounce towards resistance at $109.28 is likely as the stock attempts to recover from its recent downtrend.",
-      "mean_reversion_signals": [
-        "RSI oversold (27.6)",
-        "Price 27% below SMA200 \u2014 extreme dislocation",
-        "Stochastic oversold"
-      ],
-      "indicators": {
-        "rsi_14": 27.6,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 11.3,
-        "bb_pct": 0.187,
-        "volume_ratio": 1.4,
-        "obv_trend": "down",
-        "sma_50": 98.06,
-        "sma_200": 94.36,
-        "cross_signal": null,
-        "ret_1w": 0.0281,
-        "ret_1m": -0.279,
-        "ret_3m": -0.3505,
-        "week52_high": 121.26,
-        "week52_low": 47.61,
-        "pct_from_52w_high": -43.0,
-        "atr_14": 4.49,
-        "atr_pct": 6.49
-      },
-      "key_levels": {
-        "support": null,
-        "resistance": 109.28,
-        "support_levels": [],
-        "resistance_levels": [
-          109.28,
-          110.02,
-          117.2
-        ]
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-30%_1m)",
-        "macro_tailwind"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "PG",
-      "quant_score": 55,
-      "direction": "LONG",
-      "trade_type": "mean_reversion",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 50,
-      "trend": "downtrend",
-      "rsi_14": 34.2,
-      "macd_signal": "bearish",
-      "volume_trend": "accumulation",
-      "support": 141.08,
-      "resistance": 147.4,
-      "key_patterns": [
-        "lower_highs_lower_lows"
+        "higher_highs_higher_lows"
       ],
       "signal_confidence": {
         "level": "medium",
@@ -249,217 +182,140 @@
         "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a potential mean reversion as PG is oversold and near key support levels. In the next 5-10 days, a bounce towards resistance at $147.4 is likely, despite the current downtrend.",
-      "mean_reversion_signals": [
-        "RSI oversold (34.2)",
-        "Within 5% of 52W low \u2014 near floor",
-        "Stochastic oversold"
-      ],
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "AMD is currently in an uptrend with a bullish MACD signal, suggesting potential upward movement in the next 5-10 days. The price is approaching resistance at $209.21, and if it breaks through, it could lead to further gains.",
+      "mean_reversion_signals": [],
       "indicators": {
-        "rsi_14": 34.2,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 9.7,
-        "bb_pct": 0.257,
-        "volume_ratio": 0.52,
-        "obv_trend": "up",
-        "sma_50": 153.48,
-        "sma_200": 150.61,
+        "rsi_14": 54.1,
+        "macd_bullish": true,
+        "macd_histogram_expanding": false,
+        "stoch_k": 64.6,
+        "bb_pct": 0.876,
+        "volume_ratio": 0.97,
+        "obv_trend": "down",
+        "sma_50": 212.3,
+        "sma_200": 196.44,
         "cross_signal": null,
-        "ret_1w": 0.0029,
-        "ret_1m": -0.0706,
-        "ret_3m": 0.0165,
-        "week52_high": 170.13,
-        "week52_low": 136.65,
-        "pct_from_52w_high": -15.9,
-        "atr_14": 2.68,
-        "atr_pct": 1.87
+        "ret_1w": 0.0357,
+        "ret_1m": 0.0444,
+        "ret_3m": -0.0145,
+        "week52_high": 267.08,
+        "week52_low": 76.48,
+        "pct_from_52w_high": -21.0,
+        "atr_14": 10.02,
+        "atr_pct": 4.75
       },
       "key_levels": {
-        "support": 141.08,
-        "resistance": 147.4,
+        "support": 199.8,
+        "resistance": 209.21,
         "support_levels": [
-          141.08,
-          137.17,
-          136.65
+          199.8,
+          197.53,
+          190.72
         ],
         "resistance_levels": [
-          147.4,
-          163.14,
-          167.25
+          209.21,
+          216.71,
+          219.65
         ]
       },
-      "candidate_score": 2.5,
+      "candidate_score": 5.5,
       "candidate_signals": [
         "institutional_signal",
-        "macro_tailwind"
+        "analyst_upgrade",
+        "unusual_calls(3.6x_vol_oi)",
+        "sector_momentum"
       ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "MKC",
-      "quant_score": 75,
-      "direction": "LONG",
-      "trade_type": "mean_reversion",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 80,
-      "trend": "downtrend",
-      "rsi_14": 25.1,
-      "macd_signal": "bearish",
-      "volume_trend": "neutral",
-      "support": null,
-      "resistance": 68.78,
-      "key_patterns": [
-        "bearish_ma_stack",
-        "lower_highs_lower_lows",
-        "oversold_potential_reversal"
-      ],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [
-          "RSI oversold while in bearish MA stack \u2014 potential falling knife"
-        ],
-        "confidence_note": "3/3 signal sources confirming; conflicts: RSI oversold while in bearish MA stack \u2014 potential falling knife"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "MKC is currently in a downtrend but shows strong mean reversion potential due to oversold conditions and extreme dislocation from its moving averages. In the next 5-10 days, a bounce is likely as the price approaches key support levels.",
-      "mean_reversion_signals": [
-        "RSI oversold (25.1)",
-        "Price 26% below SMA200 \u2014 extreme dislocation",
-        "Within 5% of 52W low \u2014 near floor",
-        "Stochastic oversold"
-      ],
-      "indicators": {
-        "rsi_14": 25.1,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 11.9,
-        "bb_pct": 0.147,
-        "volume_ratio": 1.28,
-        "obv_trend": "down",
-        "sma_50": 62.2,
-        "sma_200": 66.4,
-        "cross_signal": null,
-        "ret_1w": -0.0795,
-        "ret_1m": -0.2516,
-        "ret_3m": -0.2739,
-        "week52_high": 80.79,
-        "week52_low": 47.52,
-        "pct_from_52w_high": -39.5,
-        "atr_14": 2.11,
-        "atr_pct": 4.33
-      },
-      "key_levels": {
-        "support": null,
-        "resistance": 68.78,
-        "support_levels": [],
-        "resistance_levels": [
-          68.78,
-          68.98,
-          69.75
-        ]
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-28%_1m)",
-        "macro_tailwind"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "DG",
+      "ticker": "AAPL",
       "quant_score": 45,
       "direction": "LONG",
-      "trade_type": "mean_reversion",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 35,
-      "trend": "downtrend",
-      "rsi_14": 32.3,
-      "macd_signal": "bearish",
-      "volume_trend": "distribution",
-      "support": 116.6,
-      "resistance": 134.51,
-      "key_patterns": [
-        "lower_highs_lower_lows"
-      ],
-      "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The current technical setup indicates a potential for mean reversion given the oversold conditions and declining volume on the selloff. Over the next 5-10 days, DG may experience a bounce towards the resistance level at $134.51 as selling exhaustion sets in.",
-      "mean_reversion_signals": [
-        "RSI oversold (32.3)",
-        "Declining volume on selloff \u2014 selling exhaustion"
-      ],
-      "indicators": {
-        "rsi_14": 32.3,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 21.9,
-        "bb_pct": 0.298,
-        "volume_ratio": 0.68,
-        "obv_trend": "down",
-        "sma_50": 140.77,
-        "sma_200": 119.93,
-        "cross_signal": null,
-        "ret_1w": 0.022,
-        "ret_1m": -0.1829,
-        "ret_3m": -0.1211,
-        "week52_high": 158.23,
-        "week52_low": 83.41,
-        "pct_from_52w_high": -24.3,
-        "atr_14": 4.37,
-        "atr_pct": 3.65
-      },
-      "key_levels": {
-        "support": 116.6,
-        "resistance": 134.51,
-        "support_levels": [
-          116.6
-        ],
-        "resistance_levels": [
-          134.51,
-          151.17,
-          152.74
-        ]
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-22%_1m)",
-        "macro_tailwind"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "DE",
-      "quant_score": 45,
-      "direction": "LONG",
-      "trade_type": "mean_reversion",
+      "trade_type": "momentum",
       "forward_bias": "neutral",
       "mean_reversion_score": 0,
-      "trend": "downtrend",
-      "rsi_14": 49.5,
-      "macd_signal": "bearish",
+      "trend": "sideways",
+      "rsi_14": 49.0,
+      "macd_signal": "bullish",
       "volume_trend": "neutral",
-      "support": 549.67,
-      "resistance": 588.97,
+      "support": 255.46,
+      "resistance": 276.11,
+      "key_patterns": [
+        "lower_highs_lower_lows",
+        "consolidation",
+        "bb_midband_coil"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 0,
+        "sources": [],
+        "conflicts": [
+          "volume diverging from price direction",
+          "RSI bearish but MACD bullish"
+        ],
+        "confidence_note": "0/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bearish but MACD bullish"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "AAPL is currently in a sideways trend with no strong momentum signals. In the next 5-10 days, the price may attempt to rally towards resistance at $276.11, but the lack of strong confirmation signals suggests caution.",
+      "mean_reversion_signals": [],
+      "indicators": {
+        "rsi_14": 49.0,
+        "macd_bullish": true,
+        "macd_histogram_expanding": true,
+        "stoch_k": 81.6,
+        "bb_pct": 0.575,
+        "volume_ratio": 0.57,
+        "obv_trend": "up",
+        "sma_50": 260.12,
+        "sma_200": 248.51,
+        "cross_signal": null,
+        "ret_1w": 0.0079,
+        "ret_1m": -0.0291,
+        "ret_3m": -0.0615,
+        "week52_high": 288.35,
+        "week52_low": 168.48,
+        "pct_from_52w_high": -11.6,
+        "atr_14": 5.61,
+        "atr_pct": 2.2
+      },
+      "key_levels": {
+        "support": 255.46,
+        "resistance": 276.11,
+        "support_levels": [
+          255.46,
+          255.45,
+          246.0
+        ],
+        "resistance_levels": [
+          276.11,
+          277.58,
+          279.89
+        ]
+      },
+      "candidate_score": 5.5,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "unusual_calls(11.1x_vol_oi)",
+        "sector_momentum"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "LLY",
+      "quant_score": 45,
+      "direction": "LONG",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "downtrend",
+      "rsi_14": 51.3,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 975.49,
+      "resistance": 1086.67,
       "key_patterns": [
         "lower_highs_lower_lows",
         "bb_midband_coil"
@@ -476,118 +332,43 @@
         "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a potential for a bounce given the current price near support levels, but the overall trend remains bearish. In the next 5-10 days, price may attempt to rally towards resistance at $588.97, although the low signal confidence suggests caution.",
+      "pattern_learning_note": "No prior trade history in this system yet; applying neutral historical weighting to all signals.",
+      "quant_summary": "The technical setup indicates a potential for a bounce despite the current downtrend, supported by bullish momentum signals. In the next 5-10 days, LLY may attempt to rally towards resistance levels, particularly if it can hold above the key support at $975.49.",
       "mean_reversion_signals": [],
       "indicators": {
-        "rsi_14": 49.5,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 66.3,
-        "bb_pct": 0.517,
-        "volume_ratio": 0.9,
-        "obv_trend": "up",
-        "sma_50": 580.54,
-        "sma_200": 505.64,
-        "cross_signal": null,
-        "ret_1w": 0.019,
-        "ret_1m": -0.0225,
-        "ret_3m": 0.2369,
-        "week52_high": 672.22,
-        "week52_low": 399.19,
-        "pct_from_52w_high": -14.4,
-        "atr_14": 17.19,
-        "atr_pct": 2.99
-      },
-      "key_levels": {
-        "support": 549.67,
-        "resistance": 588.97,
-        "support_levels": [
-          549.67,
-          504.94,
-          458.48
-        ],
-        "resistance_levels": [
-          588.97,
-          672.22
-        ]
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "institutional_signal"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "ABBV",
-      "quant_score": 25,
-      "direction": "SHORT",
-      "trade_type": "momentum",
-      "forward_bias": "bearish",
-      "mean_reversion_score": 0,
-      "trend": "downtrend",
-      "rsi_14": 40.0,
-      "macd_signal": "bullish",
-      "volume_trend": "distribution",
-      "support": 209.96,
-      "resistance": 229.79,
-      "key_patterns": [
-        "lower_highs_lower_lows"
-      ],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "price_action"
-        ],
-        "conflicts": [
-          "volume diverging from price direction",
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bearish but MACD bullish"
-      },
-      "data_conflicts": [
-        "volume diverging from price direction",
-        "RSI bearish but MACD bullish"
-      ],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a continuation of the downtrend, with price below key moving averages and lower highs/lower lows pattern. In the next 5-10 days, further downside is likely as momentum remains negative.",
-      "mean_reversion_signals": [],
-      "indicators": {
-        "rsi_14": 40.0,
+        "rsi_14": 51.3,
         "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 31.2,
-        "bb_pct": 0.304,
-        "volume_ratio": 0.69,
+        "macd_histogram_expanding": true,
+        "stoch_k": 66.0,
+        "bb_pct": 0.596,
+        "volume_ratio": 1.47,
         "obv_trend": "up",
-        "sma_50": 221.6,
-        "sma_200": 214.16,
+        "sma_50": 999.72,
+        "sma_200": 895.13,
         "cross_signal": null,
-        "ret_1w": -0.0027,
-        "ret_1m": -0.1012,
-        "ret_3m": -0.0819,
-        "week52_high": 241.12,
-        "week52_low": 159.05,
-        "pct_from_52w_high": -13.4,
-        "atr_14": 5.83,
-        "atr_pct": 2.79
+        "ret_1w": 0.0706,
+        "ret_1m": -0.0431,
+        "ret_3m": -0.1049,
+        "week52_high": 1132.06,
+        "week52_low": 620.46,
+        "pct_from_52w_high": -15.2,
+        "atr_14": 29.34,
+        "atr_pct": 3.05
       },
       "key_levels": {
-        "support": 209.96,
-        "resistance": 229.79,
+        "support": 975.49,
+        "resistance": 1086.67,
         "support_levels": [
-          209.96,
-          204.27,
-          201.8
+          975.49,
+          965.6
         ],
         "resistance_levels": [
-          229.79,
-          230.17,
-          235.15
+          1086.67,
+          1093.65,
+          1112.14
         ]
       },
-      "candidate_score": 2.0,
+      "candidate_score": 3.0,
       "candidate_signals": [
         "fresh_catalyst",
         "macro_tailwind"
@@ -595,162 +376,88 @@
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "HD",
-      "quant_score": 55,
+      "ticker": "SMCI",
+      "quant_score": 35,
       "direction": "LONG",
       "trade_type": "mean_reversion",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 58,
+      "forward_bias": "neutral",
+      "mean_reversion_score": 25,
       "trend": "downtrend",
-      "rsi_14": 33.7,
-      "macd_signal": "bullish",
-      "volume_trend": "accumulation",
-      "support": 320.26,
-      "resistance": 357.57,
-      "key_patterns": [
-        "bearish_ma_stack",
-        "lower_highs_lower_lows"
-      ],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "price_action"
-        ],
-        "conflicts": [
-          "volume diverging from price direction",
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bearish but MACD bullish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a potential mean reversion as the price is oversold and near key support levels. In the next 5-10 days, a bounce towards resistance at $357.57 is likely, despite the current downtrend.",
-      "mean_reversion_signals": [
-        "RSI oversold (33.7)",
-        "Price 13% below SMA200",
-        "Within 5% of 52W low \u2014 near floor",
-        "Stochastic oversold"
-      ],
-      "indicators": {
-        "rsi_14": 33.7,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 10.6,
-        "bb_pct": 0.188,
-        "volume_ratio": 0.88,
-        "obv_trend": "up",
-        "sma_50": 360.46,
-        "sma_200": 369.23,
-        "cross_signal": null,
-        "ret_1w": -0.0001,
-        "ret_1m": -0.1048,
-        "ret_3m": -0.0637,
-        "week52_high": 421.19,
-        "week52_low": 318.27,
-        "pct_from_52w_high": -23.6,
-        "atr_14": 8.78,
-        "atr_pct": 2.73
-      },
-      "key_levels": {
-        "support": 320.26,
-        "resistance": 357.57,
-        "support_levels": [
-          320.26
-        ],
-        "resistance_levels": [
-          357.57,
-          363.87,
-          388.01
-        ]
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "institutional_signal"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "LEN",
-      "quant_score": 75,
-      "direction": "LONG",
-      "trade_type": "mean_reversion",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 70,
-      "trend": "downtrend",
-      "rsi_14": 30.5,
+      "rsi_14": 37.1,
       "macd_signal": "bearish",
-      "volume_trend": "neutral",
-      "support": null,
-      "resistance": 123.16,
+      "volume_trend": "accumulation",
+      "support": 19.48,
+      "resistance": 32.04,
       "key_patterns": [
         "bearish_ma_stack",
         "lower_highs_lower_lows"
       ],
       "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
           "price_action",
-          "volume",
           "momentum_oscillators"
         ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
+        "conflicts": [
+          "volume diverging from price direction"
+        ],
+        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "Despite the current downtrend and bearish indicators, the strong mean reversion score suggests a likely bounce in the next 5-10 days. The price is near its 52-week low and oversold conditions indicate potential for upward movement.",
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "The technical setup indicates a downtrend with bearish momentum, but the extreme dislocation from the SMA200 suggests a potential for mean reversion. In the next 5-10 days, a bounce could occur, but caution is warranted due to the overall bearish indicators.",
       "mean_reversion_signals": [
-        "RSI oversold (30.5)",
-        "Price 26% below SMA200 \u2014 extreme dislocation",
-        "Within 5% of 52W low \u2014 near floor"
+        "Price 43% below SMA200 \u2014 extreme dislocation"
       ],
       "indicators": {
-        "rsi_14": 30.5,
+        "rsi_14": 37.1,
         "macd_bullish": false,
         "macd_histogram_expanding": true,
-        "stoch_k": 23.7,
-        "bb_pct": 0.145,
-        "volume_ratio": 0.8,
-        "obv_trend": "down",
-        "sma_50": 105.43,
-        "sma_200": 116.41,
+        "stoch_k": 23.6,
+        "bb_pct": 0.255,
+        "volume_ratio": 0.51,
+        "obv_trend": "up",
+        "sma_50": 29.82,
+        "sma_200": 39.98,
         "cross_signal": null,
-        "ret_1w": -0.0417,
-        "ret_1m": -0.1708,
-        "ret_3m": -0.1664,
-        "week52_high": 142.99,
-        "week52_low": 83.03,
-        "pct_from_52w_high": -39.5,
-        "atr_14": 3.75,
-        "atr_pct": 4.33
+        "ret_1w": 0.0187,
+        "ret_1m": -0.307,
+        "ret_3m": -0.227,
+        "week52_high": 62.36,
+        "week52_low": 19.48,
+        "pct_from_52w_high": -63.7,
+        "atr_14": 2.01,
+        "atr_pct": 8.88
       },
       "key_levels": {
-        "support": null,
-        "resistance": 123.16,
-        "support_levels": [],
+        "support": 19.48,
+        "resistance": 32.04,
+        "support_levels": [
+          19.48
+        ],
         "resistance_levels": [
-          123.16,
-          124.16,
-          133.17
+          32.04,
+          33.51,
+          33.64
         ]
       },
-      "candidate_score": 2.0,
+      "candidate_score": 2.75,
       "candidate_signals": [
-        "dislocation_screen(-20%_1m)"
+        "dislocation_screen(-29%_1m)",
+        "sector_momentum"
       ],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "NKE",
-      "quant_score": 75,
+      "quant_score": 85,
       "direction": "LONG",
       "trade_type": "mean_reversion",
       "forward_bias": "bullish",
       "mean_reversion_score": 95,
       "trend": "downtrend",
-      "rsi_14": 20.2,
+      "rsi_14": 20.8,
       "macd_signal": "bearish",
       "volume_trend": "distribution",
       "support": null,
@@ -774,34 +481,34 @@
         "confidence_note": "3/3 signal sources confirming; conflicts: RSI oversold while in bearish MA stack \u2014 potential falling knife"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "NKE is currently in a downtrend but shows strong signs of mean reversion due to extreme oversold conditions. In the next 5-10 days, a bounce is likely as the price approaches key support levels and the mean reversion setup suggests a potential upward movement.",
+      "pattern_learning_note": "No prior trade history in this system yet; applying neutral historical weighting to all signals.",
+      "quant_summary": "NKE is currently in a downtrend but shows strong mean reversion potential due to extreme oversold conditions. In the next 5-10 days, a bounce is likely as the price approaches key support levels and oversold indicators suggest a reversal.",
       "mean_reversion_signals": [
-        "RSI extremely oversold (20.2)",
-        "Price 33% below SMA200 \u2014 extreme dislocation",
+        "RSI extremely oversold (20.8)",
+        "Price 32% below SMA200 \u2014 extreme dislocation",
         "Within 5% of 52W low \u2014 near floor",
-        "At/below lower Bollinger Band (BB%=-0.17)",
+        "At/below lower Bollinger Band (BB%=-0.31)",
         "Stochastic oversold"
       ],
       "indicators": {
-        "rsi_14": 20.2,
+        "rsi_14": 20.8,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 8.2,
-        "bb_pct": -0.172,
-        "volume_ratio": 2.66,
+        "stoch_k": 0.9,
+        "bb_pct": -0.31,
+        "volume_ratio": 4.53,
         "obv_trend": "down",
-        "sma_50": 58.67,
-        "sma_200": 65.74,
+        "sma_50": 59.09,
+        "sma_200": 65.82,
         "cross_signal": null,
-        "ret_1w": -0.1398,
-        "ret_1m": -0.2384,
-        "ret_3m": -0.297,
+        "ret_1w": -0.1403,
+        "ret_1m": -0.2366,
+        "ret_3m": -0.2927,
         "week52_high": 78.73,
-        "week52_low": 43.17,
-        "pct_from_52w_high": -43.9,
-        "atr_14": 2.03,
-        "atr_pct": 4.59
+        "week52_low": 44.67,
+        "pct_from_52w_high": -43.1,
+        "atr_14": 2.06,
+        "atr_pct": 4.61
       },
       "key_levels": {
         "support": null,
@@ -820,14 +527,88 @@
       "swarm_memory_hits": 0
     },
     {
+      "ticker": "PSKY",
+      "quant_score": 45,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 35,
+      "trend": "downtrend",
+      "rsi_14": 40.4,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 8.62,
+      "resistance": 11.27,
+      "key_patterns": [
+        "bearish_ma_stack",
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "price_action"
+        ],
+        "conflicts": [
+          "volume diverging from price direction",
+          "RSI bearish but MACD bullish"
+        ],
+        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bearish but MACD bullish"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "The current technical setup indicates a potential for a mean reversion as the price is significantly below the SMA200 and near the 52-week low. In the next 5-10 days, a bounce towards the resistance level of $11.27 is possible, but caution is warranted due to the overall downtrend and low signal confidence.",
+      "mean_reversion_signals": [
+        "Price 32% below SMA200 \u2014 extreme dislocation",
+        "Within 15% of 52W low"
+      ],
+      "indicators": {
+        "rsi_14": 40.4,
+        "macd_bullish": true,
+        "macd_histogram_expanding": true,
+        "stoch_k": 46.3,
+        "bb_pct": 0.39,
+        "volume_ratio": 0.42,
+        "obv_trend": "up",
+        "sma_50": 10.55,
+        "sma_200": 13.55,
+        "cross_signal": null,
+        "ret_1w": 0.0394,
+        "ret_1m": -0.2301,
+        "ret_3m": -0.3076,
+        "week52_high": 20.67,
+        "week52_low": 8.62,
+        "pct_from_52w_high": -55.3,
+        "atr_14": 0.48,
+        "atr_pct": 5.16
+      },
+      "key_levels": {
+        "support": 8.62,
+        "resistance": 11.27,
+        "support_levels": [
+          8.62
+        ],
+        "resistance_levels": [
+          11.27,
+          11.94,
+          14.03
+        ]
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "dislocation_screen(-30%_1m)"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
       "ticker": "LUV",
       "quant_score": 35,
       "direction": "SHORT",
       "trade_type": "momentum",
       "forward_bias": "bearish",
-      "mean_reversion_score": 0,
+      "mean_reversion_score": 15,
       "trend": "downtrend",
-      "rsi_14": 36.7,
+      "rsi_14": 38.0,
       "macd_signal": "bearish",
       "volume_trend": "distribution",
       "support": 38.09,
@@ -846,28 +627,30 @@
         "confidence_note": "2/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a continuation of the downtrend, with momentum remaining negative and no signs of mean reversion. In the next 5-10 days, LUV is likely to face downward pressure, potentially testing the support level of $38.09.",
-      "mean_reversion_signals": [],
+      "pattern_learning_note": "No prior trade history in this system yet.",
+      "quant_summary": "The technical setup indicates a continuation of the downtrend, with momentum remaining negative and a low mean reversion score. In the next 5-10 days, LUV is likely to face downward pressure, potentially testing support levels.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
       "indicators": {
-        "rsi_14": 36.7,
+        "rsi_14": 38.0,
         "macd_bullish": false,
         "macd_histogram_expanding": true,
-        "stoch_k": 30.7,
-        "bb_pct": 0.193,
-        "volume_ratio": 1.03,
+        "stoch_k": 35.7,
+        "bb_pct": 0.248,
+        "volume_ratio": 0.54,
         "obv_trend": "down",
-        "sma_50": 45.32,
-        "sma_200": 36.93,
+        "sma_50": 45.42,
+        "sma_200": 36.9,
         "cross_signal": null,
-        "ret_1w": 0.0064,
-        "ret_1m": -0.1398,
-        "ret_3m": -0.0857,
+        "ret_1w": -0.0349,
+        "ret_1m": -0.1874,
+        "ret_3m": -0.073,
         "week52_high": 54.87,
         "week52_low": 23.35,
-        "pct_from_52w_high": -31.5,
-        "atr_14": 1.97,
-        "atr_pct": 5.23
+        "pct_from_52w_high": -30.5,
+        "atr_14": 1.92,
+        "atr_pct": 5.04
       },
       "key_levels": {
         "support": 38.09,
@@ -886,156 +669,10 @@
         "dislocation_screen(-21%_1m)"
       ],
       "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "BA",
-      "quant_score": 55,
-      "direction": "LONG",
-      "trade_type": "momentum",
-      "forward_bias": "bullish",
-      "mean_reversion_score": 0,
-      "trend": "downtrend",
-      "rsi_14": 48.9,
-      "macd_signal": "bullish",
-      "volume_trend": "neutral",
-      "support": 198.05,
-      "resistance": 231.96,
-      "key_patterns": [
-        "lower_highs_lower_lows",
-        "bb_midband_coil"
-      ],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_action",
-          "volume"
-        ],
-        "conflicts": [
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: RSI bearish but MACD bullish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a potential for a bounce despite the current downtrend, supported by bullish MACD signals. In the next 5-10 days, BA is likely to experience upward movement towards resistance levels, particularly if it can hold above the key support at $198.05.",
-      "mean_reversion_signals": [],
-      "indicators": {
-        "rsi_14": 48.9,
-        "macd_bullish": true,
-        "macd_histogram_expanding": true,
-        "stoch_k": 69.7,
-        "bb_pct": 0.56,
-        "volume_ratio": 0.83,
-        "obv_trend": "down",
-        "sma_50": 224.18,
-        "sma_200": 218.62,
-        "cross_signal": null,
-        "ret_1w": 0.0929,
-        "ret_1m": -0.0623,
-        "ret_3m": -0.0858,
-        "week52_high": 254.35,
-        "week52_low": 128.88,
-        "pct_from_52w_high": -18.1,
-        "atr_14": 7.18,
-        "atr_pct": 3.45
-      },
-      "key_levels": {
-        "support": 198.05,
-        "resistance": 231.96,
-        "support_levels": [
-          198.05
-        ],
-        "resistance_levels": [
-          231.96,
-          247.86,
-          254.35
-        ]
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "institutional_signal"
-      ],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "PSKY",
-      "quant_score": 45,
-      "direction": "LONG",
-      "trade_type": "mean_reversion",
-      "forward_bias": "neutral",
-      "mean_reversion_score": 35,
-      "trend": "downtrend",
-      "rsi_14": 45.4,
-      "macd_signal": "bullish",
-      "volume_trend": "neutral",
-      "support": 8.62,
-      "resistance": 11.27,
-      "key_patterns": [
-        "bearish_ma_stack",
-        "lower_highs_lower_lows",
-        "bb_midband_coil"
-      ],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "price_action"
-        ],
-        "conflicts": [
-          "volume diverging from price direction",
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bearish but MACD bullish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-      "quant_summary": "The technical setup indicates a potential for a mean reversion as the price is significantly below the SMA200 and near the 52-week low. In the next 5-10 days, a bounce towards resistance at $11.27 is possible, but caution is warranted due to the overall downtrend.",
-      "mean_reversion_signals": [
-        "Price 30% below SMA200 \u2014 extreme dislocation",
-        "Within 15% of 52W low"
-      ],
-      "indicators": {
-        "rsi_14": 45.4,
-        "macd_bullish": true,
-        "macd_histogram_expanding": true,
-        "stoch_k": 81.8,
-        "bb_pct": 0.5,
-        "volume_ratio": 0.99,
-        "obv_trend": "up",
-        "sma_50": 10.51,
-        "sma_200": 13.54,
-        "cross_signal": null,
-        "ret_1w": 0.083,
-        "ret_1m": -0.1849,
-        "ret_3m": -0.274,
-        "week52_high": 20.67,
-        "week52_low": 8.62,
-        "pct_from_52w_high": -53.9,
-        "atr_14": 0.49,
-        "atr_pct": 5.19
-      },
-      "key_levels": {
-        "support": 8.62,
-        "resistance": 11.27,
-        "support_levels": [
-          8.62
-        ],
-        "resistance_levels": [
-          11.27,
-          11.94,
-          14.03
-        ]
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "dislocation_screen(-23%_1m)"
-      ],
-      "swarm_memory_hits": 0
     }
   ],
-  "total_analysed": 14,
+  "total_analysed": 9,
   "macro_regime": "RISK-OFF",
-  "pattern_history_loaded": true,
-  "generated_at": "2026-04-03 16:16 UTC"
+  "pattern_history_loaded": false,
+  "generated_at": "2026-04-01 19:15 UTC"
 }

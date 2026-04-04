@@ -165,7 +165,7 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
         )}
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#080C10]/60 z-10">
-            <p className="text-xs text-[#6B7280]">Chart data unavailable — market may be closed</p>
+            <p className="text-xs text-[#6B7280]">Chart data unavailable — try a different timeframe or check your connection</p>
           </div>
         )}
         <div ref={containerRef} className="w-full h-full" />
