@@ -19,14 +19,41 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
   const [tf, setTf] = useState<TF>("1D");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // Track what timeframe is currently loaded so tf changes can re-fetch
+  const loadedTfRef = useRef<TF | null>(null);
 
-  // Build chart once on mount
+  const fetchAndRender = useCallback(async (timeframe: TF) => {
+    if (!seriesRef.current) return;
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await fetch(`/api/chart/${ticker}?tf=${timeframe}`);
+      const json = await res.json();
+      const candles: Candle[] = json.candles ?? [];
+      if (candles.length === 0) {
+        setError(true);
+      } else {
+        // @ts-expect-error -- series ref typed as unknown
+        seriesRef.current.setData(candles);
+        // @ts-expect-error -- chart ref typed as unknown
+        chartRef.current?.timeScale().fitContent();
+      }
+    } catch {
+      setError(true);
+    }
+    setLoading(false);
+    loadedTfRef.current = timeframe;
+  }, [ticker]);
+
+  // Build chart once on mount — fetch initial data from inside init so we know series is ready
   useEffect(() => {
     if (!containerRef.current) return;
     let chart: unknown;
+    let cancelled = false;
 
     (async () => {
       const { createChart, LineStyle } = await import("lightweight-charts");
+      if (cancelled) return;
       const el = containerRef.current;
       if (!el) return;
 
@@ -77,56 +104,30 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
       };
       window.addEventListener("resize", onResize);
 
-      return () => {
-        window.removeEventListener("resize", onResize);
-      };
+      // Chart is ready — fetch initial data immediately
+      if (!cancelled) await fetchAndRender("1D");
+
+      // Cleanup resize listener (returned from IIFE — not from useEffect cleanup)
+      return () => window.removeEventListener("resize", onResize);
     })();
 
     return () => {
+      cancelled = true;
       // @ts-expect-error -- dynamic import lacks typed remove method
       chart?.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      loadedTfRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryPrice]);
+  }, [ticker, entryPrice]);
 
-  const loadData = useCallback(async (timeframe: TF) => {
-    // Poll until lightweight-charts finishes its async init (up to 3s)
-    let waited = 0;
-    while (!seriesRef.current && waited < 3000) {
-      await new Promise((r) => setTimeout(r, 100));
-      waited += 100;
-    }
-    if (!seriesRef.current) {
-      setLoading(false);
-      setError(true);
-      return;
-    }
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await fetch(`/api/chart/${ticker}?tf=${timeframe}`);
-      const json = await res.json();
-      const candles: Candle[] = json.candles ?? [];
-
-      if (candles.length === 0) {
-        setError(true);
-      } else {
-        // @ts-expect-error -- series ref typed as unknown
-        seriesRef.current.setData(candles);
-        // @ts-expect-error -- chart ref typed as unknown
-        chartRef.current?.timeScale().fitContent();
-      }
-    } catch {
-      setError(true);
-    }
-    setLoading(false);
-  }, [ticker]);
-
+  // Re-fetch when user changes timeframe (chart already initialized)
   useEffect(() => {
-    loadData(tf);
-  }, [tf, loadData]);
+    if (tf !== loadedTfRef.current && seriesRef.current) {
+      fetchAndRender(tf);
+    }
+  }, [tf, fetchAndRender]);
 
   return (
     <div>
