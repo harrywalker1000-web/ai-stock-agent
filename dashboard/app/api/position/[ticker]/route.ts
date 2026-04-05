@@ -300,18 +300,34 @@ export async function GET(
     num_analysts:           liveQuote?.number_of_analyst_opinions,
   } : null;
 
-  // ── Setup Checklist — built from fundamental pipeline data ───────────────────
+  // ── Setup Checklist — prefer agent's saved setup_checklist, derive from flat fields as fallback ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setupChecklist: { item: string; detail: string }[] = fundamental ? (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = fundamental as any;
+    // Agent saves setup_checklist as an object with named keys — convert to display array
+    if (f.setup_checklist && typeof f.setup_checklist === "object" && !Array.isArray(f.setup_checklist)) {
+      const sc = f.setup_checklist;
+      const items: { item: string; detail: string }[] = [];
+      if (sc.setup_type) items.push({ item: "Setup type", detail: String(sc.setup_type) });
+      if (f.fundamental_summary) items.push({ item: "Summary", detail: String(f.fundamental_summary) });
+      if (sc.margin_trend) items.push({ item: "Margin trend", detail: `${sc.margin_trend}${sc.sustainability_assessment ? " — " + sc.sustainability_assessment : ""}` });
+      if (f.revenue_growth_yoy != null) items.push({ item: "Revenue growth YoY", detail: `${Number(f.revenue_growth_yoy).toFixed(1)}%${sc.tam_room_to_grow ? " — " + sc.tam_room_to_grow : ""}` });
+      if (f.operating_margin != null) items.push({ item: "Operating margin", detail: `${Number(f.operating_margin).toFixed(1)}%` });
+      if (sc.fcf_positive != null) items.push({ item: "FCF status", detail: sc.fcf_positive ? "Positive — cash generation intact" : "Negative — burning cash, monitor" });
+      if (sc.default_risk) items.push({ item: "Default risk", detail: `${sc.default_risk}${sc.leverage_vs_peers ? " — Leverage vs peers: " + sc.leverage_vs_peers : ""}` });
+      if ((sc.upcoming_catalysts ?? []).length > 0) items.push({ item: "Upcoming catalysts", detail: (sc.upcoming_catalysts as string[]).slice(0, 3).join("; ") });
+      if ((sc.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: (sc.key_risks as string[]).slice(0, 3).join("; ") });
+      if (sc.moat_strength) items.push({ item: "Moat strength", detail: `${sc.moat_strength}${sc.longevity_estimate ? " — " + sc.longevity_estimate : ""}` });
+      return items;
+    }
+    // Fallback: derive from flat scoring fields
     const items: { item: string; detail: string }[] = [];
-    if (f.setup_type) items.push({ item: "Setup type", detail: `${f.setup_type}${f.fundamental_summary ? ` — ${String(f.fundamental_summary).slice(0, 200)}` : ""}` });
-    if (f.revenue_growth_yoy != null) items.push({ item: "Revenue growth YoY", detail: `${Number(f.revenue_growth_yoy).toFixed(1)}% — ${Number(f.revenue_growth_yoy) >= 10 ? "above" : "below"} 10% threshold. Margin trend: ${f.margin_trend ?? "—"}` });
+    if (f.setup_type) items.push({ item: "Setup type", detail: `${f.setup_type}${f.fundamental_summary ? " — " + String(f.fundamental_summary).slice(0, 200) : ""}` });
+    if (f.revenue_growth_yoy != null) items.push({ item: "Revenue growth YoY", detail: `${Number(f.revenue_growth_yoy).toFixed(1)}%` });
     if (f.operating_margin != null) items.push({ item: "Operating margin", detail: `${Number(f.operating_margin).toFixed(1)}%` });
-    if (f.fcf_positive != null) items.push({ item: "FCF status", detail: f.fcf_positive ? "Positive — cash generation intact" : "Negative — burning cash, monitor closely" });
+    if (f.fcf_positive != null) items.push({ item: "FCF status", detail: f.fcf_positive ? "Positive" : "Negative" });
     if (f.default_risk) items.push({ item: "Default risk", detail: String(f.default_risk) });
-    if (f.leverage_vs_peers) items.push({ item: "Leverage vs peers", detail: String(f.leverage_vs_peers) });
     const strengths: string[] = f.key_strengths ?? [];
     if (strengths.length > 0) items.push({ item: "Key strengths", detail: strengths.slice(0, 3).join("; ") });
     const concerns: string[] = f.key_concerns ?? [];
@@ -362,39 +378,48 @@ export async function GET(
     };
   })();
 
-  // ── Analyst rating history — from live Yahoo Finance data ────────────────────
-  const analystRatingHistory = liveQuote ? {
-    current_consensus: liveQuote.recommendation_key
+  // ── Analyst rating history — pipeline data enriched with live Yahoo Finance numbers ──
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pipelineArh = (fundamental as any)?.analyst_rating_history ?? null;
+  const analystRatingHistory = (pipelineArh || liveQuote) ? {
+    // Prefer pipeline LLM narrative; live data fills in the numbers
+    current_consensus: liveQuote?.recommendation_key
       ? (liveQuote.recommendation_key as string).replace(/_/g, " ").split(" ").map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
-      : "—",
-    num_analysts:      liveQuote.number_of_analyst_opinions ?? null,
-    avg_target_price:  liveQuote.analyst_target ?? null,
-    implied_upside_pct: (liveQuote.analyst_target && liveQuote.current_price)
+      : (pipelineArh?.current_consensus ?? "—"),
+    num_analysts:      liveQuote?.number_of_analyst_opinions ?? pipelineArh?.num_analysts ?? null,
+    avg_target_price:  liveQuote?.analyst_target ?? pipelineArh?.avg_target_price ?? null,
+    implied_upside_pct: (liveQuote?.analyst_target && liveQuote?.current_price)
       ? parseFloat(((liveQuote.analyst_target - liveQuote.current_price) / liveQuote.current_price * 100).toFixed(1))
-      : null,
-    trend_24m: "—",
-    summary: [
-      liveQuote.number_of_analyst_opinions ? `${liveQuote.number_of_analyst_opinions} analysts covering.` : "",
-      liveQuote.analyst_target ? `Mean target $${Number(liveQuote.analyst_target).toFixed(0)}` : "",
-      (liveQuote.analyst_low && liveQuote.analyst_high) ? `(range $${Number(liveQuote.analyst_low).toFixed(0)}–$${Number(liveQuote.analyst_high).toFixed(0)}).` : "",
-      liveQuote.recommendation_key ? `Consensus: ${String(liveQuote.recommendation_key).replace(/_/g, " ")}.` : "",
-    ].filter(Boolean).join(" "),
+      : (pipelineArh?.implied_upside_pct ?? null),
+    trend_24m: pipelineArh?.trend_24m ?? "—",
+    // Pipeline's narrative summary is richer; augment with live numbers if available
+    summary: (() => {
+      const live = [
+        liveQuote?.number_of_analyst_opinions ? `${liveQuote.number_of_analyst_opinions} analysts covering.` : "",
+        liveQuote?.analyst_target ? `Mean target $${Number(liveQuote.analyst_target).toFixed(0)}` : "",
+        (liveQuote?.analyst_low && liveQuote?.analyst_high) ? `(range $${Number(liveQuote.analyst_low).toFixed(0)}–$${Number(liveQuote.analyst_high).toFixed(0)}).` : "",
+      ].filter(Boolean).join(" ");
+      const narrative = pipelineArh?.summary ?? "";
+      return [live, narrative].filter(Boolean).join(" ");
+    })(),
   } : null;
 
-  // ── Market timing — from quant signals + entry thesis ────────────────────────
+  // ── Market timing — prefer pipeline's LLM-generated narrative, augment with quant signals ──
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pipelineMarketTiming = (fundamental as any)?.market_timing ?? null;
   const marketTiming = (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const q = quant as any;
-    if (!q) return positionEntry?.entry_thesis ?? null;
-    const parts: string[] = [];
-    if (q.rsi_14 != null) parts.push(`RSI(14) at ${Number(q.rsi_14).toFixed(0)}${Number(q.rsi_14) < 30 ? " — oversold" : Number(q.rsi_14) > 70 ? " — overbought" : " — neutral"}`);
-    if (q.macd_signal) parts.push(`MACD: ${q.macd_signal}`);
-    if (q.support) parts.push(`Support: $${q.support}`);
-    if (q.resistance) parts.push(`Resistance: $${q.resistance}`);
-    if (q.forward_bias) parts.push(`Bias: ${q.forward_bias}`);
-    if (q.quant_summary) parts.push(q.quant_summary);
-    if (catalysts.length > 0) parts.push(`Catalyst: ${catalysts[0].catalyst}`);
-    return parts.length > 0 ? parts.join(". ") : (positionEntry?.entry_thesis ?? null);
+    const quantParts: string[] = [];
+    if (q?.rsi_14 != null) quantParts.push(`RSI(14) at ${Number(q.rsi_14).toFixed(0)}${Number(q.rsi_14) < 30 ? " — oversold" : Number(q.rsi_14) > 70 ? " — overbought" : " — neutral"}`);
+    if (q?.macd_signal) quantParts.push(`MACD: ${q.macd_signal}`);
+    if (q?.support && q?.resistance) quantParts.push(`Support $${q.support} / Resistance $${q.resistance}`);
+    if (q?.forward_bias) quantParts.push(`Bias: ${q.forward_bias}`);
+    if (catalysts.length > 0) quantParts.push(`Catalyst: ${catalysts[0].catalyst}`);
+    const quantStr = quantParts.length > 0 ? quantParts.join(". ") : null;
+    // Pipeline narrative is richer; prepend quant signals if available
+    if (pipelineMarketTiming && quantStr) return `${quantStr}. ${pipelineMarketTiming}`;
+    return pipelineMarketTiming ?? quantStr ?? positionEntry?.entry_thesis ?? null;
   })();
 
   // ── Compute live position stats (Alpaca is source of truth) ─────────────────
@@ -461,8 +486,10 @@ export async function GET(
     market_timing:        marketTiming,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     comparables:          (fundamental as any)?.comparables ?? MOCK_POSITION_DETAIL.comparables,
-    management_team:      null,
-    cap_table:            null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    management_team:      (fundamental as any)?.management_team ?? null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    cap_table:            (fundamental as any)?.cap_table ?? null,
 
     _source:              "pipeline",
     _pipeline_date:       committeeReport?.generated_at ?? fundamentalReport?.generated_at ?? "—",
