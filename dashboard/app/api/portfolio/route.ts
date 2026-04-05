@@ -8,11 +8,11 @@ import {
 
 // Static JSON imports — guaranteed bundled by Next.js/Vercel
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import committeeReportRaw from "../../../data/reports/committee_report.json" assert { type: "json" };
+import committeeReportRaw from "../../../data/reports/committee_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import positionsLogRaw from "../../../data/memory/positions_log.json" assert { type: "json" };
+import positionsLogRaw from "../../../data/memory/positions_log.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import decisionLogRaw from "../../../data/memory/decision_log.json" assert { type: "json" };
+import decisionLogRaw from "../../../data/memory/decision_log.json";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const committeeReport: any = committeeReportRaw;

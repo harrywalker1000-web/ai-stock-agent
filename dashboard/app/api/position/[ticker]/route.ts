@@ -5,23 +5,23 @@ import YahooFinanceClass from "yahoo-finance2";
 // Static JSON imports — bundler includes these in the serverless function.
 // fs.readFileSync at runtime is NOT reliably bundled by Next.js/Vercel.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import committeeReportData from "../../../../data/reports/committee_report.json" assert { type: "json" };
+import committeeReportData from "../../../../data/reports/committee_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import fundamentalReportData from "../../../../data/reports/fundamental_report.json" assert { type: "json" };
+import fundamentalReportData from "../../../../data/reports/fundamental_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import quantReportData from "../../../../data/reports/quant_report.json" assert { type: "json" };
+import quantReportData from "../../../../data/reports/quant_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import sentimentReportData from "../../../../data/reports/sentiment_report.json" assert { type: "json" };
+import sentimentReportData from "../../../../data/reports/sentiment_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import newsReportData from "../../../../data/reports/news_report.json" assert { type: "json" };
+import newsReportData from "../../../../data/reports/news_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import macroReportData from "../../../../data/reports/macro_report.json" assert { type: "json" };
+import macroReportData from "../../../../data/reports/macro_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import sectorReportData from "../../../../data/reports/sector_report.json" assert { type: "json" };
+import sectorReportData from "../../../../data/reports/sector_report.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import positionsLogData from "../../../../data/memory/positions_log.json" assert { type: "json" };
+import positionsLogData from "../../../../data/memory/positions_log.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import decisionLogData from "../../../../data/memory/decision_log.json" assert { type: "json" };
+import decisionLogData from "../../../../data/memory/decision_log.json";
 
 // Fetch a single position from Alpaca
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
