@@ -1,13 +1,24 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
 import {
   MOCK_POSITIONS,
   MOCK_PORTFOLIO_STATS,
   MOCK_PORTFOLIO_HISTORY,
   MOCK_SECTOR_ALLOCATION,
 } from "@/lib/mock-data";
-import { dataDir } from "@/lib/data-path";
+
+// Static JSON imports — guaranteed bundled by Next.js/Vercel
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import committeeReportRaw from "../../../data/reports/committee_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import positionsLogRaw from "../../../data/memory/positions_log.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import decisionLogRaw from "../../../data/memory/decision_log.json" assert { type: "json" };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const committeeReport: any = committeeReportRaw;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const positionsLog: any = positionsLogRaw;
+void decisionLogRaw; // reserved for future accuracy tracking
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchAlpacaPositions(): Promise<any[] | null> {
@@ -109,25 +120,7 @@ const SECTOR_COLORS: Record<string, string> = {
   "Other":         "#6B7280",
 };
 
-function readJson(filePath: string) {
-  try {
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, "utf-8");
-      const parsed = JSON.parse(content);
-      if (parsed && (Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0)) {
-        return parsed;
-      }
-    }
-  } catch { /* fall through */ }
-  return null;
-}
-
 export async function GET() {
-  const resolvedDataDir = dataDir();
-  const reportsDir = path.join(resolvedDataDir, "reports");
-  const committeeReport = readJson(path.join(reportsDir, "committee_report.json"));
-  const positionsLog    = readJson(path.join(resolvedDataDir, "memory", "positions_log.json"));
-  const decisionLog     = readJson(path.join(resolvedDataDir, "memory", "decision_log.json"));
 
   // Fetch live data from Alpaca in parallel
   const [alpacaPositions, alpacaAccount, alpacaHistory] = await Promise.all([
@@ -290,7 +283,7 @@ export async function GET() {
     { label: "Quant",       key: "quant_score" },
     { label: "Sentiment",   key: "sentiment_score" },
   ];
-  void decisionLog; // reserved for future accuracy tracking when positions close
+  // decisionLogRaw reserved for future accuracy tracking when positions close
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const agentConviction = AGENT_KEYS.map(({ label, key }) => {

@@ -1,8 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
 import { MOCK_POSITION_DETAIL } from "@/lib/mock-data";
 import YahooFinanceClass from "yahoo-finance2";
+
+// Static JSON imports — bundler includes these in the serverless function.
+// fs.readFileSync at runtime is NOT reliably bundled by Next.js/Vercel.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import committeeReportData from "../../../../data/reports/committee_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import fundamentalReportData from "../../../../data/reports/fundamental_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import quantReportData from "../../../../data/reports/quant_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import sentimentReportData from "../../../../data/reports/sentiment_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import newsReportData from "../../../../data/reports/news_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import macroReportData from "../../../../data/reports/macro_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import sectorReportData from "../../../../data/reports/sector_report.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import positionsLogData from "../../../../data/memory/positions_log.json" assert { type: "json" };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import decisionLogData from "../../../../data/memory/decision_log.json" assert { type: "json" };
 
 // Fetch a single position from Alpaca
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,42 +59,9 @@ async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
-function readReport(name: string) {
-  // Try dashboard/data/reports/ (Vercel production & local after sync)
-  const candidates = [
-    path.join(process.cwd(), "data", "reports", name),
-    path.join(process.cwd(), "..", "data", "reports", name),
-  ];
-  for (const p of candidates) {
-    try {
-      if (fs.existsSync(p)) {
-        const raw = fs.readFileSync(p, "utf-8");
-        const parsed = JSON.parse(raw);
-        if (parsed && (Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0)) {
-          return parsed;
-        }
-      }
-    } catch { /* try next */ }
-  }
-  return null;
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function findByTicker(arr: any[], ticker: string) {
   return arr?.find((x: { ticker?: string }) => x.ticker?.toUpperCase() === ticker) ?? null;
-}
-
-function readMemory(name: string) {
-  const candidates = [
-    path.join(process.cwd(), "data", "memory", name),
-    path.join(process.cwd(), "..", "data", "memory", name),
-  ];
-  for (const p of candidates) {
-    try {
-      if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf-8"));
-    } catch { /* try next */ }
-  }
-  return null;
 }
 
 export async function GET(
@@ -84,13 +70,15 @@ export async function GET(
 ) {
   const ticker = context.params.ticker.toUpperCase();
 
-  // ── Load all agent reports + positions_log + decision_log ───────────────────
-  const positionsLog = readMemory("positions_log.json");
-  const positionEntry = positionsLog?.[ticker] ?? null;
+  // ── Load all agent reports + positions_log + decision_log (static imports) ──
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const positionsLog = positionsLogData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const positionEntry = (positionsLog as any)?.[ticker] ?? null;
 
   // Build review timeline from decision_log filtered to this ticker
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const decisionLog: any[] = readMemory("decision_log.json") ?? [];
+  const decisionLog: any[] = Array.isArray(decisionLogData) ? decisionLogData : [];
   const reviewTimeline = decisionLog
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .filter((d: any) => d.ticker?.toUpperCase() === ticker)
@@ -105,13 +93,20 @@ export async function GET(
       size_pct:  d.size_pct ?? null,
     }));
 
-  const committeeReport   = readReport("committee_report.json");
-  const fundamentalReport = readReport("fundamental_report.json");
-  const quantReport       = readReport("quant_report.json");
-  const sentimentReport   = readReport("sentiment_report.json");
-  const newsReport        = readReport("news_report.json");
-  const macroReport       = readReport("macro_report.json");
-  const sectorReport      = readReport("sector_report.json");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const committeeReport   = committeeReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fundamentalReport = fundamentalReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const quantReport       = quantReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sentimentReport   = sentimentReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const newsReport        = newsReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const macroReport       = macroReportData as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sectorReport      = sectorReportData as any;
 
   const scorecard    = findByTicker(committeeReport?.scorecards ?? [], ticker);
   const decision     = findByTicker(committeeReport?.position_decisions ?? [], ticker);
