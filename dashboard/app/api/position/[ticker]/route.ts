@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { MOCK_POSITION_DETAIL } from "@/lib/mock-data";
 import YahooFinanceClass from "yahoo-finance2";
 
 // Static JSON imports — bundler includes these in the serverless function.
@@ -160,13 +159,7 @@ export async function GET(
 
   // ── Merge: use pipeline agent data + live prices ───────────────────────────
   if (!hasPipelineData) {
-    // No pipeline data for this ticker — return mock with live price overlay
-    return NextResponse.json({
-      ...MOCK_POSITION_DETAIL,
-      ticker,
-      current_price: liveQuote?.current_price ?? MOCK_POSITION_DETAIL.current_price,
-      _source: "mock",
-    });
+    return NextResponse.json({ error: "No pipeline data available for this ticker" }, { status: 404 });
   }
 
   // Build agent_scores array from scorecard
@@ -176,14 +169,14 @@ export async function GET(
     { agent: "Sentiment",   score: scorecard.sentiment_score ?? 0,   view: sentiment?.sentiment_summary ?? sentiment?.analyst_consensus ?? "—" },
     { agent: "Macro",       score: scorecard.macro_score ?? 0,       view: macroReport ? `${macroReport.regime} — ${(macroReport.favoured_themes ?? []).slice(0,2).join(", ")}` : "—" },
     { agent: "News",        score: scorecard.news_score ?? 0,        view: catalysts[0]?.reasoning ?? newsReport?.news_summary ?? "—" },
-  ] : MOCK_POSITION_DETAIL.agent_scores;
+  ] : [];
 
   // Build investment thesis bullets from pipeline
   const thesisBullets = decision ? [
     decision.investment_thesis,
     ...(decision.key_catalysts ?? []).map((c: string) => `Catalyst: ${c}`),
     ...(decision.key_risks ?? []).map((r: string) => `Risk: ${r}`),
-  ].filter(Boolean) : MOCK_POSITION_DETAIL.investment_thesis_bullets;
+  ].filter(Boolean) : [];
 
   // Build financial snapshot from fundamental report (real data)
   const financialSnapshot = fundamental ? {
@@ -207,7 +200,7 @@ export async function GET(
     gross_margins:     liveQuote?.gross_margins,
     ebitda_margins:    liveQuote?.ebitda_margins,
     profit_margins:    liveQuote?.profit_margins,
-  } : MOCK_POSITION_DETAIL.financial_snapshot;
+  } : null;
 
   // Build market analysis from real fundamental + macro + sector
   const marketAnalysis = {
@@ -241,7 +234,7 @@ export async function GET(
     key_strengths:         fundamental.key_strengths,
     key_concerns:          fundamental.key_concerns,
     data_confidence:       fundamental.data_confidence,
-  } : MOCK_POSITION_DETAIL.quality_of_earnings;
+  } : null;
 
   // Recommendation — add direction derived from decision action / held position
   const recDirection = decision?.action === "enter_long" ? "LONG"
@@ -259,7 +252,7 @@ export async function GET(
     composite_score: scorecard?.composite_score,
     overall_confidence: scorecard?.overall_confidence,
     _source: "committee_agent",
-  } : MOCK_POSITION_DETAIL.recommendation;
+  } : null;
 
   // Quant technical data
   const technicalData = quant ? {
@@ -328,7 +321,7 @@ export async function GET(
     const concerns: string[] = f.key_concerns ?? [];
     if (concerns.length > 0) items.push({ item: "Key concerns", detail: concerns.slice(0, 3).join("; ") });
     return items;
-  })() : MOCK_POSITION_DETAIL.setup_checklist as unknown as { item: string; detail: string }[];
+  })() : [];
 
   // ── Mandate Checklist — built from fund_mandate in fundamental report ─────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -353,13 +346,13 @@ export async function GET(
     if (fm.setup_type) items.push({ item: `Setup type identified: ${fm.setup_type}`, pass: true });
     if (fm.float_pct != null) items.push({ item: `Float: ${fm.float_pct}%`, pass: Number(fm.float_pct) > 20 });
     return items;
-  })() : MOCK_POSITION_DETAIL.mandate_checklist as unknown as { item: string; pass: boolean }[];
+  })() : [];
 
   // ── Valuation — built from decision + scorecard + fundamental ─────────────────
   const valuation = (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = fundamental as any;
-    if (!f && !decision) return MOCK_POSITION_DETAIL.valuation;
+    if (!f && !decision) return null;
     return {
       trade_type_classification: f?.setup_type ?? (decision?.action?.includes("long") ? "Long momentum" : "Tactical/Swing"),
       methodology: "Peer comps + technical signals",
@@ -426,12 +419,12 @@ export async function GET(
   const alpacaEntryPrice  = alpacaPosition ? parseFloat(alpacaPosition.avg_entry_price) : null;
   const alpacaQty         = alpacaPosition ? parseFloat(alpacaPosition.qty) : null;
 
-  const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.current_price;
-  const liveEntryPrice   = alpacaEntryPrice ?? positionEntry?.entry_price ?? MOCK_POSITION_DETAIL.entry_price;
+  const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? 0;
+  const liveEntryPrice   = alpacaEntryPrice ?? positionEntry?.entry_price ?? 0;
   const liveMarketValue  = alpacaMarketValue ?? (liveCurrentPrice && alpacaQty ? liveCurrentPrice * alpacaQty : null);
   const livePctPortfolio = (liveMarketValue && alpacaEquity && alpacaEquity > 0)
     ? parseFloat((liveMarketValue / alpacaEquity * 100).toFixed(2))
-    : positionEntry?.size_pct ?? MOCK_POSITION_DETAIL.pct_portfolio;
+    : positionEntry?.size_pct ?? 0;
   const livePctChange = alpacaUnrealPct ?? (liveCurrentPrice && liveEntryPrice
     ? ((liveCurrentPrice - liveEntryPrice) / liveEntryPrice) * 100
     : 0);
@@ -443,17 +436,17 @@ export async function GET(
     // Core position fields — Alpaca is source of truth for live metrics
     ticker,
     company:        liveQuote?.company ?? ticker,
-    sector:         liveQuote?.sector ?? MOCK_POSITION_DETAIL.sector,
+    sector:         liveQuote?.sector ?? null,
     direction:      alpacaPosition?.side === "short" ? "short" : (positionEntry?.direction ?? "LONG").toLowerCase(),
     entry_price:    parseFloat(liveEntryPrice.toFixed(2)),
     current_price:  parseFloat(liveCurrentPrice.toFixed(2)),
     pct_change:     parseFloat(livePctChange.toFixed(2)),
     pnl_absolute:   parseFloat(livePnlAbs.toFixed(2)),
-    position_size:  liveMarketValue ? parseFloat(liveMarketValue.toFixed(2)) : MOCK_POSITION_DETAIL.position_size,
+    position_size:  liveMarketValue ? parseFloat(liveMarketValue.toFixed(2)) : 0,
     qty:            alpacaQty ?? null,
     pct_portfolio:  livePctPortfolio,
-    entry_date:     positionEntry?.entry_date ?? MOCK_POSITION_DETAIL.entry_date,
-    conviction:     positionEntry?.conviction ?? decision?.conviction ?? MOCK_POSITION_DETAIL.conviction,
+    entry_date:     positionEntry?.entry_date ?? null,
+    conviction:     positionEntry?.conviction ?? decision?.conviction ?? null,
     scenario:       scorecard?.overall_confidence === "high" ? "A" : scorecard?.overall_confidence === "medium" ? "B" : "C",
     review_timeline: reviewTimeline.length > 0 ? reviewTimeline : undefined,
 
@@ -480,7 +473,7 @@ export async function GET(
     analyst_rating_history: analystRatingHistory,
     market_timing:        marketTiming,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    comparables:          (fundamental as any)?.comparables ?? MOCK_POSITION_DETAIL.comparables,
+    comparables:          (fundamental as any)?.comparables ?? null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     management_team:      (fundamental as any)?.management_team ?? null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -48,9 +48,15 @@ TRADES_DIR.mkdir(parents=True, exist_ok=True)
 
 # Safety rails
 HARD_MAX_POSITION_PCT = 30.0   # Never exceed this regardless of Committee instruction
-HARD_MIN_CASH_PCT = 2.0        # Keep 2% cash buffer — prevents margin use entirely
+HARD_MIN_CASH_PCT = 5.0        # Keep 5% cash buffer — hard floor, never use margin
 MARKET_OPEN_BUFFER_MIN = 0     # No open buffer — pipeline is already scheduled 15min after open
 MARKET_CLOSE_BUFFER_MIN = 5    # Only block final 5 min to avoid MOC chaos
+
+# ── No-leverage policy ────────────────────────────────────────────────────────
+# Total deployed capital (|long| + |short| notional) must never exceed equity.
+# This guarantees you can never lose more than you deposited.
+# Short positions require full cash collateral — their proceeds cannot be reused.
+NO_LEVERAGE = True   # Hard kill-switch. Never set to False for real money.
 
 # Paper vs live guard
 _PAPER_BASE_URL = "https://paper-api.alpaca.markets"
@@ -88,14 +94,48 @@ def _get_alpaca_client():
 
 
 def _get_portfolio(api) -> dict:
-    """Fetch current portfolio value and cash from Alpaca."""
+    """
+    Fetch account state from Alpaca.
+
+    KEY: we use EQUITY (not portfolio_value) everywhere for sizing.
+    portfolio_value can exceed equity when margin is in use — using it
+    for sizing is what creates leverage. Equity = what you actually own.
+    """
     account = api.get_account()
+    equity = float(account.equity)
+    cash = float(account.cash)
+    long_mv = float(account.long_market_value or 0)
+    short_mv = abs(float(account.short_market_value or 0))
+    total_exposure = long_mv + short_mv
+    leveraged = total_exposure > equity
     return {
-        "equity": float(account.equity),
-        "cash": float(account.cash),
-        "portfolio_value": float(account.portfolio_value),
+        "equity": equity,
+        "cash": cash,
+        "portfolio_value": equity,           # Always use equity for sizing — never inflated portfolio_value
         "buying_power": float(account.buying_power),
+        "long_market_value": long_mv,
+        "short_market_value": short_mv,
+        "total_exposure": total_exposure,
+        "is_leveraged": leveraged,
     }
+
+
+def _available_capital(portfolio: dict) -> float:
+    """
+    Maximum notional available for a NEW position without using margin.
+
+    For longs:  equity - total_current_exposure - cash_floor
+    For shorts: same rule (short proceeds are NOT free cash — they're collateral)
+
+    This ensures total_exposure never exceeds equity regardless of direction.
+    """
+    if not NO_LEVERAGE:
+        return portfolio["cash"]  # Let Alpaca handle it if leverage is allowed
+    equity = portfolio["equity"]
+    total_exposure = portfolio.get("total_exposure", equity - portfolio["cash"])
+    cash_floor = equity * HARD_MIN_CASH_PCT / 100
+    available = equity - total_exposure - cash_floor
+    return max(0.0, available)
 
 
 def _get_alpaca_positions(api) -> dict[str, dict]:
@@ -418,39 +458,47 @@ def run(mode: str = "new_opportunities") -> dict:
     logger.info("Portfolio: $%.2f total | $%.2f cash | %d positions",
                 portfolio_value, cash, len(alpaca_positions))
 
-    # ── Margin unwind: if cash is negative, close smallest long positions
-    # until cash >= 0. No leverage ever. ─────────────────────────────────────
-    if cash < 0:
-        logger.warning("Cash is $%.2f — margin detected. Unwinding smallest positions to eliminate leverage.", cash)
+    # ── No-leverage unwind: total exposure must never exceed equity ──────────────
+    # Triggers when total_exposure > equity (i.e. leverage > 1x), NOT just when
+    # cash < 0 (cash can be negative while equity is still whole if shorts offset).
+    if NO_LEVERAGE and portfolio.get("is_leveraged", cash < 0):
+        equity_now = portfolio["equity"]
+        total_exp = portfolio.get("total_exposure", 0)
+        overage = total_exp - equity_now
+        logger.warning(
+            "Leverage detected: exposure $%.0f > equity $%.0f (overage $%.0f). Unwinding.",
+            total_exp, equity_now, overage,
+        )
         safe_now, _ = _is_safe_to_trade(api)
         if safe_now:
-            # Sort longs by conviction ascending (close least confident first)
+            # Close least-convicted long positions first until exposure ≤ equity
             open_pos = memory.get_open_positions()
             longs = sorted(
                 [(t, d) for t, d in alpaca_positions.items() if float(d.get("qty", 0)) > 0],
                 key=lambda x: open_pos.get(x[0], {}).get("conviction", 50)
             )
-            remaining_margin = abs(cash)
+            remaining_overage = overage
             for ticker_u, pos_u in longs:
-                if remaining_margin <= 0:
+                if remaining_overage <= 0:
                     break
                 qty_u = int(float(pos_u.get("qty", 0)))
-                mv_u = float(pos_u.get("market_value", 0))
+                mv_u = abs(float(pos_u.get("market_value", 0)))
                 if qty_u < 1:
                     continue
                 order_u = _place_order(api, ticker_u, qty_u, "sell",
-                                       "Margin unwind — eliminating leverage")
+                                       "No-leverage unwind — exposure exceeds equity")
                 if order_u:
-                    remaining_margin -= mv_u
+                    remaining_overage -= mv_u
                     memory.remove_position(ticker_u)
-                    logger.info("Margin unwind: closed %s (%d shares, $%.0f) — margin remaining: $%.0f",
-                                ticker_u, qty_u, mv_u, max(remaining_margin, 0))
+                    logger.info("Unwind: closed %s (%d shares, $%.0f) — overage remaining: $%.0f",
+                                ticker_u, qty_u, mv_u, max(remaining_overage, 0))
             # Refresh portfolio after unwind
             portfolio = _get_portfolio(api)
             portfolio_value = portfolio["portfolio_value"]
+            cash = portfolio["cash"]
             alpaca_positions = _get_alpaca_positions(api)
         else:
-            logger.warning("Market closed — cannot unwind margin now. Will retry at next open.")
+            logger.warning("Market closed — cannot unwind leverage now. Will retry at next open.")
 
     # Market hours check
     safe, hours_reason = _is_safe_to_trade(api)
@@ -524,13 +572,12 @@ def run(mode: str = "new_opportunities") -> dict:
                 size_pct = HARD_MAX_POSITION_PCT
 
             notional = portfolio_value * size_pct / 100
-            # Hard cap: never use margin — limit notional to available cash minus buffer
-            available_cash = portfolio.get("cash", 0)
-            min_cash_floor = portfolio_value * HARD_MIN_CASH_PCT / 100
-            max_notional = max(0, available_cash - min_cash_floor)
+            # Hard cap: never use margin — limit to equity-safe available capital
+            max_notional = _available_capital(portfolio)
             if notional > max_notional:
-                logger.warning("%s: notional $%.0f capped to $%.0f (cash $%.0f, floor $%.0f) — no margin",
-                               ticker, notional, max_notional, available_cash, min_cash_floor)
+                logger.warning("%s: notional $%.0f capped to $%.0f (equity $%.0f, exposure $%.0f) — no margin",
+                               ticker, notional, max_notional,
+                               portfolio.get("equity", 0), portfolio.get("total_exposure", 0))
                 notional = max_notional
             shares = int(notional / current_price)
             if shares < 1:
@@ -641,9 +688,13 @@ def run(mode: str = "new_opportunities") -> dict:
             # Step 2: open reversed position
             reverse_size_pct = float(decision.get("reverse_size_pct") or 5.0)
             reverse_size_pct = min(reverse_size_pct, HARD_MAX_POSITION_PCT)
+            # After closing existing position, recalculate available capital
+            # (the closed position reduces total_exposure, freeing up room)
+            post_close_exposure = max(0, portfolio.get("total_exposure", 0) - existing_qty * current_price)
+            post_close_portfolio = {**portfolio, "total_exposure": post_close_exposure}
             new_notional = min(
                 portfolio_value * reverse_size_pct / 100,
-                max(0, portfolio.get("cash", 0) + existing_qty * current_price - portfolio_value * HARD_MIN_CASH_PCT / 100),
+                _available_capital(post_close_portfolio),
             )
             new_shares = int(new_notional / current_price)
             new_order = None
@@ -686,7 +737,10 @@ def run(mode: str = "new_opportunities") -> dict:
 
             if action == "increase" and size_pct:
                 additional_pct = max(0, size_pct - current_pct)
-                additional_notional = portfolio_value * additional_pct / 100
+                additional_notional = min(
+                    portfolio_value * additional_pct / 100,
+                    _available_capital(portfolio),
+                )
                 shares = int(additional_notional / current_price)
                 if shares >= 1 and safe:
                     side = "buy" if direction == "LONG" else "sell"

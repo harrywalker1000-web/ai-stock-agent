@@ -1,10 +1,4 @@
 import { NextResponse } from "next/server";
-import {
-  MOCK_POSITIONS,
-  MOCK_PORTFOLIO_STATS,
-  MOCK_PORTFOLIO_HISTORY,
-  MOCK_SECTOR_ALLOCATION,
-} from "@/lib/mock-data";
 
 // Static JSON imports — guaranteed bundled by Next.js/Vercel
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -194,7 +188,7 @@ export async function GET() {
       expected_roi:  p.expected_roi ?? "—",
     }));
   } else {
-    positions = MOCK_POSITIONS;
+    positions = [];
   }
 
   // ── Stats: all from live Alpaca account ───────────────────────────────────
@@ -227,9 +221,19 @@ export async function GET() {
     };
   } else {
     stats = {
-      ...MOCK_PORTFOLIO_STATS,
-      active_positions:  positions.length,
-      pipeline_last_run: committeeReport?.generated_at ?? "—",
+      total_value:        0,
+      cash:               0,
+      deployed:           0,
+      deployed_pct:       0,
+      total_pnl_pct:      0,
+      total_pnl_absolute: 0,
+      daily_pnl_pct:      0,
+      daily_pnl_absolute: 0,
+      active_positions:   positions.length,
+      pipeline_status:    "unknown",
+      pipeline_last_run:  committeeReport?.generated_at ?? "—",
+      margin_warning:     false,
+      _source:            "no_data",
     };
   }
 
@@ -261,7 +265,7 @@ export async function GET() {
           value: parseFloat(((dollars / grandTotal) * 100).toFixed(1)),
           color: SECTOR_COLORS[sector] ?? "#6B7280",
         }))
-    : MOCK_SECTOR_ALLOCATION;
+    : [];
 
   // Safety net: floating-point rounding or upstream data issues can cause drift.
   // Re-normalise if the sum is meaningfully off from 100%.
@@ -273,7 +277,7 @@ export async function GET() {
     }));
   }
 
-  const history = alpacaHistory.length > 0 ? alpacaHistory : MOCK_PORTFOLIO_HISTORY;
+  const history = alpacaHistory;
 
   // ── Agent conviction: avg score per agent across entered positions ─────────
   // Sourced from committee scorecards — honest signal strength, NOT accuracy.

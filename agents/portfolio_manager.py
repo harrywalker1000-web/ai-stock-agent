@@ -64,6 +64,39 @@ SKIP_PHASE_A = os.environ.get("SKIP_PHASE_A", "false").lower() == "true"
 SKIP_PHASE_B = os.environ.get("SKIP_PHASE_B", "false").lower() == "true"
 
 
+def _fetch_live_portfolio() -> dict | None:
+    """
+    Fetch live account state from Alpaca to check for leverage.
+    Returns None silently if credentials are missing or the call fails.
+    """
+    try:
+        import alpaca_trade_api as tradeapi
+        key    = os.environ.get("ALPACA_API_KEY")
+        secret = os.environ.get("ALPACA_SECRET_KEY")
+        base   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+        if not key or not secret:
+            return None
+        api      = tradeapi.REST(key, secret, base)
+        account  = api.get_account()
+        equity   = float(account.equity)
+        cash     = float(account.cash)
+        long_mv  = float(account.long_market_value or 0)
+        short_mv = abs(float(account.short_market_value or 0))
+        total_exp = long_mv + short_mv
+        return {
+            "equity":          equity,
+            "cash":            cash,
+            "long_mv":         long_mv,
+            "short_mv":        short_mv,
+            "total_exposure":  total_exp,
+            "is_leveraged":    total_exp > equity,
+            "leverage_ratio":  round(total_exp / equity, 2) if equity else 0,
+        }
+    except Exception as exc:
+        logger.warning("Could not fetch live portfolio for leverage check: %s", exc)
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Portfolio Construction helper
 # ---------------------------------------------------------------------------
@@ -253,7 +286,11 @@ def run_phase_a() -> dict:
     # --- Investment Committee: Phase A deliberation ---
     from agents import investment_committee
     logger.info("Phase A: Committee deliberating on held positions...")
-    results["committee"] = investment_committee.run(mode="portfolio_review", held_tickers=held_tickers)
+    live_portfolio = _fetch_live_portfolio()
+    if live_portfolio and live_portfolio["is_leveraged"]:
+        logger.warning("LEVERAGE DETECTED: exposure $%.0f vs equity $%.0f (%.2fx) — passing hard constraint to committee",
+                       live_portfolio["total_exposure"], live_portfolio["equity"], live_portfolio["leverage_ratio"])
+    results["committee"] = investment_committee.run(mode="portfolio_review", held_tickers=held_tickers, live_portfolio=live_portfolio)
 
     # --- Trade Executor: implement hold/increase/decrease/exit decisions ---
     from agents import trade_executor
@@ -336,7 +373,8 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     if phase_a_exits:
         logger.info("Phase B: Passing %d Phase A exits to committee as same-day cooldown: %s",
                     len(phase_a_exits), phase_a_exits)
-    results["committee"] = investment_committee.run(mode="new_opportunities", exited_today=phase_a_exits)
+    live_portfolio_b = _fetch_live_portfolio()
+    results["committee"] = investment_committee.run(mode="new_opportunities", exited_today=phase_a_exits, live_portfolio=live_portfolio_b)
 
     # --- Phase 4b: Portfolio Construction ---
     # The committee deliberated on action + conviction. Now a separate LLM call

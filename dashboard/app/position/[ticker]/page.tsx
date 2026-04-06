@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState, lazy, Suspense } from "react";
 import Link from "next/link";
-import { MOCK_POSITION_DETAIL } from "@/lib/mock-data";
-
 const CandlestickChart = lazy(() => import("@/components/CandlestickChart"));
 
-type PositionDetail = typeof MOCK_POSITION_DETAIL;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PositionDetail = Record<string, any>;
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -102,8 +102,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
     // Use the dedicated position API which assembles all agent data
     fetch(`/api/position/${ticker}`)
       .then((r) => r.json())
-      .then((data) => setPosition({ ...MOCK_POSITION_DETAIL, ...data }))
-      .catch(() => setPosition(MOCK_POSITION_DETAIL));
+      .then((data) => setPosition(data))
+      .catch(() => setPosition(null));
   }, [ticker]);
 
   useEffect(() => {
@@ -125,15 +125,20 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
   const isProfit = position.pct_change >= 0;
   const pnlColor = isProfit ? "#10B981" : "#EF4444";
-  const allAgentScores = position.agent_scores ?? MOCK_POSITION_DETAIL.agent_scores;
-  const bullishAgents = allAgentScores.filter((a) => a.score >= 70).map((a) => a.agent);
-  const bearishAgents = allAgentScores.filter((a) => a.score < 50).map((a) => a.agent);
+  const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
+  const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 70).map((a: {agent:string}) => a.agent);
+  const bearishAgents = allAgentScores.filter((a: {score:number}) => a.score < 50).map((a: {agent:string}) => a.agent);
 
-  const fm = position.fund_mandate ?? MOCK_POSITION_DETAIL.fund_mandate;
-  const ci = position.company_info ?? MOCK_POSITION_DETAIL.company_info;
-  const fs = position.financial_snapshot ?? MOCK_POSITION_DETAIL.financial_snapshot;
-  const comps = liveComps?.comparables ?? (position.comparables ?? MOCK_POSITION_DETAIL.comparables);
-  const ma = position.market_analysis ?? MOCK_POSITION_DETAIL.market_analysis;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fm: any = position.fund_mandate ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ci: any = position.company_info ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const fs: any = position.financial_snapshot ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const comps: any[] = liveComps?.comparables ?? (position.comparables ?? []);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ma: any = position.market_analysis ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const technicalData = (position as any).technical_data ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,21 +151,27 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   const pipelineSource: string | undefined = (position as any)._source;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const macroRegime: string | undefined = (position as any)._macro_regime;
-  const qe = position.quality_of_earnings ?? MOCK_POSITION_DETAIL.quality_of_earnings;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const qe: any = position.quality_of_earnings ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mgmt = (position as any).management_team ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const arh = (position as any).analyst_rating_history ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ct = (position as any).cap_table ?? null;
-  const sc = position.setup_checklist ?? MOCK_POSITION_DETAIL.setup_checklist;
-  const val = position.valuation ?? MOCK_POSITION_DETAIL.valuation;
-  const rec = position.recommendation ?? MOCK_POSITION_DETAIL.recommendation;
-  const thesisBullets = position.investment_thesis_bullets ?? MOCK_POSITION_DETAIL.investment_thesis_bullets;
-  const mandateChecklist = position.mandate_checklist ?? MOCK_POSITION_DETAIL.mandate_checklist;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sc: any[] = position.setup_checklist ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const val: any = position.valuation ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rec: any = position.recommendation ?? null;
+  const thesisBullets: string[] = position.investment_thesis_bullets ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mandateChecklist: any[] = position.mandate_checklist ?? [];
 
   // Comparables colour helper
-  const subjectComp = comps.find((c) => (c as { is_subject?: boolean }).is_subject);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const subjectComp = comps.find((c: any) => c.is_subject);
   function compColor(field: "ebitda_margin_pct" | "net_margin_pct", peer: typeof comps[0]) {
     if (!subjectComp) return "text-[#E8EDF2]";
     const sv = (subjectComp as Record<string, unknown>)[field] as number | null;
@@ -327,7 +338,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   </tr>
                 </thead>
                 <tbody>
-                  {(fs?.historical ?? []).map((row) => (
+                  {((fs?.historical ?? []) as any[]).map((row) => (
                     <tr key={row.year} className="border-b border-white/04">
                       <td className="py-2 font-mono text-[#6B7280]">{row.year}</td>
                       <td className="py-2 text-right font-mono text-[#E8EDF2]">{FmtBn(row.revenue)}</td>
@@ -335,7 +346,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       <td className={`py-2 text-right font-mono ${(row.net_income ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{FmtBn(row.net_income)}</td>
                     </tr>
                   ))}
-                  {(fs?.forward ?? []).map((row) => (
+                  {((fs?.forward ?? []) as any[]).map((row) => (
                     <tr key={row.year} className="border-b border-white/04 border-dashed">
                       <td className="py-2 font-mono text-[#F59E0B]">{row.year}</td>
                       <td className="py-2 text-right font-mono text-[#F59E0B]/80">{FmtBn(row.revenue)}</td>
@@ -470,7 +481,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             <div className="mb-3">
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Competitive Advantages</p>
               <ul className="space-y-1.5">
-                {(qe?.competitive_advantages ?? []).map((a, i) => (
+                {((qe?.competitive_advantages ?? []) as string[]).map((a, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-[#E8EDF2]">
                     <span className="text-[#10B981] mt-0.5">▸</span>{a}
                   </li>
@@ -834,7 +845,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <div>
                 <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Revenue Segments</p>
                 <div className="space-y-2">
-                  {(ci?.revenue_segments ?? []).map((seg) => (
+                  {((ci?.revenue_segments ?? []) as any[]).map((seg) => (
                     <div key={seg.segment}>
                       <div className="flex justify-between text-xs mb-1">
                         <span className="text-[#E8EDF2]">{seg.segment}</span>
@@ -850,7 +861,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <div>
                 <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Geography</p>
                 <div className="space-y-1.5">
-                  {(ci?.geography_breakdown ?? []).map((g) => (
+                  {((ci?.geography_breakdown ?? []) as any[]).map((g) => (
                     <div key={g.region} className="flex justify-between text-xs">
                       <span className="text-[#E8EDF2]">{g.region}</span>
                       <span className="text-[#6B7280] font-mono">{g.pct}%</span>
@@ -873,7 +884,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             ).map((r: any, i: number) => {
               const actionColor = r.decision === "enter_long" || r.decision === "hold" || r.decision === "increase"
                 ? "#10B981" : r.decision === "decrease" ? "#F59E0B" : "#EF4444";
-              const timelineLength = position.review_timeline?.length ?? MOCK_POSITION_DETAIL.review_timeline.length;
+              const timelineLength = position.review_timeline?.length ?? 0;
               return (
                 <div key={i} className="flex gap-4 pb-3 border-b border-white/06 last:border-0">
                   <div className="flex flex-col items-center gap-1">

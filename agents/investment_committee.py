@@ -274,6 +274,7 @@ def _deliberate_with_llm(
     mode: str,
     available_cash_pct: float = 100.0,
     exited_today: list[str] | None = None,
+    live_portfolio: dict | None = None,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -329,6 +330,25 @@ def _deliberate_with_llm(
     n_open = len(open_positions)
     portfolio_context_block = _build_portfolio_context(open_positions)
 
+    # Leverage constraint block — injected when account is over-exposed
+    leverage_block = ""
+    if live_portfolio and live_portfolio.get("is_leveraged"):
+        equity   = live_portfolio["equity"]
+        total_exp = live_portfolio["total_exposure"]
+        ratio    = live_portfolio["leverage_ratio"]
+        overage  = total_exp - equity
+        leverage_block = (
+            f"\n!!! HARD CONSTRAINT — ACCOUNT IS LEVERAGED ({ratio:.2f}x) !!!\n"
+            f"Live Alpaca data: total exposure ${total_exp:,.0f} vs equity ${equity:,.0f} "
+            f"(overage ${overage:,.0f}).\n"
+            f"This fund operates with a strict NO-LEVERAGE policy. Total exposure must not exceed equity.\n"
+            f"{'THIS IS A PORTFOLIO REVIEW — you MUST reduce exposure. ' if mode == 'portfolio_review' else ''}"
+            f"{'Exit or decrease positions until total exposure ≤ equity. ' if mode == 'portfolio_review' else ''}"
+            f"{'Prioritise exiting positions with the weakest thesis or lowest conviction. ' if mode == 'portfolio_review' else ''}"
+            f"{'DO NOT hold every position and DO NOT recommend increases until the leverage is cleared.' if mode == 'portfolio_review' else ''}"
+            f"{'THIS IS A NEW OPPORTUNITY RUN — DO NOT ENTER ANY NEW POSITIONS until the leverage is cleared. Skip all candidates.' if mode == 'new_opportunities' else ''}\n"
+        )
+
     # Same-day cooldown block: tickers exited by Phase A should not be re-entered without exceptional cause
     cooldown_block = ""
     if exited_today:
@@ -368,7 +388,7 @@ Your mandate is to identify where prices are GOING, not where they have been.
 MACRO REGIME: {macro_regime}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
-
+{leverage_block}
 {portfolio_context_block}
 {cooldown_block}
 
@@ -1090,7 +1110,7 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
 # Main run function
 # ---------------------------------------------------------------------------
 
-def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, exited_today: list[str] | None = None) -> dict:
+def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, exited_today: list[str] | None = None, live_portfolio: dict | None = None) -> dict:
     logger.info("=== Investment Committee (Agent 10) — mode: %s ===", mode)
     today = datetime.utcnow().date().isoformat()
 
@@ -1152,7 +1172,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
 
     # LLM deliberation
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # Store all decisions in memory

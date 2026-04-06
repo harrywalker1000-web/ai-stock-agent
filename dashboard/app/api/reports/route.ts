@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
-import { MOCK_DAILY_REPORTS } from "@/lib/mock-data";
 
 export async function GET() {
   // On Vercel: process.cwd() = /var/task (dashboard root), data/ is bundled inside it
@@ -28,8 +27,8 @@ export async function GET() {
       }
     }
   } catch {
-    // fall through to mock
+    // no reports available
   }
 
-  return NextResponse.json(reports.length > 0 ? reports : MOCK_DAILY_REPORTS);
+  return NextResponse.json(reports);
 }

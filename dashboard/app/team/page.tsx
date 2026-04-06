@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { MOCK_AGENTS } from "@/lib/mock-data";
 
 interface Agent {
   id: string; name: string; role: string; number: number; personality: string;
@@ -251,7 +250,7 @@ interface AgentWeights {
 }
 
 export default function TeamPage() {
-  const [agents, setAgents] = useState<Agent[]>(MOCK_AGENTS);
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [chatAgent, setChatAgent] = useState<Agent | null>(null);
   const [flipped, setFlipped] = useState<string | null>(null);
   const [agentWeights, setAgentWeights] = useState<AgentWeights | null>(null);
