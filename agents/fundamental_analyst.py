@@ -48,7 +48,7 @@ POSITIONS_LOG_PATH = ROOT / "data" / "memory" / "positions_log.json"
 
 AV_DAY_LIMIT = 25       # Alpha Vantage free tier: 25 calls/day
 CONFLICT_THRESHOLD = 0.05  # Flag if sources disagree by more than 5%
-MAX_CANDIDATES = 50     # Max tickers to analyse in one run
+MAX_CANDIDATES = int(os.environ.get("MAX_CANDIDATES", "50"))  # Override via env for CI
 
 _av_calls_used = 0
 _cik_map: dict[str, str] = {}   # ticker → CIK (loaded once)

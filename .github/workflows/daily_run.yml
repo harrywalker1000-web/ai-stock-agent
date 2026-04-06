@@ -24,7 +24,7 @@ on:
 jobs:
   run-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     permissions:
       contents: write
     env:
@@ -64,6 +64,7 @@ jobs:
           PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || 'Lite' }}
           SKIP_PHASE_A: ${{ github.event.inputs.skip_phase_a || 'false' }}
           ALLOW_LIVE_TRADING: 'true'
+          MAX_CANDIDATES: '20'
         run: python main.py
 
       - name: Sync reports to dashboard
