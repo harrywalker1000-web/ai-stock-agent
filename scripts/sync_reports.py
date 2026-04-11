@@ -53,6 +53,23 @@ for fname in ("decision_log.json", "positions_log.json"):
 
 print(f"\nSynced {copied} files → {DST}")
 
+# ── Sync ad-hoc reports ───────────────────────────────────────────────────────
+ADHOC_SRC = ROOT / "data" / "adhoc_reports"
+ADHOC_DST = ROOT / "dashboard" / "data" / "adhoc_reports"
+ADHOC_DST.mkdir(parents=True, exist_ok=True)
+
+adhoc_copied = 0
+if ADHOC_SRC.exists():
+    for f in ADHOC_SRC.glob("*.json"):
+        dst_file = ADHOC_DST / f.name
+        # Always overwrite — adhoc reports may be refreshed
+        shutil.copy2(f, dst_file)
+        print(f"  ✓ adhoc/{f.name} ({f.stat().st_size // 1024} KB)")
+        adhoc_copied += 1
+
+if adhoc_copied:
+    print(f"\nSynced {adhoc_copied} ad-hoc report(s) → {ADHOC_DST}")
+
 # ── Build daily_report_{date}.json for the Reports page ──────────────────────
 try:
     pipeline_file = SRC / "pipeline_result.json"

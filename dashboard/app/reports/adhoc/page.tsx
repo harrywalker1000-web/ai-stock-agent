@@ -1,216 +1,233 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
-interface AdhocReport {
+interface ReportPreview {
   ticker: string;
   company_name: string;
   sector: string;
   current_price: number | null;
   date: string;
-  executive_summary: string;
-  bull_case: string;
-  bear_case: string;
-  verdict: "bullish" | "neutral" | "bearish";
-  conviction: number;
-  suggested_entry: number | null;
-  suggested_exit: number | null;
-  stop_loss: number | null;
-  risk_factors: string[];
-  key_catalysts: string[];
-  valuation_note: string;
-  disclaimer: string;
-  generated_at: string;
-  cached?: boolean;
-  error?: string;
+  direction: string;
+  conviction: number | null;
+  mandate_pass: boolean;
+  expected_return_2_3yr: string | null;
+  macro_regime: string;
 }
 
-const VERDICT_STYLES = {
-  bullish: { bg: "bg-[#10B981]/10", border: "border-[#10B981]/30", text: "text-[#10B981]", label: "Bullish" },
-  neutral: { bg: "bg-[#F59E0B]/10", border: "border-[#F59E0B]/30", text: "text-[#F59E0B]", label: "Neutral" },
-  bearish: { bg: "bg-[#EF4444]/10", border: "border-[#EF4444]/30", text: "text-[#EF4444]", label: "Bearish" },
+const DIRECTION_STYLE: Record<string, string> = {
+  BUY:  "text-[#10B981] bg-[#10B981]/10",
+  HOLD: "text-[#F59E0B] bg-[#F59E0B]/10",
+  SELL: "text-[#EF4444] bg-[#EF4444]/10",
+  PASS: "text-[#6B7280] bg-white/05",
 };
 
-function fmt(n: number | null | undefined, prefix = "$"): string {
-  if (n == null) return "—";
-  return `${prefix}${n.toFixed(2)}`;
-}
+const STEPS = [
+  { key: "macro",       label: "Macro Agent" },
+  { key: "news",        label: "News & Catalyst Agent" },
+  { key: "fundamental", label: "Fundamental Analyst" },
+  { key: "quant",       label: "Quant Agent" },
+  { key: "sentiment",   label: "Sentiment Agent" },
+  { key: "committee",   label: "Investment Committee" },
+];
 
-export default function AdhocReportPage() {
-  const [ticker, setTicker] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<AdhocReport | null>(null);
-  const [error, setError] = useState<string | null>(null);
+export default function AdhocInputPage() {
+  const [ticker, setTicker]       = useState("");
+  const [useCache, setUseCache]   = useState(true);
+  const [status, setStatus]       = useState<"idle"|"queued"|"error">("idle");
+  const [queued, setQueued]       = useState<string | null>(null);
+  const [errorMsg, setErrorMsg]   = useState<string | null>(null);
+  const [recent, setRecent]       = useState<ReportPreview[]>([]);
 
-  const generate = async () => {
-    const t = ticker.trim().toUpperCase();
+  useEffect(() => {
+    fetch("/api/adhoc")
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setRecent(data); })
+      .catch(() => {});
+  }, []);
+
+  const run = async () => {
+    const t = ticker.trim().toUpperCase().replace(/[^A-Z]/g, "");
     if (!t) return;
-    setLoading(true);
-    setError(null);
-    setReport(null);
+    setStatus("idle");
+    setErrorMsg(null);
+    setQueued(null);
+
     try {
-      const res = await fetch(`/api/report/${t}`);
+      const res = await fetch("/api/adhoc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker: t, forceRefresh: !useCache }),
+      });
       const data = await res.json();
-      if (!res.ok || data.error) {
-        setError(data.error ?? "Unknown error");
+      if (data.error) {
+        setErrorMsg(data.error);
+        setStatus("error");
       } else {
-        setReport(data as AdhocReport);
+        setQueued(t);
+        setStatus("queued");
       }
     } catch (e) {
-      setError(String(e));
-    } finally {
-      setLoading(false);
+      setErrorMsg(String(e));
+      setStatus("error");
     }
   };
 
-  const verdict = report?.verdict ?? "neutral";
-  const vs = VERDICT_STYLES[verdict] ?? VERDICT_STYLES.neutral;
-
   return (
-    <div className="min-h-screen bg-[#080C10] pb-16">
-      <div className="max-w-3xl mx-auto px-6 pt-8">
+    <div className="min-h-screen bg-[#080C10] pb-20">
+      <div className="max-w-2xl mx-auto px-6 pt-8">
+
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Research Report</h1>
-          <p className="text-[#6B7280] text-sm mt-1">Generate an ad-hoc deep-dive on any ticker. No trades placed.</p>
+          <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Deep-Dive Research</h1>
+          <p className="text-[#6B7280] text-sm mt-1">
+            Full 14-section institutional analysis on any ticker. No positions modified.
+          </p>
         </div>
 
-        {/* Input */}
+        {/* Input card */}
         <div className="card p-6 mb-6">
-          <div className="flex gap-3">
+          <div className="flex gap-3 mb-4">
             <input
               type="text"
               value={ticker}
-              onChange={(e) => setTicker(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === "Enter" && !loading && generate()}
-              placeholder="Enter ticker (e.g. AAPL)"
-              className="flex-1 bg-white/05 border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#4B5563] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
-              disabled={loading}
+              onChange={(e) => setTicker(e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
+              onKeyDown={(e) => e.key === "Enter" && run()}
+              placeholder="Ticker (e.g. NVDA)"
+              maxLength={5}
+              className="flex-1 bg-white/08 border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#6B7280] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
             />
             <button
-              onClick={generate}
-              disabled={loading || !ticker.trim()}
-              className="px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all disabled:opacity-40 flex items-center gap-2"
+              onClick={run}
+              disabled={!ticker.trim() || status === "queued"}
+              className="px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all disabled:opacity-40"
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="60" strokeDashoffset="20" />
-                  </svg>
-                  Generating...
-                </>
-              ) : "Generate Report"}
+              Run Analysis
             </button>
           </div>
-          {loading && (
-            <p className="text-xs text-[#6B7280] mt-3">Fetching live data and running analysis — this takes 1-3 minutes...</p>
-          )}
-          {error && (
-            <p className="text-xs text-[#EF4444] mt-3">Error: {error}</p>
-          )}
+
+          {/* Cache toggle */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setUseCache(true)}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                useCache
+                  ? "border-[#0EA5E9]/50 text-[#0EA5E9] bg-[#0EA5E9]/10"
+                  : "border-white/10 text-[#6B7280] bg-white/03"
+              }`}
+            >
+              Use cached (7 days)
+            </button>
+            <button
+              onClick={() => setUseCache(false)}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                !useCache
+                  ? "border-[#F59E0B]/50 text-[#F59E0B] bg-[#F59E0B]/10"
+                  : "border-white/10 text-[#6B7280] bg-white/03"
+              }`}
+            >
+              Force refresh
+            </button>
+          </div>
         </div>
 
-        {/* Report */}
-        {report && !report.error && (
-          <>
-            {/* Header card */}
-            <div className={`card p-6 mb-5 border ${vs.border} ${vs.bg}`}>
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h2 className="font-display text-2xl font-bold text-[#E8EDF2]">{report.ticker}</h2>
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${vs.bg} ${vs.text} border ${vs.border}`}>{vs.label}</span>
-                    {report.cached && <span className="text-xs text-[#6B7280] bg-white/05 px-2 py-0.5 rounded">Cached today</span>}
-                  </div>
-                  <p className="text-sm text-[#9CA3AF]">{report.company_name} · {report.sector}</p>
+        {/* Status: queued */}
+        {status === "queued" && queued && (
+          <div className="card p-5 mb-6 border border-[#10B981]/30 bg-[#10B981]/05">
+            <p className="text-sm font-bold text-[#10B981] mb-2">Analysis queued for {queued}</p>
+            <p className="text-xs text-[#9CA3AF] mb-4">
+              All 6 agents are running in the cloud. The report will appear below once
+              the workflow completes and the dashboard redeploys (~3–5 minutes).
+            </p>
+            {/* Agent pipeline progress visualization */}
+            <div className="flex flex-wrap gap-2">
+              {STEPS.map((s, i) => (
+                <div key={s.key} className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+                  <span className="w-5 h-5 rounded-full border border-[#374151] flex items-center justify-center text-[10px]">
+                    {i + 1}
+                  </span>
+                  {s.label}
+                  {i < STEPS.length - 1 && <span className="text-[#374151]">→</span>}
                 </div>
-                <div className="text-right">
-                  {report.current_price != null && (
-                    <p className="font-mono text-xl font-bold text-[#E8EDF2]">${report.current_price.toFixed(2)}</p>
-                  )}
-                  <div className="flex items-center gap-1 justify-end mt-1">
-                    <span className="text-xs text-[#6B7280]">Conviction:</span>
-                    <span className={`text-xs font-bold font-mono ${vs.text}`}>{report.conviction}</span>
-                  </div>
-                </div>
-              </div>
-              <p className="text-sm text-[#C4CDD6] leading-relaxed">{report.executive_summary}</p>
+              ))}
             </div>
-
-            {/* Bull / Bear */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-              <div className="card p-5 border border-[#10B981]/20">
-                <p className="text-xs font-bold text-[#10B981] uppercase tracking-wider mb-2">Bull Case</p>
-                <p className="text-sm text-[#C4CDD6] leading-relaxed">{report.bull_case}</p>
-              </div>
-              <div className="card p-5 border border-[#EF4444]/20">
-                <p className="text-xs font-bold text-[#EF4444] uppercase tracking-wider mb-2">Bear Case</p>
-                <p className="text-sm text-[#C4CDD6] leading-relaxed">{report.bear_case}</p>
-              </div>
-            </div>
-
-            {/* Price targets */}
-            <div className="card p-5 mb-5">
-              <p className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">Price Levels</p>
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: "Suggested Entry", value: fmt(report.suggested_entry), color: "#10B981" },
-                  { label: "Target Exit", value: fmt(report.suggested_exit), color: "#0EA5E9" },
-                  { label: "Stop Loss", value: fmt(report.stop_loss), color: "#EF4444" },
-                ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
-                    <p className="text-[10px] text-[#6B7280] uppercase tracking-wider mb-1">{label}</p>
-                    <p className="font-mono font-bold text-lg" style={{ color }}>{value}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-[#6B7280] mt-3 leading-relaxed">{report.valuation_note}</p>
-            </div>
-
-            {/* Catalysts & Risks */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-              {report.key_catalysts?.length > 0 && (
-                <div className="card p-5">
-                  <p className="text-xs font-bold text-[#0EA5E9] uppercase tracking-wider mb-2">Key Catalysts</p>
-                  <ul className="space-y-1.5">
-                    {report.key_catalysts.map((c, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-[#C4CDD6]">
-                        <span className="text-[#0EA5E9] mt-0.5">→</span>{c}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {report.risk_factors?.length > 0 && (
-                <div className="card p-5">
-                  <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider mb-2">Risk Factors</p>
-                  <ul className="space-y-1.5">
-                    {report.risk_factors.map((r, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-[#C4CDD6]">
-                        <span className="text-[#F59E0B] mt-0.5">⚠</span>{r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Disclaimer */}
-            <div className="px-4 py-3 rounded-xl bg-white/02 border border-white/05">
-              <p className="text-[10px] text-[#4B5563] leading-relaxed">{report.disclaimer}</p>
-              <p className="text-[10px] text-[#4B5563] mt-1">Generated: {report.generated_at}</p>
-            </div>
-
-            {/* Print button */}
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => window.print()}
-                className="text-xs text-[#6B7280] hover:text-[#E8EDF2] px-3 py-1.5 rounded-lg bg-white/05 hover:bg-white/08 transition-all"
+            <div className="mt-4 pt-3 border-t border-white/05">
+              <Link
+                href={`/reports/adhoc/${queued}`}
+                className="text-xs text-[#0EA5E9] hover:underline"
               >
-                Print / Export
-              </button>
+                Check report page for {queued} →
+              </Link>
             </div>
-          </>
+          </div>
+        )}
+
+        {/* Status: error */}
+        {status === "error" && errorMsg && (
+          <div className="card p-4 mb-6 border border-[#EF4444]/30 bg-[#EF4444]/05">
+            <p className="text-xs text-[#EF4444]">Error: {errorMsg}</p>
+            {errorMsg.includes("GITHUB_DISPATCH_TOKEN") && (
+              <p className="text-xs text-[#6B7280] mt-2">
+                Add <code className="text-[#E8EDF2]">GITHUB_DISPATCH_TOKEN</code> to Vercel
+                environment variables (a GitHub PAT with <code className="text-[#E8EDF2]">workflow</code> scope).
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Recent reports */}
+        {recent.length > 0 && (
+          <div>
+            <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">
+              Cached Reports
+            </h2>
+            <div className="space-y-2">
+              {recent.map((r) => {
+                const dir = r.direction ?? "PASS";
+                const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
+                const cv = r.conviction;
+                const cvColor = cv == null ? "#6B7280"
+                  : cv >= 70 ? "#10B981"
+                  : cv >= 40 ? "#F59E0B"
+                  : "#EF4444";
+                return (
+                  <Link key={`${r.ticker}_${r.date}`} href={`/reports/adhoc/${r.ticker}`}>
+                    <div className="card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
+                        <div>
+                          <span className="font-mono text-sm font-bold text-[#E8EDF2]">{r.ticker}</span>
+                          <span className="text-xs text-[#6B7280] ml-2">{r.company_name}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-right">
+                        {cv != null && (
+                          <div>
+                            <p className="text-[10px] text-[#6B7280]">Conviction</p>
+                            <p className="text-sm font-bold font-mono" style={{ color: cvColor }}>{cv}</p>
+                          </div>
+                        )}
+                        {r.expected_return_2_3yr && (
+                          <div>
+                            <p className="text-[10px] text-[#6B7280]">2–3yr Return</p>
+                            <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_2_3yr}</p>
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-[10px] text-[#4B5563]">{r.date}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {recent.length === 0 && status === "idle" && (
+          <p className="text-xs text-[#4B5563] text-center mt-8">No cached reports yet. Run your first analysis above.</p>
         )}
       </div>
     </div>
