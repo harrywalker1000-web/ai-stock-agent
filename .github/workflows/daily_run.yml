@@ -87,19 +87,21 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Add each path individually — a single multi-path git add aborts on any missing file
-          git add data/memory/positions_log.json  2>/dev/null || true
-          git add data/memory/decision_log.json   2>/dev/null || true
+          # Fetch and rebase FIRST so the push always lands cleanly
+          git fetch origin main
+          git rebase --autostash origin/main
+          # Stage output files
+          git add data/memory/positions_log.json   2>/dev/null || true
+          git add data/memory/decision_log.json    2>/dev/null || true
           git add data/memory/pattern_history.json 2>/dev/null || true
           git add dashboard/data/reports/          2>/dev/null || true
           git add dashboard/data/memory/           2>/dev/null || true
-          # Only commit if there are staged changes
+          # Only commit and push if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes to commit"
           else
             git commit -m "chore: daily pipeline data update $(date -u '+%Y-%m-%d')"
-            git pull --rebase origin main
-            git push
+            git push origin HEAD:main
           fi
 
       - name: Deploy dashboard to Vercel
