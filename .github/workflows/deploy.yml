@@ -1,0 +1,23 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_pFA012DC3TZYp9nFJKnicS6N
+          VERCEL_PROJECT_ID: prj_h6mJ85DvIDbXH0vVkTMBVicjGSDp
+        run: |
+          npm install -g vercel --silent
+          vercel deploy --prod --token=$VERCEL_TOKEN --yes --cwd dashboard
