@@ -96,7 +96,7 @@ export default function AdhocInputPage() {
               onKeyDown={(e) => e.key === "Enter" && run()}
               placeholder="Ticker (e.g. NVDA)"
               maxLength={5}
-              className="flex-1 bg-white/08 border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#6B7280] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
+              className="flex-1 bg-[#0D1117] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#4B5563] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
             />
             <button
               onClick={run}
