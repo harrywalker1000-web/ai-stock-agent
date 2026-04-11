@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/reports", label: "Daily Reports" },
-  { href: "/team", label: "Meet the Team" },
-  { href: "/settings", label: "Settings" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "Home", exact: true },
+  { href: "/dashboard", label: "Dashboard", exact: false },
+  { href: "/reports/adhoc", label: "Research", exact: false },
+  { href: "/reports", label: "Daily Reports", exact: true },
+  { href: "/team", label: "Meet the Team", exact: false },
+  { href: "/settings", label: "Settings", exact: false },
+  { href: "/about", label: "About", exact: false },
 ];
 
 export default function Navbar() {
@@ -66,10 +67,9 @@ export default function Navbar() {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+              const isActive = link.exact
+                ? pathname === link.href
+                : pathname.startsWith(link.href);
               return (
                 <Link
                   key={link.href}
@@ -124,10 +124,9 @@ export default function Navbar() {
           />
           <div className="relative glass-nav border-t border-white/06 px-6 py-4 space-y-1">
             {NAV_LINKS.map((link) => {
-              const isActive =
-                link.href === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.href);
+              const isActive = link.exact
+                ? pathname === link.href
+                : pathname.startsWith(link.href);
               return (
                 <Link
                   key={link.href}
