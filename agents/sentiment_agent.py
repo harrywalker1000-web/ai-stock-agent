@@ -37,6 +37,7 @@ except ImportError:
     _FINNHUB_AVAILABLE = False
 
 from utils.data_fetcher import fetch_fmp_price_targets, fetch_fmp_upgrades_downgrades
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -430,8 +431,22 @@ FMP ANALYST DATA:
         if position_context else ""
     )
 
-    prompt = f"""You are a market sentiment analyst. Analyse {ticker} and produce a structured JSON assessment.
+    # Inject sentiment outcome memory: did high-sentiment calls on this ticker pay off?
+    past_outcomes = memory.get_ticker_outcome_history(ticker, limit=2)
+    sentiment_memory_str = ""
+    if past_outcomes:
+        lines = []
+        for o in past_outcomes:
+            pnl = o.get("pnl_pct")
+            lines.append(
+                f"  Prior trade: {o.get('entry_date','?')} | "
+                f"P&L {f'{pnl:+.1f}%' if pnl is not None else 'open'} | "
+                f"exit: {o.get('exit_reason','?')}"
+            )
+        sentiment_memory_str = "\nFUND MEMORY — PRIOR {ticker} OUTCOMES:\n".format(ticker=ticker) + "\n".join(lines) + "\n"
 
+    prompt = f"""You are a market sentiment analyst. Analyse {ticker} and produce a structured JSON assessment.
+{sentiment_memory_str}
 MACRO REGIME: {macro_regime}
 CANDIDATE DIRECTION HINT: {direction_hint}
 

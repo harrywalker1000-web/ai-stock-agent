@@ -372,6 +372,81 @@ def get_recent_decisions(limit: int = 20) -> list[dict]:
     return log[-limit:]
 
 
+def get_ticker_outcome_history(ticker: str, limit: int = 5) -> list[dict]:
+    """
+    Return past CLOSED trade outcomes for a ticker, most recent first.
+    Each record includes entry_date, exit_date, pnl_pct, exit_reason,
+    conviction, direction, and entry signals — giving the committee real
+    P&L feedback on every prior position in this name.
+    """
+    ticker = ticker.upper()
+    with _db() as conn:
+        rows = conn.execute(
+            """SELECT content FROM memory_entries
+               WHERE namespace='stock_agent_outcomes'
+               AND key LIKE ? AND status='active'
+               ORDER BY updated_at DESC LIMIT ?""",
+            (f"%_{ticker}", limit),
+        ).fetchall()
+    results = []
+    for row in rows:
+        try:
+            results.append(json.loads(row["content"]))
+        except Exception:
+            pass
+    return results
+
+
+def get_winning_patterns(limit: int = 5) -> list[dict]:
+    """
+    Return the top signal combinations by win rate (minimum 2 uses).
+    Used by the committee to surface which historical signal combos
+    have actually translated into profitable trades.
+    """
+    history = _load_json(PATTERN_HISTORY_PATH, default={})
+    combos = history.get("signal_combinations", {})
+    qualified = [
+        {"signals": k, **v}
+        for k, v in combos.items()
+        if v.get("uses", 0) >= 2
+    ]
+    return sorted(qualified, key=lambda x: x.get("win_rate", 0), reverse=True)[:limit]
+
+
+def get_fund_performance_summary() -> dict:
+    """
+    Return a top-level performance summary across all closed trades:
+    total trades, win rate, avg P&L, best/worst trade.
+    Gives the committee a sense of overall model accuracy.
+    """
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT content FROM memory_entries WHERE namespace='stock_agent_outcomes' AND status='active'"
+        ).fetchall()
+
+    outcomes = []
+    for row in rows:
+        try:
+            outcomes.append(json.loads(row["content"]))
+        except Exception:
+            pass
+
+    if not outcomes:
+        return {"total_trades": 0, "note": "No closed trades yet"}
+
+    pnls = [o.get("pnl_pct", 0) for o in outcomes if o.get("pnl_pct") is not None]
+    wins = [p for p in pnls if p > 0]
+
+    return {
+        "total_trades": len(outcomes),
+        "win_rate_pct": round(len(wins) / len(pnls) * 100, 1) if pnls else 0,
+        "avg_pnl_pct": round(sum(pnls) / len(pnls), 2) if pnls else 0,
+        "best_trade_pct": round(max(pnls), 2) if pnls else 0,
+        "worst_trade_pct": round(min(pnls), 2) if pnls else 0,
+        "total_pnl_pct": round(sum(pnls), 2) if pnls else 0,
+    }
+
+
 # ---------------------------------------------------------------------------
 # Pattern history management
 # ---------------------------------------------------------------------------

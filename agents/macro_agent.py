@@ -17,6 +17,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
+import agents.memory_agent as memory
 from utils.data_fetcher import (
     fetch_finnhub_market_news,
     fetch_fred_latest,
@@ -269,6 +270,22 @@ def _analyse_with_llm(raw_data: dict) -> dict:
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     confidence = _compute_macro_confidence(raw_data)
 
+    # Fund performance context — helps macro agent understand if past regime calls were accurate
+    fund_perf = memory.get_fund_performance_summary()
+    if fund_perf.get("total_trades", 0) > 0:
+        fund_memory_note = (
+            f"\nFUND TRACK RECORD ({fund_perf['total_trades']} closed trades): "
+            f"win rate {fund_perf.get('win_rate_pct', 0)}% | "
+            f"avg P&L {fund_perf.get('avg_pnl_pct', 0):+.1f}% | "
+            f"best {fund_perf.get('best_trade_pct', 0):+.1f}% | "
+            f"worst {fund_perf.get('worst_trade_pct', 0):+.1f}%\n"
+            "Use this to calibrate confidence — if the fund has a strong track record in the "
+            "regime you are about to classify, be appropriately confident; if track record is poor, "
+            "flag increased uncertainty in your macro_summary."
+        )
+    else:
+        fund_memory_note = "\nFUND TRACK RECORD: No closed trades yet — apply standard confidence rules."
+
     system_prompt = """You are the Macro Agent for an AI hedge fund system.
 You have been given real, live macroeconomic data fetched today from FRED and market APIs.
 Your job is to analyse this data and classify the current market regime.
@@ -303,7 +320,7 @@ Output this JSON schema:
 }"""
 
     user_prompt = f"""Here is today's live macro data. Analyse it and return your JSON assessment.
-
+{fund_memory_note}
 === PRE-COMPUTED SIGNAL CONFIDENCE ===
 Sources available: {confidence['sources_count']} ({', '.join(confidence['sources'])})
 Source-level signals: {confidence['source_signals']}

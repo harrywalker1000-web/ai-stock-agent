@@ -26,6 +26,7 @@ from utils.data_fetcher import (
     fetch_unusual_options_activity,
     fetch_ticker_info,
 )
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -741,8 +742,26 @@ Output this JSON schema:
   "confidence": <0-100>
 }"""
 
-    user_prompt = f"""Here is today's live institutional data. Analyse it and return your detailed JSON assessment.
+    # Pull outcome memory for tickers appearing in institutional signals
+    fund_perf = memory.get_fund_performance_summary()
+    winning_patterns = memory.get_winning_patterns(limit=3)
+    inst_memory_lines = []
+    if fund_perf.get("total_trades", 0) > 0:
+        inst_memory_lines.append(
+            f"Fund track record: {fund_perf['total_trades']} closed trades | "
+            f"win rate {fund_perf['win_rate_pct']}% | avg P&L {fund_perf['avg_pnl_pct']:+.1f}%"
+        )
+    if winning_patterns:
+        top = winning_patterns[0]
+        inst_memory_lines.append(
+            f"Best signal combo historically: [{top['signals']}] → {top['win_rate']*100:.0f}% win rate"
+        )
+    inst_memory_block = (
+        "\nFUND MEMORY:\n" + "\n".join(f"  {l}" for l in inst_memory_lines) + "\n"
+    ) if inst_memory_lines else ""
 
+    user_prompt = f"""Here is today's live institutional data. Analyse it and return your detailed JSON assessment.
+{inst_memory_block}
 MACRO CONTEXT: {macro_context}
 
 PRE-COMPUTED SIGNAL CONFIDENCE PER TICKER (13F / analyst / insider cross-reference):

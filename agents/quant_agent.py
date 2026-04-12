@@ -37,6 +37,7 @@ import yfinance as yf
 from dotenv import load_dotenv
 from openai import OpenAI
 
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -580,6 +581,26 @@ def _compute_mean_reversion_score(ind: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Memory formatting helpers
+# ---------------------------------------------------------------------------
+
+def _fmt_outcome_history(outcomes: list[dict] | None) -> str:
+    """Format closed trade outcomes for injection into the quant LLM prompt."""
+    if not outcomes:
+        return "No prior closed trades for this ticker — applying neutral weighting."
+    lines = []
+    for o in outcomes:
+        entry = o.get("entry_date", "?")
+        exit_ = o.get("exit_date", "?")
+        pnl = o.get("pnl_pct")
+        pnl_str = f"{pnl:+.1f}%" if pnl is not None else "?"
+        action = o.get("action", "?")
+        exit_reason = o.get("exit_reason", "?")
+        lines.append(f"  [{entry}→{exit_}] {action} | P&L {pnl_str} | exit: {exit_reason}")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # LLM analysis
 # ---------------------------------------------------------------------------
 
@@ -594,6 +615,7 @@ def _analyse_with_llm(
     direction_hint: str,
     macro_regime: str,
     position_context: dict | None = None,
+    outcome_history: list[dict] | None = None,
 ) -> dict:
     """Single GPT-4o-mini call for quant/technical scoring and narrative."""
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
@@ -657,6 +679,9 @@ MEAN REVERSION ANALYSIS (pre-computed):
                   score 35-59 = possible reversal forming; score < 35 = momentum likely continues
 
 SIGNAL CONFIDENCE: {confidence.get('level')} ({confidence.get('confidence_note')})
+
+PAST TRADE OUTCOMES FOR {ticker}:
+{_fmt_outcome_history(outcome_history)}
 
 PATTERN LEARNING NOTE:
 {memory_note}
@@ -779,13 +804,16 @@ def run(mode: str = "new_opportunities") -> dict:
         swarm_memories = _check_swarm_memory("+".join(sorted(signals)))
         memory_note = _build_pattern_learning_note(patterns, signals, macro_regime, pattern_history)
 
+        # Outcome history from memory agent
+        outcome_history = memory.get_ticker_outcome_history(ticker, limit=3)
+
         # Mean reversion scoring (forward-looking)
         mean_rev = _compute_mean_reversion_score(ind)
 
         # LLM analysis
         result = _analyse_with_llm(
             ticker, ind, patterns, levels, confidence, mean_rev,
-            memory_note, direction_hint, macro_regime, position_context
+            memory_note, direction_hint, macro_regime, position_context, outcome_history
         )
 
         # Ensure mean_rev fields are always attached even if LLM omitted them

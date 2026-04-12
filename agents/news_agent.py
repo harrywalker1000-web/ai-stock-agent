@@ -27,6 +27,7 @@ from utils.data_fetcher import (
     fetch_news_top_headlines,
     fetch_ticker_info,
 )
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -480,8 +481,26 @@ Output this JSON schema:
   "confidence": <0-100>
 }"""
 
-    user_prompt = f"""Here is today's live news and catalyst data. Analyse it and return your JSON assessment.
+    # Build catalyst outcome memory: did past catalysts for these tickers actually play out?
+    catalyst_tickers = list({c["ticker"] for c in raw_data.get("company_catalysts", [])})
+    catalyst_memory_lines = []
+    for tkr in catalyst_tickers[:10]:
+        outcomes = memory.get_ticker_outcome_history(tkr, limit=2)
+        if outcomes:
+            for o in outcomes:
+                pnl = o.get("pnl_pct")
+                reason = o.get("exit_reason", "?")
+                entry_d = o.get("entry_date", "?")
+                pnl_str = f"{pnl:+.1f}%" if pnl is not None else "open"
+                catalyst_memory_lines.append(f"  {tkr}: prior trade {entry_d} → {pnl_str} [{reason}]")
+    catalyst_memory_block = (
+        "\nCATALYST OUTCOME MEMORY (did past catalysts pay off?):\n"
+        + "\n".join(catalyst_memory_lines)
+        + "\nUse this to weight how much to trust current catalysts for these names.\n"
+    ) if catalyst_memory_lines else ""
 
+    user_prompt = f"""Here is today's live news and catalyst data. Analyse it and return your JSON assessment.
+{catalyst_memory_block}
 MACRO CONTEXT: {macro_context}
 REDDIT STATUS: {'Active — data included below' if raw_data['reddit_enabled'] else 'Skipped (not configured)'}
 

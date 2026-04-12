@@ -286,12 +286,58 @@ def _deliberate_with_llm(
     def _f(v):
         return "N/A" if v is None else str(v)
 
+    # Fund-level memory context (shown once at top of prompt)
+    fund_perf = memory.get_fund_performance_summary()
+    winning_patterns = memory.get_winning_patterns(limit=3)
+    fund_memory_block = ""
+    if fund_perf.get("total_trades", 0) > 0:
+        pattern_str = ""
+        if winning_patterns:
+            top = winning_patterns[0]
+            pattern_str = (
+                f" | Best signal combo: [{top['signals']}] "
+                f"→ {top['win_rate']*100:.0f}% win rate over {top['uses']} trades"
+            )
+        fund_memory_block = (
+            f"\nFUND MEMORY — {fund_perf['total_trades']} closed trades: "
+            f"win rate {fund_perf['win_rate_pct']}% | avg P&L {fund_perf['avg_pnl_pct']:+.1f}% | "
+            f"best {fund_perf['best_trade_pct']:+.1f}% | worst {fund_perf['worst_trade_pct']:+.1f}%"
+            f"{pattern_str}\n"
+        )
+
     # Build compact candidate block for the prompt
     candidate_blocks = []
     for sc in scorecards:
         ticker = sc["ticker"]
-        hist = memory.get_ticker_history(ticker, days_back=30)
-        mem_note = f"Last decision: {hist[0]['action']} ({hist[0]['date']}, conviction {hist[0]['conviction']})" if hist else "No prior history"
+
+        # Rich per-ticker memory: past outcomes with P&L, then recent decisions
+        outcomes = memory.get_ticker_outcome_history(ticker, limit=3)
+        past_decisions = memory.get_ticker_history(ticker, days_back=60)
+
+        mem_lines = []
+        if outcomes:
+            for o in outcomes:
+                pnl = o.get("pnl_pct")
+                entry_d = o.get("entry_date", "?")
+                exit_d = o.get("exit_date", "?")
+                action = o.get("action", "entered")
+                conv = o.get("conviction", "?")
+                reason = o.get("exit_reason", "?")
+                pnl_str = f"{pnl:+.1f}%" if pnl is not None else "unknown"
+                signals = ", ".join((o.get("signals") or [])[:3]) or "none"
+                mem_lines.append(
+                    f"    [{entry_d}→{exit_d}] {action} | conviction {conv} | "
+                    f"P&L {pnl_str} | exit: {reason} | signals: {signals}"
+                )
+        elif past_decisions:
+            d = past_decisions[0]
+            mem_lines.append(
+                f"    [{d['date']}] {d['action']} | conviction {d['conviction']} — no closed outcome yet"
+            )
+        else:
+            mem_lines.append("    No prior history in this name")
+
+        mem_note = "HISTORICAL TRADES:\n" + "\n".join(mem_lines)
 
         pnl_str = f"P&L: {sc['pnl_pct']:+.1f}%" if sc.get("pnl_pct") is not None else ""
         raw_conflicts = sc.get("key_conflicts", [])
@@ -388,7 +434,7 @@ Your mandate is to identify where prices are GOING, not where they have been.
 MACRO REGIME: {macro_regime}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
-{leverage_block}
+{fund_memory_block}{leverage_block}
 {portfolio_context_block}
 {cooldown_block}
 

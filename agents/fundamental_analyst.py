@@ -36,6 +36,7 @@ from utils.data_fetcher import (
     fetch_fmp_key_metrics,
     fetch_fmp_analyst_estimates,
 )
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -869,13 +870,28 @@ def _score_with_llm(
         if position_context else ""
     )
 
+    # Inject trade outcome memory for this ticker
+    past_outcomes = memory.get_ticker_outcome_history(ticker, limit=3)
+    outcome_memory_str = ""
+    if past_outcomes:
+        lines = []
+        for o in past_outcomes:
+            pnl = o.get("pnl_pct")
+            lines.append(
+                f"  {o.get('entry_date','?')}→{o.get('exit_date','?')}: "
+                f"{o.get('action','?')} conviction={o.get('conviction','?')} "
+                f"P&L={f'{pnl:+.1f}%' if pnl is not None else 'open'} "
+                f"exit={o.get('exit_reason','?')}"
+            )
+        outcome_memory_str = "\nFUND MEMORY — PRIOR TRADES IN THIS NAME:\n" + "\n".join(lines) + "\n"
+
     prompt = f"""You are a quantitative equity analyst. Score {ticker} using ONLY the verified data below.
 
 CRITICAL RULE: Your fundamental_score, direction, dislocation_opportunity, and all other scoring fields
 must be derived EXCLUSIVELY from the numbers in this prompt. Do NOT use your training knowledge about
 {ticker}'s products, brand, competitive position, or business narrative to influence any score.
 Only numbers count. If data is missing (N/A), treat it as neutral.
-
+{outcome_memory_str}
 MACRO: {macro_regime}  |  DIRECTION HINT: {direction_hint}
 DATA SOURCES: {', '.join(metrics.get('sources_used', ['yfinance']))} — all live as of today
 CROSS-SOURCE CONFLICTS: {len(conflicts)}

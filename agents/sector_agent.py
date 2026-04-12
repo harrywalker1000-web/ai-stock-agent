@@ -18,6 +18,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from openai import OpenAI
 
+import agents.memory_agent as memory
 from utils.data_fetcher import fetch_price_history_multi, fetch_finnhub_market_news, fetch_news_headlines
 from utils.logger import get_logger
 
@@ -440,8 +441,18 @@ Output this JSON schema:
   "confidence": <0-100>
 }"""
 
-    user_prompt = f"""Here is today's live sector ETF performance data. Analyse it and return your JSON assessment.
+    # Inject fund performance memory into the sector prompt
+    fund_perf = memory.get_fund_performance_summary()
+    sector_memory_block = ""
+    if fund_perf.get("total_trades", 0) >= 3:
+        sector_memory_block = (
+            f"\nFUND MEMORY — {fund_perf['total_trades']} closed trades | "
+            f"win rate {fund_perf['win_rate_pct']}% | avg P&L {fund_perf['avg_pnl_pct']:+.1f}%. "
+            f"Use this to calibrate how aggressively to recommend sector rotation.\n"
+        )
 
+    user_prompt = f"""Here is today's live sector ETF performance data. Analyse it and return your JSON assessment.
+{sector_memory_block}
 MACRO CONTEXT (from Macro Agent):
 {macro_context}
 

@@ -38,6 +38,7 @@ import yfinance as yf
 from dotenv import load_dotenv
 from openai import OpenAI
 
+import agents.memory_agent as memory
 from utils.logger import get_logger
 
 load_dotenv()
@@ -576,7 +577,30 @@ def _score_candidates(
         # --- recency bonus: +0.5 for tickers not seen in the last 5 days ---
         recency_bonus = 0.5 if ticker not in (recently_seen or set()) else 0.0
 
-        final_score = score + freshness_penalty + momentum_decay_penalty + recency_bonus
+        # --- outcome memory: adjust score based on historical P&L for this ticker ---
+        outcome_adj = 0.0
+        past_outcomes = memory.get_ticker_outcome_history(ticker, limit=5)
+        if past_outcomes:
+            avg_pnl = sum(o.get("pnl_pct", 0) for o in past_outcomes) / len(past_outcomes)
+            # +1 boost if avg P&L > 5%, -1 penalty if avg P&L < -5%
+            if avg_pnl > 5.0:
+                outcome_adj = 1.0
+                signals_hit.append("memory_winner")
+            elif avg_pnl < -5.0:
+                outcome_adj = -1.0
+                signals_hit.append("memory_loser")
+
+        # --- signal combo win rate boost ---
+        combo_adj = 0.0
+        if signals_hit:
+            winning = memory.get_winning_patterns(limit=10)
+            combo_key = "+".join(sorted(signals_hit))
+            for wp in winning:
+                if wp["signals"] == combo_key and wp.get("win_rate", 0) >= 0.65 and wp.get("uses", 0) >= 3:
+                    combo_adj = 0.5
+                    break
+
+        final_score = score + freshness_penalty + momentum_decay_penalty + recency_bonus + outcome_adj + combo_adj
 
         # Determine direction hint (majority vote)
         long_votes = direction_votes.count("LONG")
