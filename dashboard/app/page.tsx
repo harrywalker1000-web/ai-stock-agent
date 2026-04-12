@@ -121,7 +121,7 @@ export default function Design7() {
 
           <h1 style={{ fontSize: "clamp(52px,8vw,90px)", fontWeight: 900, letterSpacing: -4, lineHeight: 0.92, marginBottom: 28 }}>
             Eight agents.<br />
-            <span style={{ color: "#00D4FF", textShadow: "0 0 40px rgba(0,212,255,0.5)" }}>One position.</span>
+            <span style={{ color: "#00D4FF", textShadow: "0 0 40px rgba(0,212,255,0.5)" }}>One portfolio.</span>
           </h1>
 
           <p style={{ fontSize: 15, color: "rgba(255,255,255,0.35)", maxWidth: 460, lineHeight: 1.9, marginBottom: 44 }}>
