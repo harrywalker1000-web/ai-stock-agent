@@ -471,13 +471,43 @@ def run() -> dict:
     phase_a_actions = phase_a_committee.get("actions_taken", {})
     phase_b_actions = phase_b_committee.get("actions_taken", {})
 
+    # Use actual Alpaca position count from the final portfolio_state written by the executor
+    # (not positions_log count, which can include phantom pending entries)
+    actual_position_count = summary["memory"].get("open_position_count", 0)
+    try:
+        import json as _pj
+        _ps_path = ROOT / "data" / "reports" / "portfolio_state.json"
+        if _ps_path.exists():
+            with open(_ps_path) as _psf:
+                _ps = _pj.load(_psf)
+            actual_position_count = _ps.get("open_position_count", actual_position_count)
+    except Exception:
+        pass
+
+    # Calculate actual unrealized P&L from portfolio_state
+    daily_pnl_str = "+$0"
+    try:
+        _ps_path = ROOT / "data" / "reports" / "portfolio_state.json"
+        if _ps_path.exists():
+            with open(_ps_path) as _psf:
+                _ps = _pj.load(_psf)
+            total_unrealized = sum(
+                float(p.get("unrealized_pnl", 0))
+                for p in _ps.get("positions", {}).values()
+            )
+            sign = "+" if total_unrealized >= 0 else "-"
+            daily_pnl_str = f"{sign}${abs(total_unrealized):,.0f}"
+    except Exception:
+        pass
+
     summary["pipeline_summary"] = {
         "phase_a_positions_reviewed": len(summary["phase_a"].get("held_tickers", [])),
         "phase_a_exits": phase_a_actions.get("exit", 0),
         "phase_a_size_changes": phase_a_actions.get("increase", 0) + phase_a_actions.get("decrease", 0),
         "phase_b_candidates": summary["phase_b"].get("candidates", {}).get("total_candidates", 0),
         "phase_b_new_entries": phase_b_actions.get("enter", 0),
-        "open_positions_after": summary["memory"].get("open_position_count", 0),
+        "open_positions_after": actual_position_count,
+        "daily_pnl": daily_pnl_str,
         "total_elapsed_sec": total_elapsed,
     }
 

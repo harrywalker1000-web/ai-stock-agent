@@ -318,6 +318,16 @@ def reconcile_positions_with_alpaca() -> dict:
     for ticker, pos_data in list(log_positions.items()):
         if pos_data.get("alpaca_order_id") is not None:
             continue  # Has order ID — check in Case 2
+
+        # If pending but NOT in Alpaca AND market is closed: remove phantom entry.
+        # These are decisions that were logged when capital was unavailable or the order
+        # was never actually placed. Never let them linger to be placed later.
+        if ticker not in alpaca_pos:
+            logger.warning("Reconcile: %s is pending (no order_id) but NOT in Alpaca — removing phantom entry", ticker)
+            memory.remove_position(ticker)
+            summary["ghosts_removed"].append(ticker)
+            continue
+
         if safe:
             current_price = _get_live_price(ticker)
             if current_price is None:
@@ -581,8 +591,13 @@ def run(mode: str = "new_opportunities") -> dict:
                 notional = max_notional
             shares = int(notional / current_price)
             if shares < 1:
-                logger.warning("%s: notional $%.2f too small for 1 share at $%.2f — skipping",
-                               ticker, notional, current_price)
+                reason = (
+                    f"insufficient_capital: available ${max_notional:.0f} < 1 share at ${current_price:.2f}"
+                    if max_notional < current_price
+                    else f"notional ${notional:.2f} too small for 1 share at ${current_price:.2f}"
+                )
+                logger.warning("%s: %s — skipping", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
                 continue
 
             side = "buy" if action == "enter_long" else "sell"
