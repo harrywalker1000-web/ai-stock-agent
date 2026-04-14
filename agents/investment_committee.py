@@ -496,6 +496,18 @@ Your mandate is to identify where prices are GOING, not where they have been.
 MACRO REGIME: {macro_regime}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
+
+PROFESSIONAL CONTEXT — FOR CALIBRATION ONLY:
+This pipeline runs and executes trades every trading day. For reference, active long/short funds
+running daily execution systems typically hold 15–35 positions simultaneously, size medium-conviction
+positions at 2–5% of the book and high-conviction at 5–8%, reserving 8–10% only for exceptional
+setups. Average hold is roughly 5–20 trading days. Theses whose primary catalyst is more than 30
+days away are generally more suited to a longer-term vehicle than a daily-run system — unless there
+is a strong near-term technical setup that justifies holding through.
+None of this is a constraint, a rule, or even a suggestion. The committee is not expected to conform
+to any particular style. This is simply market context — the kind of thing a seasoned PM would have
+internalised from years in the industry. Use it however you see fit, or ignore it entirely. We trust
+your judgement.
 {fund_memory_block}{benchmark_block}{attribution_block}{learning_block}{risk_snapshot_block}{leverage_block}
 {portfolio_context_block}
 {cooldown_block}
