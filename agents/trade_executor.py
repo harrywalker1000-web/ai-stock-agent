@@ -227,42 +227,108 @@ def _place_order(api, ticker: str, qty: int, side: str, rationale: str) -> dict 
         return None
 
 
-def _place_stop_order(api, ticker: str, qty: int, direction: str, stop_price: float) -> dict | None:
+def _place_native_order(
+    api,
+    ticker: str,
+    qty: int,
+    direction: str,
+    stop_price: float,
+    order_type: str = "stop",
+    limit_price: float | None = None,
+    trail_percent: float | None = None,
+    take_profit_price: float | None = None,
+) -> dict | None:
     """
-    Place a native GTC stop-loss order with Alpaca.
+    Place a native GTC protective order with Alpaca. Committee specifies order_type.
+
+    order_type options:
+      "stop"          — plain stop order. Triggers a market sell/buy when price hits stop_price.
+                        Pros: guaranteed exit. Cons: slippage in fast markets.
+      "stop_limit"    — stop triggers a limit order at limit_price (must also supply limit_price).
+                        Pros: controls exit price. Cons: may not fill if price gaps through limit.
+      "trailing_stop" — stop trails the price by trail_percent%. Uses trail_percent, not stop_price.
+                        Pros: locks in gains automatically. Cons: can trigger on normal intraday noise.
+      "bracket"       — entry already placed; this adds both a stop-loss leg AND a take-profit leg.
+                        Requires stop_price (stop-loss) and take_profit_price (limit take-profit).
+                        Pros: pre-defined risk/reward. Cons: take-profit leg may prevent further upside.
+
     direction: 'LONG' | 'SHORT'
-    For LONG positions: stop = sell stop (triggers when price drops to stop_price)
-    For SHORT positions: stop = buy stop (triggers when price rises to stop_price)
-    GTC so it persists across sessions until the position is closed.
+    GTC so it persists across sessions until the position is closed or cancelled.
     Returns order dict or None on failure.
     """
-    if qty <= 0 or stop_price <= 0:
+    if qty <= 0:
         return None
     side = "sell" if direction == "LONG" else "buy"
+
     try:
-        order = api.submit_order(
-            symbol=ticker,
-            qty=qty,
-            side=side,
-            type="stop",
-            time_in_force="gtc",
-            stop_price=round(stop_price, 2),
-        )
+        kwargs: dict = {
+            "symbol": ticker,
+            "qty": qty,
+            "side": side,
+            "time_in_force": "gtc",
+        }
+
+        if order_type == "stop":
+            if stop_price <= 0:
+                logger.warning("stop order for %s requires stop_price > 0", ticker)
+                return None
+            kwargs["type"] = "stop"
+            kwargs["stop_price"] = round(stop_price, 2)
+
+        elif order_type == "stop_limit":
+            if stop_price <= 0 or not limit_price or limit_price <= 0:
+                logger.warning("stop_limit for %s requires stop_price and limit_price > 0", ticker)
+                return None
+            kwargs["type"] = "stop_limit"
+            kwargs["stop_price"] = round(stop_price, 2)
+            kwargs["limit_price"] = round(limit_price, 2)
+
+        elif order_type == "trailing_stop":
+            if not trail_percent or trail_percent <= 0:
+                logger.warning("trailing_stop for %s requires trail_percent > 0", ticker)
+                return None
+            kwargs["type"] = "trailing_stop"
+            kwargs["trail_percent"] = round(trail_percent, 2)
+
+        elif order_type == "bracket":
+            if stop_price <= 0 or not take_profit_price or take_profit_price <= 0:
+                logger.warning("bracket for %s requires stop_price and take_profit_price > 0", ticker)
+                return None
+            # Bracket orders use the class parameter + nested dicts
+            kwargs["type"] = "market"
+            kwargs["order_class"] = "bracket"
+            kwargs["stop_loss"] = {"stop_price": round(stop_price, 2)}
+            kwargs["take_profit"] = {"limit_price": round(take_profit_price, 2)}
+            # Bracket orders must be day or gtc at the outer level; use day for bracket
+            kwargs["time_in_force"] = "day"
+
+        else:
+            logger.warning("Unknown native order_type '%s' for %s — skipping", order_type, ticker)
+            return None
+
+        order = api.submit_order(**kwargs)
         logger.info(
-            "Native stop order placed: %s %d %s @ stop $%.2f | ID: %s",
-            side.upper(), qty, ticker, stop_price, order.id,
+            "Native %s order placed: %s %d %s | stop=$%.2f | ID: %s",
+            order_type, side.upper(), qty, ticker, stop_price or 0, order.id,
         )
         return {
             "order_id": order.id,
             "ticker": ticker,
             "side": side,
             "qty": qty,
+            "order_type": order_type,
             "stop_price": stop_price,
+            "limit_price": limit_price,
+            "trail_percent": trail_percent,
+            "take_profit_price": take_profit_price,
             "status": order.status,
             "submitted_at": str(order.submitted_at),
         }
     except Exception as exc:
-        logger.warning("Stop order failed for %s @ $%.2f: %s — position open without native stop", ticker, stop_price, exc)
+        logger.warning(
+            "Native %s order failed for %s: %s — position open without native protective order",
+            order_type, ticker, exc,
+        )
         return None
 
 
@@ -670,14 +736,28 @@ def run(mode: str = "new_opportunities") -> dict:
             # Only store the Alpaca order ID if the order was actually placed
             alpaca_order_id = order.get("order_id") if (safe and order) else None
 
-            # Native stop-loss order — placed immediately after entry if Committee requested it
+            # Native protective order — placed immediately after entry if Committee requested it
             use_native_stop = decision.get("use_native_stop", False)
+            native_order_type = decision.get("native_order_type", "stop")
             native_stop_order_id = None
-            if safe and order and stop_loss and use_native_stop:
-                stop_order = _place_stop_order(api, ticker, shares, direction, float(stop_loss))
+            if safe and order and use_native_stop:
+                stop_order = _place_native_order(
+                    api=api,
+                    ticker=ticker,
+                    qty=shares,
+                    direction=direction,
+                    stop_price=float(stop_loss) if stop_loss else 0.0,
+                    order_type=native_order_type,
+                    limit_price=decision.get("native_limit_price"),
+                    trail_percent=decision.get("native_trail_percent"),
+                    take_profit_price=decision.get("native_take_profit_price"),
+                )
                 if stop_order:
                     native_stop_order_id = stop_order["order_id"]
-                    logger.info("%s: Native stop placed @ $%.2f (ID: %s)", ticker, stop_loss, native_stop_order_id)
+                    logger.info(
+                        "%s: Native %s order placed (ID: %s)",
+                        ticker, native_order_type, native_stop_order_id,
+                    )
 
             memory.store_trade_entry(
                 ticker=ticker,

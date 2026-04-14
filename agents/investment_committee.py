@@ -601,7 +601,16 @@ Return ONLY valid JSON — an array of position_decisions:
     "key_catalysts": ["<catalyst 1 — must be a specific event within 1-30 days>", "<catalyst 2>"],
     "key_risks": ["<risk 1>"],
     "conflict_resolution": "<how you resolved cross-agent disagreements, or 'No conflict'>",
-    "use_native_stop": <true | false — true = register stop-loss as a native GTC order with Alpaca (enforced 24/7 even if pipeline fails); false = soft stop checked at next pipeline run. Use true for volatile/momentum setups where a gap-down is a real risk. Use false for stable positions where you want discretion to reassess before exiting.>,
+    "use_native_stop": <true | false — true = register a native protective order with Alpaca (enforced 24/7 even if pipeline fails); false = soft stop checked at next pipeline run. Use true for volatile/momentum setups where a gap-down is a real risk. Use false for stable positions where you want discretion to reassess before exiting.>,
+    "native_order_type": "<only relevant when use_native_stop=true. Choose the order type that fits the setup:
+      'stop'          — market sell/buy when price hits stop_loss. Guaranteed exit, but slippage risk in fast markets. Best for liquid large-caps.
+      'stop_limit'    — stop triggers a limit at native_limit_price (must set native_limit_price). Controls exit price but risks non-fill on gaps. Best when you need price control and stock is liquid enough.
+      'trailing_stop' — stop trails price by native_trail_percent%. Auto-locks in gains. Must set native_trail_percent (e.g. 5.0 = 5%). Risks premature exit on intraday noise. Best for trending momentum positions.
+      'bracket'       — pairs stop-loss (stop_loss field) with a take-profit limit (native_take_profit_price). Pre-defines full risk/reward. Take-profit may limit upside. Best when you have a clear technical target and want disciplined exit on both sides.
+    Default to 'stop' if unsure. Omit this field entirely when use_native_stop=false.>",
+    "native_limit_price": <float — required when native_order_type='stop_limit'. The limit price the triggered order will use. Set slightly below stop_loss for LONG (e.g. stop_loss - 0.50) to allow for a small spread. Omit otherwise.>,
+    "native_trail_percent": <float — required when native_order_type='trailing_stop'. The percentage distance the stop trails the best price (e.g. 5.0 for 5%). Omit otherwise.>,
+    "native_take_profit_price": <float — required when native_order_type='bracket'. The limit price for the take-profit leg. Should match target_price or a clear resistance level. Omit otherwise.>,
     "skip_reason": "<only if action=skip — why passing on this>",
     "reverse_direction": "<'LONG' or 'SHORT' — only required if action=reverse, the NEW direction after closing current>",
     "reverse_size_pct": <float — only if action=reverse, target size for the NEW reversed position, e.g. 5.0>

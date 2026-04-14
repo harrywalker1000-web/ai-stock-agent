@@ -47,7 +47,14 @@ async function fetchAlpacaAccount(): Promise<any | null> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function fetchAlpacaStopOrders(): Promise<Record<string, number>> {
+interface StopOrderInfo {
+  stop_price: number;
+  order_type: string;   // "stop" | "stop_limit" | "trailing_stop" | "bracket"
+  trail_percent?: number;
+  limit_price?: number;
+}
+
+async function fetchAlpacaStopOrders(): Promise<Record<string, StopOrderInfo>> {
   const key    = process.env.ALPACA_API_KEY;
   const secret = process.env.ALPACA_SECRET_KEY;
   const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
@@ -60,12 +67,20 @@ async function fetchAlpacaStopOrders(): Promise<Record<string, number>> {
     if (!res.ok) return {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const orders: any[] = await res.json();
-    // Build {ticker: stop_price} from open stop orders
-    const stopMap: Record<string, number> = {};
+    // Build {ticker: StopOrderInfo} from open protective orders
+    const stopMap: Record<string, StopOrderInfo> = {};
     for (const o of orders) {
-      if ((o.type === "stop" || o.type === "stop_limit") && o.stop_price) {
-        stopMap[o.symbol] = parseFloat(o.stop_price);
-      }
+      const isProtective = ["stop", "stop_limit", "trailing_stop"].includes(o.type) ||
+        (o.type === "market" && o.order_class === "bracket");
+      if (!isProtective) continue;
+      const stopPrice = o.stop_price ? parseFloat(o.stop_price) : 0;
+      const orderType = o.order_class === "bracket" ? "bracket" : o.type;
+      stopMap[o.symbol] = {
+        stop_price: stopPrice,
+        order_type: orderType,
+        ...(o.trail_percent ? { trail_percent: parseFloat(o.trail_percent) } : {}),
+        ...(o.limit_price   ? { limit_price:   parseFloat(o.limit_price)   } : {}),
+      };
     }
     return stopMap;
   } catch { return {}; }
@@ -192,8 +207,11 @@ export async function GET() {
         sentiment_score:    sc?.sentiment_score ?? null,
         composite_score:    sc?.composite_score ?? null,
         // Stop-loss: Alpaca open stop orders are source of truth
-        stop_price:         stopOrders[ticker] ?? logEntry?.stop_loss ?? null,
+        stop_price:         stopOrders[ticker]?.stop_price ?? logEntry?.stop_loss ?? null,
         has_native_stop:    ticker in stopOrders,
+        native_order_type:  stopOrders[ticker]?.order_type ?? null,
+        native_trail_pct:   stopOrders[ticker]?.trail_percent ?? null,
+        native_limit_price: stopOrders[ticker]?.limit_price ?? null,
       };
     });
   } else if (positionsLog && Object.keys(positionsLog).length > 0) {

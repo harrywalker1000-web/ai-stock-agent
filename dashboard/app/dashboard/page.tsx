@@ -13,6 +13,7 @@ interface Position {
   entry_date: string; conviction: number; status: string;
   setup_type?: string; expected_roi?: string;
   stop_price?: number | null; has_native_stop?: boolean;
+  native_order_type?: string | null; native_trail_pct?: number | null; native_limit_price?: number | null;
 }
 
 interface PortfolioData {
@@ -571,14 +572,36 @@ export default function DashboardPage() {
                           <span className="text-xs text-[#6B7280]">—</span>
                         )}
                       </td>
-                      {/* Stop-loss */}
+                      {/* Stop-loss / native protective order */}
                       <td className="px-2 py-3">
                         {pos.stop_price != null ? (
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-mono text-[#EF4444]">${pos.stop_price.toFixed(2)}</span>
-                            {pos.has_native_stop && (
-                              <span title="Native Alpaca stop order — enforced 24/7" className="text-[10px] text-[#EF4444] bg-[#EF4444]/10 px-1 rounded">GTC</span>
-                            )}
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1">
+                              <span className="text-xs font-mono text-[#EF4444]">
+                                {pos.native_order_type === "trailing_stop" && pos.native_trail_pct
+                                  ? `${pos.native_trail_pct}% trail`
+                                  : `$${pos.stop_price.toFixed(2)}`}
+                              </span>
+                              {pos.has_native_stop && (
+                                <span
+                                  title={
+                                    pos.native_order_type === "stop_limit"
+                                      ? `Stop-limit: triggers @ $${pos.stop_price.toFixed(2)}, limit @ $${pos.native_limit_price?.toFixed(2) ?? "?"}`
+                                      : pos.native_order_type === "trailing_stop"
+                                      ? `Trailing stop: ${pos.native_trail_pct}% below peak — enforced 24/7`
+                                      : pos.native_order_type === "bracket"
+                                      ? `Bracket: stop @ $${pos.stop_price.toFixed(2)} | take-profit set`
+                                      : "Native Alpaca stop order — enforced 24/7"
+                                  }
+                                  className="text-[10px] text-[#EF4444] bg-[#EF4444]/10 px-1 rounded uppercase"
+                                >
+                                  {pos.native_order_type === "stop_limit" ? "S/L"
+                                    : pos.native_order_type === "trailing_stop" ? "TRAIL"
+                                    : pos.native_order_type === "bracket" ? "BKT"
+                                    : "GTC"}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <span className="text-xs text-[#374151]">—</span>
