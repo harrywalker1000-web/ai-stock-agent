@@ -1353,20 +1353,31 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
             "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
         }
 
-    # Fetch available cash % from last portfolio_state (written by Trade Executor)
+    # Fetch available capital % from last portfolio_state (written by Trade Executor)
+    # IMPORTANT: use equity-based available capital, NOT cash/equity.
+    # Short-sale proceeds inflate the Alpaca cash balance (the proceeds sit in the account
+    # as collateral), so cash/equity overstates free capital when shorts are held.
+    # Correct formula: max(0, equity - total_exposure - 5% floor) / equity.
     available_cash_pct = 100.0
     portfolio_state_path = REPORTS_DIR / "portfolio_state.json"
     if portfolio_state_path.exists():
         try:
             with open(portfolio_state_path) as _psf:
                 _ps = json.load(_psf)
-            _pv = float(_ps.get("portfolio_value") or _ps.get("equity") or 0)
-            _cash = float(_ps.get("cash") or 0)
-            if _pv > 0:
-                available_cash_pct = round(_cash / _pv * 100, 1)
+            _equity = float(_ps.get("equity") or _ps.get("portfolio_value") or 0)
+            _long_mv = float(_ps.get("long_market_value") or 0)
+            _short_mv = abs(float(_ps.get("short_market_value") or 0))
+            _total_exp = _long_mv + _short_mv
+            _floor = _equity * 0.05  # 5% hard-floor cash buffer
+            if _equity > 0:
+                _free = max(0.0, _equity - _total_exp - _floor)
+                available_cash_pct = round(_free / _equity * 100, 1)
+            else:
+                # Fallback: no portfolio_state yet (first run) → assume 95% available
+                available_cash_pct = 95.0
         except Exception:
             pass
-    logger.info("Available cash: %.0f%% of portfolio", available_cash_pct)
+    logger.info("Available capital: %.0f%% of equity (equity-minus-exposure basis)", available_cash_pct)
 
     # Load risk snapshot (written by portfolio_manager before any agent runs)
     risk_snapshot: dict | None = None

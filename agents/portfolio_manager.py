@@ -138,6 +138,7 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
         pass
 
     # Get portfolio state from Alpaca (via portfolio_state.json written by Phase A executor)
+    # Use equity-minus-exposure for cash_pct so short-sale proceeds don't inflate the figure.
     equity = 100_000.0
     cash_pct = 100.0
     portfolio_state_path = ROOT / "data" / "reports" / "portfolio_state.json"
@@ -146,10 +147,14 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
             with open(portfolio_state_path) as f:
                 ps = _json.load(f)
             pv = float(ps.get("portfolio_value") or ps.get("equity") or 0)
-            cash = float(ps.get("cash") or 0)
+            long_mv  = float(ps.get("long_market_value") or 0)
+            short_mv = abs(float(ps.get("short_market_value") or 0))
+            total_exp = long_mv + short_mv
             if pv > 0:
                 equity = pv
-                cash_pct = round(cash / pv * 100, 1)
+                floor = pv * 0.05
+                free = max(0.0, pv - total_exp - floor)
+                cash_pct = round(free / pv * 100, 1)
         except Exception:
             pass
 

@@ -694,9 +694,33 @@ def run(mode: str = "new_opportunities") -> dict:
             errors.append({"ticker": ticker, "error": "price unavailable"})
             continue
 
+        # ── Pre-process: convert enter → increase when ticker is already held ────
+        # Phase B research may flag a ticker we already hold as a new opportunity.
+        # Rather than creating a duplicate entry (which Alpaca would just add to), treat
+        # it as an increase request so sizing and capital checks run correctly.
+        if action in ("enter_long", "enter_short") and ticker in open_positions:
+            existing_dir = open_positions[ticker].get("direction", "LONG").upper()
+            requested_dir = "LONG" if action == "enter_long" else "SHORT"
+            if existing_dir == requested_dir:
+                logger.info(
+                    "%s: already held %s — converting %s → increase",
+                    ticker, existing_dir, action,
+                )
+                action = "increase"
+            else:
+                reason = (
+                    f"Direction conflict: already held {existing_dir}. "
+                    f"Phase A portfolio review must handle direction changes — "
+                    f"Phase B cannot enter a position opposing an existing holding."
+                )
+                logger.warning("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
+
         if action in ("enter_long", "enter_short"):
             if not size_pct:
                 logger.warning("%s: no size_pct from Committee — skipping", ticker)
+                skipped.append({"ticker": ticker, "reason": "no size_pct"})
                 continue
 
             # Safety cap
@@ -898,11 +922,19 @@ def run(mode: str = "new_opportunities") -> dict:
 
         elif action in ("increase", "decrease"):
             alpaca_pos = alpaca_positions.get(ticker, {})
-            current_value = float(alpaca_pos.get("market_value", 0))
+            current_value = abs(float(alpaca_pos.get("market_value", 0)))
             current_pct = (current_value / portfolio_value * 100) if portfolio_value else 0
             direction = open_positions.get(ticker, {}).get("direction", "LONG").upper()
 
-            if action == "increase" and size_pct:
+            if action == "increase":
+                if not size_pct:
+                    # Committee omits size_pct (Portfolio Construction sets it).
+                    # When size_pct is absent (Phase A review), default: add 3% of portfolio
+                    # or up to available capital — whichever is smaller.
+                    size_pct = round(current_pct + 3.0, 1)
+                    logger.info("%s: increase with no size_pct — defaulting to %.1f%% target (current %.1f%% + 3%%)",
+                                ticker, size_pct, current_pct)
+
                 additional_pct = max(0, size_pct - current_pct)
                 additional_notional = min(
                     portfolio_value * additional_pct / 100,
@@ -922,8 +954,22 @@ def run(mode: str = "new_opportunities") -> dict:
                         }
                         _log_trade(trade)
                         executed_trades.append(trade)
+                elif shares < 1:
+                    reason = (
+                        f"insufficient_capital: available ${_available_capital(portfolio):.0f} < 1 share at ${current_price:.2f}"
+                        if _available_capital(portfolio) < current_price
+                        else f"no additional allocation needed (current {current_pct:.1f}% ≥ target {size_pct:.1f}%)"
+                    )
+                    logger.info("%s: increase skipped — %s", ticker, reason)
+                    skipped.append({"ticker": ticker, "reason": reason})
 
-            elif action == "decrease" and size_pct:
+            elif action == "decrease":
+                if not size_pct:
+                    # Default: reduce by 30% of the current position size
+                    size_pct = round(current_pct * 0.7, 1)
+                    logger.info("%s: decrease with no size_pct — defaulting to %.1f%% target (30%% reduction from %.1f%%)",
+                                ticker, size_pct, current_pct)
+
                 reduce_pct = max(0, current_pct - size_pct)
                 reduce_notional = portfolio_value * reduce_pct / 100
                 shares = int(reduce_notional / current_price)
@@ -940,6 +986,10 @@ def run(mode: str = "new_opportunities") -> dict:
                         }
                         _log_trade(trade)
                         executed_trades.append(trade)
+                elif shares < 1:
+                    reason = f"no shares to reduce (current {current_pct:.1f}% ≤ target {size_pct:.1f}%)"
+                    logger.info("%s: decrease skipped — %s", ticker, reason)
+                    skipped.append({"ticker": ticker, "reason": reason})
 
     # Refresh portfolio state
     portfolio = _get_portfolio(api)
@@ -949,6 +999,9 @@ def run(mode: str = "new_opportunities") -> dict:
         "equity": portfolio["equity"],
         "cash": portfolio["cash"],
         "portfolio_value": portfolio["portfolio_value"],
+        "long_market_value":  portfolio["long_market_value"],
+        "short_market_value": portfolio["short_market_value"],
+        "total_exposure":     portfolio["total_exposure"],
         "positions": alpaca_positions,
         "open_position_count": len(alpaca_positions),
         "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
