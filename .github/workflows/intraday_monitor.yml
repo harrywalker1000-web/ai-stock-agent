@@ -1,0 +1,63 @@
+name: Intraday Monitor
+
+on:
+  schedule:
+    # Every 30 minutes from 9:30 AM to 3:30 PM ET on weekdays.
+    # Market hours: 9:30–16:00 ET = 13:30–20:00 UTC (EDT, Mar–Nov)
+    # Running 14:00–20:00 UTC captures market open through close.
+    - cron: '0,30 14-19 * * 1-5'
+    - cron: '0 20 * * 1-5'        # One final check at 4:00 PM ET
+  workflow_dispatch:
+    # Manual trigger for testing
+    inputs:
+      dry_run:
+        description: 'Log alerts only — do not place orders'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies (minimal)
+        # Only needs requests + dotenv — no heavy ML deps for speed
+        run: pip install requests python-dotenv
+
+      - name: Run intraday monitor
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          ALPACA_BASE_URL: ${{ secrets.ALPACA_BASE_URL }}
+        run: python scripts/intraday_monitor.py
+
+      - name: Commit alert log
+        # Always commit — even "no alerts" runs update the last-checked timestamp
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git rebase --autostash origin/main
+          git add data/reports/intraday_alerts.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No alert changes to commit"
+          else
+            git commit -m "chore: intraday monitor $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git push origin HEAD:main
+          fi

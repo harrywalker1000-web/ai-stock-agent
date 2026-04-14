@@ -885,6 +885,21 @@ def _score_with_llm(
             )
         outcome_memory_str = "\nFUND MEMORY — PRIOR TRADES IN THIS NAME:\n" + "\n".join(lines) + "\n"
 
+    # Learning brief from post-mortems (cross-ticker lessons)
+    learning_brief_str = ""
+    try:
+        import sys as _sys_pm
+        from pathlib import Path as _Path_pm
+        _scripts_pm = str(_Path_pm(__file__).resolve().parent.parent / "scripts")
+        if _scripts_pm not in _sys_pm.path:
+            _sys_pm.path.insert(0, _scripts_pm)
+        import postmortem_engine as _pm_fa
+        _brief_fa = _pm_fa.get_learning_brief_for_prompt()
+        if _brief_fa:
+            learning_brief_str = f"\nLEARNING BRIEF (lessons from recent closed trades):\n{_brief_fa}\n"
+    except Exception:
+        pass
+
     prompt = f"""You are a quantitative equity analyst. Score {ticker} using ONLY the verified data below.
 
 CRITICAL RULE: Your fundamental_score, direction, dislocation_opportunity, and all other scoring fields
@@ -893,7 +908,7 @@ must be derived EXCLUSIVELY from the numbers in this prompt. Do NOT use your tra
 Only numbers count. If data is missing (N/A), treat it as neutral.
 {outcome_memory_str}
 MACRO: {macro_regime}  |  DIRECTION HINT: {direction_hint}
-DATA SOURCES: {', '.join(metrics.get('sources_used', ['yfinance']))} — all live as of today
+{learning_brief_str}DATA SOURCES: {', '.join(metrics.get('sources_used', ['yfinance']))} — all live as of today
 CROSS-SOURCE CONFLICTS: {len(conflicts)}
 
 LIVE METRICS ({ticker}):

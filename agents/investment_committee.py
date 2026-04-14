@@ -275,6 +275,7 @@ def _deliberate_with_llm(
     available_cash_pct: float = 100.0,
     exited_today: list[str] | None = None,
     live_portfolio: dict | None = None,
+    risk_snapshot: dict | None = None,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -304,6 +305,51 @@ def _deliberate_with_llm(
             f"best {fund_perf['best_trade_pct']:+.1f}% | worst {fund_perf['worst_trade_pct']:+.1f}%"
             f"{pattern_str}\n"
         )
+
+    # Benchmark vs SPY — injected so Committee knows if strategy is working
+    benchmark_block = ""
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        _scripts = str(_Path(__file__).resolve().parent.parent / "scripts")
+        if _scripts not in _sys.path:
+            _sys.path.insert(0, _scripts)
+        import benchmark_tracker as _bt
+        _summary = _bt.get_benchmark_summary_for_prompt()
+        if _summary:
+            benchmark_block = f"\n{_summary}\n"
+    except Exception:
+        pass
+
+    # Signal attribution — agent directional accuracy from closed trades
+    attribution_block = ""
+    try:
+        import sys as _sys2
+        from pathlib import Path as _Path2
+        _scripts2 = str(_Path2(__file__).resolve().parent.parent / "scripts")
+        if _scripts2 not in _sys2.path:
+            _sys2.path.insert(0, _scripts2)
+        import attribution_engine as _attr
+        _attr_summary = _attr.get_accuracy_summary_for_prompt()
+        if _attr_summary:
+            attribution_block = f"\n{_attr_summary}\n"
+    except Exception:
+        pass
+
+    # Learning brief — distilled lessons from recent post-mortems
+    learning_block = ""
+    try:
+        import sys as _sys3
+        from pathlib import Path as _Path3
+        _scripts3 = str(_Path3(__file__).resolve().parent.parent / "scripts")
+        if _scripts3 not in _sys3.path:
+            _sys3.path.insert(0, _scripts3)
+        import postmortem_engine as _pm
+        _brief = _pm.get_learning_brief_for_prompt()
+        if _brief:
+            learning_block = f"\nLEARNING BRIEF (from recent closed trades — apply these lessons):\n{_brief}\n"
+    except Exception:
+        pass
 
     # Build compact candidate block for the prompt
     candidate_blocks = []
@@ -376,6 +422,15 @@ def _deliberate_with_llm(
     n_open = len(open_positions)
     portfolio_context_block = _build_portfolio_context(open_positions)
 
+    # Risk snapshot block — injected from portfolio_risk_snapshot.json
+    risk_snapshot_block = ""
+    if risk_snapshot and risk_snapshot.get("positions"):
+        try:
+            from utils.risk_snapshot import format_snapshot_for_prompt
+            risk_snapshot_block = "\n" + format_snapshot_for_prompt(risk_snapshot) + "\n"
+        except Exception:
+            pass
+
     # Leverage constraint block — injected when account is over-exposed
     leverage_block = ""
     if live_portfolio and live_portfolio.get("is_leveraged"):
@@ -422,9 +477,16 @@ def _deliberate_with_llm(
         if mode == "portfolio_review" else
         f"This is NEW OPPORTUNITY RESEARCH (Phase B). For each ticker, decide: enter_long, enter_short, or skip. "
         f"Available capital to deploy: ~{available_cash_pct:.0f}% of portfolio. "
-        f"Only enter positions that fit within available cash — do not size positions so that their total "
-        f"exceeds what is actually deployable. "
-        f"Do NOT recommend entering a position in the opposite direction to one already held — "
+        + (
+            f"However, Portfolio Construction (which runs after you) can trim or exit the weakest position "
+            f"({risk_snapshot['weakest_position']['ticker']}, conviction {risk_snapshot['weakest_position']['conviction']}/100, "
+            f"P&L {risk_snapshot['weakest_position']['unrealised_pnl_pct']:+.1f}%) to free capital for a higher-conviction entry. "
+            f"Do NOT dismiss high-conviction candidates on capital grounds alone — evaluate conviction and let Portfolio Construction decide on tradeoffs. "
+            if (risk_snapshot and risk_snapshot.get("weakest_position") and available_cash_pct < 15)
+            else
+            f"Only enter positions that fit within available cash — do not size positions so that their total exceeds what is actually deployable. "
+        )
+        + f"Do NOT recommend entering a position in the opposite direction to one already held — "
         f"that is a Phase A portfolio review decision, not a new opportunity."
     )
 
@@ -434,7 +496,7 @@ Your mandate is to identify where prices are GOING, not where they have been.
 MACRO REGIME: {macro_regime}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
-{fund_memory_block}{leverage_block}
+{fund_memory_block}{benchmark_block}{attribution_block}{learning_block}{risk_snapshot_block}{leverage_block}
 {portfolio_context_block}
 {cooldown_block}
 
@@ -500,6 +562,14 @@ COMMITTEE RULES:
 - Reject any ticker with retail euphoria warning unless the bear case is exceptional.
 - For conflicts (agent spread >= 25): state which agent takes precedence and why.
 - Every decision must include a 2-3 sentence rationale that addresses direction AND trade type.
+- CONCENTRATION RULE (mandatory for every new BUY): Your investment_thesis for any enter_long or
+  enter_short must explicitly address: (1) how this position affects current sector concentration
+  (reference the sector exposure in the Portfolio Risk Snapshot above), and (2) whether this name
+  is correlated with any existing long. A one-sentence acknowledgement is sufficient — do not skip it.
+- CAPITAL CONSTRAINT RULE: Low available cash does NOT automatically mean skip. Portfolio
+  Construction runs after you and can exit the weakest position to fund a better opportunity.
+  Your job is conviction assessment. If a candidate is materially superior to the weakest held
+  position, recommend the entry — Portfolio Construction will handle the capital tradeoff.
 
 SELF-CHALLENGE RULE (mandatory):
 Before finalising your output, check: are all your non-skip decisions the same action
@@ -531,6 +601,7 @@ Return ONLY valid JSON — an array of position_decisions:
     "key_catalysts": ["<catalyst 1 — must be a specific event within 1-30 days>", "<catalyst 2>"],
     "key_risks": ["<risk 1>"],
     "conflict_resolution": "<how you resolved cross-agent disagreements, or 'No conflict'>",
+    "use_native_stop": <true | false — true = register stop-loss as a native GTC order with Alpaca (enforced 24/7 even if pipeline fails); false = soft stop checked at next pipeline run. Use true for volatile/momentum setups where a gap-down is a real risk. Use false for stable positions where you want discretion to reassess before exiting.>,
     "skip_reason": "<only if action=skip — why passing on this>",
     "reverse_direction": "<'LONG' or 'SHORT' — only required if action=reverse, the NEW direction after closing current>",
     "reverse_size_pct": <float — only if action=reverse, target size for the NEW reversed position, e.g. 5.0>
@@ -1021,6 +1092,65 @@ def construct_portfolio_allocation(
     held_block = "\n".join(held_lines) if held_lines else "  (none)"
     new_block = "\n".join(new_entry_lines) if new_entry_lines else "  (none)"
 
+    # Build capital tradeoff block: compare new entry conviction vs held position conviction
+    # so the LLM can proactively decide to exit lower-conviction holds to fund better opportunities
+    capital_tradeoff_block = ""
+    new_entries_by_conviction = sorted(
+        [
+            (d["ticker"], d.get("conviction", 50), d.get("action", ""))
+            for d in phase_b_decisions
+            if "enter" in d.get("action", "")
+        ],
+        key=lambda x: -x[1],
+    )
+    held_by_conviction = sorted(
+        [
+            (t, phase_a_map.get(t, {}).get("conviction") or pos.get("conviction") or 50,
+             pos.get("size_pct") or 0, pos.get("direction", "LONG"))
+            for t, pos in open_positions.items()
+            if phase_a_map.get(t, {}).get("action") not in ("exit",)
+        ],
+        key=lambda x: x[1],  # lowest conviction first
+    )
+    if new_entries_by_conviction and held_by_conviction:
+        top_new_conviction = new_entries_by_conviction[0][1]
+        # Find held positions with meaningfully lower conviction than the best new entry
+        swap_targets = [(t, c, sz, d) for t, c, sz, d in held_by_conviction if c < top_new_conviction - 8]
+        if swap_targets:
+            swap_lines = [
+                f"  {t}: {d} | conviction={c}/100 | current_weight={sz:.1f}%"
+                for t, c, sz, d in swap_targets
+            ]
+            new_lines = [
+                f"  {t}: {act.upper()} | conviction={c}/100"
+                for t, c, act in new_entries_by_conviction
+            ]
+            capital_tradeoff_block = (
+                "\nCAPITAL TRADEOFF OPPORTUNITY:\n"
+                f"Available cash is {cash_pct:.1f}%. The following new entries were approved by the committee "
+                "but may not fit within cash alone.\n"
+                "You MAY exit lower-conviction held positions to fund higher-conviction new entries — "
+                "this is a valid and expected portfolio management decision.\n"
+                "CONVICTION COMPARISON:\n"
+                "  NEW ENTRIES (approved, highest conviction first):\n"
+                + "\n".join(f"    {l}" for l in new_lines) + "\n"
+                "  HELD POSITIONS (lowest conviction first — exit candidates):\n"
+                + "\n".join(f"    {l}" for l in swap_lines) + "\n"
+                "If you decide to exit a held position to fund a new entry, list it in `capital_swap_exits`.\n"
+                "Only do this if the new entry conviction is meaningfully higher (≥8 points) AND the thesis "
+                "for the new entry is stronger. Do not churn positions for marginal conviction differences.\n"
+            )
+
+    # Load risk snapshot for portfolio construction context
+    _construction_risk_block = ""
+    try:
+        from utils.risk_snapshot import load_snapshot, format_snapshot_for_prompt
+        _snap = load_snapshot()
+        if _snap and _snap.get("positions"):
+            _construction_risk_block = "\n" + format_snapshot_for_prompt(_snap) + "\n"
+    except Exception:
+        pass
+
     prompt = f"""You are the Portfolio Manager of an AI hedge fund. Today is {today}.
 
 Your job is PORTFOLIO CONSTRUCTION — setting the final target allocation for every position.
@@ -1032,13 +1162,13 @@ PORTFOLIO STATE:
   Total equity: ${equity:,.0f}
   Available cash: ~{cash_pct:.1f}% of portfolio
   Macro regime: {macro_regime}
-
+{_construction_risk_block}
 EXISTING POSITIONS (after today's committee review):
 {held_block}
 
 NEW ENTRIES approved by committee:
 {new_block}
-
+{capital_tradeoff_block}
 YOUR TASK:
 Assign a target weight (% of total portfolio) to every position you want the fund to hold.
 Use your full judgement. Consider:
@@ -1050,7 +1180,7 @@ Use your full judgement. Consider:
 
 RULES:
 - No single position above 25% of portfolio
-- All new entries must fit within available cash ({cash_pct:.1f}%) — do not use margin
+- All new entries must fit within available cash ({cash_pct:.1f}%) PLUS any capital freed by capital_swap_exits
 - Positions the committee decided to EXIT should not appear in your output
 - You may include rebalancing for held positions if you think current weights are wrong
 
@@ -1060,10 +1190,17 @@ Return ONLY valid JSON:
     "TICKER": <float — target % of total portfolio>,
     ...
   }},
-  "reasoning": "<2-3 sentences on overall portfolio construction decisions>"
+  "capital_swap_exits": [
+    {{
+      "ticker": "<ticker to exit>",
+      "reason": "<why exiting: conviction X vs new entry Y conviction Z>"
+    }}
+  ],
+  "reasoning": "<2-3 sentences on overall portfolio construction decisions, including any swaps>"
 }}
 
-Only include tickers where you want to SET or CHANGE the weight. Omit tickers you're leaving unchanged."""
+Only include tickers where you want to SET or CHANGE the weight. Omit tickers you're leaving unchanged.
+`capital_swap_exits` may be an empty array [] if no swaps are needed."""
 
     try:
         resp = client.chat.completions.create(
@@ -1076,6 +1213,7 @@ Only include tickers where you want to SET or CHANGE the weight. Omit tickers yo
         result = json.loads(resp.choices[0].message.content)
         target_weights = result.get("target_weights", {})
         reasoning = result.get("reasoning", "")
+        capital_swap_exits = result.get("capital_swap_exits", [])
 
         # Compute rebalancing diff vs current positions
         rebalancing = {}
@@ -1086,17 +1224,22 @@ Only include tickers where you want to SET or CHANGE the weight. Omit tickers yo
             if abs(target - current) >= 0.5:  # Only flag meaningful changes
                 rebalancing[ticker] = {"from_pct": round(current, 1), "to_pct": round(target, 1)}
 
-        logger.info("Portfolio construction complete: %d targets set | reasoning: %s",
-                    len(target_weights), reasoning[:100])
+        if capital_swap_exits:
+            swap_tickers = [s.get("ticker") for s in capital_swap_exits if s.get("ticker")]
+            logger.info("Portfolio construction: capital swaps recommended — exiting %s to fund new entries", swap_tickers)
+
+        logger.info("Portfolio construction complete: %d targets set | %d swaps | reasoning: %s",
+                    len(target_weights), len(capital_swap_exits), reasoning[:100])
         return {
             "target_weights": {k: round(float(v), 1) for k, v in target_weights.items()},
             "rebalancing": rebalancing,
+            "capital_swap_exits": capital_swap_exits,
             "reasoning": reasoning,
         }
 
     except Exception as exc:
         logger.warning("Portfolio construction LLM failed: %s — using committee sizes as-is", exc)
-        return {"target_weights": {}, "rebalancing": {}, "reasoning": f"Construction failed: {exc}"}
+        return {"target_weights": {}, "rebalancing": {}, "capital_swap_exits": [], "reasoning": f"Construction failed: {exc}"}
 
 
 def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
@@ -1216,9 +1359,17 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
             pass
     logger.info("Available cash: %.0f%% of portfolio", available_cash_pct)
 
+    # Load risk snapshot (written by portfolio_manager before any agent runs)
+    risk_snapshot: dict | None = None
+    try:
+        from utils.risk_snapshot import load_snapshot
+        risk_snapshot = load_snapshot() or None
+    except Exception:
+        pass
+
     # LLM deliberation
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # Store all decisions in memory
@@ -1243,6 +1394,14 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
             },
             size_pct=d.get("size_pct"),
             stop_loss=d.get("stop_loss"),
+            key_catalysts=d.get("key_catalysts", []),
+            key_risks=d.get("key_risks", []),
+            macro_regime=macro_regime,
+            agent_summaries={
+                "fundamental_summary": sc.get("fundamental_summary", ""),
+                "quant_summary": sc.get("quant_summary", ""),
+                "sentiment_summary": sc.get("sentiment_summary", ""),
+            },
         )
 
     # Enrich positions_log with institutional framework for all enter decisions

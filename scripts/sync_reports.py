@@ -23,6 +23,8 @@ REPORT_FILES = [
     "macro_report.json",
     "sector_report.json",
     "institutional_report.json",
+    "backtest_result.json",
+    "intraday_alerts.json",
 ]
 
 copied = 0
@@ -41,7 +43,8 @@ MEM_SRC = ROOT / "data" / "memory"
 MEM_DST = ROOT / "dashboard" / "data" / "memory"
 MEM_DST.mkdir(parents=True, exist_ok=True)
 
-for fname in ("decision_log.json", "positions_log.json"):
+for fname in ("decision_log.json", "positions_log.json", "benchmark_history.json", "nav_history.json",
+               "attribution_log.json", "agent_accuracy_summary.json"):
     src_file = MEM_SRC / fname
     if src_file.exists():
         # Copy to both locations: reports/ (legacy) and memory/ (portfolio API)
@@ -52,6 +55,28 @@ for fname in ("decision_log.json", "positions_log.json"):
         copied += 1
 
 print(f"\nSynced {copied} files → {DST}")
+
+# ── Sync post-mortems ────────────────────────────────────────────────────────
+PM_SRC = MEM_SRC / "postmortems"
+PM_DST = MEM_DST / "postmortems"
+PM_DST.mkdir(parents=True, exist_ok=True)
+
+pm_copied = 0
+if PM_SRC.exists():
+    for f in PM_SRC.glob("*.json"):
+        dst_file = PM_DST / f.name
+        shutil.copy2(f, dst_file)
+        pm_copied += 1
+
+if pm_copied:
+    print(f"  ✓ {pm_copied} post-mortem(s) synced → {PM_DST}")
+
+# Copy learning_brief.json if it exists
+for fname in ("learning_brief.json",):
+    src_file = MEM_SRC / fname
+    if src_file.exists():
+        shutil.copy2(src_file, MEM_DST / fname)
+        print(f"  ✓ {fname}")
 
 # ── Sync ad-hoc reports ───────────────────────────────────────────────────────
 ADHOC_SRC = ROOT / "data" / "adhoc_reports"
@@ -235,6 +260,29 @@ try:
             if summary:
                 agent_findings.append({"agent": label, "finding": str(summary)})
 
+        # Benchmark summary for daily report
+        benchmark_summary = None
+        benchmark_alpha_1w = None
+        try:
+            bench_file = MEM_SRC / "benchmark_history.json"
+            if bench_file.exists():
+                with open(bench_file) as f:
+                    bench = json.load(f)
+                periods = bench.get("periods", {})
+                parts = []
+                for key, label in [("1w", "1W"), ("1m", "1M")]:
+                    p = periods.get(key, {})
+                    alpha = p.get("alpha")
+                    if alpha is not None:
+                        sign = "+" if alpha >= 0 else ""
+                        parts.append(f"{label}: {sign}{alpha:.1f}% alpha vs SPY")
+                        if key == "1w":
+                            benchmark_alpha_1w = alpha
+                if parts:
+                    benchmark_summary = " | ".join(parts)
+        except Exception:
+            pass
+
         daily = {
             "date": date,
             "macro_regime": cr.get("macro_regime", "NEUTRAL"),
@@ -269,6 +317,8 @@ try:
                 if "skip" not in d.get("action", "")
             ],
             "open_positions_after": ps.get("open_positions_after", 0),
+            "benchmark_summary": benchmark_summary,
+            "benchmark_alpha_1w": benchmark_alpha_1w,
         }
 
         out_file = DST / f"daily_report_{date}.json"

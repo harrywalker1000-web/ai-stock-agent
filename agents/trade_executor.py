@@ -227,6 +227,45 @@ def _place_order(api, ticker: str, qty: int, side: str, rationale: str) -> dict 
         return None
 
 
+def _place_stop_order(api, ticker: str, qty: int, direction: str, stop_price: float) -> dict | None:
+    """
+    Place a native GTC stop-loss order with Alpaca.
+    direction: 'LONG' | 'SHORT'
+    For LONG positions: stop = sell stop (triggers when price drops to stop_price)
+    For SHORT positions: stop = buy stop (triggers when price rises to stop_price)
+    GTC so it persists across sessions until the position is closed.
+    Returns order dict or None on failure.
+    """
+    if qty <= 0 or stop_price <= 0:
+        return None
+    side = "sell" if direction == "LONG" else "buy"
+    try:
+        order = api.submit_order(
+            symbol=ticker,
+            qty=qty,
+            side=side,
+            type="stop",
+            time_in_force="gtc",
+            stop_price=round(stop_price, 2),
+        )
+        logger.info(
+            "Native stop order placed: %s %d %s @ stop $%.2f | ID: %s",
+            side.upper(), qty, ticker, stop_price, order.id,
+        )
+        return {
+            "order_id": order.id,
+            "ticker": ticker,
+            "side": side,
+            "qty": qty,
+            "stop_price": stop_price,
+            "status": order.status,
+            "submitted_at": str(order.submitted_at),
+        }
+    except Exception as exc:
+        logger.warning("Stop order failed for %s @ $%.2f: %s — position open without native stop", ticker, stop_price, exc)
+        return None
+
+
 # ---------------------------------------------------------------------------
 # Stop-loss check
 # ---------------------------------------------------------------------------
@@ -454,6 +493,25 @@ def run(mode: str = "new_opportunities") -> dict:
     skipped = []
     errors = []
 
+    # Load risk snapshot for reconciliation context (written pre-pipeline by portfolio_manager)
+    try:
+        from utils.risk_snapshot import load_snapshot
+        risk_snapshot = load_snapshot()
+        if risk_snapshot.get("concentration_flags"):
+            logger.info(
+                "Risk snapshot loaded — %d concentration flag(s): %s",
+                len(risk_snapshot["concentration_flags"]),
+                risk_snapshot["concentration_flags"][0][:80] if risk_snapshot["concentration_flags"] else "",
+            )
+        weakest = risk_snapshot.get("weakest_position")
+        if weakest:
+            logger.info(
+                "Weakest position: %s (conviction %s, P&L %+.1f%%)",
+                weakest["ticker"], weakest["conviction"], weakest.get("unrealised_pnl_pct", 0),
+            )
+    except Exception:
+        risk_snapshot = {}
+
     # Connect to Alpaca
     try:
         api = _get_alpaca_client()
@@ -611,6 +669,16 @@ def run(mode: str = "new_opportunities") -> dict:
 
             # Only store the Alpaca order ID if the order was actually placed
             alpaca_order_id = order.get("order_id") if (safe and order) else None
+
+            # Native stop-loss order — placed immediately after entry if Committee requested it
+            use_native_stop = decision.get("use_native_stop", False)
+            native_stop_order_id = None
+            if safe and order and stop_loss and use_native_stop:
+                stop_order = _place_stop_order(api, ticker, shares, direction, float(stop_loss))
+                if stop_order:
+                    native_stop_order_id = stop_order["order_id"]
+                    logger.info("%s: Native stop placed @ $%.2f (ID: %s)", ticker, stop_loss, native_stop_order_id)
+
             memory.store_trade_entry(
                 ticker=ticker,
                 entry_date=today,
@@ -622,6 +690,7 @@ def run(mode: str = "new_opportunities") -> dict:
                 signals=decision.get("key_catalysts", []),
                 stop_loss=stop_loss,
                 alpaca_order_id=alpaca_order_id,
+                native_stop_order_id=native_stop_order_id,
             )
             trade = {
                 "date": today, "ticker": ticker, "action": action,
@@ -631,7 +700,10 @@ def run(mode: str = "new_opportunities") -> dict:
                 "rationale": rationale[:200],
             }
             _log_trade(trade)
-            executed_trades.append({**trade, "order": order, "stop_loss": stop_loss})
+            executed_trades.append({
+                **trade, "order": order, "stop_loss": stop_loss,
+                "native_stop_order_id": native_stop_order_id,
+            })
 
         elif action == "exit":
             alpaca_pos = alpaca_positions.get(ticker)

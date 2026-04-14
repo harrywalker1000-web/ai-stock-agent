@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell,
+  ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine,
 } from "recharts";
 
 interface Position {
@@ -12,6 +12,7 @@ interface Position {
   pnl_absolute: number; position_size: number; pct_portfolio: number;
   entry_date: string; conviction: number; status: string;
   setup_type?: string; expected_roi?: string;
+  stop_price?: number | null; has_native_stop?: boolean;
 }
 
 interface PortfolioData {
@@ -27,6 +28,50 @@ interface PortfolioData {
   sectors: Array<{ sector: string; value: number; color: string }>;
   agent_conviction?: Array<{ name: string; score: number; count: number; source: string }>;
   _positions_closed?: number;
+}
+
+interface BenchmarkPeriod {
+  portfolio_return_pct: number | null;
+  spy_return_pct: number | null;
+  alpha: number | null;
+  note?: string;
+}
+
+interface BenchmarkData {
+  inception_date?: string;
+  nav_points?: number;
+  last_updated?: string;
+  error?: string;
+  periods: {
+    "1w"?: BenchmarkPeriod;
+    "1m"?: BenchmarkPeriod;
+    "6m"?: BenchmarkPeriod;
+    "ytd"?: BenchmarkPeriod;
+  };
+  daily_series: Array<{ date: string; portfolio_cumulative: number; spy_cumulative: number }>;
+}
+
+const BENCH_PERIODS = ["1W", "1M", "6M", "YTD", "All"] as const;
+type BenchPeriod = typeof BENCH_PERIODS[number];
+
+interface AgentAccuracyEntry {
+  total_trades: number;
+  correct_direction: number;
+  wrong_direction: number;
+  neutral_calls: number;
+  directional_accuracy_pct: number | null;
+}
+
+interface AttributionData {
+  total_closed_trades: number;
+  win_rate_pct: number | null;
+  avg_pnl_pct: number | null;
+  avg_alpha_vs_spy: number | null;
+  agents: Record<string, AgentAccuracyEntry>;
+  recent_trades: Array<{
+    ticker: string; direction: string; entry_date: string; exit_date: string;
+    pnl_pct: number; alpha_vs_spy: number | null; sector: string | null; exit_reason: string;
+  }>;
 }
 
 function fmt(n: number, decimals = 2) {
@@ -63,12 +108,34 @@ export default function DashboardPage() {
   const [runStatus, setRunStatus] = useState<"idle" | "running" | "done" | "error">("idle");
   const [runLog, setRunLog] = useState<string[]>([]);
   const [runMode, setRunMode] = useState<"review" | "full" | null>(null);
+  const [benchmark, setBenchmark] = useState<BenchmarkData | null>(null);
+  const [benchPeriod, setBenchPeriod] = useState<BenchPeriod>("1M");
+  const [attribution, setAttribution] = useState<AttributionData | null>(null);
+  const [intradayAlerts, setIntradayAlerts] = useState<Array<{ level: string; ticker: string; message: string; timestamp: string }>>([]);
 
   useEffect(() => {
     fetch("/api/portfolio")
       .then((r) => r.json())
       .then((d) => { setData(d); setLoading(false); })
       .catch(() => setLoading(false));
+    fetch("/api/benchmark")
+      .then((r) => r.json())
+      .then((d: BenchmarkData) => setBenchmark(d))
+      .catch(() => null);
+    fetch("/api/attribution")
+      .then((r) => r.json())
+      .then((d: AttributionData) => setAttribution(d))
+      .catch(() => null);
+    // Intraday alerts
+    fetch("/api/intraday")
+      .then((r) => r.json())
+      .then((d) => {
+        const activeAlerts = (d?.alerts ?? []).filter(
+          (a: { level: string }) => a.level !== "INFO"
+        );
+        setIntradayAlerts(activeAlerts);
+      })
+      .catch(() => null);
   }, []);
 
   const startRun = async (type: "review" | "full") => {
@@ -108,6 +175,26 @@ export default function DashboardPage() {
     cutoff.setDate(cutoff.getDate() - days);
     return new Date(h.date) >= cutoff;
   }) ?? [];
+
+  // Benchmark vs SPY series filtered by selected period
+  const benchSeries = (() => {
+    const full = benchmark?.daily_series ?? [];
+    if (benchPeriod === "All") return full;
+    if (benchPeriod === "YTD") {
+      const yearStart = new Date().getFullYear() + "-01-01";
+      return full.filter((d) => d.date >= yearStart);
+    }
+    const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffStr = cutoff.toISOString().split("T")[0];
+    return full.filter((d) => d.date >= cutoffStr);
+  })();
+
+  // Current period alpha/returns for display
+  const periodKey = benchPeriod === "1W" ? "1w" : benchPeriod === "1M" ? "1m" : benchPeriod === "6M" ? "6m" : benchPeriod === "YTD" ? "ytd" : null;
+  const activePeriod = periodKey ? benchmark?.periods[periodKey as keyof typeof benchmark.periods] : null;
+  const hasInsufficientHistory = (p: BenchmarkPeriod | null | undefined) => !p || p.note === "insufficient_history" || p.alpha == null;
 
   const stats = data?.stats;
   const positions = [...(data?.positions ?? [])].sort((a, b) => b.pct_portfolio - a.pct_portfolio);
@@ -193,6 +280,35 @@ export default function DashboardPage() {
                 <p key={i} className="text-xs text-[#6B7280] font-mono">{line}</p>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Intraday alert banner — only shown when active alerts exist */}
+        {intradayAlerts.length > 0 && (
+          <div className="mb-6 space-y-2">
+            {intradayAlerts.map((alert, i) => {
+              const isStop = alert.level === "STOP_EXECUTED" || alert.level === "STOP_PENDING";
+              const isPortfolio = alert.level === "PORTFOLIO_ALERT";
+              const borderColor = isStop ? "border-[#EF4444]/40" : "border-[#F59E0B]/40";
+              const dotColor = isStop ? "#EF4444" : "#F59E0B";
+              const labelColor = isStop ? "text-[#EF4444]" : "text-[#F59E0B]";
+              return (
+                <div key={i} className={`card p-4 border ${borderColor}`}>
+                  <div className="flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 animate-pulse" style={{ background: dotColor }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={`text-xs font-bold uppercase tracking-wider ${labelColor}`}>
+                          {isStop ? "Stop-Loss" : isPortfolio ? "Portfolio Alert" : "Alert"} — {alert.ticker}
+                        </span>
+                        <span className="text-[10px] text-[#6B7280]">{alert.timestamp?.slice(11, 16)} UTC</span>
+                      </div>
+                      <p className="text-sm text-[#E8EDF2]">{alert.message}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -380,7 +496,7 @@ export default function DashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/06">
-                  {["Ticker", "Dir", "P&L %", "Weight", "Setup", "Conviction", "Exp. ROI", "Entry"].map((h) => (
+                  {["Ticker", "Dir", "P&L %", "Weight", "Setup", "Conviction", "Stop", "Entry"].map((h) => (
                     <th key={h} className="text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider pb-3 px-2">{h}</th>
                   ))}
                 </tr>
@@ -455,9 +571,18 @@ export default function DashboardPage() {
                           <span className="text-xs text-[#6B7280]">—</span>
                         )}
                       </td>
-                      {/* Exp ROI */}
+                      {/* Stop-loss */}
                       <td className="px-2 py-3">
-                        <span className="text-xs font-mono text-[#6B7280]">{pos.expected_roi && pos.expected_roi !== "—" ? pos.expected_roi : "—"}</span>
+                        {pos.stop_price != null ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs font-mono text-[#EF4444]">${pos.stop_price.toFixed(2)}</span>
+                            {pos.has_native_stop && (
+                              <span title="Native Alpaca stop order — enforced 24/7" className="text-[10px] text-[#EF4444] bg-[#EF4444]/10 px-1 rounded">GTC</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-[#374151]">—</span>
+                        )}
                       </td>
                       {/* Entry date */}
                       <td className="px-2 py-3 text-xs text-[#6B7280] font-mono whitespace-nowrap">{pos.entry_date}</td>
@@ -478,6 +603,249 @@ export default function DashboardPage() {
                   ? "Show less ↑"
                   : `Show ${positions.length - 10} more positions ↓`}
               </button>
+            </div>
+          )}
+        </div>
+
+        {/* vs SPY benchmark panel */}
+        <div className="card p-6 mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+            <div>
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Returns vs SPY</h2>
+              <p className="text-xs text-[#6B7280] mt-0.5">
+                {benchmark?.inception_date
+                  ? `Since inception ${benchmark.inception_date} · paper trading`
+                  : "Cumulative returns indexed to 0% at inception · paper trading"}
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              {/* Alpha badge */}
+              {activePeriod && !hasInsufficientHistory(activePeriod) && (
+                <div className={`px-3 py-1.5 rounded-lg text-sm font-bold ${(activePeriod.alpha ?? 0) >= 0 ? "bg-[#10B981]/15 text-[#10B981]" : "bg-[#EF4444]/15 text-[#EF4444]"}`}>
+                  {(activePeriod.alpha ?? 0) >= 0 ? "+" : ""}{(activePeriod.alpha ?? 0).toFixed(1)}% alpha
+                </div>
+              )}
+              {/* Period toggles */}
+              <div className="flex gap-1">
+                {BENCH_PERIODS.map((p) => {
+                  const key = p === "1W" ? "1w" : p === "1M" ? "1m" : p === "6M" ? "6m" : p === "YTD" ? "ytd" : null;
+                  const periodData = key ? benchmark?.periods[key as keyof typeof benchmark.periods] : null;
+                  const insufficient = p !== "All" && hasInsufficientHistory(periodData);
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => setBenchPeriod(p)}
+                      disabled={insufficient}
+                      className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                        benchPeriod === p
+                          ? "bg-[#F5A623]/20 text-[#F5A623]"
+                          : insufficient
+                          ? "text-[#374151] cursor-not-allowed"
+                          : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center gap-4 mb-3">
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-0.5 rounded-full bg-[#F5A623]" />
+              <span className="text-xs text-[#6B7280]">Portfolio</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
+              <span className="text-xs text-[#6B7280]">SPY</span>
+            </div>
+          </div>
+
+          {benchmark?.error && !benchmark.inception_date ? (
+            <div className="flex items-center justify-center h-40 text-[#6B7280] text-sm">
+              No benchmark data yet — runs automatically after each pipeline run
+            </div>
+          ) : benchSeries.length < 2 ? (
+            <div className="flex items-center justify-center h-40 text-[#6B7280] text-sm">
+              {benchPeriod !== "All" ? "Insufficient history for this period" : "Accumulating data — check back after more pipeline runs"}
+            </div>
+          ) : (
+            <>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={benchSeries}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fill: "#6B7280", fontSize: 10 }}
+                    tickFormatter={(v) => v.slice(5)}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "#6B7280", fontSize: 10 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`}
+                    domain={["auto", "auto"]}
+                  />
+                  <ReferenceLine y={0} stroke="rgba(255,255,255,0.12)" strokeDasharray="4 4" />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(8,12,16,0.95)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "10px",
+                      color: "#E8EDF2",
+                      fontSize: "12px",
+                    }}
+                    formatter={(v, name) => [
+                      `${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}%`,
+                      name === "portfolio_cumulative" ? "Portfolio" : "SPY",
+                    ]}
+                  />
+                  <Line type="monotone" dataKey="portfolio_cumulative" stroke="#F5A623" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#F5A623" }} />
+                  <Line type="monotone" dataKey="spy_cumulative" stroke="#00D4FF" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: "#00D4FF" }} />
+                </LineChart>
+              </ResponsiveContainer>
+
+              {/* Period summary row */}
+              {activePeriod && !hasInsufficientHistory(activePeriod) && (
+                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/06">
+                  <div className="text-center">
+                    <p className="text-xs text-[#6B7280] mb-1">Portfolio</p>
+                    <p className={`font-mono font-bold text-sm ${(activePeriod.portfolio_return_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {(activePeriod.portfolio_return_pct ?? 0) >= 0 ? "+" : ""}{(activePeriod.portfolio_return_pct ?? 0).toFixed(2)}%
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-[#6B7280] mb-1">SPY</p>
+                    <p className={`font-mono font-bold text-sm ${(activePeriod.spy_return_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {(activePeriod.spy_return_pct ?? 0) >= 0 ? "+" : ""}{(activePeriod.spy_return_pct ?? 0).toFixed(2)}%
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-[#6B7280] mb-1">Alpha</p>
+                    <p className={`font-mono font-bold text-sm ${(activePeriod.alpha ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {(activePeriod.alpha ?? 0) >= 0 ? "+" : ""}{(activePeriod.alpha ?? 0).toFixed(2)}%
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Signal Attribution panel */}
+        <div className="card p-6 mb-6">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Signal Attribution</h2>
+              <p className="text-xs text-[#6B7280] mt-0.5">
+                {attribution && attribution.total_closed_trades > 0
+                  ? `${attribution.total_closed_trades} closed trade${attribution.total_closed_trades !== 1 ? "s" : ""} · agent directional accuracy`
+                  : "Populates as positions are closed — tracks which agents predicted the right direction"}
+              </p>
+            </div>
+            {attribution && attribution.total_closed_trades > 0 && (
+              <div className="flex gap-4 text-right">
+                <div>
+                  <p className="text-xs text-[#6B7280]">Win Rate</p>
+                  <p className={`font-mono font-bold text-lg ${(attribution.win_rate_pct ?? 0) >= 50 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                    {attribution.win_rate_pct != null ? `${attribution.win_rate_pct.toFixed(0)}%` : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B7280]">Avg Alpha</p>
+                  <p className={`font-mono font-bold text-lg ${(attribution.avg_alpha_vs_spy ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                    {attribution.avg_alpha_vs_spy != null ? `${attribution.avg_alpha_vs_spy >= 0 ? "+" : ""}${attribution.avg_alpha_vs_spy.toFixed(1)}%` : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#6B7280]">Avg P&L</p>
+                  <p className={`font-mono font-bold text-lg ${(attribution.avg_pnl_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                    {attribution.avg_pnl_pct != null ? `${attribution.avg_pnl_pct >= 0 ? "+" : ""}${attribution.avg_pnl_pct.toFixed(1)}%` : "—"}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {!attribution || attribution.total_closed_trades === 0 ? (
+            <div className="flex items-center justify-center h-24 text-[#6B7280] text-sm border border-dashed border-white/08 rounded-xl">
+              No closed trades yet — attribution begins on first exit
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Agent accuracy bars */}
+              <div>
+                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Directional Accuracy by Agent</p>
+                <div className="space-y-3">
+                  {Object.entries(attribution.agents)
+                    .filter(([, d]) => d.total_trades >= 1)
+                    .sort(([, a], [, b]) => (b.directional_accuracy_pct ?? 0) - (a.directional_accuracy_pct ?? 0))
+                    .map(([agent, d]) => {
+                      const acc = d.directional_accuracy_pct;
+                      const barColor = acc == null ? "#374151" : acc >= 65 ? "#10B981" : acc >= 50 ? "#F5A623" : "#EF4444";
+                      return (
+                        <div key={agent}>
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="text-[#E8EDF2] font-medium capitalize w-28">{agent}</span>
+                            <span className="text-[#6B7280]">{d.total_trades} trade{d.total_trades !== 1 ? "s" : ""}</span>
+                            <span className="font-mono font-bold" style={{ color: barColor }}>
+                              {acc != null ? `${acc.toFixed(0)}%` : "—"}
+                            </span>
+                          </div>
+                          <div className="h-2 rounded-full bg-white/08 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${acc ?? 0}%`, background: barColor }}
+                            />
+                          </div>
+                          <p className="text-[10px] text-[#6B7280] mt-0.5">
+                            {d.correct_direction}✓ · {d.wrong_direction}✗ · {d.neutral_calls} neutral
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Recent closed trades */}
+              <div>
+                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Recent Closed Trades</p>
+                {attribution.recent_trades.length === 0 ? (
+                  <p className="text-sm text-[#6B7280]">No closed trades yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {attribution.recent_trades.map((t, i) => (
+                      <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/04 last:border-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono font-bold text-[#E8EDF2] text-sm w-14">{t.ticker}</span>
+                          <span className={t.direction === "LONG" ? "badge-long" : "badge-short"}>{t.direction.toLowerCase()}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-right">
+                          <div>
+                            <p className={`font-mono font-bold text-sm ${t.pnl_pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                              {t.pnl_pct >= 0 ? "+" : ""}{t.pnl_pct.toFixed(1)}%
+                            </p>
+                            <p className="text-[10px] text-[#6B7280]">{t.exit_date}</p>
+                          </div>
+                          {t.alpha_vs_spy != null && (
+                            <div>
+                              <p className={`font-mono text-xs ${t.alpha_vs_spy >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                                {t.alpha_vs_spy >= 0 ? "+" : ""}{t.alpha_vs_spy.toFixed(1)}% α
+                              </p>
+                              <p className="text-[10px] text-[#6B7280]">vs SPY</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

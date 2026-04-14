@@ -155,12 +155,20 @@ def store_decision(
     agent_scores: dict,
     size_pct: float | None = None,
     stop_loss: float | None = None,
+    key_catalysts: list[str] | None = None,
+    key_risks: list[str] | None = None,
+    macro_regime: str | None = None,
+    agent_summaries: dict | None = None,
 ) -> None:
     """
     Store the Investment Committee's final decision for one ticker on one date.
     action: 'enter_long' | 'enter_short' | 'hold' | 'increase' | 'decrease' | 'exit'
     conviction: 0-100
     agent_scores: {'fundamental': int, 'quant': int, 'sentiment': int, ...}
+    key_catalysts: specific near-term catalysts cited by committee
+    key_risks: risks noted at decision time
+    macro_regime: e.g. "RISK-OFF" — context for future post-mortems
+    agent_summaries: per-agent qualitative summaries captured at entry
     """
     key = f"{date}_{ticker}"
     record = {
@@ -173,6 +181,10 @@ def store_decision(
         "rationale": rationale,
         "signals": signals,
         "agent_scores": agent_scores,
+        "key_catalysts": key_catalysts or [],
+        "key_risks": key_risks or [],
+        "macro_regime": macro_regime,
+        "agent_summaries": agent_summaries or {},
         "stored_at": datetime.utcnow().isoformat(),
     }
     with _db() as conn:
@@ -192,12 +204,14 @@ def store_trade_entry(
     signals: list[str],
     stop_loss: float | None = None,
     alpaca_order_id: str | None = None,
+    native_stop_order_id: str | None = None,
 ) -> None:
     """
     Called by Trade Executor when a new position is opened.
     Writes to both .swarm/memory.db and positions_log.json.
     direction: 'LONG' | 'SHORT'
-    alpaca_order_id: the Alpaca order ID if the order was placed; None = pending (market closed).
+    alpaca_order_id: the Alpaca entry order ID; None = pending (market closed).
+    native_stop_order_id: Alpaca GTC stop order ID if a native stop was placed.
     """
     record = {
         "ticker": ticker,
@@ -207,6 +221,7 @@ def store_trade_entry(
         "conviction": conviction,
         "size_pct": size_pct,
         "stop_loss": stop_loss,
+        "native_stop_order_id": native_stop_order_id,
         "entry_thesis": rationale,
         "signals": signals,
         "alpaca_order_id": alpaca_order_id,
@@ -288,6 +303,70 @@ def store_trade_exit(
     # Update pattern_history.json with outcome
     _update_pattern_history(entry.get("signals", []), entry.get("conviction", 50), pnl_pct)
     logger.info("Trade exit stored: %s @ $%.2f (P&L: %+.1f%%) — %s", ticker, exit_price, pnl_pct, exit_reason)
+
+    # Load entry decision record (shared by attribution + post-mortem)
+    _exit_agent_scores: dict = {}
+    _exit_decision: dict = {}
+    try:
+        with _db() as _conn:
+            _row = _conn.execute(
+                """SELECT content FROM memory_entries
+                   WHERE namespace='stock_agent_decisions' AND key LIKE ?
+                   ORDER BY key DESC LIMIT 1""",
+                (f"%_{ticker}",),
+            ).fetchone()
+        if _row:
+            _exit_decision = json.loads(_row["content"])
+            _exit_agent_scores = _exit_decision.get("agent_scores", {})
+    except Exception:
+        pass
+
+    # Attribution — runs after exit record so a failure never blocks it
+    _attr_record: dict = {}
+    try:
+        import sys as _sys
+        from pathlib import Path as _Path
+        _scripts = str(_Path(__file__).resolve().parent.parent / "scripts")
+        if _scripts not in _sys.path:
+            _sys.path.insert(0, _scripts)
+        import attribution_engine as _ae
+        _attr_record = _ae.attribute_trade(
+            ticker=ticker,
+            entry_date=entry.get("entry_date", exit_date),
+            exit_date=exit_date,
+            entry_price=float(entry_price),
+            exit_price=float(exit_price),
+            direction=direction,
+            agent_scores=_exit_agent_scores,
+            sector=None,   # attribution_engine looks this up via yfinance
+            exit_reason=exit_reason,
+        )
+        logger.info("Attribution computed for %s", ticker)
+    except Exception as _exc:
+        logger.warning("Attribution failed for %s: %s — pipeline continues", ticker, _exc)
+
+    # Post-mortem — qualitative LLM analysis of why the trade worked or failed
+    try:
+        import postmortem_engine as _pm
+        _pm.generate_postmortem(
+            ticker=ticker,
+            entry_date=entry.get("entry_date", exit_date),
+            exit_date=exit_date,
+            direction=direction,
+            pnl_pct=pnl_pct,
+            entry_thesis=entry.get("entry_thesis", "") or _exit_decision.get("rationale", ""),
+            key_catalysts=_exit_decision.get("key_catalysts", []),
+            key_risks=_exit_decision.get("key_risks", []),
+            agent_scores=_exit_agent_scores,
+            agent_summaries=_exit_decision.get("agent_summaries", {}),
+            macro_regime_at_entry=_exit_decision.get("macro_regime"),
+            exit_reason=exit_reason,
+            alpha_vs_spy=_attr_record.get("alpha_vs_spy"),
+            sector=_attr_record.get("sector"),
+        )
+        logger.info("Post-mortem generated for %s", ticker)
+    except Exception as _exc2:
+        logger.warning("Post-mortem failed for %s: %s — pipeline continues", ticker, _exc2)
 
 
 def get_ticker_history(ticker: str, days_back: int = 30) -> list[dict]:

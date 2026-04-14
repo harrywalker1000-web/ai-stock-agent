@@ -24,6 +24,7 @@ Config via environment variables:
 
 import json
 import os
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -39,6 +40,17 @@ load_dotenv()
 logger = get_logger(__name__)
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _load_json(path: Path, default=None):
+    if not path.exists():
+        return default if default is not None else {}
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception:
+        return default if default is not None else {}
+
 
 # Config: read ANALYSIS_MODE from JSON config file, env var overrides
 _CONFIG_PATH = ROOT / "data" / "config" / "analysis_mode.json"
@@ -178,9 +190,30 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
             d["size_pct"] = 5.0
             logger.warning("%s: not in construction output — defaulting to 5%%", ticker)
 
+    # Handle capital swap exits: positions construction decided to exit to fund better opportunities
+    capital_swap_exits = construction.get("capital_swap_exits", [])
+    existing_tickers = {d.get("ticker") for d in phase_b_decisions}
+    for swap in capital_swap_exits:
+        ticker = swap.get("ticker", "")
+        if not ticker or ticker not in open_positions:
+            continue
+        if ticker in existing_tickers:
+            continue  # Already has a decision (e.g. Phase A exited it)
+        reason = swap.get("reason", "Capital reallocation: lower-conviction position exited to fund higher-conviction new entry")
+        phase_b_decisions.append({
+            "ticker": ticker,
+            "action": "exit",
+            "conviction": open_positions[ticker].get("conviction", 50),
+            "investment_thesis": reason,
+            "key_catalysts": [],
+            "key_risks": [],
+            "skip_reason": "",
+        })
+        existing_tickers.add(ticker)
+        logger.info("Portfolio construction: capital swap — adding exit for %s (%s)", ticker, reason[:80])
+
     # Also handle rebalancing of held positions: add increase/decrease entries to decisions
     rebalancing = construction.get("rebalancing", {})
-    existing_tickers = {d.get("ticker") for d in phase_b_decisions}
     for ticker, change in rebalancing.items():
         if ticker in existing_tickers:
             continue  # Already in Phase B decisions
@@ -198,6 +231,7 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
             "key_catalysts": [],
             "key_risks": [],
         })
+        existing_tickers.add(ticker)
         logger.info("Portfolio construction: adding %s rebalance %s → %.1f%%", ticker, action, to_pct)
 
     # Write patched decisions back to committee_report.json so executor picks them up
@@ -210,12 +244,13 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
                 "target_weights": target_weights,
                 "reasoning": construction.get("reasoning", ""),
                 "rebalancing": rebalancing,
+                "capital_swap_exits": [s.get("ticker") for s in capital_swap_exits if s.get("ticker")],
                 "generated_at": cr.get("generated_at", ""),
             }
             with open(committee_report_path, "w") as f:
                 _json.dump(cr, f, indent=2)
-            logger.info("Portfolio construction: patched %d/%d decisions with target weights",
-                        patched, len(phase_b_decisions))
+            logger.info("Portfolio construction: patched %d/%d decisions with target weights (%d capital swaps)",
+                        patched, len(phase_b_decisions), len(capital_swap_exits))
         except Exception as exc:
             logger.warning("Portfolio construction: could not patch committee_report.json: %s", exc)
 
@@ -435,6 +470,17 @@ def run() -> dict:
         logger.warning("Alpaca reconciliation failed: %s — proceeding with current positions_log", exc)
         summary["reconciliation"] = {"error": str(exc)}
 
+    # --- Portfolio Risk Snapshot ---
+    # Runs after reconciliation (so positions_log is clean) and before any agent.
+    # Written to data/reports/portfolio_risk_snapshot.json for Committee / Construction / Executor.
+    try:
+        from utils.risk_snapshot import compute_risk_snapshot
+        logger.info("Computing Portfolio Risk Snapshot...")
+        summary["risk_snapshot"] = compute_risk_snapshot()
+    except Exception as exc:
+        logger.warning("Portfolio Risk Snapshot failed: %s — pipeline continues without it", exc)
+        summary["risk_snapshot"] = {"error": str(exc)}
+
     # --- Phase A ---
     if SKIP_PHASE_A:
         logger.info("Phase A skipped (SKIP_PHASE_A=true)")
@@ -523,5 +569,21 @@ def run() -> dict:
     logger.info("  Open positions after: %d",
                 summary["pipeline_summary"]["open_positions_after"])
     logger.info("=" * 60)
+
+    # --- Benchmark tracking ---
+    # Append today's NAV to nav_history.json and recompute portfolio vs SPY.
+    # Must run after executor writes portfolio_state.json (equity is final).
+    try:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import benchmark_tracker
+        logger.info("Updating benchmark tracker (NAV append + SPY comparison)...")
+        bench_result = benchmark_tracker.run()
+        summary["benchmark"] = bench_result.get("benchmark", {})
+        logger.info("Benchmark updated: %d NAV points", len(
+            _load_json(ROOT / "data" / "memory" / "nav_history.json", default=[])
+        ))
+    except Exception as exc:
+        logger.warning("Benchmark tracker failed: %s — pipeline continues without it", exc)
+        summary["benchmark"] = {"error": str(exc)}
 
     return summary
