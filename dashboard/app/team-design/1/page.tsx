@@ -57,13 +57,6 @@ const CONNECTIONS: [string, string][] = [
   ["news", "committee"],   // news also directly informs committee
 ];
 
-const RING_LABELS: Record<string, string> = {
-  phase1: "PHASE 1 — SIGNAL INTAKE",
-  filter: "FILTER",
-  phase2: "PHASE 2 — DEEP ANALYSIS",
-  committee: "COMMITTEE",
-  execute: "EXECUTION",
-};
 
 function OrbitalNode({
   agent,

@@ -30,20 +30,6 @@ function hexToRgb(hex: string) {
 // Candidate: spans 1x2 (tall)
 // Others: 1x1
 
-const BENTO_AREAS: Record<string, { col: string; row: string; span?: string; size: "sm" | "md" | "lg" }> = {
-  macro:         { col: "1", row: "1",     size: "sm" },
-  sector:        { col: "1", row: "2",     size: "sm" },
-  institutional: { col: "1", row: "3",     size: "sm" },
-  news:          { col: "1", row: "4",     size: "sm" },
-  candidate:     { col: "2", row: "1",     span: "span 2 / span 2", size: "md" },  // 2 rows tall
-  fundamental:   { col: "2", row: "3",     size: "sm" },
-  quant:         { col: "2", row: "4",     size: "sm" },
-  sentiment:     { col: "2", row: "5",     size: "sm" },
-  committee:     { col: "3", row: "3",     span: "span 2 / span 2", size: "lg" },  // 2x2
-  executor:      { col: "4", row: "1",     size: "sm" },
-  memory:        { col: "4", row: "2",     size: "sm" },
-};
-
 // Flow lines: which agents feed which (for visual decoration)
 const FLOW_GROUPS = [
   { label: "PHASE 1 — INTAKE", ids: ["macro", "sector", "institutional", "news"], color: "#0EA5E9" },
