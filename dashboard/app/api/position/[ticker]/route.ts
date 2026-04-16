@@ -158,8 +158,104 @@ export async function GET(
   } catch { /* live data unavailable — not fatal */ }
 
   // ── Merge: use pipeline agent data + live prices ───────────────────────────
+  // If not in current report files but IS a held position, build from positions_log
   if (!hasPipelineData) {
-    return NextResponse.json({ error: "No pipeline data available for this ticker" }, { status: 404 });
+    if (!positionEntry) {
+      return NextResponse.json({ error: "No data available for this ticker" }, { status: 404 });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pe = positionEntry as any;
+    const ads = pe.agent_scores_detail ?? {};
+    const posAgentScores = [
+      { agent: "Fundamental", score: ads.fundamental ?? 0, view: ads.fundamental_summary ?? "—" },
+      { agent: "Quant",       score: ads.quant ?? 0,       view: ads.quant_summary ?? "—" },
+      { agent: "Sentiment",   score: ads.sentiment ?? 0,   view: ads.sentiment_summary ?? "—" },
+      { agent: "Macro",       score: 0,                    view: macroReport ? `${macroReport.regime}` : "—" },
+    ].filter(a => a.score > 0 || a.view !== "—");
+
+    const peDirection = (alpacaPosition?.side === "short" || pe.direction?.toUpperCase() === "SHORT") ? "SHORT" : "LONG";
+    const peConviction = pe.conviction ?? 50;
+    const peLivePrice  = alpacaCurrentPrice ?? liveQuote?.current_price ?? pe.entry_price ?? 0;
+    const peEntryPrice = alpacaEntryPrice   ?? pe.entry_price ?? 0;
+    const peMV = alpacaPosition ? Math.abs(parseFloat(alpacaPosition.market_value)) : null;
+    const pePctChg = alpacaUnrealPct ?? (peLivePrice && peEntryPrice ? ((peLivePrice - peEntryPrice) / peEntryPrice) * 100 : 0);
+    const pePnlAbs = alpacaUnrealAbs ?? (peMV ? (pePctChg / 100) * peMV : 0);
+    const pePctPort = (peMV && alpacaEquity && alpacaEquity > 0) ? parseFloat((peMV / alpacaEquity * 100).toFixed(2)) : pe.size_pct ?? 0;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const peSC: any = pe.setup_checklist ?? {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const peFM: any = pe.fund_mandate ?? null;
+    const peSetupChecklist = typeof peSC === "object" && !Array.isArray(peSC) ? (() => {
+      const items: { item: string; detail: string }[] = [];
+      if (peSC.setup_type)       items.push({ item: "Setup type",    detail: String(peSC.setup_type) });
+      if (peSC.margin_trend)     items.push({ item: "Margin trend",  detail: String(peSC.margin_trend) });
+      if (peSC.fcf_positive != null) items.push({ item: "FCF status", detail: peSC.fcf_positive ? "Positive" : "Negative" });
+      if (peSC.default_risk)     items.push({ item: "Default risk",  detail: String(peSC.default_risk) });
+      if (peSC.leverage_vs_peers) items.push({ item: "Leverage vs peers", detail: String(peSC.leverage_vs_peers) });
+      if ((peSC.upcoming_catalysts ?? []).length > 0) items.push({ item: "Catalysts", detail: (peSC.upcoming_catalysts as string[]).slice(0, 3).join("; ") });
+      if ((peSC.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: (peSC.key_risks as string[]).slice(0, 3).join("; ") });
+      if (peSC.moat_strength)    items.push({ item: "Moat strength", detail: String(peSC.moat_strength) });
+      return items;
+    })() : [];
+    const peMandateChecklist = peFM ? (() => {
+      const items: { item: string; pass: boolean }[] = [];
+      if (peFM.asset_class || peFM.exchange) items.push({ item: `Asset class — ${peFM.asset_class ?? "Equity"} (${peFM.exchange ?? "—"})`, pass: true });
+      if (peFM.market_cap_figure) items.push({ item: `Market cap: ${peFM.market_cap_figure}`, pass: true });
+      if (peFM.sector) items.push({ item: `Sector: ${peFM.sector}`, pass: true });
+      const gf = peFM.geography_flags ?? {};
+      const sc2 = !gf.russia_exposure && !gf.mongolia_exposure && !gf.cambodia_exposure;
+      items.push({ item: `Sanctions — ${sc2 ? "Clean" : "FLAGGED"} (${gf.exposure_detail ?? "—"})`, pass: sc2 });
+      if (peFM.setup_type) items.push({ item: `Setup type: ${peFM.setup_type}`, pass: true });
+      return items;
+    })() : [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const peFS: any = pe.financial_snapshot ?? null;
+
+    return NextResponse.json({
+      ticker,
+      company:       liveQuote?.company ?? pe.company_info?.overview?.slice(0, 60) ?? ticker,
+      sector:        liveQuote?.sector ?? peFM?.sector ?? null,
+      direction:     peDirection.toLowerCase(),
+      entry_price:   parseFloat(peEntryPrice.toFixed(2)),
+      current_price: parseFloat(peLivePrice.toFixed(2)),
+      pct_change:    parseFloat(pePctChg.toFixed(2)),
+      pnl_absolute:  parseFloat(pePnlAbs.toFixed(2)),
+      position_size: peMV ? parseFloat(peMV.toFixed(2)) : 0,
+      qty:           alpacaQty ?? null,
+      pct_portfolio: pePctPort,
+      entry_date:    pe.entry_date ?? null,
+      conviction:    peConviction,
+      scenario:      peConviction >= 70 ? "A" : peConviction >= 55 ? "B" : "C",
+      review_timeline: reviewTimeline.length > 0 ? reviewTimeline : undefined,
+
+      agent_scores:   posAgentScores,
+      investment_thesis_bullets: pe.investment_thesis_bullets ?? [],
+      recommendation: { direction: peDirection, action: "HOLD", conviction: peConviction, stop_loss: pe.stop_loss ?? null, stop_loss_note: pe.stop_loss ? `Stop loss: $${pe.stop_loss}` : null },
+      financial_snapshot: peFS ? { historical: peFS.historical ?? [], forward: peFS.forward ?? [], revenue_ttm: liveQuote?.revenue_ttm, ebitda_live: liveQuote?.ebitda, gross_margins: liveQuote?.gross_margins, ebitda_margins: liveQuote?.ebitda_margins, profit_margins: liveQuote?.profit_margins } : null,
+      market_analysis: { ...(pe.market_analysis ?? {}), _source: "positions_log", _macro_regime: macroReport?.regime },
+      quality_of_earnings: pe.quality_of_earnings ?? null,
+      technical_data:  null,
+      sentiment_data:  null,
+      news_catalysts:  catalysts,
+      key_catalysts:   pe.key_catalysts ?? [],
+      key_risks:       pe.key_risks_committee ?? [],
+      company_info:    pe.company_info ?? null,
+      fund_mandate:    peFM,
+      setup_checklist: peSetupChecklist,
+      mandate_checklist: peMandateChecklist,
+      valuation:       pe.valuation ?? null,
+      analyst_rating_history: pe.analyst_rating_history ?? null,
+      market_timing:   pe.market_timing ?? null,
+      comparables:     pe.comparables ?? null,
+      management_team: pe.management_team ?? null,
+      cap_table:       pe.cap_table ?? null,
+      agent_debate:    pe.agent_debate ?? null,
+      _source:         "positions_log",
+      _pipeline_date:  pe.opened_at ?? "—",
+      _macro_regime:   macroReport?.regime,
+    });
   }
 
   // Build agent_scores array from scorecard

@@ -123,6 +123,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
     );
   }
 
+  if (position.error) {
+    return (
+      <div className="min-h-screen bg-[#080C10] flex flex-col items-center justify-center gap-4">
+        <p className="text-[#6B7280] font-mono text-sm">No data available for {ticker}</p>
+        <Link href="/dashboard" className="text-xs text-[#0EA5E9] hover:underline">← Back to Dashboard</Link>
+      </div>
+    );
+  }
+
   const isProfit = position.pct_change >= 0;
   const pnlColor = isProfit ? "#10B981" : "#EF4444";
   const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
@@ -239,8 +248,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <div className="card p-6 flex flex-col justify-between">
             <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Recommendation</h2>
             <div className="flex items-center gap-4 mb-5">
-              <div className={`px-5 py-3 rounded-xl text-2xl font-display font-bold ${rec.direction === "LONG" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#EF4444]/20 text-[#EF4444]"}`}>
-                {rec.direction}
+              <div className={`px-5 py-3 rounded-xl text-2xl font-display font-bold ${(rec?.direction ?? position.direction?.toUpperCase()) === "LONG" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#EF4444]/20 text-[#EF4444]"}`}>
+                {rec?.direction ?? position.direction?.toUpperCase() ?? "LONG"}
               </div>
               <div>
                 <p className="text-3xl font-display font-bold text-[#E8EDF2]">{val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
@@ -250,12 +259,12 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             <div>
               <div className="flex justify-between text-xs mb-1.5">
                 <span className="text-[#6B7280]">Conviction</span>
-                <span className="font-mono font-bold text-[#E8EDF2]">{rec.conviction ?? position.conviction}/100</span>
+                <span className="font-mono font-bold text-[#E8EDF2]">{(rec?.conviction ?? position.conviction ?? 0)}/100</span>
               </div>
               <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${rec.conviction ?? position.conviction}%` }} />
+                <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${rec?.conviction ?? position.conviction ?? 0}%` }} />
               </div>
-              {rec.stop_loss_note && (
+              {rec?.stop_loss_note && (
                 <p className="text-xs text-[#6B7280] mt-3 leading-relaxed">{rec.stop_loss_note}</p>
               )}
             </div>
@@ -303,11 +312,11 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 ))}
                 <div className="col-span-2">
                   <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">Geography / Sanctions</p>
-                  <p className="text-xs text-[#E8EDF2]">{fm.geography_flags.exposure_detail}</p>
+                  <p className="text-xs text-[#E8EDF2]">{fm.geography_flags?.exposure_detail ?? "—"}</p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">PEPs Check</p>
-                  <p className="text-xs text-[#E8EDF2]">{fm.peps_check.notes}</p>
+                  <p className="text-xs text-[#E8EDF2]">{fm.peps_check?.notes ?? "—"}</p>
                 </div>
               </div>
             )}
