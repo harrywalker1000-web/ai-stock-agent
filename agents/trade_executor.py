@@ -646,7 +646,7 @@ def run(mode: str = "new_opportunities") -> dict:
     stop_triggers = _check_stop_losses(open_positions, alpaca_positions, api)
     for trigger in stop_triggers:
         ticker = trigger["ticker"]
-        qty = int(alpaca_positions.get(ticker, {}).get("qty", 0))
+        qty = int(abs(float(alpaca_positions.get(ticker, {}).get("qty", 0))))
         if qty > 0 and safe:
             order = _place_order(api, ticker, qty, "sell", f"Stop-loss triggered at ${trigger['stop_loss']}")
             if order:
@@ -811,7 +811,8 @@ def run(mode: str = "new_opportunities") -> dict:
 
         elif action == "exit":
             alpaca_pos = alpaca_positions.get(ticker)
-            qty = int(alpaca_pos["qty"]) if alpaca_pos else 0
+            # Use abs() — Alpaca returns negative qty for short positions
+            qty = int(abs(float(alpaca_pos["qty"]))) if alpaca_pos else 0
             if qty <= 0:
                 logger.warning("%s: exit requested but no Alpaca position found", ticker)
                 continue
@@ -830,6 +831,8 @@ def run(mode: str = "new_opportunities") -> dict:
             )
             entry_price = open_positions.get(ticker, {}).get("entry_price")
             pnl = round((current_price - entry_price) / entry_price * 100, 2) if entry_price else None
+            if direction == "SHORT" and pnl is not None:
+                pnl = -pnl  # For shorts: profit when price falls
             trade = {
                 "date": today, "ticker": ticker, "action": "exit",
                 "direction": direction, "shares": qty, "price": current_price,
@@ -848,7 +851,7 @@ def run(mode: str = "new_opportunities") -> dict:
                 continue
 
             alpaca_pos_r = alpaca_positions.get(ticker)
-            existing_qty = int(alpaca_pos_r["qty"]) if alpaca_pos_r else 0
+            existing_qty = int(abs(float(alpaca_pos_r["qty"]))) if alpaca_pos_r else 0
             existing_dir = open_positions.get(ticker, {}).get("direction", "LONG").upper()
 
             if existing_qty <= 0:
