@@ -3,23 +3,22 @@
     {
       "ticker": "NVDA",
       "action": "skip",
-      "conviction": 73,
+      "conviction": 78,
       "skip_reason": "Direction conflict: already held SHORT. Phase A portfolio review must handle direction changes \u2014 Phase B cannot enter a position opposing an existing holding.",
       "size_pct": -7.4
     },
     {
-      "ticker": "AAPL",
-      "action": "increase",
-      "conviction": 71,
+      "ticker": "AMZN",
+      "action": "enter_long",
+      "conviction": 72,
       "stop_loss": null,
       "target_price": null,
-      "investment_thesis": "Apple's strong profitability metrics and bullish momentum signals suggest a potential upside in the near term. The upcoming product launch could act as a catalyst for price appreciation, and if the stock fails to maintain its current support level, it would indicate a need to reassess the position.",
+      "investment_thesis": "Amazon's strong profitability metrics and bullish momentum indicators suggest a potential upside despite the current risk-off sentiment. The upcoming earnings release is a key catalyst that could drive the stock higher, and a significant drop below recent support levels would trigger an exit.",
       "key_catalysts": [
-        "Product launch expected within two weeks",
-        "Sector momentum supporting tech stocks"
+        "Upcoming earnings release within 30 days"
       ],
       "key_risks": [
-        "Negative market sentiment affecting tech sector"
+        "Potential disappointment in earnings results"
       ],
       "conflict_resolution": "No conflict",
       "use_native_stop": true,
@@ -27,21 +26,23 @@
       "native_limit_price": null,
       "native_trail_percent": null,
       "native_take_profit_price": null,
-      "size_pct": 15.0
+      "skip_reason": null,
+      "reverse_direction": null,
+      "reverse_size_pct": null,
+      "size_pct": 8.0
     },
     {
-      "ticker": "TMO",
+      "ticker": "AAPL",
       "action": "enter_long",
-      "conviction": 67,
+      "conviction": 73,
       "stop_loss": null,
       "target_price": null,
-      "investment_thesis": "Thermo Fisher Scientific shows bullish momentum and is supported by analyst upgrades, indicating potential for price appreciation. The upcoming earnings report could serve as a catalyst, and if the stock fails to break above recent resistance, it would signal a need to exit.",
+      "investment_thesis": "Apple's strong operating metrics and bullish analyst sentiment indicate a favorable outlook in the near term, especially with the upcoming product launch expected to generate excitement. A breach of key support levels would signal a need to exit the position.",
       "key_catalysts": [
-        "Earnings report in two weeks",
-        "Sector momentum in healthcare"
+        "Upcoming product launch within 30 days"
       ],
       "key_risks": [
-        "Broader market downturn affecting healthcare"
+        "Market reaction to product launch"
       ],
       "conflict_resolution": "No conflict",
       "use_native_stop": true,
@@ -49,23 +50,83 @@
       "native_limit_price": null,
       "native_trail_percent": null,
       "native_take_profit_price": null,
-      "size_pct": 10.0
+      "skip_reason": null,
+      "reverse_direction": null,
+      "reverse_size_pct": null,
+      "size_pct": 8.0
+    },
+    {
+      "ticker": "MSFT",
+      "action": "enter_long",
+      "conviction": 74,
+      "stop_loss": null,
+      "target_price": null,
+      "investment_thesis": "Microsoft's strong financial health and bullish sentiment from analysts suggest a positive trajectory, particularly with the upcoming earnings report that could validate its growth story. A significant drop below recent support levels would indicate a need to exit.",
+      "key_catalysts": [
+        "Upcoming earnings report within 30 days"
+      ],
+      "key_risks": [
+        "Market volatility and potential earnings miss"
+      ],
+      "conflict_resolution": "No conflict",
+      "use_native_stop": true,
+      "native_order_type": "stop",
+      "native_limit_price": null,
+      "native_trail_percent": null,
+      "native_take_profit_price": null,
+      "skip_reason": null,
+      "reverse_direction": null,
+      "reverse_size_pct": null,
+      "size_pct": 7.8
+    },
+    {
+      "ticker": "AMD",
+      "action": "enter_long",
+      "conviction": 66,
+      "stop_loss": null,
+      "target_price": null,
+      "investment_thesis": "AMD's strong revenue growth and bullish sentiment indicate potential upside, especially in light of recent analyst upgrades. The upcoming earnings report is a key catalyst, and a significant drop below support levels would trigger an exit.",
+      "key_catalysts": [
+        "Upcoming earnings report within 30 days"
+      ],
+      "key_risks": [
+        "High valuation relative to peers"
+      ],
+      "conflict_resolution": "No conflict",
+      "use_native_stop": true,
+      "native_order_type": "stop",
+      "native_limit_price": null,
+      "native_trail_percent": null,
+      "native_take_profit_price": null,
+      "skip_reason": null,
+      "reverse_direction": null,
+      "reverse_size_pct": null,
+      "size_pct": 6.0
     },
     {
       "ticker": "AMCR",
       "action": "exit",
       "conviction": 50,
-      "investment_thesis": "conviction 50 vs new entry TMO conviction 67",
+      "investment_thesis": "conviction 50 vs new entry MSFT conviction 74",
+      "key_catalysts": [],
+      "key_risks": [],
+      "skip_reason": ""
+    },
+    {
+      "ticker": "LEN",
+      "action": "exit",
+      "conviction": 50,
+      "investment_thesis": "conviction 50 vs new entry AAPL conviction 73",
       "key_catalysts": [],
       "key_risks": [],
       "skip_reason": ""
     }
   ],
-  "total_decisions": 3,
+  "total_decisions": 5,
   "actions_taken": {
-    "enter": 1,
+    "enter": 4,
     "hold": 0,
-    "increase": 1,
+    "increase": 0,
     "decrease": 0,
     "exit": 0,
     "skip": 1
@@ -73,48 +134,47 @@
   "portfolio_allocation": {
     "cash_reserve": 100
   },
-  "committee_narrative": "In today's risk-off macro environment, the Investment Committee has decided to increase our position in AAPL with a conviction score of 71/100, driven by strong profitability metrics and bullish momentum ahead of the anticipated product launch in two weeks. This event could provide a significant catalyst for price appreciation, although we acknowledge the risk posed by negative market sentiment impacting the tech sector. Additionally, we are entering a long position in TMO with a conviction score of 67/100, supported by recent analyst upgrades and bullish momentum. The upcoming earnings report in two weeks presents a potential catalyst for growth, but we remain cautious of the broader market downturn that could adversely affect the healthcare sector.",
+  "committee_narrative": "In today's risk-off environment, the committee has decided to enter long positions in several key technology stocks based on their favorable metrics and upcoming catalysts. We are initiating a long position in AMZN with a conviction score of 72/100, driven by its strong profitability metrics and the upcoming earnings release, though we acknowledge the risk of potential disappointment in results. AAPL is also being added to the portfolio with a conviction score of 73/100, as its operating metrics and bullish analyst sentiment align with the anticipated product launch, despite the risk of market reaction. Additionally, we are taking a long position in MSFT with a conviction score of 74/100, supported by its financial health and the forthcoming earnings report, while remaining cautious of market volatility. Lastly, AMD, with a conviction score of 66/100, presents potential upside from recent analyst upgrades, but we recognize the risk posed by its high valuation relative to peers ahead of its earnings report.",
   "macro_regime": "RISK-OFF",
   "weights_used": {
     "fundamental": 0.4,
     "quant": 0.3,
     "sentiment": 0.3
   },
-  "candidates_evaluated": 13,
-  "candidates_debated": 13,
+  "candidates_evaluated": 5,
+  "candidates_debated": 5,
   "scorecards": [
     {
       "ticker": "NVDA",
-      "composite_score": 72,
+      "composite_score": 79,
       "fundamental_score": 85,
       "quant_score": 75,
-      "sentiment_score": 50,
-      "agent_spread": 35,
-      "conflict_flag": true,
+      "sentiment_score": 75,
+      "agent_spread": 10,
+      "conflict_flag": false,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 2.64,
-      "suggested_size_pct": 14.0,
+      "atr_pct": 2.66,
+      "suggested_size_pct": 15.4,
       "candidate_signals": [
         "institutional_signal",
         "analyst_upgrade",
-        "unusual_calls(2.5x_vol_oi)",
-        "sector_momentum"
+        "unusual_calls(4.1x_vol_oi)"
       ],
-      "candidate_score": 5.75,
-      "fundamental_summary": "NVDA exhibits strong profitability with an operating margin of 65.0% and an impressive ROE of 101.5%. Its revenue growth of 65.5% significantly outpaces peers, while its P/E ratio is below the peer average, indicating a potential undervaluation.",
-      "quant_summary": "NVDA is currently in an uptrend, supported by bullish momentum indicators and a bullish moving average stack. Despite being overbought, the momentum is likely to continue, suggesting a potential upward movement in the next 5-10 days.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 5.0,
+      "fundamental_summary": "NVDA shows strong growth with a revenue growth of 65.5% YoY and a high ROIC of 62.9%. Its profitability metrics, including a net margin of 55.6%, outperform peers, while its leverage is lower than the peer average D/E of 43.83.",
+      "quant_summary": "NVDA is currently in an uptrend, supported by bullish momentum indicators and a strong price structure above key moving averages. In the next 5-10 days, the price is likely to continue its upward trajectory, targeting resistance levels around $194.48.",
+      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in a long position.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 35.4,
       "retail_euphoria_warning": false,
       "mean_reversion_score": 0,
       "forward_bias": "bullish",
       "trade_type": "momentum",
       "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-33.4% discount vs peer median P/E of 61.20.",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "price_vs_intrinsic_value": "-34.3% discount vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
@@ -141,54 +201,96 @@
           "conservative_value": 60922000000.0,
           "resolution": "yf_av used (conservative)"
         }
-      ],
-      "agent_debate": {
-        "dissenter": "Sentiment",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 50,
-        "high_agent_score": 85,
-        "spread": 35,
-        "tension_identified": "The Fundamental analyst sees NVDA as undervalued and highly profitable, while the Sentiment analyst's score suggests a lack of positive sentiment or enthusiasm for the stock.",
-        "committee_challenge": "Given the strong profitability metrics and significant revenue growth highlighted by the Fundamental analyst, can you elaborate on the factors contributing to your neutral sentiment score? What specific data or indicators led you to assess NVDA's sentiment as average despite its robust financial performance?",
-        "analyst_response": "While NVDA's fundamental metrics indicate strong profitability and revenue growth, my neutral sentiment score of 50/100 is influenced by several factors. The analyst consensus remains cautious, and the news sentiment around NVDA has been mixed, indicating potential volatility. Additionally, the absence of retail euphoria and short squeeze risk suggests a lack of strong bullish sentiment in the market, which tempers my overall outlook despite the positive financial performance.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 50,
-        "committee_resolution": "I acknowledge the strong fundamental metrics of NVDA, particularly its operating margin of 65.0% and revenue growth of 65.5%, which suggest robust financial health. However, the sentiment analyst's concerns about mixed news sentiment and the lack of retail enthusiasm indicate potential risks that could affect stock performance, warranting a cautious approach.",
-        "committee_resolution_reasoning": "The sentiment score remains unchanged due to valid concerns about market volatility and the absence of strong bullish sentiment, despite NVDA's strong fundamentals.",
-        "final_dissenter_score": 50
-      }
+      ]
     },
     {
-      "ticker": "AAPL",
-      "composite_score": 67,
-      "fundamental_score": 82,
+      "ticker": "AMZN",
+      "composite_score": 73,
+      "fundamental_score": 78,
       "quant_score": 65,
-      "sentiment_score": 50,
-      "agent_spread": 32,
-      "conflict_flag": true,
+      "sentiment_score": 75,
+      "agent_spread": 13,
+      "conflict_flag": false,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 2.25,
-      "suggested_size_pct": 13.1,
+      "atr_pct": 2.64,
+      "suggested_size_pct": 14.2,
       "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum"
+        "institutional_signal",
+        "unusual_calls(2.9x_vol_oi)"
       ],
-      "candidate_score": 2.75,
-      "fundamental_summary": "AAPL shows strong profitability with a net margin of 27.0% and an ROIC of 52.0%. However, its high D/E ratio of 102.63 raises concerns about leverage compared to peers.",
-      "quant_summary": "AAPL is currently in an uptrend, supported by bullish momentum indicators despite a risk-off macro environment. In the next 5-10 days, the price is likely to test resistance at $276.11, with a bullish bias supported by the technical setup.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 4.0,
+      "fundamental_summary": "AMZN shows strong profitability with a net margin of 10.8% and a solid ROE of 22.3%. However, its P/E ratio of 34.72 is above the peer average of 60.70, indicating a high valuation relative to peers.",
+      "quant_summary": "AMZN is currently in an uptrend, trading above both the 50-day and 200-day SMAs. Given the strong momentum and bullish indicators, the price is likely to continue its upward trajectory in the next 5-10 days, targeting resistance around $247.78.",
+      "sentiment_summary": "Despite a risk-off macro regime, Amazon (AMZN) shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value amidst market fear.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 12.6,
       "retail_euphoria_warning": false,
       "mean_reversion_score": 0,
       "forward_bias": "bullish",
       "trade_type": "momentum",
-      "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-43.7% discount vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "dislocation_opportunity": false,
+      "price_vs_intrinsic_value": "-42.8%",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 716923994112,
+          "sec_edgar_value": 574785000000.0,
+          "diff_pct": 19.8,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 7.18,
+          "sec_edgar_value": 2.9,
+          "diff_pct": 59.6,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 574785000000.0,
+          "fmp_value": 716924000000,
+          "diff_pct": 24.7,
+          "conservative_value": 574785000000.0,
+          "resolution": "yf_av used (conservative)"
+        }
+      ]
+    },
+    {
+      "ticker": "AAPL",
+      "composite_score": 71,
+      "fundamental_score": 76,
+      "quant_score": 65,
+      "sentiment_score": 70,
+      "agent_spread": 11,
+      "conflict_flag": false,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 2.24,
+      "suggested_size_pct": 13.9,
+      "candidate_signals": [
+        "institutional_signal",
+        "unusual_calls(4.0x_vol_oi)"
+      ],
+      "candidate_score": 4.0,
+      "fundamental_summary": "AAPL has a solid operating margin of 35.4% and a strong ROIC of 52.0%, but its high D/E ratio of 102.63 raises concerns about leverage compared to peers. The revenue growth of 6.4% is below the peer average, indicating potential challenges in maintaining growth.",
+      "quant_summary": "AAPL is currently in an uptrend, supported by bullish momentum indicators despite a risk-off macro environment. In the next 5-10 days, the price is likely to test the resistance at $276.11, with a bullish bias supported by the technical setup.",
+      "sentiment_summary": "Despite a risk-off macro regime, AAPL shows bullish analyst sentiment with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggests that current sentiment is leading, indicating potential value in the stock amidst market fear.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 12.5,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 0,
+      "forward_bias": "bullish",
+      "trade_type": "momentum",
+      "dislocation_opportunity": false,
+      "price_vs_intrinsic_value": "-44.7% discount vs peer median P/E.",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
@@ -215,196 +317,39 @@
           "conservative_value": 215639000000.0,
           "resolution": "yf_av used (conservative)"
         }
-      ],
-      "agent_debate": {
-        "dissenter": "Sentiment",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 50,
-        "high_agent_score": 82,
-        "spread": 32,
-        "tension_identified": "The Fundamental analysis presents a strong financial outlook for AAPL, while the Sentiment analysis reflects a neutral stance, indicating a disconnect between financial performance and market perception.",
-        "committee_challenge": "Given that the Fundamental analysis highlights AAPL's strong profitability and high net margin, what specific factors or data points led you to assign a score of 50 for sentiment? Are there particular market perceptions or news events that you believe overshadow the strong financial metrics?",
-        "analyst_response": "My score of 50 for sentiment reflects several factors that overshadow AAPL's strong financial metrics. Recent news sentiment has been lukewarm, with concerns about supply chain issues and competitive pressures impacting market perceptions. Additionally, the analyst consensus shows mixed opinions, which may indicate uncertainty among investors. These elements suggest that despite strong fundamentals, sentiment remains cautious, justifying my original score.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 50,
-        "committee_resolution": "The original challenge effectively prompted the sentiment analyst to clarify their reasoning, which highlights valid concerns about supply chain issues and mixed analyst opinions. However, the lack of a significant change in the sentiment score suggests that the analyst's concerns may not be strong enough to outweigh AAPL's robust fundamentals, such as a net margin of 27.0% and an ROIC of 52.0%. Therefore, I will maintain the original sentiment score of 50.",
-        "committee_resolution_reasoning": "The key factor in my resolution is that while there are valid concerns regarding sentiment, they do not sufficiently counterbalance AAPL's strong financial performance.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "TMO",
-      "composite_score": 63,
-      "fundamental_score": 72,
-      "quant_score": 65,
-      "sentiment_score": 50,
-      "agent_spread": 22,
-      "conflict_flag": false,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 2.7,
-      "suggested_size_pct": 12.3,
-      "candidate_signals": [
-        "analyst_upgrade",
-        "sector_momentum",
-        "macro_tailwind"
-      ],
-      "candidate_score": 2.75,
-      "fundamental_summary": "TMO has a solid operating margin of 21.2% and a net income of $6.7B, but its revenue growth of 3.9% is below the peer average. The high D/E ratio of 77.25 indicates higher leverage compared to peers.",
-      "quant_summary": "TMO is currently in an uptrend, supported by bullish momentum indicators despite the recent death cross. In the next 5-10 days, the price is likely to continue its upward movement towards the resistance level at $521.11.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 0,
-      "forward_bias": "bullish",
-      "trade_type": "momentum",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "-0.8%",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 44556001280,
-          "sec_edgar_value": 16965000000.0,
-          "diff_pct": 61.9,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 17.76,
-          "sec_edgar_value": 15.45,
-          "diff_pct": 13.0,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Sentiment",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 50,
-        "high_agent_score": 72,
-        "spread": 22,
-        "tension_identified": "The Fundamental analysis presents strong financial metrics while the Sentiment analysis reflects a lack of positive sentiment, creating a significant discrepancy in their assessments.",
-        "committee_challenge": "Given that the Fundamental analysis highlights TMO's solid operating margin and net income, yet points out a concerning revenue growth rate below the peer average, how do you interpret the current sentiment around TMO that leads to a score of 50? What specific factors or data might you consider that could explain this divergence in sentiment despite the strong fundamentals?",
-        "analyst_response": "While TMO's fundamentals indicate strong operating margins and net income, the sentiment score of 50 reflects concerns about its revenue growth rate lagging behind peers, which can signal potential market apprehension. Additionally, the news sentiment and analyst consensus may not be as favorable, contributing to a more cautious outlook. Given these factors, I believe my original score remains justified as it captures the market's cautious sentiment despite the solid fundamentals.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 50,
-        "committee_resolution": "The fundamental score of 72/100 is justified given TMO's solid operating margin of 21.2% and net income of $6.7B, but the revenue growth of 3.9% below the peer average raises valid concerns. The sentiment score of 50/100 reflects market apprehension regarding growth prospects, which is a significant factor in the overall assessment. Therefore, I will maintain the sentiment score at 50, as it accurately captures the cautious market outlook despite strong fundamentals.",
-        "committee_resolution_reasoning": "The divergence in sentiment is primarily driven by the below-average revenue growth, which is a critical metric for investor confidence.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "AMD",
-      "composite_score": 63,
-      "fundamental_score": 61,
-      "quant_score": 75,
-      "sentiment_score": 55,
-      "agent_spread": 25,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 3.69,
-      "suggested_size_pct": 12.0,
-      "candidate_signals": [
-        "institutional_signal",
-        "unusual_calls(4.7x_vol_oi)",
-        "sector_momentum"
-      ],
-      "candidate_score": 4.75,
-      "fundamental_summary": "AMD shows strong revenue growth of 34.3% year-over-year, but its trailing P/E of 105.02 is much higher than the peer average of 45.20, indicating a premium valuation. The company has a stable operating margin of 17.1% and a negative net debt/EBITDA ratio of -0.98, but its high leverage with a D/E of 6.36 raises concerns.",
-      "quant_summary": "AMD is currently in an uptrend with strong momentum indicators suggesting continuation. Despite being overbought, the bullish MA stack and positive volume trends indicate that the price is likely to maintain its upward trajectory in the next 5-10 days.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 0,
-      "forward_bias": "bullish",
-      "trade_type": "momentum",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "133.3% premium vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 34638999552,
-          "sec_edgar_value": 22680000000.0,
-          "diff_pct": 34.5,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 2.61,
-          "sec_edgar_value": 0.53,
-          "diff_pct": 79.7,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 22680000000.0,
-          "fmp_value": 34639000000,
-          "diff_pct": 52.7,
-          "conservative_value": 22680000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Sentiment",
-        "high_agent": "Quant",
-        "original_dissenter_score": 50,
-        "high_agent_score": 75,
-        "spread": 25,
-        "tension_identified": "The Quant analysis suggests strong upward momentum and positive trends, while the Sentiment analysis does not provide any supportive reasoning for a more favorable view.",
-        "committee_challenge": "Given that the Quant analysis indicates strong momentum and bullish indicators for AMD, can you elaborate on the specific factors or data points that led to your neutral sentiment score? What aspects of the current market or company performance do you believe are not being captured by the quantitative analysis?",
-        "analyst_response": "While the Quant analysis highlights strong momentum and bullish indicators for AMD, my neutral sentiment score of 50 reflects concerns about potential overvaluation and macroeconomic factors that may not be fully captured by quantitative metrics. Specifically, I noted a lack of positive news sentiment and significant short interest, which could indicate underlying market skepticism. Additionally, the absence of retail euphoria and contrarian signals suggests that the current bullish sentiment may not be as robust as it appears.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 50,
-        "committee_resolution": "The Quant analysis presents a compelling case for AMD's upward momentum, supported by strong technical indicators and positive volume trends. However, the Sentiment analyst raises valid concerns regarding potential overvaluation and market skepticism, as evidenced by significant short interest and a lack of positive news sentiment, which warrant consideration in the overall assessment.",
-        "committee_resolution_reasoning": "The final score reflects a slight adjustment to acknowledge the Sentiment analyst's concerns while still recognizing the strong quantitative momentum.",
-        "final_dissenter_score": 55
-      }
+      ]
     },
     {
       "ticker": "MSFT",
-      "composite_score": 63,
-      "fundamental_score": 83,
+      "composite_score": 72,
+      "fundamental_score": 85,
       "quant_score": 50,
-      "sentiment_score": 50,
-      "agent_spread": 38,
+      "sentiment_score": 75,
+      "agent_spread": 40,
       "conflict_flag": true,
       "overall_confidence": "medium",
       "direction": "LONG",
       "atr_pct": 2.34,
-      "suggested_size_pct": 12.1,
+      "suggested_size_pct": 13.7,
       "candidate_signals": [
+        "institutional_signal",
         "analyst_upgrade",
-        "sector_momentum"
+        "unusual_calls(4.6x_vol_oi)"
       ],
-      "candidate_score": 2.25,
-      "fundamental_summary": "MSFT shows strong profitability with a net margin of 39.0% and a solid ROIC of 21.6%. Its leverage is lower than peers, with a D/E of 31.54 compared to the peer average of 85.80, and it has a stable revenue growth of 14.9%.",
-      "quant_summary": "Despite a risk-off macro environment, MSFT shows bullish momentum with price above the SMA50. In the next 5-10 days, a potential move towards the resistance level at $413.05 is likely, supported by accumulation in volume.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 5.0,
+      "fundamental_summary": "MSFT demonstrates strong financial health with a revenue growth of 14.9% and an operating margin of 47.1%. Its P/E ratio is significantly lower than the peer average, suggesting a potential undervaluation, while its low net debt to EBITDA ratio of 0.21 indicates solid balance sheet strength.",
+      "quant_summary": "MSFT is currently in an uptrend, trading above its 50-day moving average but below its 200-day average. Despite being overbought, the momentum indicators suggest a potential continuation of the upward movement in the next 5-10 days, with a key resistance level at $413.05.",
+      "sentiment_summary": "Despite a risk-off macro regime, MSFT shows strong bullish sentiment from analysts with significant upside potential in price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating a potential contrarian long opportunity.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 38.2,
       "retail_euphoria_warning": false,
       "mean_reversion_score": 8,
       "forward_bias": "bullish",
       "trade_type": "momentum",
       "dislocation_opportunity": true,
       "price_vs_intrinsic_value": "-51.3% discount vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
@@ -436,552 +381,114 @@
         "dissenter": "Quant",
         "high_agent": "Fundamental",
         "original_dissenter_score": 45,
-        "high_agent_score": 83,
-        "spread": 38,
-        "tension_identified": "The Fundamental analysis indicates strong profitability and growth, while the Quant analysis reflects a significantly lower score, suggesting a potential disconnect in interpreting market conditions or price momentum.",
-        "committee_challenge": "Given the strong profitability and stable revenue growth highlighted in the Fundamental analysis, how do you reconcile your lower score with the bullish momentum you observed in the price action? Are there specific macroeconomic factors or technical indicators that you believe could negate the positive fundamentals?",
-        "analyst_response": "While the fundamental analysis highlights strong profitability and stable revenue growth, my lower score reflects concerns about the current macroeconomic environment and potential overvaluation. The RSI indicates that MSFT is nearing overbought territory at 69.4, which could signal a pullback despite bullish momentum. Additionally, the recent 3-month return of -0.0859% suggests underlying weakness that may not align with the optimistic fundamentals, warranting caution.",
+        "high_agent_score": 85,
+        "spread": 40,
+        "tension_identified": "The Fundamental analysis indicates strong financial health and potential undervaluation, while the Quant analysis suggests the stock is overbought and lacks support from the longer-term moving average.",
+        "committee_challenge": "Given that the Fundamental analysis highlights MSFT's strong financial health and undervaluation, how do you reconcile this with your assessment of the stock being overbought and trading below its 200-day moving average? What specific data or indicators led you to conclude that the current momentum may not support the fundamentals in the longer term?",
+        "analyst_response": "While the fundamental analysis highlights MSFT's strong financial health and undervaluation, my quant analysis indicates that the stock is currently overbought with an RSI of 70.7 and key patterns suggesting it is extended. Additionally, despite being in an uptrend, MSFT is trading below its 200-day moving average, which typically signals a potential reversal or consolidation. The recent 3-month return of -0.0781% further supports the notion that current momentum may not sustain the fundamentals in the longer term.",
         "analyst_outcome": "held",
         "analyst_score_delta": 0,
         "analyst_revised_score": 45,
-        "committee_resolution": "The fundamental analysis presents a compelling case for MSFT with strong profitability metrics, including a net margin of 39.0% and a ROIC of 21.6%, which are significantly above industry averages. However, the Quant analyst raises valid concerns regarding overvaluation and potential market corrections, as indicated by the RSI nearing overbought territory and the recent negative return of -0.0859%. Therefore, I will slightly adjust the Quant score to reflect these concerns while still recognizing the strong fundamentals.",
-        "committee_resolution_reasoning": "The adjustment acknowledges the valid concerns about overvaluation and market conditions while still respecting the strong fundamental performance of MSFT.",
+        "committee_resolution": "The fundamental analysis presents a compelling case for MSFT's strong financial health and potential undervaluation, supported by a robust revenue growth of 14.9% and a low net debt to EBITDA ratio of 0.21. However, the quant analysis raises valid concerns about the stock being overbought with an RSI of 70.7 and trading below its 200-day moving average, indicating potential short-term volatility. Given the strong fundamentals but concerning technical indicators, I will slightly adjust the quant score to reflect the need for caution in the short term.",
+        "committee_resolution_reasoning": "The adjustment reflects a balance between strong fundamental indicators and valid technical concerns, suggesting a cautious but optimistic outlook on MSFT.",
         "final_dissenter_score": 50
       }
     },
     {
-      "ticker": "LLY",
-      "composite_score": 57,
-      "fundamental_score": 82,
-      "quant_score": 30,
-      "sentiment_score": 50,
-      "agent_spread": 47,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 3.03,
-      "suggested_size_pct": 11.3,
-      "candidate_signals": [
-        "analyst_upgrade",
-        "sector_momentum",
-        "macro_tailwind"
-      ],
-      "candidate_score": 2.75,
-      "fundamental_summary": "LLY demonstrates strong profitability with a gross margin of 83.0% and a net margin of 31.7%. However, its P/E ratio of 39.67 is significantly above the peer average of 18.80, indicating a premium valuation despite robust revenue growth of 44.7% year-over-year.",
-      "quant_summary": "The current technical setup indicates a downtrend with a low mean reversion score, suggesting that momentum may continue to be negative. However, the bullish MACD signal and signs of selling exhaustion could lead to a potential bounce in the next 5-10 days, albeit with low confidence.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 15,
-      "forward_bias": "neutral",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "111.1% premium vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 65179000832,
-          "sec_edgar_value": 34124000000.0,
-          "diff_pct": 47.6,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 22.99,
-          "sec_edgar_value": 5.8,
-          "diff_pct": 74.8,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 35,
-        "high_agent_score": 82,
-        "spread": 47,
-        "tension_identified": "The Fundamental analyst sees strong profitability and revenue growth, while the Quant analyst indicates a negative momentum and downtrend, suggesting a disconnect between financial health and market performance.",
-        "committee_challenge": "Given the strong profitability metrics highlighted by the Fundamental analyst, such as a gross margin of 83.0% and a net margin of 31.7%, how do you reconcile these financial strengths with your assessment of a downtrend and low mean reversion score? Are there specific technical indicators or market conditions that you believe overshadow these fundamentals?",
-        "analyst_response": "While the fundamental metrics for LLY are indeed strong, the technical indicators suggest a prevailing downtrend that cannot be overlooked. The low mean reversion score of 15 and the presence of lower highs and lower lows indicate sustained selling pressure, which may overshadow the positive fundamentals in the short term. Additionally, the distribution in volume trends and the negative returns over the past month and three months further support a cautious stance despite the bullish MACD signal.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 35,
-        "committee_resolution": "I weigh the Fundamental analyst's position more heavily due to LLY's strong profitability metrics, including a gross margin of 83.0% and a net margin of 31.7%, which indicate solid financial health. However, I acknowledge the Quant analyst's concerns regarding the downtrend and low mean reversion score, which suggest caution in the short term. Thus, I will adjust the Quant score slightly to reflect the importance of both perspectives.",
-        "committee_resolution_reasoning": "The strong fundamentals provide a solid foundation, but the persistent technical downtrend warrants a more conservative approach in the short term.",
-        "final_dissenter_score": 30
-      }
-    },
-    {
-      "ticker": "CRM",
-      "composite_score": 58,
-      "fundamental_score": 66,
-      "quant_score": 55,
-      "sentiment_score": 50,
-      "agent_spread": 16,
-      "conflict_flag": false,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 4.18,
-      "suggested_size_pct": 11.1,
-      "candidate_signals": [
-        "analyst_upgrade",
-        "sector_momentum"
-      ],
-      "candidate_score": 2.25,
-      "fundamental_summary": "CRM has a gross margin of 77.7% and a free cash flow of $16.4B, indicating strong profitability. However, its current ratio of 0.76 and high D/E of 29.95 raise concerns about balance sheet health.",
-      "quant_summary": "The current technical setup indicates a potential for mean reversion as the price is approaching key support levels. Given the bullish MACD signal and oversold conditions, CRM may experience a bounce in the next 5-10 days, despite the prevailing downtrend.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 40,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-70.34% discount vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 41524998144,
-          "sec_edgar_value": 1511167000.0,
-          "diff_pct": 96.4,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 7.8,
-          "sec_edgar_value": 4.2,
-          "diff_pct": 46.2,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ]
-    },
-    {
-      "ticker": "JNJ",
-      "composite_score": 59,
-      "fundamental_score": 72,
-      "quant_score": 50,
-      "sentiment_score": 50,
-      "agent_spread": 27,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 1.93,
-      "suggested_size_pct": 11.2,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum",
-        "macro_tailwind"
-      ],
-      "candidate_score": 3.25,
-      "fundamental_summary": "JNJ has a solid operating margin of 26.7%, which is higher than many peers, and a net debt to EBITDA ratio of 0.88, indicating strong balance sheet health. However, its P/E ratio is slightly above the peer average, suggesting it is fairly valued relative to its peers.",
-      "quant_summary": "JNJ is currently in a downtrend with a mean reversion score of 35, indicating a possible reversal forming. Given the oversold conditions and declining volume on the selloff, there is potential for a bounce in the next 5-10 days, particularly if it holds above the key support level of $235.43.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 35,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "-1.29%",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 96361996288,
-          "sec_edgar_value": 85159000000.0,
-          "diff_pct": 11.6,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 11.03,
-          "sec_edgar_value": 13.72,
-          "diff_pct": 24.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 85159000000.0,
-          "fmp_value": 94193000000,
-          "diff_pct": 10.6,
-          "conservative_value": 85159000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 45,
-        "high_agent_score": 72,
-        "spread": 27,
-        "tension_identified": "The Fundamental analysis suggests JNJ is fairly valued and financially healthy, while the Quant analysis indicates a downtrend and oversold conditions.",
-        "committee_challenge": "Given the solid operating margin and strong balance sheet health highlighted in the Fundamental analysis, how do you reconcile your view of JNJ being in a downtrend with a mean reversion score of 35? What specific indicators or data led you to assess that the stock is oversold despite its fundamental strengths?",
-        "analyst_response": "While the fundamental analysis highlights JNJ's solid operating margin and strong balance sheet, my assessment is based on technical indicators that suggest the stock is currently in a downtrend. The RSI of 38.7 indicates oversold conditions, and the bearish MACD supports the notion of downward momentum. However, the declining volume during the selloff suggests that the selling pressure may be weakening, leading to a potential short-term bounce. Thus, I maintain my score as the technical indicators still point to a cautious outlook despite the fundamental strengths.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 45,
-        "committee_resolution": "The fundamental analysis presents strong indicators of JNJ's financial health, such as a solid operating margin of 26.7% and a low net debt to EBITDA ratio of 0.88, which suggest long-term stability. However, the quant analysis highlights significant technical indicators, including an RSI of 38.7 and bearish MACD, indicating a current downtrend that cannot be ignored. Balancing these perspectives, I find the quant's caution warranted in the short term, but the fundamentals provide a strong foundation for potential recovery.",
-        "committee_resolution_reasoning": "The key factor in my resolution is the acknowledgment of the strong fundamentals against the backdrop of current technical weaknesses, suggesting a cautious but not overly pessimistic outlook.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "MRK",
-      "composite_score": 56,
-      "fundamental_score": 76,
-      "quant_score": 35,
-      "sentiment_score": 50,
-      "agent_spread": 41,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 2.47,
-      "suggested_size_pct": 10.9,
-      "candidate_signals": [
-        "institutional_signal",
-        "unusual_calls(4430.0x_vol_oi)",
-        "sector_momentum",
-        "macro_tailwind"
-      ],
-      "candidate_score": 5.25,
-      "fundamental_summary": "MRK has a strong gross margin of 77.2% and an operating margin of 32.8%, indicating solid profitability. However, its revenue growth of 1.3% YoY is below the peer average, and its P/E ratio of 15.94 is significantly lower than the peer average of 23.50, suggesting it is undervalued.",
-      "quant_summary": "MRK is currently in a downtrend with bearish momentum signals and a low mean reversion score. Given the current technical setup, the price is likely to continue downward in the next 5-10 days.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 10,
-      "forward_bias": "bearish",
-      "trade_type": "momentum",
-      "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-32.2% discount vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 65010999296,
-          "sec_edgar_value": 60115000000.0,
-          "diff_pct": 7.5,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 7.27,
-          "sec_edgar_value": 0.14,
-          "diff_pct": 98.1,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 35,
-        "high_agent_score": 76,
-        "spread": 41,
-        "tension_identified": "The Fundamental analysis indicates strong profitability and undervaluation, while the Quant analysis suggests a bearish trend and negative momentum.",
-        "committee_challenge": "Given the strong profitability metrics highlighted by the Fundamental analysis, such as a gross margin of 77.2% and an operating margin of 32.8%, what specific technical indicators or market conditions are leading you to conclude that MRK is in a downtrend with bearish momentum? Can you elaborate on how these factors outweigh the positive fundamentals in your assessment?",
-        "analyst_response": "While the fundamental analysis highlights strong profitability metrics for MRK, my technical indicators reveal a concerning downtrend with bearish momentum. The RSI at 41.6 indicates that the stock is nearing oversold territory, yet it remains below the neutral level, suggesting continued selling pressure. Additionally, the MACD is bearish, and the volume trend shows distribution, which supports my conclusion that the negative technical factors currently outweigh the positive fundamentals.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 35,
-        "committee_resolution": "The fundamental analysis presents strong profitability metrics, such as a gross margin of 77.2% and an operating margin of 32.8%, which indicate a solid financial position. However, the technical indicators, including a bearish MACD and distribution in volume, suggest that the stock is facing significant selling pressure, which is critical in the short term. Given the weight of the bearish technical signals, I support maintaining the Quant analyst's score.",
-        "committee_resolution_reasoning": "The bearish technical indicators provide a compelling argument for the current downtrend, outweighing the strong fundamentals in the short-term assessment.",
-        "final_dissenter_score": 35
-      }
-    },
-    {
-      "ticker": "ORCL",
-      "composite_score": 55,
-      "fundamental_score": 66,
-      "quant_score": 45,
-      "sentiment_score": 50,
-      "agent_spread": 21,
-      "conflict_flag": false,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 4.62,
-      "suggested_size_pct": 10.5,
-      "candidate_signals": [
-        "institutional_signal",
-        "analyst_upgrade",
-        "unusual_calls(2.2x_vol_oi)",
-        "sector_momentum"
-      ],
-      "candidate_score": 5.75,
-      "fundamental_summary": "ORCL has a gross margin of 67.1% and an operating margin of 32.7%, indicating strong profitability. However, its net debt to EBITDA ratio of 5.08 and negative free cash flow of -22.3B raise concerns about leverage and cash generation.",
-      "quant_summary": "ORCL is currently in an uptrend but is showing signs of being overbought. In the next 5-10 days, despite the risk-off macro regime, the bullish momentum may continue, potentially leading to a price movement towards the resistance level at $207.08.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 15,
-      "forward_bias": "bullish",
-      "trade_type": "momentum",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "-42.0%",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 64076001280,
-          "sec_edgar_value": 49954000000.0,
-          "diff_pct": 22.0,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 5.81,
-          "sec_edgar_value": 3.07,
-          "diff_pct": 47.2,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 45,
-        "high_agent_score": 66,
-        "spread": 21,
-        "tension_identified": "The Fundamental analysis raises concerns about ORCL's financial health due to high net debt and negative cash flow, while the Quant analysis suggests continued bullish momentum despite these risks.",
-        "committee_challenge": "Given that the Fundamental analysis highlights significant concerns regarding ORCL's leverage and negative free cash flow, how do you reconcile these financial risks with your assessment of bullish momentum and the potential for price movement towards the resistance level? What specific indicators or data support your view in light of these fundamental challenges?",
-        "analyst_response": "While the Fundamental analysis raises valid concerns regarding ORCL's leverage and negative free cash flow, my quant analysis indicates that the stock is currently in a bullish momentum phase, as evidenced by the uptrend, bullish MACD, and accumulation in volume. The RSI at 70.1 suggests overbought conditions, but this could also indicate strong buying interest that may push the price towards the resistance level at $207.08 in the short term. Therefore, despite the fundamental risks, the technical indicators support a continued bullish outlook in the near term.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 45,
-        "committee_resolution": "The Fundamental analysis raises significant concerns about ORCL's high net debt to EBITDA ratio of 5.08 and negative free cash flow of -22.3B, which cannot be overlooked. While the Quant analysis indicates bullish momentum supported by technical indicators like the MACD and RSI, the fundamental risks suggest caution in the long term. Therefore, I weigh the fundamental concerns more heavily, leading to a maintained score.",
-        "committee_resolution_reasoning": "The overriding concern of ORCL's financial leverage and cash flow issues outweighs the short-term bullish technical indicators.",
-        "final_dissenter_score": 45
-      }
-    },
-    {
-      "ticker": "XOM",
-      "composite_score": 55,
-      "fundamental_score": 66,
-      "quant_score": 45,
-      "sentiment_score": 50,
-      "agent_spread": 21,
-      "conflict_flag": false,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 3.31,
-      "suggested_size_pct": 10.6,
-      "candidate_signals": [
-        "institutional_signal",
-        "unusual_calls(3.3x_vol_oi)",
-        "sector_momentum",
-        "macro_tailwind"
-      ],
-      "candidate_score": 5.25,
-      "fundamental_summary": "XOM has a P/E ratio of 22.50, which is below the peer average of 25.90, indicating a favorable valuation. However, it has a negative revenue growth of -4.5% compared to peers, which raises concerns about its growth prospects.",
-      "quant_summary": "XOM is currently in a downtrend with a mean reversion score of 25, indicating a potential for a bounce but with low confidence. In the next 5-10 days, the price may attempt to stabilize near support levels, but the overall bearish momentum suggests caution.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 25,
-      "forward_bias": "neutral",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-13.9% discount vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 323904995328,
-          "sec_edgar_value": 344582000000.0,
-          "diff_pct": 6.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 6.71,
-          "sec_edgar_value": 8.89,
-          "diff_pct": 32.5,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 344582000000.0,
-          "fmp_value": 323905000000,
-          "diff_pct": 6.0,
-          "conservative_value": 323905000000,
-          "resolution": "fmp used (conservative)"
-        }
-      ]
-    },
-    {
-      "ticker": "PLTR",
-      "composite_score": 53,
-      "fundamental_score": 62,
-      "quant_score": 45,
-      "sentiment_score": 50,
-      "agent_spread": 17,
-      "conflict_flag": false,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 5.25,
-      "suggested_size_pct": 10.1,
-      "candidate_signals": [
-        "analyst_upgrade",
-        "sector_momentum"
-      ],
-      "candidate_score": 2.25,
-      "fundamental_summary": "PLTR shows strong growth with a revenue growth of 56.2% and a gross margin of 82.4%. However, its high P/E ratio of 227.40 compared to the peer average of 37.10 indicates a significant premium valuation, and its leverage is higher than peers with a D/E of 3.06.",
-      "quant_summary": "PLTR is currently in a downtrend, trading below key moving averages with bearish momentum indicators. However, the mean reversion score indicates potential for a bounce, suggesting that in the next 5-10 days, the price may attempt to rally towards resistance at $156.28.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 23,
-      "forward_bias": "neutral",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "514.5% premium vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 4475445760,
-          "sec_edgar_value": 2225012000.0,
-          "diff_pct": 50.3,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 0.63,
-          "sec_edgar_value": 0.09,
-          "diff_pct": 85.7,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 2225012000.0,
-          "fmp_value": 4475446000,
-          "diff_pct": 101.1,
-          "conservative_value": 2225012000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ]
-    },
-    {
-      "ticker": "INTC",
-      "composite_score": 50,
-      "fundamental_score": 30,
+      "ticker": "AMD",
+      "composite_score": 64,
+      "fundamental_score": 56,
       "quant_score": 75,
-      "sentiment_score": 50,
-      "agent_spread": 39,
-      "conflict_flag": true,
+      "sentiment_score": 65,
+      "agent_spread": 19,
+      "conflict_flag": false,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 4.63,
-      "suggested_size_pct": 9.9,
+      "atr_pct": 3.75,
+      "suggested_size_pct": 12.3,
       "candidate_signals": [
         "institutional_signal",
-        "unusual_calls(5.9x_vol_oi)",
-        "sector_momentum"
+        "unusual_calls(6.8x_vol_oi)"
       ],
-      "candidate_score": 4.75,
-      "fundamental_summary": "INTC has a negative revenue growth of -0.5% and a net income of $-267M, indicating financial challenges. Its operating margin of 5.1% is significantly lower than peers, and its leverage is higher with a D/E of 37.28 compared to the peer average.",
-      "quant_summary": "INTC is currently in an uptrend with strong momentum indicators suggesting continuation. Despite being overbought, the bullish MA stack and positive volume trends indicate that the price is likely to maintain its upward trajectory over the next 5-10 days.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 4.0,
+      "fundamental_summary": "AMD shows strong revenue growth of 34.3% compared to peers, but its trailing P/E of 106.54 is significantly higher than the peer average of 45.20, indicating a premium valuation. The company has a stable operating margin of 17.1%, but its high leverage with a D/E of 6.36 raises concerns.",
+      "quant_summary": "AMD is currently in an uptrend with strong momentum indicators, suggesting continued upward movement in the next 5-10 days despite being in an overbought condition. The bullish MA stack and volume accumulation support a long position, indicating potential for further price appreciation.",
+      "sentiment_summary": "Despite a risk-off macro regime, AMD shows a bullish sentiment from analysts, with a mean price target indicating a modest upside. The lack of news catalysts and low short interest suggest that current sentiment is leading, reflecting potential value amidst market fear.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 4.0,
       "retail_euphoria_warning": false,
       "mean_reversion_score": 0,
       "forward_bias": "bullish",
       "trade_type": "momentum",
       "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "N/A",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "price_vs_intrinsic_value": "136.0% premium vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
       "key_conflicts": [
         {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": -0.06,
-          "sec_edgar_value": 0.4,
-          "diff_pct": 766.7,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 34638999552,
+          "sec_edgar_value": 22680000000.0,
+          "diff_pct": 34.5,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 2.61,
+          "sec_edgar_value": 0.53,
+          "diff_pct": 79.7,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 22680000000.0,
+          "fmp_value": 34639000000,
+          "diff_pct": 52.7,
+          "conservative_value": 22680000000.0,
+          "resolution": "yf_av used (conservative)"
         }
-      ],
-      "agent_debate": {
-        "dissenter": "Fundamental",
-        "high_agent": "Quant",
-        "original_dissenter_score": 36,
-        "high_agent_score": 75,
-        "spread": 39,
-        "tension_identified": "The Quant analysis indicates strong momentum and bullish signals, while the Fundamental analysis highlights significant financial challenges and negative growth.",
-        "committee_challenge": "Given the strong momentum indicators and bullish signals highlighted by the Quant analysis, how do you reconcile your assessment of INTC's financial challenges, particularly its negative revenue growth and low operating margin, with the current market sentiment suggesting a potential upward trajectory in the stock price?",
-        "analyst_response": "While the Quant analysis highlights strong momentum indicators, my assessment of INTC's financial challenges remains valid. The negative revenue growth of -0.5% and a low operating margin of 5.1% indicate underlying issues that could hinder sustainable growth, despite market sentiment. Additionally, the negative net income and significant free cash flow deficit reflect ongoing financial distress that cannot be overlooked, suggesting that the current bullish signals may not translate into long-term value.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 36,
-        "committee_resolution": "While the Quant analysis presents a compelling case for short-term momentum with a score of 75/100, the Fundamental analysis highlights critical long-term financial issues, including negative revenue growth of -0.5% and a low operating margin of 5.1%. These factors suggest that the current bullish sentiment may not be sustainable, warranting a cautious approach.",
-        "committee_resolution_reasoning": "The significant financial challenges indicated by the Fundamental analysis outweigh the short-term momentum suggested by the Quant analysis, leading to a conservative adjustment of the score.",
-        "final_dissenter_score": 30
-      }
+      ]
     }
   ],
-  "generated_at": "2026-04-16 15:32 UTC",
+  "generated_at": "2026-04-16 20:01 UTC",
   "portfolio_construction": {
     "target_weights": {
+      "MSFT": 7.8,
+      "AAPL": 8.0,
+      "AMZN": 8.0,
+      "AMD": 6.0,
+      "JPM": 13.2,
+      "GOOGL": 8.6,
       "NVDA": -7.4,
       "AMCR": -9.9,
-      "LEN": -20.0,
-      "AAPL": 15.0,
-      "AMZN": 8.1,
-      "GOOGL": 8.6,
-      "JPM": 13.2,
-      "TMO": 10.0
+      "LEN": -20.0
     },
-    "reasoning": "To fund the new entry in TMO, I am exiting the AMCR position due to its lower conviction compared to TMO. I am also slightly reducing the NVDA short position to maintain balance while reallocating to TMO, which has a stronger thesis and higher conviction. This adjustment enhances the overall portfolio's potential for returns while adhering to the risk-off macro regime.",
+    "reasoning": "The portfolio has been adjusted to prioritize higher-conviction new entries, particularly MSFT, AAPL, and AMZN, which have significantly higher convictions than the positions being exited. AMCR and LEN were chosen for exit due to their low conviction, allowing us to allocate capital to stronger opportunities while maintaining a balanced exposure across sectors.",
     "rebalancing": {
+      "MSFT": {
+        "from_pct": 0,
+        "to_pct": 7.8
+      },
+      "AAPL": {
+        "from_pct": 3.0,
+        "to_pct": 8.0
+      },
+      "AMD": {
+        "from_pct": 0,
+        "to_pct": 6.0
+      },
       "NVDA": {
         "from_pct": 7.4,
         "to_pct": -7.4
-      },
-      "TMO": {
-        "from_pct": 0,
-        "to_pct": 10.0
       }
     },
     "capital_swap_exits": [
-      "AMCR"
+      "AMCR",
+      "LEN"
     ],
-    "generated_at": "2026-04-16 15:32 UTC"
+    "generated_at": "2026-04-16 20:01 UTC"
   }
 }
