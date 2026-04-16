@@ -78,6 +78,20 @@ def _load_all_reports() -> tuple[dict, dict, dict, dict, dict]:
 
 
 # ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _extract_scenario(f: dict, scenario: str, field: str):
+    """Pull a field from fund_mandate.scenarios or recommendation.scenarios."""
+    for key in ("fund_mandate", "recommendation"):
+        scenarios = (f.get(key) or {}).get("scenarios") or {}
+        val = (scenarios.get(scenario) or {}).get(field)
+        if val is not None:
+            return val
+    return None
+
+
+# ---------------------------------------------------------------------------
 # Scoring
 # ---------------------------------------------------------------------------
 
@@ -182,6 +196,16 @@ def _build_scorecard(
                 q.get("data_conflicts", []) +
                 s.get("data_conflicts", [])
             )[:3],
+            # Deep framework fields from fundamental analyst (for committee context)
+            "mandate_pass": (f.get("fund_mandate") or {}).get("mandate_pass"),
+            "mandate_fail_reasons": (f.get("fund_mandate") or {}).get("fail_reasons") or [],
+            "valuation_summary": (f.get("valuation") or {}).get("analyst_consensus_target") or f.get("analyst_consensus_target"),
+            "intrinsic_value": (f.get("valuation") or {}).get("intrinsic_value_estimate") or f.get("intrinsic_value_estimate"),
+            "expected_return_2_3yr": (f.get("valuation") or {}).get("expected_roi_2_3yr") or f.get("expected_roi_2_3yr"),
+            "thesis_bullets": f.get("investment_thesis_bullets") or [],
+            "scenario_bull_target": _extract_scenario(f, "bull", "price_target"),
+            "scenario_base_target": _extract_scenario(f, "base", "price_target"),
+            "scenario_bear_target": _extract_scenario(f, "bear", "price_target"),
         })
 
     scorecards.sort(key=lambda x: x["composite_score"], reverse=True)
@@ -415,7 +439,18 @@ def _deliberate_with_llm(
             f"  Q-summary: {sc['quant_summary'][:140]}\n"
             f"  S-summary: {sc['sentiment_summary'][:140]}\n"
             f"  Conflicts: {conflict_str} | Euphoria warning: {sc['retail_euphoria_warning']}\n"
-            f"  Memory: {mem_note}"
+            f"  --- FUNDAMENTAL FRAMEWORK ---\n"
+            f"  Mandate: {'PASS' if sc.get('mandate_pass') else 'FAIL' if sc.get('mandate_pass') is False else 'N/A'}"
+            + (f" — {'; '.join(sc['mandate_fail_reasons'][:2])}" if sc.get('mandate_fail_reasons') else "") + "\n"
+            f"  Intrinsic value: {sc.get('intrinsic_value') or 'N/A'} | "
+            f"Expected 2-3yr return: {sc.get('expected_return_2_3yr') or 'N/A'}\n"
+            + (f"  Scenarios: Bull={sc.get('scenario_bull_target') or '?'}  "
+               f"Base={sc.get('scenario_base_target') or '?'}  "
+               f"Bear={sc.get('scenario_bear_target') or '?'}\n"
+               if any(sc.get(k) for k in ('scenario_bull_target','scenario_base_target','scenario_bear_target')) else "")
+            + (f"  Thesis: {' | '.join(str(b) for b in sc['thesis_bullets'][:3])}\n"
+               if sc.get('thesis_bullets') else "")
+            + f"  Memory: {mem_note}"
         )
         candidate_blocks.append(block)
 
