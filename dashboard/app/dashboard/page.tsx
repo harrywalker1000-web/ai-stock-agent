@@ -194,7 +194,7 @@ export default function DashboardPage() {
 
   // Current period alpha/returns for display
   const periodKey = benchPeriod === "1W" ? "1w" : benchPeriod === "1M" ? "1m" : benchPeriod === "6M" ? "6m" : benchPeriod === "YTD" ? "ytd" : null;
-  const activePeriod = periodKey ? benchmark?.periods[periodKey as keyof typeof benchmark.periods] : null;
+  const activePeriod = periodKey ? benchmark?.periods?.[periodKey as keyof typeof benchmark.periods] : null;
   const hasInsufficientHistory = (p: BenchmarkPeriod | null | undefined) => !p || p.note === "insufficient_history" || p.alpha == null;
 
   const stats = data?.stats;
@@ -652,7 +652,7 @@ export default function DashboardPage() {
               <div className="flex gap-1">
                 {BENCH_PERIODS.map((p) => {
                   const key = p === "1W" ? "1w" : p === "1M" ? "1m" : p === "6M" ? "6m" : p === "YTD" ? "ytd" : null;
-                  const periodData = key ? benchmark?.periods[key as keyof typeof benchmark.periods] : null;
+                  const periodData = key ? benchmark?.periods?.[key as keyof typeof benchmark.periods] : null;
                   const insufficient = p !== "All" && hasInsufficientHistory(periodData);
                   return (
                     <button
