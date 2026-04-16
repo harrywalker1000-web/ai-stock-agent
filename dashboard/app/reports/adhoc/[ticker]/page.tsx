@@ -384,8 +384,8 @@ export default function AdhocTickerPage() {
             <KV label="News Tone" value={s9.news_tone} />
             <KV label="Short Interest" value={pct(s9.short_interest_pct)} />
             <KV label="Upgrade Momentum" value={s9.upgrade_momentum} />
-            <KV label="Contrarian Signal" value={s9.contrarian_signal} />
-            <KV label="Retail Euphoria" value={s9.retail_euphoria ?? "—"} />
+            <KV label="Contrarian Signal" value={s9.contrarian_signal == null ? "—" : s9.contrarian_signal ? "Yes" : "No"} />
+            <KV label="Retail Euphoria" value={s9.retail_euphoria == null ? "—" : s9.retail_euphoria ? "Yes" : "No"} />
             <KV label="Sentiment Score" value={num(s9.sentiment_score, 0)} />
             {s9.sentiment_summary && <p className="text-xs text-[#9CA3AF] mt-3">{s9.sentiment_summary}</p>}
           </Card>
@@ -437,8 +437,8 @@ export default function AdhocTickerPage() {
             {Array.isArray(s12.data_conflicts) && s12.data_conflicts.length > 0 && (
               <div className="mt-3">
                 <p className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider mb-1">Data Conflicts</p>
-                {(s12.data_conflicts as string[]).map((c, i) => (
-                  <p key={i} className="text-xs text-[#F59E0B]">⚠ {c}</p>
+                {(s12.data_conflicts as any[]).map((c, i) => (
+                  <p key={i} className="text-xs text-[#F59E0B]">⚠ {typeof c === "string" ? c : c.metric ?? c.resolution ?? JSON.stringify(c)}</p>
                 ))}
               </div>
             )}
