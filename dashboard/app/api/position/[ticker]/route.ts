@@ -157,6 +157,15 @@ export async function GET(
     };
   } catch { /* live data unavailable — not fatal */ }
 
+  // ── Alpaca derived stats — declared early so both code paths can use them ────
+  const alpacaMarketValue = alpacaPosition ? Math.abs(parseFloat(alpacaPosition.market_value)) : null;
+  const alpacaEquity      = alpacaAccount?.equity ?? null;
+  const alpacaUnrealPct   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_plpc) * 100 : null;
+  const alpacaUnrealAbs   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_pl) : null;
+  const alpacaCurrentPrice= alpacaPosition ? parseFloat(alpacaPosition.current_price) : null;
+  const alpacaEntryPrice  = alpacaPosition ? parseFloat(alpacaPosition.avg_entry_price) : null;
+  const alpacaQty         = alpacaPosition ? parseFloat(alpacaPosition.qty) : null;
+
   // ── Merge: use pipeline agent data + live prices ───────────────────────────
   // If not in current report files but IS a held position, build from positions_log
   if (!hasPipelineData) {
@@ -507,14 +516,6 @@ export async function GET(
   })();
 
   // ── Compute live position stats (Alpaca is source of truth) ─────────────────
-  const alpacaMarketValue = alpacaPosition ? Math.abs(parseFloat(alpacaPosition.market_value)) : null;
-  const alpacaEquity      = alpacaAccount?.equity ?? null;
-  const alpacaUnrealPct   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_plpc) * 100 : null;
-  const alpacaUnrealAbs   = alpacaPosition ? parseFloat(alpacaPosition.unrealized_pl) : null;
-  const alpacaCurrentPrice= alpacaPosition ? parseFloat(alpacaPosition.current_price) : null;
-  const alpacaEntryPrice  = alpacaPosition ? parseFloat(alpacaPosition.avg_entry_price) : null;
-  const alpacaQty         = alpacaPosition ? parseFloat(alpacaPosition.qty) : null;
-
   const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? 0;
   const liveEntryPrice   = alpacaEntryPrice ?? positionEntry?.entry_price ?? 0;
   const liveMarketValue  = alpacaMarketValue ?? (liveCurrentPrice && alpacaQty ? liveCurrentPrice * alpacaQty : null);
