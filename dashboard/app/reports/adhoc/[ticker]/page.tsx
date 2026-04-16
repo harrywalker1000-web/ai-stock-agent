@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, ReferenceLine, Tooltip as RTooltip } from "recharts";
 
 const SECTIONS = [
   { key: "s1",  label: "Fund Mandate" },
@@ -52,20 +53,91 @@ function KV({ label, value, color }: { label: string; value: React.ReactNode; co
   );
 }
 
-function CheckList({ items }: { items: any[] }) {
+function prettify(s: string) {
+  return s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+function safeNote(n: any): string | null {
+  if (n == null || n === "") return null;
+  if (typeof n === "object") {
+    // e.g. {clean: true, notes: "..."} — extract notes key or stringify minimally
+    return (n as any).notes ?? (n as any).detail ?? Object.entries(n).map(([k,v])=>`${k}: ${v}`).join(", ");
+  }
+  // Remove Python dict-like representations: {'key': 'val'}
+  const str = String(n);
+  if (str.startsWith("{") && str.includes(":")) {
+    try {
+      const parsed = JSON.parse(str.replace(/'/g, '"'));
+      return (parsed as any).notes ?? (parsed as any).detail ?? null;
+    } catch { return null; }
+  }
+  return str === "no flags" || str === "unavailable" ? str : str;
+}
+
+function CheckList({ items, useDetail }: { items: any[]; useDetail?: boolean }) {
   return (
     <div className="space-y-1.5">
-      {items.map((c: any, i: number) => (
-        <div key={i} className="flex items-start gap-2">
-          <span className={`text-xs mt-0.5 ${c.pass ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-            {c.pass ? "✓" : "✗"}
-          </span>
-          <div>
-            <span className="text-xs text-[#C4CDD6]">{c.item}</span>
-            {c.note && <span className="text-[10px] text-[#6B7280] ml-2">{c.note}</span>}
+      {items.map((c: any, i: number) => {
+        const note = safeNote(useDetail ? (c.detail ?? c.note) : (c.note ?? c.detail));
+        const label = prettify(String(c.item ?? ""));
+        return (
+          <div key={i} className="flex items-start gap-2">
+            <span className={`text-xs mt-0.5 shrink-0 ${c.pass ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+              {c.pass ? "✓" : "✗"}
+            </span>
+            <div className="flex-1 flex justify-between items-start gap-2">
+              <span className="text-xs text-[#C4CDD6]">{label}</span>
+              {note && <span className="text-[10px] text-[#6B7280] font-mono text-right max-w-[50%]">{note}</span>}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
+    </div>
+  );
+}
+
+function ConvictionGauge({ value, color }: { value: number; color: string }) {
+  const R = 38, cx = 50, cy = 48;
+  const pct = Math.min(1, Math.max(0, value / 100));
+  const angleRad = ((-180 + pct * 180) * Math.PI) / 180;
+  const ex = cx + R * Math.cos(angleRad);
+  const ey = cy + R * Math.sin(angleRad);
+  return (
+    <svg width="100" height="58" viewBox="0 0 100 58" className="overflow-visible">
+      <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${cx + R} ${cy}`}
+        fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="7" strokeLinecap="round" />
+      {pct > 0.01 && (
+        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${ex.toFixed(1)} ${ey.toFixed(1)}`}
+          fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" />
+      )}
+      <text x={cx} y={cy - 8} textAnchor="middle" fill={color} fontSize="22" fontWeight="bold" fontFamily="monospace">{value}</text>
+      <text x={cx} y={cy + 2} textAnchor="middle" fill="#6B7280" fontSize="9" fontFamily="sans-serif">CONVICTION</text>
+    </svg>
+  );
+}
+
+function RSIGauge({ value }: { value: number | null }) {
+  if (value == null) return <span className="text-xs text-[#4B5563]">—</span>;
+  const R = 32, cx = 42, cy = 40;
+  const pct = Math.min(1, Math.max(0, value / 100));
+  const angleRad = ((-180 + pct * 180) * Math.PI) / 180;
+  const ex = cx + R * Math.cos(angleRad);
+  const ey = cy + R * Math.sin(angleRad);
+  const color = value >= 70 ? "#F59E0B" : value <= 30 ? "#10B981" : "#0EA5E9";
+  const label = value >= 70 ? "Overbought" : value <= 30 ? "Oversold" : "Neutral";
+  return (
+    <div className="flex flex-col items-center">
+      <svg width="84" height="50" viewBox="0 0 84 50" className="overflow-visible">
+        {/* Zone backgrounds */}
+        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${cx + R} ${cy}`}
+          fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" strokeLinecap="round" />
+        {/* Value arc */}
+        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${ex.toFixed(1)} ${ey.toFixed(1)}`}
+          fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" />
+        <text x={cx} y={cy - 6} textAnchor="middle" fill={color} fontSize="16" fontWeight="bold" fontFamily="monospace">{value.toFixed(1)}</text>
+        <text x={cx - R + 2} y={cy + 10} fill="#374151" fontSize="8">0</text>
+        <text x={cx + R - 10} y={cy + 10} fill="#374151" fontSize="8">100</text>
+      </svg>
+      <span className="text-[10px] font-bold mt-0.5" style={{ color }}>{label}</span>
     </div>
   );
 }
@@ -158,8 +230,11 @@ export default function AdhocTickerPage() {
               ))}
             </nav>
             <button onClick={() => window.print()}
-              className="mt-6 w-full text-[10px] text-[#4B5563] hover:text-[#E8EDF2] py-1.5 px-2 rounded-lg bg-white/03 hover:bg-white/06 transition-all">
-              Print / PDF
+              className="mt-6 w-full flex items-center justify-center gap-1.5 text-[11px] font-medium text-[#6B7280] hover:text-[#E8EDF2] py-2 px-3 rounded-lg bg-white/04 hover:bg-white/08 border border-white/06 hover:border-white/12 transition-all">
+              <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 shrink-0">
+                <path d="M5 1a1 1 0 0 0-1 1v2H3a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1h1a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1V2a1 1 0 0 0-1-1H5zm6 3V2H5v2h6zm1 5H4a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2H4a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1z"/>
+              </svg>
+              Export PDF
             </button>
           </div>
         </aside>
@@ -190,25 +265,27 @@ export default function AdhocTickerPage() {
                   {report.macro_regime ? ` · ${report.macro_regime}` : ""}
                 </p>
               </div>
-              <div className="text-right shrink-0 ml-4">
+              <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
                 {report.current_price != null && (
                   <p className="font-mono text-2xl font-bold text-[#E8EDF2]">{usd(report.current_price)}</p>
                 )}
-                {conviction != null && (
-                  <div className="mt-1">
-                    <span className="text-[10px] text-[#6B7280]">Conviction </span>
-                    <span className="text-2xl font-bold font-mono" style={{ color: cvColor }}>{conviction}</span>
-                  </div>
-                )}
+                {conviction != null && <ConvictionGauge value={conviction} color={cvColor} />}
               </div>
             </div>
 
             {/* Mandate badge */}
-            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
-              s1.pass ? "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30"
-                      : "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30"
-            }`}>
-              {s1.pass ? "✓ MANDATE PASS" : `✗ MANDATE FAIL — ${s1.fail_reason}`}
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
+                s1.pass ? "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30"
+                        : "bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/30"
+              }`}>
+                {s1.pass ? "✓ MANDATE PASS" : `✗ MANDATE FAIL — ${s1.fail_reason}`}
+              </div>
+              {!s1.pass && (
+                <span className="text-[10px] text-[#6B7280]">
+                  The fund mandate checks eligibility (market cap, liquidity, geography). Failures are often data gaps — check section 1 for details. Analysis and recommendation are still valid.
+                </span>
+              )}
             </div>
 
             {s7.expected_return_2_3yr && (
@@ -236,17 +313,74 @@ export default function AdhocTickerPage() {
 
           {/* S2 — Company Info */}
           <Card id="s2" title="2. Company Info" open={open.s2} onToggle={() => toggle("s2")}>
-            {s2.background?.description && (
-              <p className="text-xs text-[#C4CDD6] leading-relaxed mb-4">{s2.background.description}</p>
+            {/* Overview text */}
+            {(s2.background?.overview ?? s2.background?.description) && (
+              <p className="text-xs text-[#C4CDD6] leading-relaxed mb-4">{s2.background.overview ?? s2.background.description}</p>
             )}
-            {/* Financial snapshot */}
+            {/* HQ / employees */}
+            {(s2.background?.hq || s2.background?.employees) && (
+              <div className="flex gap-4 mb-4">
+                {s2.background.hq && <KV label="HQ" value={s2.background.hq} />}
+                {s2.background.employees && <KV label="Employees" value={Number(s2.background.employees).toLocaleString()} />}
+              </div>
+            )}
+            {/* Revenue segments */}
+            {Array.isArray(s2.background?.revenue_segments) && s2.background.revenue_segments.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Revenue Segments</p>
+                <div className="space-y-1.5">
+                  {(s2.background.revenue_segments as any[]).map((seg: any, i: number) => (
+                    <div key={i} className="flex justify-between items-center">
+                      <span className="text-xs text-[#9CA3AF]">{seg.segment}</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 h-1.5 bg-white/05 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#0EA5E9]/60 rounded-full" style={{ width: `${seg.weight_pct ?? 0}%` }} />
+                        </div>
+                        <span className="text-xs font-mono text-[#C4CDD6] w-10 text-right">{seg.weight_pct}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Financial snapshot — historical table */}
+            {Array.isArray((s2.financial_snapshot as any)?.historical) && (s2.financial_snapshot as any).historical.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Historical Financials</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-[#C4CDD6]">
+                    <thead>
+                      <tr className="text-[#6B7280] text-[10px] border-b border-white/06">
+                        <th className="text-left pb-2 pr-4 font-normal">Year</th>
+                        <th className="text-right pb-2 pr-4 font-normal">Revenue</th>
+                        <th className="text-right pb-2 pr-4 font-normal">EBITDA</th>
+                        <th className="text-right pb-2 font-normal">Net Income</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {((s2.financial_snapshot as any).historical as any[]).map((row: any, i: number) => (
+                        <tr key={i} className="border-t border-white/04">
+                          <td className="py-1.5 pr-4 font-mono">{row.year}</td>
+                          <td className="py-1.5 pr-4 font-mono text-right">{row.revenue != null ? `$${(row.revenue/1e9).toFixed(1)}B` : "—"}</td>
+                          <td className="py-1.5 pr-4 font-mono text-right">{row.ebitda != null ? `$${(row.ebitda/1e9).toFixed(1)}B` : "—"}</td>
+                          <td className="py-1.5 font-mono text-right">{row.net_income != null ? `$${(row.net_income/1e9).toFixed(1)}B` : "—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {/* Scalar fields in financial_snapshot */}
             {s2.financial_snapshot && Object.keys(s2.financial_snapshot).length > 0 && (
               <div className="mb-4">
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Financials Snapshot</p>
                 <div className="bg-white/02 rounded-lg p-3 divide-y divide-white/04">
-                  {Object.entries(s2.financial_snapshot as Record<string, any>).slice(0, 10).map(([k, v]) => (
-                    <KV key={k} label={k.replace(/_/g, " ")} value={String(v)} />
-                  ))}
+                  {Object.entries(s2.financial_snapshot as Record<string, any>)
+                    .filter(([, v]) => v != null && !Array.isArray(v) && typeof v !== "object")
+                    .slice(0, 12)
+                    .map(([k, v]) => (
+                      <KV key={k} label={prettify(k)} value={String(v)} />
+                    ))}
                 </div>
               </div>
             )}
@@ -289,16 +423,20 @@ export default function AdhocTickerPage() {
             {s3.setup_type && (
               <p className="text-xs text-[#0EA5E9] font-bold mb-3">Setup: {s3.setup_type}</p>
             )}
-            <CheckList items={s3.checklist ?? []} />
+            <CheckList items={s3.checklist ?? []} useDetail />
           </Card>
 
           {/* S4 — Valuation */}
           <Card id="s4" title="4. Valuation" open={open.s4} onToggle={() => toggle("s4")}>
             {s4.narrative && <p className="text-xs text-[#C4CDD6] leading-relaxed mb-3">{s4.narrative}</p>}
             {s4.methodology && <KV label="Methodology" value={s4.methodology} />}
-            {s4.expected_roi_2_3yr && <KV label="Expected ROI 2–3yr" value={s4.expected_roi_2_3yr} color="#10B981" />}
-            {s4.consensus_target && <KV label="Consensus Target" value={usd(s4.consensus_target)} />}
+            {(s4.expected_roi_2_3yr ?? s4.expected_return_2_3yr) && <KV label="Expected ROI 2–3yr" value={s4.expected_roi_2_3yr ?? s4.expected_return_2_3yr} color="#10B981" />}
+            {(s4.consensus_target ?? s4.analyst_consensus_target) != null && <KV label="Consensus Target" value={usd(s4.consensus_target ?? s4.analyst_consensus_target)} />}
+            {s4.intrinsic_value_estimate != null && <KV label="Intrinsic Value Est." value={usd(s4.intrinsic_value_estimate)} />}
+            {s4.moic_estimate && <KV label="MOIC Estimate" value={s4.moic_estimate} />}
+            {s4.is_forecast_realistic != null && <KV label="Forecast Realistic?" value={s4.is_forecast_realistic ? "Yes" : "No"} />}
             {s4.own_view && <KV label="Our View" value={s4.own_view} />}
+            {s4.trade_type_classification && <KV label="Trade Type" value={s4.trade_type_classification} />}
           </Card>
 
           {/* S5 — Market Timing */}
@@ -361,6 +499,34 @@ export default function AdhocTickerPage() {
 
           {/* S8 — Technical */}
           <Card id="s8" title="8. Technical Analysis" open={open.s8} onToggle={() => toggle("s8")}>
+            {/* RSI + S/R visual */}
+            <div className="flex items-start gap-6 mb-4 flex-wrap">
+              <div className="flex flex-col items-center">
+                <RSIGauge value={s8.rsi_14} />
+              </div>
+              {(s8.support != null || s8.resistance != null) && (
+                <div className="flex-1 min-w-[160px] bg-white/02 rounded-xl p-4">
+                  <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Support / Resistance</p>
+                  <div className="space-y-2">
+                    {s8.resistance != null && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-[#EF4444]">Resistance</span>
+                        <span className="text-xs font-mono text-[#EF4444]">{usd(s8.resistance)}</span>
+                      </div>
+                    )}
+                    {s8.support != null && s8.resistance != null && (
+                      <div className="w-full h-px bg-white/08" />
+                    )}
+                    {s8.support != null && (
+                      <div className="flex justify-between">
+                        <span className="text-[10px] text-[#10B981]">Support</span>
+                        <span className="text-xs font-mono text-[#10B981]">{usd(s8.support)}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-x-6">
               <KV label="RSI (14)" value={num(s8.rsi_14)} />
               <KV label="Trend" value={s8.trend} />
@@ -412,11 +578,14 @@ export default function AdhocTickerPage() {
 
           {/* S11 — Performance */}
           <Card id="s11" title="11. Historical Performance" open={open.s11} onToggle={() => toggle("s11")}>
+            {[s11.ret_1m, s11.ret_3m, s11.ret_6m, s11.ret_1yr].every(v => v == null) && (
+              <p className="text-xs text-[#4B5563] mb-3">Return data unavailable for this run. Re-run with Force Refresh to retry.</p>
+            )}
             <div className="grid grid-cols-2 gap-x-6">
-              <KV label="1M Return" value={pct(s11.ret_1m)} color={s11.ret_1m >= 0 ? "#10B981" : "#EF4444"} />
-              <KV label="3M Return" value={pct(s11.ret_3m)} color={s11.ret_3m >= 0 ? "#10B981" : "#EF4444"} />
-              <KV label="6M Return" value={pct(s11.ret_6m)} color={s11.ret_6m >= 0 ? "#10B981" : "#EF4444"} />
-              <KV label="1yr Return" value={pct(s11.ret_1yr)} color={s11.ret_1yr >= 0 ? "#10B981" : "#EF4444"} />
+              <KV label="1M Return" value={pct(s11.ret_1m)} color={s11.ret_1m != null ? (s11.ret_1m >= 0 ? "#10B981" : "#EF4444") : undefined} />
+              <KV label="3M Return" value={pct(s11.ret_3m)} color={s11.ret_3m != null ? (s11.ret_3m >= 0 ? "#10B981" : "#EF4444") : undefined} />
+              <KV label="6M Return" value={pct(s11.ret_6m)} color={s11.ret_6m != null ? (s11.ret_6m >= 0 ? "#10B981" : "#EF4444") : undefined} />
+              <KV label="1yr Return" value={pct(s11.ret_1yr)} color={s11.ret_1yr != null ? (s11.ret_1yr >= 0 ? "#10B981" : "#EF4444") : undefined} />
               <KV label="vs SPY 1yr" value={pct(s11.vs_spy_1yr)} />
               <KV label="52w High" value={usd(s11.high_52w)} />
               <KV label="52w Low" value={usd(s11.low_52w)} />
@@ -446,6 +615,36 @@ export default function AdhocTickerPage() {
 
           {/* S13 — Scenarios */}
           <Card id="s13" title="13. Scenario Analysis" open={open.s13} onToggle={() => toggle("s13")}>
+            {/* Price target chart */}
+            {(s13.bull?.price_target || s13.base?.price_target || s13.bear?.price_target) && (() => {
+              const chartData = [
+                { name: "Bear", price: s13.bear?.price_target ?? 0, color: "#EF4444", prob: s13.bear?.probability ?? 20 },
+                { name: "Base", price: s13.base?.price_target ?? 0, color: "#0EA5E9", prob: s13.base?.probability ?? 50 },
+                { name: "Bull", price: s13.bull?.price_target ?? 0, color: "#10B981", prob: s13.bull?.probability ?? 30 },
+              ];
+              const minVal = Math.min(...chartData.map(d => d.price)) * 0.95;
+              return (
+                <div className="mb-5">
+                  <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-3">Price Targets</p>
+                  <ResponsiveContainer width="100%" height={120}>
+                    <BarChart data={chartData} layout="vertical" margin={{ left: 30, right: 60, top: 4, bottom: 4 }}>
+                      <XAxis type="number" domain={[minVal, "auto"]} tick={{ fill: "#4B5563", fontSize: 10 }} tickFormatter={(v) => `$${v}`} />
+                      <YAxis type="category" dataKey="name" tick={{ fill: "#9CA3AF", fontSize: 11 }} width={36} />
+                      <RTooltip
+                        formatter={(v: any) => [`$${v}`, "Target"]}
+                        contentStyle={{ background: "#0D1117", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 11 }}
+                        labelStyle={{ color: "#9CA3AF" }}
+                      />
+                      <Bar dataKey="price" radius={[0, 4, 4, 0]} label={{ position: "right", formatter: (v: any) => `$${v}`, fill: "#9CA3AF", fontSize: 11 }}>
+                        {chartData.map((entry, i) => (
+                          <Cell key={i} fill={entry.color} fillOpacity={0.7} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { key: "bull", label: "Bull Case", prob: s13.bull?.probability ?? 30, color: "#10B981", data: s13.bull },
