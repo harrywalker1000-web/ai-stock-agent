@@ -41,9 +41,28 @@ export default function AdhocInputPage() {
   const [recent, setRecent]       = useState<ReportPreview[]>([]);
 
   useEffect(() => {
+    // Restore queued state if user navigated away and came back
+    try {
+      const saved = sessionStorage.getItem("adhocQueued");
+      if (saved) { setQueued(saved); setStatus("queued"); }
+    } catch { /* sessionStorage unavailable */ }
+
     fetch("/api/adhoc")
       .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setRecent(data); })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setRecent(data);
+          // Clear queued banner if the report has now appeared
+          try {
+            const saved = sessionStorage.getItem("adhocQueued");
+            if (saved && data.some((r: ReportPreview) => r.ticker === saved)) {
+              sessionStorage.removeItem("adhocQueued");
+              setStatus("idle");
+              setQueued(null);
+            }
+          } catch { /* ignore */ }
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -67,6 +86,7 @@ export default function AdhocInputPage() {
       } else {
         setQueued(t);
         setStatus("queued");
+        try { sessionStorage.setItem("adhocQueued", t); } catch { /* ignore */ }
       }
     } catch (e) {
       setErrorMsg(String(e));
