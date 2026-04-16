@@ -472,7 +472,7 @@ export default function DashboardPage() {
                     <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
                     <span className="text-[#6B7280]">{s.sector}</span>
                   </div>
-                  <span className="text-[#E8EDF2] font-medium">{s.value.toFixed(1)}%</span>
+                  <span className="text-[#E8EDF2] font-medium">{(s.value ?? 0).toFixed(1)}%</span>
                 </div>
               ))}
               {(data?.sectors ?? []).length > 0 && (
@@ -544,8 +544,8 @@ export default function DashboardPage() {
                       </td>
                       {/* Portfolio weight */}
                       <td className="px-2 py-3">
-                        <span className="text-sm font-mono font-semibold text-[#E8EDF2]">{pos.pct_portfolio.toFixed(1)}%</span>
-                        <p className="text-[10px] text-[#6B7280] mt-0.5">${(pos.position_size / 1000).toFixed(1)}K</p>
+                        <span className="text-sm font-mono font-semibold text-[#E8EDF2]">{(pos.pct_portfolio ?? 0).toFixed(1)}%</span>
+                        <p className="text-[10px] text-[#6B7280] mt-0.5">${((pos.position_size ?? 0) / 1000).toFixed(1)}K</p>
                       </td>
                       {/* Setup type */}
                       <td className="px-2 py-3">

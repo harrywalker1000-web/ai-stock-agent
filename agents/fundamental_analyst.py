@@ -144,6 +144,7 @@ def _fetch_yf_metrics(ticker: str) -> dict:
         t = yf.Ticker(ticker)
         info = t.info or {}
 
+        result["current_price"] = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
         result["revenue_ttm"] = info.get("totalRevenue")
         result["eps_ttm"] = info.get("trailingEps")
         result["forward_eps"] = info.get("forwardEps")
@@ -162,7 +163,14 @@ def _fetch_yf_metrics(ticker: str) -> dict:
         result["total_cash"] = info.get("totalCash")
         result["total_debt"] = info.get("totalDebt")
         result["free_cashflow"] = info.get("freeCashflow")
-        result["market_cap"] = info.get("marketCap")
+        market_cap = info.get("marketCap")
+        if market_cap is None:
+            # Fallback: shares_outstanding * current_price
+            shares = info.get("sharesOutstanding") or info.get("impliedSharesOutstanding")
+            price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
+            if shares and price:
+                market_cap = shares * price
+        result["market_cap"] = market_cap
         result["beta"] = info.get("beta")
         result["sector"] = info.get("sector", "")
         result["industry"] = info.get("industry", "")

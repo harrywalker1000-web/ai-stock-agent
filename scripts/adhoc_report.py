@@ -302,15 +302,23 @@ def _build_s10_institutional(ticker: str) -> dict:
 
 def _build_s11_performance(quant: dict) -> dict:
     """Section 11 — Historical Performance."""
+    # Fields may be at top level (new) or nested under indicators (legacy)
+    ind = quant.get("indicators") or {}
+    def _q(key, *aliases):
+        for k in (key, *aliases):
+            v = quant.get(k) if quant.get(k) is not None else ind.get(k)
+            if v is not None:
+                return v
+        return None
     return {
-        "ret_1m":    quant.get("ret_1m"),
-        "ret_3m":    quant.get("ret_3m"),
-        "ret_6m":    quant.get("ret_6m"),
-        "ret_1yr":   quant.get("ret_1yr"),
-        "vs_spy_1yr":quant.get("vs_spy_1yr"),
-        "high_52w":  quant.get("high_52w"),
-        "low_52w":   quant.get("low_52w"),
-        "pct_from_high": quant.get("pct_from_52w_high"),
+        "ret_1m":    _q("ret_1m"),
+        "ret_3m":    _q("ret_3m"),
+        "ret_6m":    _q("ret_6m"),
+        "ret_1yr":   _q("ret_1yr"),
+        "vs_spy_1yr":_q("vs_spy_1yr"),
+        "high_52w":  _q("high_52w", "week52_high"),
+        "low_52w":   _q("low_52w", "week52_low"),
+        "pct_from_high": _q("pct_from_high", "pct_from_52w_high"),
     }
 
 

@@ -835,13 +835,24 @@ def run(mode: str = "new_opportunities") -> dict:
             result["current_price"] = current_price
             result["pnl_pct"] = pnl_pct
 
+        # Always expose current_price and return metrics at top level for adhoc reports
+        for _k in ("current_price", "ret_1m", "ret_3m", "ret_6m", "ret_1yr",
+                   "week52_high", "week52_low", "pct_from_52w_high", "vs_spy_1yr"):
+            if _k in ind and _k not in result:
+                result[_k] = ind[_k]
+        # Alias 52w fields to the names adhoc_report expects
+        if "week52_high" in ind and "high_52w" not in result:
+            result["high_52w"] = ind["week52_high"]
+        if "week52_low" in ind and "low_52w" not in result:
+            result["low_52w"] = ind["week52_low"]
+
         # Attach raw indicator snapshot and candidate context
         result["indicators"] = {
             k: ind[k] for k in (
                 "rsi_14", "macd_bullish", "macd_histogram_expanding",
                 "stoch_k", "bb_pct", "volume_ratio", "obv_trend",
                 "sma_50", "sma_200", "cross_signal",
-                "ret_1w", "ret_1m", "ret_3m",
+                "current_price", "ret_1w", "ret_1m", "ret_3m", "ret_6m",
                 "week52_high", "week52_low", "pct_from_52w_high",
                 "atr_14", "atr_pct",
             ) if k in ind
