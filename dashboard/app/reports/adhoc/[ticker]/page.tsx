@@ -477,7 +477,11 @@ export default function AdhocTickerPage() {
 
           {/* S14 — Data Reliability */}
           <Card id="s14" title="14. Data Reliability" open={open.s14} onToggle={() => toggle("s14")}>
-            <KV label="Data Confidence" value={s14.data_confidence} />
+            <KV label="Data Confidence" value={
+              typeof s14.data_confidence === "string"
+                ? s14.data_confidence
+                : (s14.data_confidence as any)?.level ?? "—"
+            } />
             <KV label="Last Updated" value={s14.last_updated} />
             <KV label="Agents Run" value={(s14.agents_run as string[] ?? []).join(", ")} />
             {Array.isArray(s14.sources) && (s14.sources as any[]).map((src: any, i: number) => (
