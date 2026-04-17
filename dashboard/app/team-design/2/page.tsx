@@ -180,11 +180,16 @@ export default function TeamDesign2() {
       `}</style>
 
       <div className="min-h-[100dvh] flex flex-col pt-16 relative overflow-hidden" style={{background:"#080C10"}}>
+        {/* Dot-grid base texture */}
+        <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+          backgroundImage:"radial-gradient(rgba(255,255,255,0.055) 1px,transparent 1px)",
+          backgroundSize:"36px 36px"
+        }}/>
         {/* CSS animated orb background — GPU-safe (transform + opacity only) */}
         <div className="fixed inset-0 pointer-events-none" aria-hidden>
-          <div style={{position:"absolute",top:"4%",left:"4%",width:"720px",height:"720px",borderRadius:"50%",background:"radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 65%)",animation:"d2-orb-a 22s ease-in-out infinite"}}/>
-          <div style={{position:"absolute",bottom:"8%",right:"4%",width:"620px",height:"620px",borderRadius:"50%",background:"radial-gradient(circle,rgba(245,166,35,0.07) 0%,transparent 65%)",animation:"d2-orb-b 28s ease-in-out infinite"}}/>
-          <div style={{position:"absolute",top:"42%",left:"36%",width:"460px",height:"460px",borderRadius:"50%",background:"radial-gradient(circle,rgba(99,102,241,0.05) 0%,transparent 65%)",animation:"d2-orb-c 35s ease-in-out infinite"}}/>
+          <div style={{position:"absolute",top:"4%",left:"4%",width:"720px",height:"720px",borderRadius:"50%",background:"radial-gradient(circle,rgba(14,165,233,0.12) 0%,transparent 65%)",animation:"d2-orb-a 22s ease-in-out infinite"}}/>
+          <div style={{position:"absolute",bottom:"8%",right:"4%",width:"620px",height:"620px",borderRadius:"50%",background:"radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 65%)",animation:"d2-orb-b 28s ease-in-out infinite"}}/>
+          <div style={{position:"absolute",top:"42%",left:"36%",width:"460px",height:"460px",borderRadius:"50%",background:"radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)",animation:"d2-orb-c 35s ease-in-out infinite"}}/>
         </div>
 
         {/* Header */}
