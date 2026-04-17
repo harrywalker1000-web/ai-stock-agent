@@ -4,21 +4,24 @@ Portfolio Manager — orchestration module (not a numbered agent)
 Coordinates the two-phase daily pipeline per PORTFOLIO_RULES.md:
 
   Phase A — Portfolio Review (runs first, before any new research)
-    Lite mode (default while paper trading): Macro + Quant + News on each held position
-    Standard mode: all agents in lightweight form
-    Full mode: complete re-run identical to original entry analysis
+    Lite mode    (default): Macro + News + Quant on each held position
+    Standard mode:          Lite + Sentiment (analyst upgrades, short interest)
+    Full mode:              Standard + Fundamental (complete re-analysis)
+    Auto mode:              Standard daily; adds Fundamental automatically
+                            if any held ticker has earnings within 3 days
     → Committee makes hold / increase / decrease / exit decisions
     → Executor implements them
 
   Phase B — New Opportunity Research
     Full Phase 1–3 pipeline on fresh candidates
+    Sentiment agent runs in Standard / Full / Auto (skipped in Lite)
     → Committee selects new positions to enter
     → Executor implements them
 
   Memory Agent consolidation runs at the end.
 
 Config via environment variables:
-  PHASE_A_MODE=Lite    (Lite | Standard | Full — default Lite)
+  PHASE_A_MODE=Auto    (Lite | Standard | Full | Auto — default Lite)
   SKIP_PHASE_A=false   (set true to skip portfolio review, e.g. first run)
 """
 
@@ -65,14 +68,46 @@ def _read_analysis_mode() -> str:
         try:
             with open(_CONFIG_PATH) as f:
                 data = json.load(f)
-            return str(data.get("mode", "Lite")).capitalize()
+            return str(data.get("mode", "Auto")).capitalize()
         except Exception:
             pass
-    return "Lite"
+    return "Auto"
 
 
-PHASE_A_MODE = _read_analysis_mode()   # Lite | Standard | Full
+PHASE_A_MODE = _read_analysis_mode()   # Lite | Standard | Full | Auto
 SKIP_PHASE_A = os.environ.get("SKIP_PHASE_A", "false").lower() == "true"
+
+
+def _tickers_with_near_earnings(tickers: list, days: int = 3) -> list:
+    """Return subset of tickers that have an earnings date within `days` calendar days.
+    Used by Auto mode to decide whether to run Fundamental Analyst in Phase A.
+    """
+    try:
+        import yfinance as yf
+        import pandas as pd
+        from datetime import datetime, timedelta, timezone
+
+        today = datetime.now(timezone.utc).date()
+        cutoff = today + timedelta(days=days)
+        near = []
+        for ticker in tickers:
+            try:
+                info = yf.Ticker(ticker).info
+                ed = info.get("earningsDate") or info.get("earningsTimestamp")
+                if ed:
+                    if isinstance(ed, (list, tuple)):
+                        ed = ed[0]
+                    ts = (pd.Timestamp(ed, unit="s")
+                          if isinstance(ed, (int, float))
+                          else pd.Timestamp(ed))
+                    if today <= ts.date() <= cutoff:
+                        near.append(ticker)
+            except Exception:
+                continue
+        return near
+    except Exception as exc:
+        logger.warning("Earnings proximity check failed: %s — skipping Fundamental trigger", exc)
+        return []
 SKIP_PHASE_B = os.environ.get("SKIP_PHASE_B", "false").lower() == "true"
 
 
@@ -269,8 +304,11 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
 def run_phase_a() -> dict:
     """
     Re-evaluate every open position using fresh data.
-    Lite mode: Macro + Quant + News only (cheap, ~2 min).
-    Standard/Full: adds Fundamental and/or Sentiment agents.
+    Lite:     Macro + News + Quant only (~2 min).
+    Standard: Lite + Sentiment (analyst upgrades, short interest).
+    Full:     Standard + Fundamental Analyst.
+    Auto:     Standard daily; Fundamental added automatically if any held
+              ticker has earnings within 3 days.
     """
     open_positions = memory.get_open_positions()
 
@@ -306,22 +344,30 @@ def run_phase_a() -> dict:
     logger.info("Phase A: running Quant Agent on %d held tickers...", len(held_tickers))
     results["quant"] = quant_agent.run(mode="portfolio_review")
 
-    if PHASE_A_MODE in ("Standard", "Full"):
-        # --- News Agent (Standard+) ---
-        from agents import news_agent
-        logger.info("Phase A: running News Agent...")
-        results["news"] = news_agent.run()
-
-        # --- Fundamental Analyst (Standard+) ---
-        from agents import fundamental_analyst
-        logger.info("Phase A: running Fundamental Analyst on held tickers...")
-        results["fundamental"] = fundamental_analyst.run(mode="portfolio_review")
-
-    if PHASE_A_MODE == "Full":
-        # --- Sentiment Agent (Full only) ---
+    # --- Sentiment Agent (Standard / Full / Auto) ---
+    # Sentiment changes daily (analyst upgrades, short interest) — worth running
+    # in any mode above Lite to catch overnight rating changes on held positions.
+    if PHASE_A_MODE in ("Standard", "Full", "Auto"):
         from agents import sentiment_agent
         logger.info("Phase A: running Sentiment Agent on held tickers...")
         results["sentiment"] = sentiment_agent.run(mode="portfolio_review")
+
+    # --- Fundamental Analyst ---
+    # Full: always. Auto: only if any held ticker has earnings ≤ 3 days out.
+    # Fundamental data changes quarterly — no value running it on random days.
+    if PHASE_A_MODE == "Full":
+        from agents import fundamental_analyst
+        logger.info("Phase A: running Fundamental Analyst on held tickers...")
+        results["fundamental"] = fundamental_analyst.run(mode="portfolio_review")
+    elif PHASE_A_MODE == "Auto":
+        near_earnings = _tickers_with_near_earnings(held_tickers, days=3)
+        results["auto_near_earnings"] = near_earnings
+        if near_earnings:
+            logger.info("Phase A (Auto): earnings ≤3 days for %s — running Fundamental Analyst", near_earnings)
+            from agents import fundamental_analyst
+            results["fundamental"] = fundamental_analyst.run(mode="portfolio_review")
+        else:
+            logger.info("Phase A (Auto): no earnings within 3 days — Fundamental Analyst skipped")
 
     # --- Investment Committee: Phase A deliberation ---
     from agents import investment_committee

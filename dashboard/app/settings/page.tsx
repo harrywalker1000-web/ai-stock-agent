@@ -2,34 +2,41 @@
 
 import { useEffect, useState } from "react";
 
-type AnalysisMode = "Lite" | "Standard" | "Full";
+type AnalysisMode = "Lite" | "Standard" | "Full" | "Auto";
 
 const MODE_INFO: Record<AnalysisMode, { description: string; phaseA: string; phaseB: string; time: string; cost: string }> = {
+  Auto: {
+    description: "Recommended. Standard every day — automatically adds Fundamental Analyst for held positions with earnings within 3 days.",
+    phaseA: "Macro + News + Quant + Sentiment (+ Fundamental if earnings ≤3 days)",
+    phaseB: "Phases 1–4 + Sentiment",
+    time: "~12-25 min",
+    cost: "Smart",
+  },
   Lite: {
-    description: "Fastest daily run — essential signals only. Skips Sentiment in both phases.",
+    description: "Fastest daily run — essential signals only. No Sentiment or Fundamental in either phase.",
     phaseA: "Macro + News + Quant",
     phaseB: "Phases 1–3 (no Sentiment)",
     time: "~8-12 min",
     cost: "Low",
   },
   Standard: {
-    description: "Balanced coverage — adds Fundamental analysis to Phase A and full Phase B pipeline.",
-    phaseA: "Macro + News + Quant + Fundamental",
-    phaseB: "Full Phases 1–4",
-    time: "~18-25 min",
+    description: "Adds Sentiment to both phases — catches daily analyst upgrades and short interest shifts on held positions.",
+    phaseA: "Macro + News + Quant + Sentiment",
+    phaseB: "Phases 1–4 + Sentiment",
+    time: "~14-20 min",
     cost: "Medium",
   },
   Full: {
-    description: "Complete analysis — adds Sentiment to both phases and uses longer LLM prompts.",
-    phaseA: "All agents including Sentiment",
-    phaseB: "Full Phases 1–5 + extended prompts",
+    description: "Complete analysis every day — Sentiment plus Fundamental Analyst on all held positions regardless of earnings schedule.",
+    phaseA: "All agents including Sentiment + Fundamental",
+    phaseB: "Phases 1–5 (all agents)",
     time: "~30-45 min",
     cost: "High",
   },
 };
 
 export default function SettingsPage() {
-  const [mode, setMode] = useState<AnalysisMode>("Lite");
+  const [mode, setMode] = useState<AnalysisMode>("Auto");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
@@ -38,7 +45,7 @@ export default function SettingsPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
-        if (data.mode) setMode(data.mode as AnalysisMode);
+        if (data.mode && ["Auto", "Lite", "Standard", "Full"].includes(data.mode)) setMode(data.mode as AnalysisMode);
         if (data.updated_at) setUpdatedAt(data.updated_at);
       })
       .catch(() => {});
@@ -88,9 +95,10 @@ export default function SettingsPage() {
           </p>
 
           <div className="grid grid-cols-1 gap-3">
-            {(["Lite", "Standard", "Full"] as AnalysisMode[]).map((m) => {
+            {(["Auto", "Lite", "Standard", "Full"] as AnalysisMode[]).map((m) => {
               const info = MODE_INFO[m];
               const isSelected = mode === m;
+              const isAuto = m === "Auto";
               return (
                 <button
                   key={m}
@@ -98,21 +106,27 @@ export default function SettingsPage() {
                   disabled={saving}
                   className={`text-left p-5 rounded-xl border transition-all duration-200 ${
                     isSelected
-                      ? "border-[#F5A623] bg-[#F5A623]/08"
+                      ? isAuto ? "border-[#06B6D4] bg-[#06B6D4]/08" : "border-[#F5A623] bg-[#F5A623]/08"
                       : "border-white/08 bg-white/02 hover:border-white/15 hover:bg-white/04"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-[#F5A623]" : "border-white/20"}`}>
-                        {isSelected && <div className="w-2 h-2 rounded-full bg-[#F5A623]" />}
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? (isAuto ? "border-[#06B6D4]" : "border-[#F5A623]") : "border-white/20"}`}>
+                        {isSelected && <div className={`w-2 h-2 rounded-full ${isAuto ? "bg-[#06B6D4]" : "bg-[#F5A623]"}`} />}
                       </div>
-                      <span className={`font-bold text-sm ${isSelected ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{m}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`font-bold text-sm ${isSelected ? (isAuto ? "text-[#06B6D4]" : "text-[#F5A623]") : "text-[#E8EDF2]"}`}>{m}</span>
+                        {isAuto && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#06B6D4]/15 text-[#06B6D4]">Recommended</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
                       <span className="text-[#6B7280]">{info.time}</span>
                       <span className={`px-1.5 py-0.5 rounded font-medium ${
-                        info.cost === "Low" ? "bg-[#10B981]/10 text-[#10B981]"
+                        info.cost === "Smart" ? "bg-[#06B6D4]/10 text-[#06B6D4]"
+                        : info.cost === "Low" ? "bg-[#10B981]/10 text-[#10B981]"
                         : info.cost === "Medium" ? "bg-[#F59E0B]/10 text-[#F59E0B]"
                         : "bg-[#EF4444]/10 text-[#EF4444]"
                       }`}>{info.cost} cost</span>

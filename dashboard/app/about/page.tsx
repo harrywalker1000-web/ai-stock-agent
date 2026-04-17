@@ -115,6 +115,87 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Pipeline Modes */}
+        <section className="mb-16">
+          <h2 className="font-display text-2xl font-bold text-[#E8EDF2] mb-2">Pipeline Modes</h2>
+          <p className="text-[#6B7280] text-sm mb-5">
+            The daily pipeline has two phases. <strong className="text-[#9CA3AF]">Phase A</strong> reviews positions you already hold.{" "}
+            <strong className="text-[#9CA3AF]">Phase B</strong> researches fresh opportunities. The mode you set in{" "}
+            <a href="/settings" className="text-[#F5A623] hover:underline">Settings</a> controls how deeply Phase A runs — Phase B always runs the full research pipeline.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              {
+                name: "Auto",
+                tag: "Recommended",
+                tagColor: "#06B6D4",
+                desc: "Runs Standard every day. If any held position has earnings within the next 3 days, Fundamental Analyst is added automatically — so you get deep analysis exactly when it matters most, without paying for it every day.",
+                phaseA: "Macro + News + Quant + Sentiment (+Fundamental near earnings)",
+                phaseB: "All research agents + Sentiment",
+                cost: "Smart",
+                costColor: "#06B6D4",
+              },
+              {
+                name: "Lite",
+                tag: null,
+                tagColor: "",
+                desc: "The bare minimum to make a sensible portfolio decision. Covers overnight macro shifts, breaking news on held tickers, and quantitative signals. Fast and cheap — right for quiet markets.",
+                phaseA: "Macro + News + Quant",
+                phaseB: "Research agents (no Sentiment)",
+                cost: "Low",
+                costColor: "#10B981",
+              },
+              {
+                name: "Standard",
+                tag: null,
+                tagColor: "",
+                desc: "Adds Sentiment analysis on top of Lite. Sentiment changes daily — analyst rating upgrades, short interest shifts, options flow — and is the most useful incremental signal for reviewing existing positions.",
+                phaseA: "Macro + News + Quant + Sentiment",
+                phaseB: "All research agents + Sentiment",
+                cost: "Medium",
+                costColor: "#F59E0B",
+              },
+              {
+                name: "Full",
+                tag: null,
+                tagColor: "",
+                desc: "Adds Fundamental Analyst to every Phase A run regardless of earnings schedule. Most appropriate when you want a complete quarterly data re-check on every position — but note fundamentals only change materially every 3 months.",
+                phaseA: "All agents: Macro + News + Quant + Sentiment + Fundamental",
+                phaseB: "All research agents + Sentiment",
+                cost: "High",
+                costColor: "#EF4444",
+              },
+            ].map((m) => (
+              <div key={m.name} className="card p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="font-display font-bold text-[#E8EDF2]">{m.name}</span>
+                  {m.tag && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                      style={{ background: `${m.tagColor}20`, color: m.tagColor }}>
+                      {m.tag}
+                    </span>
+                  )}
+                  <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                    style={{ background: `${m.costColor}15`, color: m.costColor }}>
+                    {m.cost} cost
+                  </span>
+                </div>
+                <p className="text-[#6B7280] text-sm leading-relaxed mb-4">{m.desc}</p>
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <p className="text-[#4B5563] uppercase tracking-wider mb-0.5">Phase A — Portfolio Review</p>
+                    <p className="text-[#9CA3AF]">{m.phaseA}</p>
+                  </div>
+                  <div>
+                    <p className="text-[#4B5563] uppercase tracking-wider mb-0.5">Phase B — New Opportunities</p>
+                    <p className="text-[#9CA3AF]">{m.phaseB}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Tech stack */}
         <section className="mb-16">
           <h2 className="font-display text-2xl font-bold text-[#E8EDF2] mb-5">Technology</h2>

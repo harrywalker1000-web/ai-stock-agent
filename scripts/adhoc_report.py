@@ -155,12 +155,12 @@ def _build_s1_mandate(fundamental: dict) -> dict:
     # Asset class — must be a stock (not ETF/crypto)
     asset_ok = chk("Asset class", True, "Common stock on US exchange")
 
-    # Market cap — minimum $500M
+    # Market cap — minimum $200M
     market_cap = fundamental.get("market_cap") or 0
     cap_ok = chk(
-        "Market cap ≥ $500M",
-        market_cap >= 500_000_000,
-        f"${market_cap / 1e9:.1f}B" if market_cap else "unavailable",
+        "Market cap ≥ $200M",
+        market_cap >= 200_000_000,
+        f"${market_cap / 1e9:.2f}B" if market_cap else "unavailable",
     )
 
     # Liquidity — min avg daily volume 500K shares
