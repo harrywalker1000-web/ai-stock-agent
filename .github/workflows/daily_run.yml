@@ -17,7 +17,7 @@ on:
       phase_a_mode:
         description: 'Phase A mode'
         required: false
-        default: 'Lite'
+        default: 'Standard'
         type: choice
         options: ['Lite', 'Standard', 'Full']
 
@@ -61,7 +61,7 @@ jobs:
           # LLM
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Pipeline config
-          PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || 'Lite' }}
+          PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || '' }}
           SKIP_PHASE_A: ${{ github.event.inputs.skip_phase_a || 'false' }}
           ALLOW_LIVE_TRADING: 'true'
           MAX_CANDIDATES: '20'

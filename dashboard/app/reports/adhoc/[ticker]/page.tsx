@@ -95,49 +95,52 @@ function CheckList({ items, useDetail }: { items: any[]; useDetail?: boolean }) 
   );
 }
 
-function ConvictionGauge({ value, color }: { value: number; color: string }) {
-  const R = 38, cx = 50, cy = 48;
-  const pct = Math.min(1, Math.max(0, value / 100));
-  const angleRad = ((-180 + pct * 180) * Math.PI) / 180;
-  const ex = cx + R * Math.cos(angleRad);
-  const ey = cy + R * Math.sin(angleRad);
+function SemiGauge({
+  value, max = 100, color, size = 100, strokeW = 7,
+  label, sublabel,
+}: {
+  value: number; max?: number; color: string; size?: number; strokeW?: number;
+  label?: string; sublabel?: string;
+}) {
+  const R = size * 0.38;
+  const cx = size / 2, cy = size * 0.48;
+  const arc = `M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy}`;
+  const circ = Math.PI * R;
+  const pct = Math.min(1, Math.max(0, value / max));
+  const offset = circ * (1 - pct);
   return (
-    <svg width="100" height="58" viewBox="0 0 100 58" className="overflow-visible">
-      <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${cx + R} ${cy}`}
-        fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="7" strokeLinecap="round" />
-      {pct > 0.01 && (
-        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${ex.toFixed(1)} ${ey.toFixed(1)}`}
-          fill="none" stroke={color} strokeWidth="7" strokeLinecap="round" />
+    <svg width={size} height={size * 0.6} viewBox={`0 0 ${size} ${size * 0.6}`} className="overflow-visible">
+      {/* Track */}
+      <path d={arc} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={strokeW} strokeLinecap="round" />
+      {/* Fill */}
+      <path d={arc} fill="none" stroke={color} strokeWidth={strokeW} strokeLinecap="round"
+        strokeDasharray={circ} strokeDashoffset={offset} />
+      {label && (
+        <text x={cx} y={cy - size * 0.1} textAnchor="middle" fill={color}
+          fontSize={size * 0.22} fontWeight="bold" fontFamily="monospace">{label}</text>
       )}
-      <text x={cx} y={cy - 8} textAnchor="middle" fill={color} fontSize="22" fontWeight="bold" fontFamily="monospace">{value}</text>
-      <text x={cx} y={cy + 2} textAnchor="middle" fill="#6B7280" fontSize="9" fontFamily="sans-serif">CONVICTION</text>
+      {sublabel && (
+        <text x={cx} y={cy + 2} textAnchor="middle" fill="#6B7280"
+          fontSize={size * 0.09} fontFamily="sans-serif">{sublabel}</text>
+      )}
     </svg>
   );
 }
 
+function ConvictionGauge({ value, color }: { value: number; color: string }) {
+  return <SemiGauge value={value} max={100} color={color} size={100} strokeW={7}
+    label={String(value)} sublabel="CONVICTION" />;
+}
+
 function RSIGauge({ value }: { value: number | null }) {
   if (value == null) return <span className="text-xs text-[#4B5563]">—</span>;
-  const R = 32, cx = 42, cy = 40;
-  const pct = Math.min(1, Math.max(0, value / 100));
-  const angleRad = ((-180 + pct * 180) * Math.PI) / 180;
-  const ex = cx + R * Math.cos(angleRad);
-  const ey = cy + R * Math.sin(angleRad);
   const color = value >= 70 ? "#F59E0B" : value <= 30 ? "#10B981" : "#0EA5E9";
   const label = value >= 70 ? "Overbought" : value <= 30 ? "Oversold" : "Neutral";
   return (
     <div className="flex flex-col items-center">
-      <svg width="84" height="50" viewBox="0 0 84 50" className="overflow-visible">
-        {/* Zone backgrounds */}
-        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${cx + R} ${cy}`}
-          fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" strokeLinecap="round" />
-        {/* Value arc */}
-        <path d={`M ${cx - R} ${cy} A ${R} ${R} 0 0 0 ${ex.toFixed(1)} ${ey.toFixed(1)}`}
-          fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" />
-        <text x={cx} y={cy - 6} textAnchor="middle" fill={color} fontSize="16" fontWeight="bold" fontFamily="monospace">{value.toFixed(1)}</text>
-        <text x={cx - R + 2} y={cy + 10} fill="#374151" fontSize="8">0</text>
-        <text x={cx + R - 10} y={cy + 10} fill="#374151" fontSize="8">100</text>
-      </svg>
-      <span className="text-[10px] font-bold mt-0.5" style={{ color }}>{label}</span>
+      <SemiGauge value={value} max={100} color={color} size={84} strokeW={6}
+        label={value.toFixed(0)} />
+      <span className="text-[10px] font-bold -mt-1" style={{ color }}>{label}</span>
     </div>
   );
 }
