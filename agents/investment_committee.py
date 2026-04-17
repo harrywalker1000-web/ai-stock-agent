@@ -737,6 +737,23 @@ together. Your job is purely: action + conviction + rationale."""
                                    t, this_conv, d.get("action"))
         decisions = list(seen.values())
 
+        # Phase B hard guard: strip any non-entry actions.
+        # Phase B must ONLY produce enter_long, enter_short, or skip.
+        # exit / hold / increase / decrease are Phase A territory.
+        if mode != "portfolio_review":
+            PHASE_B_ALLOWED = {"enter_long", "enter_short", "skip"}
+            cleaned = []
+            for d in decisions:
+                act = d.get("action", "")
+                if act not in PHASE_B_ALLOWED:
+                    logger.warning(
+                        "Phase B output guard: %s produced '%s' — only Phase A can manage held positions. Discarding.",
+                        d.get("ticker"), act,
+                    )
+                    continue
+                cleaned.append(d)
+            decisions = cleaned
+
         # Phase B hard guard: cannot propose opposing direction to an already-held position.
         # e.g. if NVDA is held SHORT, Phase B cannot enter_long NVDA.
         # Only Phase A (portfolio_review) can change direction — via decrease/exit/reverse.
@@ -1386,6 +1403,20 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
 
     # Pre-filter: only debate qualifying candidates
     qualifying = [sc for sc in scorecards if sc["composite_score"] >= DELIBERATION_THRESHOLD]
+
+    # Phase B hard filter: never send held tickers to the new-opportunities committee.
+    # Phase A owns all decisions for held positions — Phase B must only deliberate on new names.
+    if mode == "new_opportunities" and open_positions:
+        n_before = len(qualifying)
+        qualifying = [sc for sc in qualifying if sc["ticker"] not in open_positions]
+        n_excluded = n_before - len(qualifying)
+        if n_excluded:
+            logger.info("Phase B: excluded %d already-held tickers from deliberation: %s",
+                        n_excluded,
+                        [sc["ticker"] for sc in scorecards
+                         if sc["composite_score"] >= DELIBERATION_THRESHOLD
+                         and sc["ticker"] in open_positions])
+
     to_debate = qualifying[:MAX_CANDIDATES_TO_DEBATE]
 
     logger.info("Pre-filter: %d candidates → %d qualify (composite ≥ %d) → debating top %d",

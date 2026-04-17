@@ -12,6 +12,57 @@ SRC = ROOT / "data" / "reports"
 DST = ROOT / "dashboard" / "data" / "reports"
 DST.mkdir(parents=True, exist_ok=True)
 
+
+def _merge_decisions(phase_a: list, phase_b: list) -> list:
+    """
+    Merge Phase A (portfolio review) and Phase B (new opportunities) decisions.
+    Rules:
+      - Phase A owns all decisions for currently-held tickers.
+        If Phase B also produced a decision for a held ticker, discard it.
+      - Phase B owns all new-entry decisions (enter_long / enter_short) for non-held tickers.
+      - Skip actions are excluded from the output.
+      - Phase B exit/hold/increase/decrease actions are stripped — Phase B should only enter.
+    """
+    held_tickers = {d.get("ticker") for d in phase_a if d.get("ticker")}
+    PHASE_B_VALID_ACTIONS = {"enter_long", "enter_short"}
+
+    result = []
+    seen = set()
+
+    # Phase A decisions take precedence — add all non-skip Phase A decisions
+    for d in phase_a:
+        t = d.get("ticker")
+        action = d.get("action", "")
+        if not t or "skip" in action:
+            continue
+        result.append({
+            "ticker": t,
+            "action": action,
+            "conviction": d.get("conviction", 0),
+            "thesis": d.get("investment_thesis", "")[:400],
+        })
+        seen.add(t)
+
+    # Phase B decisions — only new entries, only for tickers not already handled by Phase A
+    for d in phase_b:
+        t = d.get("ticker")
+        action = d.get("action", "")
+        if not t or "skip" in action:
+            continue
+        if t in seen or t in held_tickers:
+            continue  # Phase A owns this ticker
+        if action not in PHASE_B_VALID_ACTIONS:
+            continue  # Phase B must not produce exits/holds/increases
+        result.append({
+            "ticker": t,
+            "action": action,
+            "conviction": d.get("conviction", 0),
+            "thesis": d.get("investment_thesis", "")[:400],
+        })
+        seen.add(t)
+
+    return result
+
 REPORT_FILES = [
     "pipeline_result.json",
     "portfolio_state.json",
@@ -113,10 +164,11 @@ try:
         # Phase A = hold/exit decisions on existing open positions
         phase_a_decisions = pr.get("phase_a", {}).get("committee", {}).get("position_decisions", [])
 
-        action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
+        # Merge Phase A + Phase B — Phase A owns held tickers, Phase B owns new entries only
+        decisions = _merge_decisions(phase_a_decisions, phase_b_decisions)
 
-        # Count Phase B decisions (new entries, skips)
-        for d in phase_b_decisions:
+        action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
+        for d in decisions:
             a = d.get("action", "")
             if "enter" in a:
                 action_counts["new_positions"] += 1
@@ -129,37 +181,18 @@ try:
             elif "decrease" in a:
                 action_counts["decreases"] += 1
 
-        # Count Phase A decisions (holds/exits on existing positions)
-        for d in phase_a_decisions:
-            a = d.get("action", "")
-            if "exit" in a:
-                action_counts["exits"] += 1
-            elif "hold" in a:
-                action_counts["holds"] += 1
-            elif "increase" in a:
-                action_counts["increases"] += 1
-            elif "decrease" in a:
-                action_counts["decreases"] += 1
-
-        # Fallback: if Phase A wrote no committee decisions, use pipeline_summary
-        if not phase_a_decisions:
-            reviewed = ps.get("phase_a_positions_reviewed", 0)
-            if reviewed > 0:
-                # Holds = positions reviewed minus any exits/size changes already counted
-                implicit_holds = reviewed - action_counts["exits"] - action_counts["increases"] - action_counts["decreases"]
-                action_counts["holds"] += max(0, implicit_holds)
-
-        # Merge Phase A + Phase B for the decisions list (exclude skips)
-        decisions = phase_b_decisions
-
         # Detect market closure from executor output
-        pb_executor = pr.get("phase_b", {}).get("executor", {})
-        pa_executor = pr.get("phase_a", {}).get("executor", {})
+        pb_executor = pr.get("phase_b", {}).get("executor") or {}
+        pa_executor = pr.get("phase_a", {}).get("executor") or {}
         market_closed = False
         deferred_tickers = []
         for executor in (pb_executor, pa_executor):
+            if not isinstance(executor, dict):
+                continue
             for trade in executor.get("executed_trades", []):
-                if trade.get("order", {}).get("status") == "market_closed_dry_run":
+                if not isinstance(trade, dict):
+                    continue
+                if (trade.get("order") or {}).get("status") == "market_closed_dry_run":
                     market_closed = True
                     t = trade.get("ticker")
                     if t and t not in deferred_tickers:
@@ -306,16 +339,7 @@ try:
                 + cr.get("committee_narrative", "No narrative available.")
             ),
             "agent_findings": agent_findings,
-            "decisions": [
-                {
-                    "ticker": d.get("ticker"),
-                    "action": d.get("action", "hold"),
-                    "conviction": d.get("conviction", 0),
-                    "thesis": d.get("investment_thesis", "")[:400],
-                }
-                for d in (phase_a_decisions + decisions)
-                if "skip" not in d.get("action", "")
-            ],
+            "decisions": decisions,
             "open_positions_after": ps.get("open_positions_after", 0),
             "benchmark_summary": benchmark_summary,
             "benchmark_alpha_1w": benchmark_alpha_1w,
