@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Cell, ResponsiveContainer, Tooltip as RTooltip } from "recharts";
+import CandlestickChart from "@/components/CandlestickChart";
 
 const SECTIONS = [
   { key: "s1",  label: "Fund Mandate" },
@@ -502,6 +503,9 @@ export default function AdhocTickerPage() {
 
           {/* S8 — Technical */}
           <Card id="s8" title="8. Technical Analysis" open={open.s8} onToggle={() => toggle("s8")}>
+            <div className="mb-5">
+              <CandlestickChart ticker={ticker} />
+            </div>
             {/* RSI + S/R visual */}
             <div className="flex items-start gap-6 mb-4 flex-wrap">
               <div className="flex flex-col items-center">
