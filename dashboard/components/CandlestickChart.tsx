@@ -19,7 +19,6 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
   const [tf, setTf] = useState<TF>("1D");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  // Track what timeframe is currently loaded so tf changes can re-fetch
   const loadedTfRef = useRef<TF | null>(null);
 
   const fetchAndRender = useCallback(async (timeframe: TF) => {
@@ -45,75 +44,86 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
     loadedTfRef.current = timeframe;
   }, [ticker]);
 
-  // Build chart once on mount — fetch initial data from inside init so we know series is ready
   useEffect(() => {
     if (!containerRef.current) return;
-    let chart: unknown;
     let cancelled = false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let chart: any;
 
     (async () => {
-      const { createChart, LineStyle } = await import("lightweight-charts");
-      if (cancelled) return;
-      const el = containerRef.current;
-      if (!el) return;
+      try {
+        // lightweight-charts v5: import CandlestickSeries class alongside createChart
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const lc = await import("lightweight-charts") as any;
+        if (cancelled) return;
+        const el = containerRef.current;
+        if (!el) return;
 
-      chart = createChart(el, {
-        width: el.offsetWidth,
-        height: 260,
-        layout: { background: { color: "transparent" }, textColor: "#6B7280" },
-        grid: {
-          vertLines: { color: "rgba(255,255,255,0.04)" },
-          horzLines: { color: "rgba(255,255,255,0.04)" },
-        },
-        crosshair: {
-          vertLine: { color: "rgba(255,255,255,0.2)", labelBackgroundColor: "#1F2937" },
-          horzLine: { color: "rgba(255,255,255,0.2)", labelBackgroundColor: "#1F2937" },
-        },
-        rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
-        timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: true, secondsVisible: false },
-        handleScroll: true,
-        handleScale: true,
-      });
-
-      // @ts-expect-error -- dynamic import typing lacks series method definitions
-      const series = chart.addCandlestickSeries({
-        upColor: "#10B981", downColor: "#EF4444",
-        borderUpColor: "#10B981", borderDownColor: "#EF4444",
-        wickUpColor: "#10B981", wickDownColor: "#EF4444",
-      });
-
-      if (entryPrice) {
-        series.createPriceLine({
-          price: entryPrice,
-          color: "#F59E0B",
-          lineWidth: 1,
-          lineStyle: LineStyle.Dashed,
-          axisLabelVisible: true,
-          title: "Entry",
+        chart = lc.createChart(el, {
+          width: el.offsetWidth,
+          height: 260,
+          layout: { background: { color: "transparent" }, textColor: "#6B7280" },
+          grid: {
+            vertLines: { color: "rgba(255,255,255,0.04)" },
+            horzLines: { color: "rgba(255,255,255,0.04)" },
+          },
+          crosshair: {
+            vertLine: { color: "rgba(255,255,255,0.2)", labelBackgroundColor: "#1F2937" },
+            horzLine: { color: "rgba(255,255,255,0.2)", labelBackgroundColor: "#1F2937" },
+          },
+          rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
+          timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: true, secondsVisible: false },
+          handleScroll: true,
+          handleScale: true,
         });
-      }
 
-      chartRef.current = chart;
-      seriesRef.current = series;
-
-      const onResize = () => {
-        if (el) {
-          // @ts-expect-error -- dynamic import lacks typed applyOptions
-          chart?.applyOptions({ width: el.offsetWidth });
+        // v5 API: addSeries(SeriesClass, options) — v4 addCandlestickSeries() was removed
+        let series: unknown;
+        const seriesOpts = {
+          upColor: "#10B981", downColor: "#EF4444",
+          borderUpColor: "#10B981", borderDownColor: "#EF4444",
+          wickUpColor: "#10B981", wickDownColor: "#EF4444",
+        };
+        if (typeof lc.CandlestickSeries !== "undefined") {
+          // v5
+          series = chart.addSeries(lc.CandlestickSeries, seriesOpts);
+        } else {
+          // v4 fallback
+          series = chart.addCandlestickSeries(seriesOpts);
         }
-      };
-      window.addEventListener("resize", onResize);
 
-      // Chart is ready — fetch initial data immediately
-      if (!cancelled) await fetchAndRender("1D");
+        if (entryPrice) {
+          const LineStyle = lc.LineStyle;
+          (series as { createPriceLine: (o: unknown) => void }).createPriceLine({
+            price: entryPrice,
+            color: "#F59E0B",
+            lineWidth: 1,
+            lineStyle: LineStyle?.Dashed ?? 2,
+            axisLabelVisible: true,
+            title: "Entry",
+          });
+        }
 
-      // Cleanup resize listener (returned from IIFE — not from useEffect cleanup)
-      return () => window.removeEventListener("resize", onResize);
+        chartRef.current = chart;
+        seriesRef.current = series;
+
+        const onResize = () => {
+          if (el) chart?.applyOptions({ width: el.offsetWidth });
+        };
+        window.addEventListener("resize", onResize);
+
+        if (!cancelled) await fetchAndRender("1D");
+
+        return () => window.removeEventListener("resize", onResize);
+      } catch (err) {
+        console.error("Chart init error:", err);
+        setLoading(false);
+        setError(true);
+      }
     })();
 
     return () => {
       cancelled = true;
-      // @ts-expect-error -- dynamic import lacks typed remove method
       chart?.remove();
       chartRef.current = null;
       seriesRef.current = null;
@@ -122,7 +132,6 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticker, entryPrice]);
 
-  // Re-fetch when user changes timeframe (chart already initialized)
   useEffect(() => {
     if (tf !== loadedTfRef.current && seriesRef.current) {
       fetchAndRender(tf);
@@ -131,7 +140,6 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
 
   return (
     <div>
-      {/* Timeframe selector */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
@@ -154,7 +162,6 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
         </div>
       </div>
 
-      {/* Chart container */}
       <div className="relative rounded-xl overflow-hidden" style={{ height: 260 }}>
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#080C10]/80 z-10">
@@ -166,7 +173,7 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
         )}
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#080C10]/60 z-10">
-            <p className="text-xs text-[#6B7280]">Chart data unavailable — try a different timeframe or check your connection</p>
+            <p className="text-xs text-[#6B7280]">Chart data unavailable — try a different timeframe</p>
           </div>
         )}
         <div ref={containerRef} className="w-full h-full" />

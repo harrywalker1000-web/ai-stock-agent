@@ -307,39 +307,43 @@ export async function GET(
     profit_margins:    liveQuote?.profit_margins,
   } : null;
 
+  // Positions_log entry — used as fallback for fields the pipeline didn't populate
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const peLog: any = positionEntry ?? null;
+
   // Build market analysis from real fundamental + macro + sector
   const marketAnalysis = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tam_usd:               (fundamental as any)?.market_analysis?.tam_usd ?? "—",
+    tam_usd:               (fundamental as any)?.market_analysis?.tam_usd ?? peLog?.market_analysis?.tam_usd ?? "—",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    growth_rate:           (fundamental as any)?.market_analysis?.growth_rate ?? (sectorReport ? `${sectorReport.sector_rankings?.[0]?.growth_outlook ?? "—"}` : "—"),
+    growth_rate:           (fundamental as any)?.market_analysis?.growth_rate ?? peLog?.market_analysis?.growth_rate ?? (sectorReport ? `${sectorReport.sector_rankings?.[0]?.growth_outlook ?? "—"}` : "—"),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    competition_intensity: (fundamental as any)?.market_analysis?.competition_intensity ?? "—",
+    competition_intensity: (fundamental as any)?.market_analysis?.competition_intensity ?? peLog?.market_analysis?.competition_intensity ?? "—",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sector_trends:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.sector_trends ?? sectorReport?.sector_summary ?? "—",
+    sector_trends:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.sector_trends ?? peLog?.market_analysis?.sector_trends ?? sectorReport?.sector_summary ?? "—",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    macro_factors:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.macro_factors ?? "—",
+    macro_factors:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.macro_factors ?? peLog?.market_analysis?.macro_factors ?? "—",
     _macro_regime:         macroReport?.regime,
     _favoured_themes:      macroReport?.favoured_themes,
     _avoid_themes:         macroReport?.avoid_themes,
     _source:               "live_pipeline",
   };
 
-  // Quality of earnings — from fundamental.quality_of_earnings (real per-ticker data)
+  // Quality of earnings — pipeline first, fall back to positions_log
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fundamentalQoE = (fundamental as any)?.quality_of_earnings ?? null;
   const qualityOfEarnings = fundamental ? {
-    moat:                  fundamentalQoE?.moat ?? "—",
-    competitive_advantages: fundamentalQoE?.competitive_advantages ?? [],
-    barriers_to_entry:     fundamentalQoE?.barriers_to_entry ?? "—",
-    sustainability:        fundamentalQoE?.sustainability ?? "—",
+    moat:                  fundamentalQoE?.moat ?? peLog?.quality_of_earnings?.moat ?? "—",
+    competitive_advantages: fundamentalQoE?.competitive_advantages ?? peLog?.quality_of_earnings?.competitive_advantages ?? [],
+    barriers_to_entry:     fundamentalQoE?.barriers_to_entry ?? peLog?.quality_of_earnings?.barriers_to_entry ?? "—",
+    sustainability:        fundamentalQoE?.sustainability ?? peLog?.quality_of_earnings?.sustainability ?? "—",
     valuation_assessment:  fundamental.valuation_vs_peers,
     price_vs_intrinsic:    fundamental.price_vs_intrinsic_value,
     dislocation:           fundamental.dislocation_opportunity,
     key_strengths:         fundamental.key_strengths,
     key_concerns:          fundamental.key_concerns,
     data_confidence:       fundamental.data_confidence,
-  } : null;
+  } : (peLog?.quality_of_earnings ?? null);
 
   // Recommendation — add direction derived from decision action / held position
   const recDirection = decision?.action === "enter_long" ? "LONG"
@@ -453,21 +457,22 @@ export async function GET(
     return items;
   })() : [];
 
-  // ── Valuation — built from decision + scorecard + fundamental ─────────────────
+  // ── Valuation — pipeline first, fall back to positions_log ──────────────────
   const valuation = (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const f = fundamental as any;
-    if (!f && !decision) return null;
+    const pv = peLog?.valuation ?? null;
+    if (!f && !decision) return pv;
     return {
-      trade_type_classification: f?.setup_type ?? (decision?.action?.includes("long") ? "Long momentum" : "Tactical/Swing"),
-      methodology: "Peer comps + technical signals",
+      trade_type_classification: f?.setup_type ?? pv?.trade_type_classification ?? (decision?.action?.includes("long") ? "Long momentum" : "Tactical/Swing"),
+      methodology: pv?.methodology ?? "Peer comps + technical signals",
       analyst_consensus_target: decision?.target_price ?? liveQuote?.analyst_target ?? null,
-      implied_multiples: f?.valuation_vs_peers ?? "—",
-      is_forecast_realistic: f?.price_vs_intrinsic_value ?? "—",
+      implied_multiples: f?.valuation_vs_peers ?? pv?.implied_multiples ?? "—",
+      is_forecast_realistic: f?.price_vs_intrinsic_value ?? pv?.is_forecast_realistic ?? "—",
       expected_roi_2_3yr: decision?.target_price
         ? `Target: $${decision.target_price}${decision.stop_loss ? `, stop $${decision.stop_loss}` : ""}. Conviction: ${decision.conviction ?? "—"}/100`
-        : "—",
-      moic_estimate: "—",
+        : (pv?.expected_roi_2_3yr ?? "—"),
+      moic_estimate: pv?.moic_estimate ?? "—",
     };
   })();
 
