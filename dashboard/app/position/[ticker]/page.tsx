@@ -221,7 +221,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 {position.pct_change >= 0 ? "+" : ""}{position.pct_change.toFixed(2)}%
               </p>
               <p className="text-sm mt-0.5" style={{ color: pnlColor }}>
-                {position.pnl_absolute >= 0 ? "+" : ""}${Math.abs(position.pnl_absolute).toLocaleString()}
+                {position.pnl_absolute >= 0 ? "+$" : "-$"}{Math.abs(position.pnl_absolute).toLocaleString()}
               </p>
             </div>
           </div>
