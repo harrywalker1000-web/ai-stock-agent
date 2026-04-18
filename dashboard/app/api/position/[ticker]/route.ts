@@ -305,6 +305,15 @@ export async function GET(
     gross_margins:     liveQuote?.gross_margins,
     ebitda_margins:    liveQuote?.ebitda_margins,
     profit_margins:    liveQuote?.profit_margins,
+  } : liveQuote ? {
+    // No fundamental report — populate what we can from Yahoo Finance live data
+    pe_ratio:          liveQuote.pe_trailing,
+    pe_peer_avg:       null,
+    revenue_ttm:       liveQuote.revenue_ttm,
+    ebitda_live:       liveQuote.ebitda,
+    gross_margins:     liveQuote.gross_margins,
+    ebitda_margins:    liveQuote.ebitda_margins,
+    profit_margins:    liveQuote.profit_margins,
   } : null;
 
   // Positions_log entry — used as fallback for fields the pipeline didn't populate
@@ -379,7 +388,7 @@ export async function GET(
     quant_summary:       quant.quant_summary,
   } : null;
 
-  // Sentiment data
+  // Sentiment data — fall back to live-only object when no pipeline sentiment report
   const sentimentData = sentiment ? {
     analyst_consensus:      sentiment.analyst_consensus,
     price_target_upside_pct:sentiment.price_target_upside_pct,
@@ -395,6 +404,13 @@ export async function GET(
     analyst_high_live:      liveQuote?.analyst_high,
     recommendation_key:     liveQuote?.recommendation_key,
     num_analysts:           liveQuote?.number_of_analyst_opinions,
+  } : liveQuote ? {
+    // No pipeline sentiment — surface live Yahoo Finance data only
+    analyst_target_live:    liveQuote.analyst_target,
+    analyst_low_live:       liveQuote.analyst_low,
+    analyst_high_live:      liveQuote.analyst_high,
+    recommendation_key:     liveQuote.recommendation_key,
+    num_analysts:           liveQuote.number_of_analyst_opinions,
   } : null;
 
   // ── Setup Checklist — prefer agent's saved setup_checklist, derive from flat fields as fallback ──
