@@ -171,38 +171,68 @@ export default function TeamDesign1() {
         @keyframes d1-dash{to{stroke-dashoffset:-28}} .d1-signal{animation:d1-dash 2s linear infinite}
         @keyframes d1-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d1-live-dot{animation:d1-dot 2s ease-in-out infinite}
         @keyframes d1-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d1-pulse-ring{animation:d1-ring 2.8s ease-out infinite}
-        @keyframes d1-sweep{0%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(230%) skewX(-18deg)}}
-        @keyframes d1-breathe{0%,100%{opacity:0.4}50%{opacity:0.85}}
+        @keyframes d1-scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+        @keyframes d1-breathe{0%,100%{opacity:0.7}50%{opacity:1}}
         @keyframes d1-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d1-panel-in{animation:d1-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d1-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d1-stagger{opacity:0;animation:d1-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* D1 background: Line grid + diagonal light sweep */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#07090E"}}/>
-      {/* Fine grid */}
+      {/* D1 — SYNTHWAVE: perspective grid, neon horizon, striped sun */}
+      {/* Sky gradient */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        backgroundImage:"linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)",
-        backgroundSize:"62px 62px"
+        background:"linear-gradient(to bottom, #08001A 0%, #150030 38%, #3D0055 58%, #8A0060 74%, #D4006A 84%, #FF3D6E 91%, #FF7A35 97%, #FFA040 100%)"
       }}/>
-      {/* Subtle vignette from edges */}
+      {/* Stars — layered dot fields at different scales */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        background:"radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)"
+        backgroundImage:"radial-gradient(rgba(255,255,255,0.9) 1px,transparent 1px)",
+        backgroundSize:"120px 80px", backgroundPosition:"0 0", height:"55%"
       }}/>
-      {/* Slow diagonal light sweep — cinematic beam crossing the screen */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        <div style={{
-          position:"absolute",top:0,left:0,width:"35%",height:"100%",
-          background:"linear-gradient(90deg,transparent 0%,rgba(14,165,233,0.055) 40%,rgba(14,165,233,0.09) 50%,rgba(245,166,35,0.04) 60%,transparent 100%)",
-          filter:"blur(8px)",
-          animation:"d1-sweep 14s ease-in-out infinite"
-        }}/>
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        top:0,left:0,right:0,height:"55%",
+        backgroundImage:"radial-gradient(rgba(255,255,255,0.6) 1px,transparent 1px)",
+        backgroundSize:"60px 45px", backgroundPosition:"30px 20px"
+      }}/>
+      {/* Horizon glow */}
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        top:"55%", left:"-10%", right:"-10%", height:"120px",
+        background:"linear-gradient(to bottom, transparent, rgba(255,60,110,0.6), rgba(255,100,40,0.3), transparent)",
+        filter:"blur(18px)"
+      }}/>
+      {/* Sun — striped semicircle */}
+      <div className="fixed pointer-events-none overflow-hidden" aria-hidden style={{
+        top:"45%", left:"50%", transform:"translateX(-50%)",
+        width:"180px", height:"90px",
+        borderRadius:"90px 90px 0 0",
+        background:"linear-gradient(to bottom, #FFE040 0%, #FF9020 40%, #FF4060 100%)",
+        boxShadow:"0 0 60px rgba(255,160,40,0.8), 0 0 120px rgba(255,60,110,0.5)"
+      }}>
+        {[20,34,46,56,64,71,77].map((pct,i) => (
+          <div key={i} style={{position:"absolute",top:`${pct}%`,left:0,right:0,height:"4px",background:"rgba(10,0,20,0.55)"}}/>
+        ))}
       </div>
-      {/* Soft center ambient glow */}
+      {/* Perspective grid — lower half */}
+      <div className="fixed pointer-events-none overflow-hidden" aria-hidden style={{
+        bottom:0, left:"-20%", right:"-20%", height:"46%",
+        backgroundImage:"linear-gradient(to right, rgba(255,40,140,0.55) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,40,140,0.45) 1px, transparent 1px)",
+        backgroundSize:"80px 55px",
+        transform:"perspective(420px) rotateX(72deg)",
+        transformOrigin:"top center"
+      }}/>
+      {/* Grid floor glow */}
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        bottom:0,left:0,right:0,height:"35%",
+        background:"linear-gradient(to top, rgba(200,0,100,0.18) 0%, transparent 100%)"
+      }}/>
+      {/* Scanline overlay */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        background:"radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,165,233,0.07) 0%, transparent 70%)",
-        animation:"d1-breathe 9s ease-in-out infinite"
+        backgroundImage:"repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.13) 3px, rgba(0,0,0,0.13) 4px)"
+      }}/>
+      {/* Vignette */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+        background:"radial-gradient(ellipse 90% 90% at 50% 50%, transparent 40%, rgba(0,0,0,0.65) 100%)",
+        animation:"d1-breathe 8s ease-in-out infinite"
       }}/>
 
       <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">

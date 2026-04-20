@@ -160,7 +160,7 @@ export default function TeamDesign3() {
   const byId=useCallback((id:string)=>agents.find(a=>a.id===id),[agents]);
 
   if(loading) return (
-    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#060A12"}}>
+    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#020008"}}>
       <p className="text-[#1F2937] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
     </div>
   );
@@ -171,45 +171,61 @@ export default function TeamDesign3() {
         @keyframes d3-dash{to{stroke-dashoffset:-28}} .d3-signal{animation:d3-dash 2s linear infinite}
         @keyframes d3-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d3-live-dot{animation:d3-dot 2s ease-in-out infinite}
         @keyframes d3-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d3-pulse-ring{animation:d3-ring 2.8s ease-out infinite}
-        @keyframes d3-flare-a{0%,100%{opacity:0.65}50%{opacity:1}}
-        @keyframes d3-flare-b{0%,100%{opacity:0.5}50%{opacity:0.9}}
-        @keyframes d3-flare-c{0%,100%{opacity:0.4}50%{opacity:0.75}}
-        @keyframes d3-flare-d{0%,100%{opacity:0.55}50%{opacity:0.85}}
+        @keyframes d3-drift-a{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.08)}}
+        @keyframes d3-drift-b{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,35px) scale(1.12)}}
+        @keyframes d3-drift-c{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,40px) scale(0.95)}}
+        @keyframes d3-drift-d{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-25px)}}
         @keyframes d3-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d3-panel-in{animation:d3-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d3-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d3-stagger{opacity:0;animation:d3-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* D3 background: vibrant corner flares — GPU-safe opacity-only animation */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#060A12"}}/>
-      {/* Top-left — electric blue */}
+      {/* D3 — DEEP SPACE NEBULA: massive layered clouds with slow drift */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#020008"}}/>
+      {/* Nebula cloud 1 — massive deep purple, center-left */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"-20%",left:"-15%",width:"65vw",height:"65vh",
-        background:"radial-gradient(ellipse at top left,rgba(14,165,233,0.22) 0%,rgba(14,165,233,0.08) 45%,transparent 70%)",
-        filter:"blur(45px)",
-        animation:"d3-flare-a 11s ease-in-out infinite"
+        top:"-10%",left:"-20%",width:"90vw",height:"90vh",
+        background:"radial-gradient(ellipse, rgba(120,0,255,0.55) 0%, rgba(80,0,180,0.3) 35%, transparent 65%)",
+        filter:"blur(80px)",
+        animation:"d3-drift-a 22s ease-in-out infinite"
       }}/>
-      {/* Top-right — violet */}
+      {/* Nebula cloud 2 — hot magenta, top-right */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"-18%",right:"-15%",width:"60vw",height:"60vh",
-        background:"radial-gradient(ellipse at top right,rgba(139,92,246,0.2) 0%,rgba(99,102,241,0.07) 45%,transparent 70%)",
-        filter:"blur(50px)",
-        animation:"d3-flare-b 15s ease-in-out infinite"
+        top:"-15%",right:"-15%",width:"75vw",height:"80vh",
+        background:"radial-gradient(ellipse, rgba(255,0,160,0.5) 0%, rgba(200,0,100,0.25) 40%, transparent 65%)",
+        filter:"blur(70px)",
+        animation:"d3-drift-b 18s ease-in-out infinite"
       }}/>
-      {/* Bottom-left — teal */}
+      {/* Nebula cloud 3 — electric blue, bottom-center */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        bottom:"-22%",left:"-12%",width:"55vw",height:"60vh",
-        background:"radial-gradient(ellipse at bottom left,rgba(0,210,180,0.18) 0%,rgba(0,210,180,0.06) 45%,transparent 70%)",
-        filter:"blur(55px)",
-        animation:"d3-flare-c 18s ease-in-out infinite"
+        bottom:"-20%",left:"10%",width:"80vw",height:"75vh",
+        background:"radial-gradient(ellipse, rgba(0,80,255,0.5) 0%, rgba(0,40,180,0.25) 40%, transparent 65%)",
+        filter:"blur(75px)",
+        animation:"d3-drift-c 26s ease-in-out infinite"
       }}/>
-      {/* Bottom-right — amber */}
+      {/* Nebula cloud 4 — teal accent, bottom-right */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        bottom:"-18%",right:"-10%",width:"50vw",height:"55vh",
-        background:"radial-gradient(ellipse at bottom right,rgba(245,166,35,0.17) 0%,rgba(245,166,35,0.05) 45%,transparent 70%)",
-        filter:"blur(48px)",
-        animation:"d3-flare-d 13s ease-in-out infinite"
+        bottom:"-5%",right:"-10%",width:"55vw",height:"60vh",
+        background:"radial-gradient(ellipse, rgba(0,210,200,0.35) 0%, rgba(0,150,140,0.15) 40%, transparent 65%)",
+        filter:"blur(60px)",
+        animation:"d3-drift-d 30s ease-in-out infinite"
+      }}/>
+      {/* Bright core glow — deep center */}
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        top:"20%",left:"25%",width:"50vw",height:"55vh",
+        background:"radial-gradient(ellipse, rgba(180,0,255,0.25) 0%, rgba(80,0,200,0.1) 45%, transparent 70%)",
+        filter:"blur(50px)"
+      }}/>
+      {/* Star field — two layers */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+        backgroundImage:"radial-gradient(rgba(255,255,255,0.85) 1px,transparent 1px)",
+        backgroundSize:"140px 90px"
+      }}/>
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+        backgroundImage:"radial-gradient(rgba(255,255,255,0.5) 1px,transparent 1px)",
+        backgroundSize:"70px 50px",
+        backgroundPosition:"35px 25px"
       }}/>
 
       <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">
