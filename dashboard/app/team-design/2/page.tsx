@@ -31,6 +31,18 @@ const CONNECTIONS:[string,string][] = [
 ];
 function nodeR(id:string){ return id==="committee"?50:id==="candidate"?42:36; }
 
+// Precomputed ribbon strands — teal→sky, flowing right-to-left across mid-screen
+const D2_STRANDS = Array.from({length:30},(_,i)=>{
+  const t=i/29, wave=Math.sin(i*0.52)*42;
+  return {
+    d:`M ${1240},${30+i*24} C ${920+wave},${80+i*20} ${480-wave},${250+i*14} ${-70},${310+i*18}`,
+    op: Math.max(0.05, Math.sin(Math.PI*t)*0.76+0.05),
+    sw: 0.5+Math.sin(Math.PI*t)*2.0,
+    stroke:`hsl(${175+t*30},${72-t*6}%,${54+t*14}%)`,
+  };
+});
+
+
 function OrbitalNode({agent,x,y,selected,hovered,dimmed,onClick,onMouseEnter,onMouseLeave}:{
   agent:Agent;x:number;y:number;selected:boolean;hovered:boolean;dimmed:boolean;
   onClick:()=>void;onMouseEnter:()=>void;onMouseLeave:()=>void;
@@ -159,7 +171,7 @@ export default function TeamDesign2() {
   const byId=useCallback((id:string)=>agents.find(a=>a.id===id),[agents]);
 
   if(loading) return (
-    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#03050A"}}>
+    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#080C10"}}>
       <p className="text-[#1F2937] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
     </div>
   );
@@ -170,25 +182,34 @@ export default function TeamDesign2() {
         @keyframes d2-dash{to{stroke-dashoffset:-28}} .d2-signal{animation:d2-dash 2s linear infinite}
         @keyframes d2-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d2-live-dot{animation:d2-dot 2s ease-in-out infinite}
         @keyframes d2-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d2-pulse-ring{animation:d2-ring 2.8s ease-out infinite}
-        @keyframes d2-hue{0%{filter:hue-rotate(0deg) saturate(1.6) brightness(0.9)}100%{filter:hue-rotate(360deg) saturate(1.6) brightness(0.9)}}
-        .d2-mesh{animation:d2-hue 20s linear infinite}
+        @keyframes d2-breathe{0%,100%{opacity:0.82}50%{opacity:1}}
         @keyframes d2-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d2-panel-in{animation:d2-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d2-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d2-stagger{opacity:0;animation:d2-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      <div className="min-h-[100dvh] flex flex-col pt-16 relative overflow-hidden" style={{background:"#03050A"}}>
-        {/* D2 — LIVING MESH GRADIENT: hue-rotate cycles all colors through 360° */}
-        <div className="d2-mesh fixed inset-0 pointer-events-none" aria-hidden style={{
-          background:`
-            radial-gradient(ellipse 75% 75% at 15% 20%, rgba(0,220,255,0.75) 0%, transparent 55%),
-            radial-gradient(ellipse 65% 65% at 85% 15%, rgba(255,0,200,0.7) 0%, transparent 55%),
-            radial-gradient(ellipse 60% 60% at 80% 85%, rgba(0,255,120,0.65) 0%, transparent 55%),
-            radial-gradient(ellipse 55% 55% at 20% 80%, rgba(100,0,255,0.65) 0%, transparent 55%),
-            radial-gradient(ellipse 50% 50% at 50% 50%, rgba(255,160,0,0.5) 0%, transparent 60%),
-            #03050A
-          `
+      <div className="min-h-[100dvh] flex flex-col pt-16 relative overflow-hidden" style={{background:"#080C10"}}>
+        {/* D2 — flowing ribbon, teal→sky, right to left */}
+        <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#080C10"}}/>
+        <svg className="fixed inset-0 pointer-events-none" aria-hidden
+          style={{width:"100%",height:"100%",animation:"d2-breathe 12s ease-in-out infinite"}}
+          viewBox="0 0 1200 800" preserveAspectRatio="xMaxYMid meet">
+          <defs>
+            <radialGradient id="d2-fade" cx="60%" cy="50%" r="55%">
+              <stop offset="0%" stopColor="white" stopOpacity="1"/>
+              <stop offset="100%" stopColor="white" stopOpacity="0"/>
+            </radialGradient>
+            <mask id="d2-mask"><rect width="1200" height="800" fill="url(#d2-fade)"/></mask>
+          </defs>
+          <g mask="url(#d2-mask)">
+            {D2_STRANDS.map((s,i)=>(
+              <path key={i} d={s.d} stroke={s.stroke} strokeWidth={s.sw} fill="none" opacity={s.op}/>
+            ))}
+          </g>
+        </svg>
+        <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+          background:"radial-gradient(ellipse 85% 80% at 50% 50%, transparent 45%, rgba(0,0,0,0.72) 100%)"
         }}/>
 
         {/* Header */}

@@ -32,6 +32,18 @@ const CONNECTIONS:[string,string][] = [
 ];
 function nodeR(id:string){ return id==="committee"?50:id==="candidate"?42:36; }
 
+// Precomputed ribbon strands — indigo→violet, flowing top-left to bottom-right
+const D3_STRANDS = Array.from({length:30},(_,i)=>{
+  const t=i/29, wave=Math.sin(i*0.48)*36;
+  return {
+    d:`M ${-60+i*14},${-65} C ${120+i*12+wave},${210+wave} ${580+i*8-wave},${480-wave} ${1240},${540+i*10}`,
+    op: Math.max(0.06, Math.sin(Math.PI*t)*0.74+0.06),
+    sw: 0.5+Math.sin(Math.PI*t)*2.1,
+    stroke:`hsl(${250+t*38},${72-t*5}%,${60+t*10}%)`,
+  };
+});
+
+
 function OrbitalNode({agent,x,y,selected,hovered,dimmed,onClick,onMouseEnter,onMouseLeave}:{
   agent:Agent;x:number;y:number;selected:boolean;hovered:boolean;dimmed:boolean;
   onClick:()=>void;onMouseEnter:()=>void;onMouseLeave:()=>void;
@@ -160,7 +172,7 @@ export default function TeamDesign3() {
   const byId=useCallback((id:string)=>agents.find(a=>a.id===id),[agents]);
 
   if(loading) return (
-    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#020008"}}>
+    <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#060A12"}}>
       <p className="text-[#1F2937] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
     </div>
   );
@@ -171,61 +183,33 @@ export default function TeamDesign3() {
         @keyframes d3-dash{to{stroke-dashoffset:-28}} .d3-signal{animation:d3-dash 2s linear infinite}
         @keyframes d3-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d3-live-dot{animation:d3-dot 2s ease-in-out infinite}
         @keyframes d3-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d3-pulse-ring{animation:d3-ring 2.8s ease-out infinite}
-        @keyframes d3-drift-a{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.08)}}
-        @keyframes d3-drift-b{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,35px) scale(1.12)}}
-        @keyframes d3-drift-c{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,40px) scale(0.95)}}
-        @keyframes d3-drift-d{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,-25px)}}
+        @keyframes d3-breathe{0%,100%{opacity:0.82}50%{opacity:1}}
         @keyframes d3-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d3-panel-in{animation:d3-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d3-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d3-stagger{opacity:0;animation:d3-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* D3 — DEEP SPACE NEBULA: massive layered clouds with slow drift */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#020008"}}/>
-      {/* Nebula cloud 1 — massive deep purple, center-left */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"-10%",left:"-20%",width:"90vw",height:"90vh",
-        background:"radial-gradient(ellipse, rgba(120,0,255,0.55) 0%, rgba(80,0,180,0.3) 35%, transparent 65%)",
-        filter:"blur(80px)",
-        animation:"d3-drift-a 22s ease-in-out infinite"
-      }}/>
-      {/* Nebula cloud 2 — hot magenta, top-right */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"-15%",right:"-15%",width:"75vw",height:"80vh",
-        background:"radial-gradient(ellipse, rgba(255,0,160,0.5) 0%, rgba(200,0,100,0.25) 40%, transparent 65%)",
-        filter:"blur(70px)",
-        animation:"d3-drift-b 18s ease-in-out infinite"
-      }}/>
-      {/* Nebula cloud 3 — electric blue, bottom-center */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        bottom:"-20%",left:"10%",width:"80vw",height:"75vh",
-        background:"radial-gradient(ellipse, rgba(0,80,255,0.5) 0%, rgba(0,40,180,0.25) 40%, transparent 65%)",
-        filter:"blur(75px)",
-        animation:"d3-drift-c 26s ease-in-out infinite"
-      }}/>
-      {/* Nebula cloud 4 — teal accent, bottom-right */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        bottom:"-5%",right:"-10%",width:"55vw",height:"60vh",
-        background:"radial-gradient(ellipse, rgba(0,210,200,0.35) 0%, rgba(0,150,140,0.15) 40%, transparent 65%)",
-        filter:"blur(60px)",
-        animation:"d3-drift-d 30s ease-in-out infinite"
-      }}/>
-      {/* Bright core glow — deep center */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"20%",left:"25%",width:"50vw",height:"55vh",
-        background:"radial-gradient(ellipse, rgba(180,0,255,0.25) 0%, rgba(80,0,200,0.1) 45%, transparent 70%)",
-        filter:"blur(50px)"
-      }}/>
-      {/* Star field — two layers */}
+      {/* D3 — flowing ribbon, indigo→violet, top-left to bottom-right */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#060A12"}}/>
+      <svg className="fixed inset-0 pointer-events-none" aria-hidden
+        style={{width:"100%",height:"100%",animation:"d3-breathe 12s ease-in-out infinite"}}
+        viewBox="0 0 1200 800" preserveAspectRatio="xMinYMin slice">
+        <defs>
+          <radialGradient id="d3-fade" cx="40%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="white" stopOpacity="1"/>
+            <stop offset="100%" stopColor="white" stopOpacity="0"/>
+          </radialGradient>
+          <mask id="d3-mask"><rect width="1200" height="800" fill="url(#d3-fade)"/></mask>
+        </defs>
+        <g mask="url(#d3-mask)">
+          {D3_STRANDS.map((s,i)=>(
+            <path key={i} d={s.d} stroke={s.stroke} strokeWidth={s.sw} fill="none" opacity={s.op}/>
+          ))}
+        </g>
+      </svg>
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        backgroundImage:"radial-gradient(rgba(255,255,255,0.85) 1px,transparent 1px)",
-        backgroundSize:"140px 90px"
-      }}/>
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        backgroundImage:"radial-gradient(rgba(255,255,255,0.5) 1px,transparent 1px)",
-        backgroundSize:"70px 50px",
-        backgroundPosition:"35px 25px"
+        background:"radial-gradient(ellipse 85% 80% at 50% 50%, transparent 45%, rgba(0,0,0,0.7) 100%)"
       }}/>
 
       <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">

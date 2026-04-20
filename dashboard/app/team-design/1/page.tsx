@@ -32,6 +32,18 @@ const CONNECTIONS:[string,string][] = [
 ];
 function nodeR(id:string){ return id==="committee"?50:id==="candidate"?42:36; }
 
+// Precomputed ribbon strands — Stripe-style flowing cloth, blue→indigo, top-right to bottom-left
+const D1_STRANDS = Array.from({length:30},(_,i)=>{
+  const t=i/29, wave=Math.sin(i*0.44)*38;
+  return {
+    d:`M ${1230-i*3},${-65+i*21} C ${940+wave},${95+i*17} ${510-wave},${330+i*11} ${-65},${460+i*13}`,
+    op: Math.max(0.06, Math.sin(Math.PI*t)*0.78+0.06),
+    sw: 0.5+Math.sin(Math.PI*t)*2.1,
+    stroke:`hsl(${198+t*42},${78-t*8}%,${58+t*12}%)`,
+  };
+});
+
+
 function OrbitalNode({agent,x,y,selected,hovered,dimmed,onClick,onMouseEnter,onMouseLeave}:{
   agent:Agent;x:number;y:number;selected:boolean;hovered:boolean;dimmed:boolean;
   onClick:()=>void;onMouseEnter:()=>void;onMouseLeave:()=>void;
@@ -171,68 +183,33 @@ export default function TeamDesign1() {
         @keyframes d1-dash{to{stroke-dashoffset:-28}} .d1-signal{animation:d1-dash 2s linear infinite}
         @keyframes d1-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d1-live-dot{animation:d1-dot 2s ease-in-out infinite}
         @keyframes d1-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d1-pulse-ring{animation:d1-ring 2.8s ease-out infinite}
-        @keyframes d1-scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
-        @keyframes d1-breathe{0%,100%{opacity:0.7}50%{opacity:1}}
+        @keyframes d1-breathe{0%,100%{opacity:0.82}50%{opacity:1}}
         @keyframes d1-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d1-panel-in{animation:d1-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d1-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d1-stagger{opacity:0;animation:d1-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* D1 — SYNTHWAVE: perspective grid, neon horizon, striped sun */}
-      {/* Sky gradient */}
+      {/* D1 — flowing ribbon, blue→indigo, top-right to bottom-left */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#07090E"}}/>
+      <svg className="fixed inset-0 pointer-events-none" aria-hidden
+        style={{width:"100%",height:"100%",animation:"d1-breathe 12s ease-in-out infinite"}}
+        viewBox="0 0 1200 800" preserveAspectRatio="xMaxYMin slice">
+        <defs>
+          <radialGradient id="d1-fade" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stopColor="white" stopOpacity="1"/>
+            <stop offset="100%" stopColor="white" stopOpacity="0"/>
+          </radialGradient>
+          <mask id="d1-mask"><rect width="1200" height="800" fill="url(#d1-fade)"/></mask>
+        </defs>
+        <g mask="url(#d1-mask)">
+          {D1_STRANDS.map((s,i)=>(
+            <path key={i} d={s.d} stroke={s.stroke} strokeWidth={s.sw} fill="none" opacity={s.op}/>
+          ))}
+        </g>
+      </svg>
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        background:"linear-gradient(to bottom, #08001A 0%, #150030 38%, #3D0055 58%, #8A0060 74%, #D4006A 84%, #FF3D6E 91%, #FF7A35 97%, #FFA040 100%)"
-      }}/>
-      {/* Stars — layered dot fields at different scales */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        backgroundImage:"radial-gradient(rgba(255,255,255,0.9) 1px,transparent 1px)",
-        backgroundSize:"120px 80px", backgroundPosition:"0 0", height:"55%"
-      }}/>
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:0,left:0,right:0,height:"55%",
-        backgroundImage:"radial-gradient(rgba(255,255,255,0.6) 1px,transparent 1px)",
-        backgroundSize:"60px 45px", backgroundPosition:"30px 20px"
-      }}/>
-      {/* Horizon glow */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"55%", left:"-10%", right:"-10%", height:"120px",
-        background:"linear-gradient(to bottom, transparent, rgba(255,60,110,0.6), rgba(255,100,40,0.3), transparent)",
-        filter:"blur(18px)"
-      }}/>
-      {/* Sun — striped semicircle */}
-      <div className="fixed pointer-events-none overflow-hidden" aria-hidden style={{
-        top:"45%", left:"50%", transform:"translateX(-50%)",
-        width:"180px", height:"90px",
-        borderRadius:"90px 90px 0 0",
-        background:"linear-gradient(to bottom, #FFE040 0%, #FF9020 40%, #FF4060 100%)",
-        boxShadow:"0 0 60px rgba(255,160,40,0.8), 0 0 120px rgba(255,60,110,0.5)"
-      }}>
-        {[20,34,46,56,64,71,77].map((pct,i) => (
-          <div key={i} style={{position:"absolute",top:`${pct}%`,left:0,right:0,height:"4px",background:"rgba(10,0,20,0.55)"}}/>
-        ))}
-      </div>
-      {/* Perspective grid — lower half */}
-      <div className="fixed pointer-events-none overflow-hidden" aria-hidden style={{
-        bottom:0, left:"-20%", right:"-20%", height:"46%",
-        backgroundImage:"linear-gradient(to right, rgba(255,40,140,0.55) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,40,140,0.45) 1px, transparent 1px)",
-        backgroundSize:"80px 55px",
-        transform:"perspective(420px) rotateX(72deg)",
-        transformOrigin:"top center"
-      }}/>
-      {/* Grid floor glow */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        bottom:0,left:0,right:0,height:"35%",
-        background:"linear-gradient(to top, rgba(200,0,100,0.18) 0%, transparent 100%)"
-      }}/>
-      {/* Scanline overlay */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        backgroundImage:"repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.13) 3px, rgba(0,0,0,0.13) 4px)"
-      }}/>
-      {/* Vignette */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        background:"radial-gradient(ellipse 90% 90% at 50% 50%, transparent 40%, rgba(0,0,0,0.65) 100%)",
-        animation:"d1-breathe 8s ease-in-out infinite"
+        background:"radial-gradient(ellipse 85% 80% at 50% 50%, transparent 45%, rgba(0,0,0,0.7) 100%)"
       }}/>
 
       <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">
