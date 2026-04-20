@@ -2,71 +2,111 @@
   "institutional_buys": [],
   "analyst_upgrades": [
     {
+      "ticker": "MSFT",
+      "company_name": "Microsoft Corp",
+      "analyst_count": 54,
+      "consensus": "strong_buy",
+      "price_target": 579.57,
+      "current_price": 417.45,
+      "implied_upside_pct": 38.8,
+      "strong_buy_count": 23,
+      "buy_count": 36,
+      "hold_count": 6,
+      "sell_count": 0,
+      "signal": "strong conviction buy",
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 1,
+        "corroborated_by": []
+      },
+      "reasoning": "Strong analyst consensus with a significant upside potential, indicating high confidence in Microsoft's growth."
+    },
+    {
       "ticker": "NVDA",
       "company_name": "NVIDIA Corporation",
       "analyst_count": 56,
-      "consensus": "buy",
-      "price_target": 268.22,
-      "current_price": 177.22,
-      "implied_upside_pct": 51.3,
+      "consensus": "strong_buy",
+      "price_target": 268.61,
+      "current_price": 198.55,
+      "implied_upside_pct": 35.3,
       "strong_buy_count": 24,
       "buy_count": 42,
       "hold_count": 4,
       "sell_count": 1,
       "signal": "strong conviction buy",
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "corroborated_by": [
-          "analyst_consensus"
-        ]
+        "level": "high",
+        "sources_count": 1,
+        "corroborated_by": []
       },
-      "reasoning": "NVIDIA has a strong analyst consensus with a significant upside potential, indicating positive institutional sentiment."
+      "reasoning": "High analyst ratings and significant upside suggest strong institutional interest in NVIDIA."
     },
     {
-      "ticker": "TSLA",
-      "company_name": "Tesla Inc",
-      "analyst_count": 54,
-      "consensus": "buy",
-      "price_target": 360.0,
-      "current_price": 350.0,
-      "implied_upside_pct": 2.9,
-      "strong_buy_count": 10,
+      "ticker": "CRM",
+      "company_name": "Salesforce.com Inc",
+      "analyst_count": 52,
+      "consensus": "strong_buy",
+      "price_target": 268.87,
+      "current_price": 184.97,
+      "implied_upside_pct": 45.4,
+      "strong_buy_count": 14,
       "buy_count": 30,
-      "hold_count": 10,
-      "sell_count": 4,
-      "signal": "moderate buy",
+      "hold_count": 13,
+      "sell_count": 0,
+      "signal": "strong conviction buy",
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "corroborated_by": [
-          "analyst_consensus"
-        ]
+        "level": "high",
+        "sources_count": 1,
+        "corroborated_by": []
       },
-      "reasoning": "Tesla's analyst ratings suggest a moderate buy despite mixed signals from insider activity."
+      "reasoning": "The high upside potential and strong buy ratings indicate robust confidence in Salesforce's future performance."
     }
   ],
   "insider_buys": [],
   "activist_signals": [],
   "unusual_options_signals": [
     {
-      "ticker": "NVDA",
+      "ticker": "AAPL",
       "direction": "bullish",
-      "max_vol_oi_ratio": 13.2,
-      "interpretation": "The high volume to open interest ratio indicates strong institutional bullish sentiment towards NVIDIA."
+      "max_vol_oi_ratio": 23.5,
+      "interpretation": "The significant call volume indicates strong institutional expectations for AAPL's price increase."
     },
     {
-      "ticker": "TSLA",
-      "direction": "bearish",
-      "max_vol_oi_ratio": 37.9,
-      "interpretation": "The significant put volume suggests institutions are hedging against potential downside in Tesla."
+      "ticker": "NVDA",
+      "direction": "bullish",
+      "max_vol_oi_ratio": 6.1,
+      "interpretation": "High call volume suggests institutions are positioning for a price rise in NVDA."
+    },
+    {
+      "ticker": "MSFT",
+      "direction": "bullish",
+      "max_vol_oi_ratio": 19.4,
+      "interpretation": "The large call sweeps indicate strong bullish sentiment among institutions for MSFT."
+    },
+    {
+      "ticker": "AMZN",
+      "direction": "bullish",
+      "max_vol_oi_ratio": 6.9,
+      "interpretation": "The call activity suggests institutions are optimistic about AMZN's future performance."
     }
   ],
   "top_institutional_signals": [
+    "MSFT",
     "NVDA",
-    "TSLA"
+    "AAPL",
+    "AMZN"
   ],
   "fund_theses": [
+    {
+      "ticker": "MSFT",
+      "funds": [
+        "Berkshire Hathaway",
+        "Tiger Global"
+      ],
+      "inferred_thesis": "growth",
+      "thesis_reasoning": "Both funds are likely betting on Microsoft's continued growth in cloud services and software solutions.",
+      "conviction": "high"
+    },
     {
       "ticker": "NVDA",
       "funds": [
@@ -74,23 +114,33 @@
         "Tiger Global"
       ],
       "inferred_thesis": "growth",
-      "thesis_reasoning": "Both funds are likely betting on NVIDIA's growth potential in the AI and gaming sectors.",
+      "thesis_reasoning": "The funds are likely capitalizing on NVIDIA's leadership in AI and gaming technologies.",
       "conviction": "high"
     },
     {
-      "ticker": "TSLA",
+      "ticker": "AAPL",
       "funds": [
-        "ARK Invest",
-        "Pershing Square"
+        "Berkshire Hathaway",
+        "Tiger Global"
       ],
-      "inferred_thesis": "catalyst_driven",
-      "thesis_reasoning": "Funds are likely anticipating significant developments in Tesla's product line and market expansion.",
-      "conviction": "medium"
+      "inferred_thesis": "value",
+      "thesis_reasoning": "Berkshire's investment suggests a belief in Apple's strong brand and cash flow generation.",
+      "conviction": "high"
+    },
+    {
+      "ticker": "AMZN",
+      "funds": [
+        "Berkshire Hathaway",
+        "Tiger Global"
+      ],
+      "inferred_thesis": "growth",
+      "thesis_reasoning": "Both funds are likely betting on Amazon's e-commerce and cloud growth potential.",
+      "conviction": "high"
     }
   ],
   "convergence_signals": [],
-  "institutional_summary": "Currently, there are no recent 13D/13G activist filings. However, unusual options activity indicates strong institutional positioning in NVIDIA with bullish sentiment, while Tesla shows bearish positioning. Analyst upgrades for NVIDIA and Tesla reflect medium confidence levels, suggesting cautious optimism amidst mixed insider signals. No convergence signals were identified among the funds.",
-  "confidence": 75,
+  "institutional_summary": "No recent 13D/13G activist filings were found, indicating a lack of immediate activist interest. However, there is significant unusual options activity for AAPL, NVDA, MSFT, and AMZN, suggesting strong institutional positioning for upside potential. Analyst upgrades for MSFT, NVDA, and CRM reflect high confidence in these stocks, with multiple funds holding positions in them. Overall, the confidence level is high due to corroborating signals from analyst ratings and options activity.",
+  "confidence": 85,
   "raw_data": {
     "fund_holdings": {
       "Berkshire Hathaway": [
@@ -1108,12 +1158,12 @@
     "analyst_data": [
       {
         "ticker": "AAPL",
-        "current_price": 258.66,
+        "current_price": 271.94,
         "analyst_count": 40,
-        "target_mean": 295.07,
+        "target_mean": 297.46,
         "target_high": 350.0,
         "target_low": 205.0,
-        "implied_upside_pct": 14.1,
+        "implied_upside_pct": 9.4,
         "recommendation_key": "buy",
         "strong_buy": 14,
         "buy": 23,
@@ -1124,12 +1174,12 @@
       },
       {
         "ticker": "MSFT",
-        "current_price": 372.74,
+        "current_price": 417.4501,
         "analyst_count": 54,
-        "target_mean": 587.31,
+        "target_mean": 579.57,
         "target_high": 730.0,
         "target_low": 392.0,
-        "implied_upside_pct": 57.6,
+        "implied_upside_pct": 38.8,
         "recommendation_key": "strong_buy",
         "strong_buy": 23,
         "buy": 36,
@@ -1140,12 +1190,12 @@
       },
       {
         "ticker": "NVDA",
-        "current_price": 177.225,
+        "current_price": 198.5502,
         "analyst_count": 56,
-        "target_mean": 268.22,
+        "target_mean": 268.61,
         "target_high": 380.0,
         "target_low": 140.0,
-        "implied_upside_pct": 51.3,
+        "implied_upside_pct": 35.3,
         "recommendation_key": "strong_buy",
         "strong_buy": 24,
         "buy": 42,
@@ -1156,12 +1206,12 @@
       },
       {
         "ticker": "GOOGL",
-        "current_price": 300.25,
+        "current_price": 337.3,
         "analyst_count": 56,
-        "target_mean": 376.29,
+        "target_mean": 376.5,
         "target_high": 443.0,
         "target_low": 185.0,
-        "implied_upside_pct": 25.3,
+        "implied_upside_pct": 11.6,
         "recommendation_key": "strong_buy",
         "strong_buy": 19,
         "buy": 41,
@@ -1172,12 +1222,12 @@
       },
       {
         "ticker": "AMZN",
-        "current_price": 212.29,
+        "current_price": 245.995,
         "analyst_count": 64,
-        "target_mean": 281.27,
+        "target_mean": 281.18,
         "target_high": 360.0,
         "target_low": 175.0,
-        "implied_upside_pct": 32.5,
+        "implied_upside_pct": 14.3,
         "recommendation_key": "strong_buy",
         "strong_buy": 21,
         "buy": 50,
@@ -1188,12 +1238,12 @@
       },
       {
         "ticker": "META",
-        "current_price": 577.46,
+        "current_price": 670.66,
         "analyst_count": 60,
-        "target_mean": 860.25,
-        "target_high": 1144.0,
+        "target_mean": 855.76,
+        "target_high": 1015.0,
         "target_low": 614.0,
-        "implied_upside_pct": 49.0,
+        "implied_upside_pct": 27.6,
         "recommendation_key": "strong_buy",
         "strong_buy": 22,
         "buy": 42,
@@ -1204,12 +1254,12 @@
       },
       {
         "ticker": "TSLA",
-        "current_price": 351.7699,
+        "current_price": 390.405,
         "analyst_count": 41,
-        "target_mean": 416.15,
+        "target_mean": 414.59,
         "target_high": 600.0,
         "target_low": 125.0,
-        "implied_upside_pct": 18.3,
+        "implied_upside_pct": 6.2,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 20,
@@ -1220,12 +1270,12 @@
       },
       {
         "ticker": "JPM",
-        "current_price": 296.325,
-        "analyst_count": 24,
-        "target_mean": 337.75,
-        "target_high": 400.0,
+        "current_price": 314.27,
+        "analyst_count": 22,
+        "target_mean": 338.45,
+        "target_high": 391.0,
         "target_low": 288.0,
-        "implied_upside_pct": 14.0,
+        "implied_upside_pct": 7.7,
         "recommendation_key": "buy",
         "strong_buy": 3,
         "buy": 16,
@@ -1236,12 +1286,12 @@
       },
       {
         "ticker": "V",
-        "current_price": 303.84,
+        "current_price": 314.165,
         "analyst_count": 35,
-        "target_mean": 396.83,
+        "target_mean": 393.43,
         "target_high": 450.0,
         "target_low": 323.0,
-        "implied_upside_pct": 30.6,
+        "implied_upside_pct": 25.2,
         "recommendation_key": "strong_buy",
         "strong_buy": 11,
         "buy": 31,
@@ -1252,12 +1302,12 @@
       },
       {
         "ticker": "UNH",
-        "current_price": 281.285,
+        "current_price": 320.49,
         "analyst_count": 26,
-        "target_mean": 357.81,
+        "target_mean": 360.46,
         "target_high": 440.0,
-        "target_low": 255.0,
-        "implied_upside_pct": 27.2,
+        "target_low": 278.0,
+        "implied_upside_pct": 12.5,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 18,
@@ -1268,12 +1318,12 @@
       },
       {
         "ticker": "XOM",
-        "current_price": 162.43,
+        "current_price": 148.85,
         "analyst_count": 24,
-        "target_mean": 160.17,
+        "target_mean": 164.79,
         "target_high": 195.0,
         "target_low": 123.0,
-        "implied_upside_pct": -1.4,
+        "implied_upside_pct": 10.7,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 11,
@@ -1284,12 +1334,12 @@
       },
       {
         "ticker": "CVX",
-        "current_price": 198.38,
+        "current_price": 184.99,
         "analyst_count": 24,
-        "target_mean": 203.0,
+        "target_mean": 213.29,
         "target_high": 242.0,
         "target_low": 165.0,
-        "implied_upside_pct": 2.3,
+        "implied_upside_pct": 15.3,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 16,
@@ -1300,12 +1350,12 @@
       },
       {
         "ticker": "LLY",
-        "current_price": 925.19,
+        "current_price": 928.93,
         "analyst_count": 29,
-        "target_mean": 1209.21,
+        "target_mean": 1209.86,
         "target_high": 1500.0,
         "target_low": 850.0,
-        "implied_upside_pct": 30.7,
+        "implied_upside_pct": 30.2,
         "recommendation_key": "buy",
         "strong_buy": 12,
         "buy": 18,
@@ -1316,12 +1366,12 @@
       },
       {
         "ticker": "JNJ",
-        "current_price": 240.75,
+        "current_price": 233.585,
         "analyst_count": 24,
-        "target_mean": 241.08,
-        "target_high": 280.0,
+        "target_mean": 251.08,
+        "target_high": 285.0,
         "target_low": 155.0,
-        "implied_upside_pct": 0.1,
+        "implied_upside_pct": 7.5,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 14,
@@ -1332,12 +1382,12 @@
       },
       {
         "ticker": "WMT",
-        "current_price": 126.64,
+        "current_price": 127.66,
         "analyst_count": 41,
-        "target_mean": 136.02,
+        "target_mean": 136.44,
         "target_high": 150.0,
         "target_low": 62.0,
-        "implied_upside_pct": 7.4,
+        "implied_upside_pct": 6.9,
         "recommendation_key": "strong_buy",
         "strong_buy": 14,
         "buy": 30,
@@ -1348,12 +1398,12 @@
       },
       {
         "ticker": "PG",
-        "current_price": 142.3201,
+        "current_price": 145.74,
         "analyst_count": 22,
-        "target_mean": 166.95,
+        "target_mean": 164.18,
         "target_high": 186.0,
         "target_low": 142.0,
-        "implied_upside_pct": 17.3,
+        "implied_upside_pct": 12.7,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 14,
@@ -1364,12 +1414,12 @@
       },
       {
         "ticker": "HD",
-        "current_price": 325.08,
+        "current_price": 346.66,
         "analyst_count": 33,
-        "target_mean": 408.18,
+        "target_mean": 408.21,
         "target_high": 454.0,
         "target_low": 335.0,
-        "implied_upside_pct": 25.6,
+        "implied_upside_pct": 17.8,
         "recommendation_key": "buy",
         "strong_buy": 10,
         "buy": 19,
@@ -1380,13 +1430,13 @@
       },
       {
         "ticker": "BAC",
-        "current_price": 50.085,
-        "analyst_count": 25,
-        "target_mean": 61.06,
+        "current_price": 53.5001,
+        "analyst_count": 23,
+        "target_mean": 62.33,
         "target_high": 71.0,
-        "target_low": 53.0,
-        "implied_upside_pct": 21.9,
-        "recommendation_key": "strong_buy",
+        "target_low": 56.0,
+        "implied_upside_pct": 16.5,
+        "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 20,
         "hold": 5,
@@ -1396,12 +1446,12 @@
       },
       {
         "ticker": "MA",
-        "current_price": 501.46,
+        "current_price": 518.5,
         "analyst_count": 35,
-        "target_mean": 657.11,
-        "target_high": 739.0,
+        "target_mean": 654.66,
+        "target_high": 735.0,
         "target_low": 550.0,
-        "implied_upside_pct": 31.0,
+        "implied_upside_pct": 26.3,
         "recommendation_key": "strong_buy",
         "strong_buy": 13,
         "buy": 30,
@@ -1412,12 +1462,12 @@
       },
       {
         "ticker": "AVGO",
-        "current_price": 313.31,
-        "analyst_count": 44,
-        "target_mean": 471.55,
+        "current_price": 397.88,
+        "analyst_count": 42,
+        "target_mean": 475.49,
         "target_high": 630.0,
         "target_low": 360.0,
-        "implied_upside_pct": 50.5,
+        "implied_upside_pct": 19.5,
         "recommendation_key": "strong_buy",
         "strong_buy": 17,
         "buy": 37,
@@ -1428,12 +1478,12 @@
       },
       {
         "ticker": "COST",
-        "current_price": 1019.39,
+        "current_price": 1003.53,
         "analyst_count": 32,
-        "target_mean": 1067.59,
+        "target_mean": 1072.16,
         "target_high": 1315.0,
         "target_low": 650.0,
-        "implied_upside_pct": 4.7,
+        "implied_upside_pct": 6.8,
         "recommendation_key": "buy",
         "strong_buy": 13,
         "buy": 17,
@@ -1444,12 +1494,12 @@
       },
       {
         "ticker": "MRK",
-        "current_price": 120.795,
+        "current_price": 118.69,
         "analyst_count": 27,
-        "target_mean": 128.59,
+        "target_mean": 129.81,
         "target_high": 150.0,
         "target_low": 100.0,
-        "implied_upside_pct": 6.5,
+        "implied_upside_pct": 9.4,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 16,
@@ -1460,9 +1510,9 @@
       },
       {
         "ticker": "ABBV",
-        "current_price": 206.44,
+        "current_price": 206.26,
         "analyst_count": 29,
-        "target_mean": 249.14,
+        "target_mean": 249.0,
         "target_high": 299.0,
         "target_low": 184.0,
         "implied_upside_pct": 20.7,
@@ -1476,12 +1526,12 @@
       },
       {
         "ticker": "PEP",
-        "current_price": 156.43,
+        "current_price": 157.55,
         "analyst_count": 21,
-        "target_mean": 170.54,
-        "target_high": 191.0,
+        "target_mean": 171.57,
+        "target_high": 195.0,
         "target_low": 130.0,
-        "implied_upside_pct": 9.0,
+        "implied_upside_pct": 8.9,
         "recommendation_key": "hold",
         "strong_buy": 3,
         "buy": 10,
@@ -1492,12 +1542,12 @@
       },
       {
         "ticker": "KO",
-        "current_price": 77.185,
+        "current_price": 76.09,
         "analyst_count": 23,
-        "target_mean": 83.54,
-        "target_high": 89.0,
+        "target_mean": 83.67,
+        "target_high": 90.0,
         "target_low": 71.38,
-        "implied_upside_pct": 8.2,
+        "implied_upside_pct": 10.0,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 20,
@@ -1508,12 +1558,12 @@
       },
       {
         "ticker": "TMO",
-        "current_price": 485.304,
+        "current_price": 527.135,
         "analyst_count": 25,
-        "target_mean": 661.4,
+        "target_mean": 648.28,
         "target_high": 750.0,
-        "target_low": 595.0,
-        "implied_upside_pct": 36.3,
+        "target_low": 520.0,
+        "implied_upside_pct": 23.0,
         "recommendation_key": "strong_buy",
         "strong_buy": 11,
         "buy": 20,
@@ -1524,12 +1574,12 @@
       },
       {
         "ticker": "ORCL",
-        "current_price": 145.67,
-        "analyst_count": 39,
-        "target_mean": 246.46,
+        "current_price": 174.2,
+        "analyst_count": 38,
+        "target_mean": 243.87,
         "target_high": 400.0,
         "target_low": 155.0,
-        "implied_upside_pct": 69.2,
+        "implied_upside_pct": 40.0,
         "recommendation_key": "buy",
         "strong_buy": 16,
         "buy": 24,
@@ -1540,12 +1590,12 @@
       },
       {
         "ticker": "CRM",
-        "current_price": 185.65,
+        "current_price": 184.975,
         "analyst_count": 52,
-        "target_mean": 273.06,
+        "target_mean": 268.87,
         "target_high": 475.0,
         "target_low": 190.0,
-        "implied_upside_pct": 47.1,
+        "implied_upside_pct": 45.4,
         "recommendation_key": "buy",
         "strong_buy": 14,
         "buy": 30,
@@ -1556,12 +1606,12 @@
       },
       {
         "ticker": "AMD",
-        "current_price": 220.02,
+        "current_price": 274.235,
         "analyst_count": 46,
-        "target_mean": 289.61,
+        "target_mean": 291.52,
         "target_high": 365.0,
         "target_low": 220.0,
-        "implied_upside_pct": 31.6,
+        "implied_upside_pct": 6.3,
         "recommendation_key": "buy",
         "strong_buy": 15,
         "buy": 30,
@@ -1572,12 +1622,12 @@
       },
       {
         "ticker": "INTC",
-        "current_price": 50.7,
+        "current_price": 66.105,
         "analyst_count": 41,
-        "target_mean": 47.11,
-        "target_high": 71.5,
+        "target_mean": 52.26,
+        "target_high": 92.0,
         "target_low": 20.4,
-        "implied_upside_pct": -7.1,
+        "implied_upside_pct": -20.9,
         "recommendation_key": "hold",
         "strong_buy": 4,
         "buy": 9,
@@ -1588,12 +1638,12 @@
       },
       {
         "ticker": "QCOM",
-        "current_price": 125.49,
+        "current_price": 137.4956,
         "analyst_count": 28,
-        "target_mean": 154.93,
+        "target_mean": 151.18,
         "target_high": 200.0,
         "target_low": 100.0,
-        "implied_upside_pct": 23.5,
+        "implied_upside_pct": 10.0,
         "recommendation_key": "hold",
         "strong_buy": 6,
         "buy": 13,
@@ -1604,12 +1654,12 @@
       },
       {
         "ticker": "PLTR",
-        "current_price": 148.3818,
-        "analyst_count": 27,
-        "target_mean": 185.25,
+        "current_price": 144.56,
+        "analyst_count": 25,
+        "target_mean": 186.47,
         "target_high": 260.0,
         "target_low": 70.0,
-        "implied_upside_pct": 24.8,
+        "implied_upside_pct": 29.0,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 15,
@@ -1620,12 +1670,12 @@
       },
       {
         "ticker": "COIN",
-        "current_price": 175.45,
+        "current_price": 203.23,
         "analyst_count": 29,
-        "target_mean": 240.22,
+        "target_mean": 238.94,
         "target_high": 420.0,
         "target_low": 120.0,
-        "implied_upside_pct": 36.9,
+        "implied_upside_pct": 17.6,
         "recommendation_key": "buy",
         "strong_buy": 11,
         "buy": 17,
@@ -1636,13 +1686,13 @@
       },
       {
         "ticker": "GS",
-        "current_price": 865.1568,
+        "current_price": 926.665,
         "analyst_count": 20,
-        "target_mean": 953.25,
-        "target_high": 1125.0,
-        "target_low": 700.0,
-        "implied_upside_pct": 10.2,
-        "recommendation_key": "buy",
+        "target_mean": 933.25,
+        "target_high": 1050.0,
+        "target_low": 729.0,
+        "implied_upside_pct": 0.7,
+        "recommendation_key": "hold",
         "strong_buy": 6,
         "buy": 9,
         "hold": 16,
@@ -1652,12 +1702,12 @@
       },
       {
         "ticker": "MS",
-        "current_price": 166.0,
+        "current_price": 189.43,
         "analyst_count": 21,
-        "target_mean": 192.57,
-        "target_high": 221.0,
-        "target_low": 153.0,
-        "implied_upside_pct": 16.0,
+        "target_mean": 195.14,
+        "target_high": 230.0,
+        "target_low": 165.0,
+        "implied_upside_pct": 3.0,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 10,
@@ -1668,12 +1718,12 @@
       },
       {
         "ticker": "C",
-        "current_price": 116.815,
-        "analyst_count": 23,
-        "target_mean": 132.0,
-        "target_high": 150.0,
-        "target_low": 104.0,
-        "implied_upside_pct": 13.0,
+        "current_price": 132.34,
+        "analyst_count": 21,
+        "target_mean": 141.19,
+        "target_high": 160.0,
+        "target_low": 122.0,
+        "implied_upside_pct": 6.7,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 18,
@@ -1684,12 +1734,12 @@
       },
       {
         "ticker": "WFC",
-        "current_price": 81.76,
-        "analyst_count": 25,
-        "target_mean": 99.3,
+        "current_price": 81.511,
+        "analyst_count": 23,
+        "target_mean": 96.17,
         "target_high": 113.0,
         "target_low": 85.0,
-        "implied_upside_pct": 21.5,
+        "implied_upside_pct": 18.0,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 15,
@@ -1700,12 +1750,12 @@
       },
       {
         "ticker": "RTX",
-        "current_price": 197.675,
+        "current_price": 196.11,
         "analyst_count": 22,
-        "target_mean": 216.34,
+        "target_mean": 216.02,
         "target_high": 242.0,
         "target_low": 179.0,
-        "implied_upside_pct": 9.4,
+        "implied_upside_pct": 10.2,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 11,
@@ -1716,12 +1766,12 @@
       },
       {
         "ticker": "LMT",
-        "current_price": 633.59,
+        "current_price": 584.33,
         "analyst_count": 20,
-        "target_mean": 665.65,
-        "target_high": 756.0,
-        "target_low": 517.0,
-        "implied_upside_pct": 5.1,
+        "target_mean": 668.0,
+        "target_high": 770.0,
+        "target_low": 520.0,
+        "implied_upside_pct": 14.3,
         "recommendation_key": "hold",
         "strong_buy": 4,
         "buy": 7,
@@ -1732,12 +1782,12 @@
       },
       {
         "ticker": "NOC",
-        "current_price": 699.505,
+        "current_price": 662.32,
         "analyst_count": 22,
-        "target_mean": 733.24,
+        "target_mean": 736.24,
         "target_high": 815.0,
         "target_low": 587.22,
-        "implied_upside_pct": 4.8,
+        "implied_upside_pct": 11.2,
         "recommendation_key": "buy",
         "strong_buy": 5,
         "buy": 12,
@@ -1748,12 +1798,12 @@
       },
       {
         "ticker": "GD",
-        "current_price": 351.005,
+        "current_price": 335.49,
         "analyst_count": 21,
-        "target_mean": 394.03,
+        "target_mean": 393.07,
         "target_high": 444.0,
         "target_low": 327.0,
-        "implied_upside_pct": 12.3,
+        "implied_upside_pct": 17.2,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 16,
@@ -1764,12 +1814,12 @@
       },
       {
         "ticker": "BA",
-        "current_price": 211.83,
+        "current_price": 222.82,
         "analyst_count": 25,
-        "target_mean": 269.0,
+        "target_mean": 265.76,
         "target_high": 300.0,
-        "target_low": 215.0,
-        "implied_upside_pct": 27.0,
+        "target_low": 200.0,
+        "implied_upside_pct": 19.3,
         "recommendation_key": "buy",
         "strong_buy": 13,
         "buy": 18,
@@ -1780,12 +1830,12 @@
       },
       {
         "ticker": "CAT",
-        "current_price": 719.125,
+        "current_price": 794.22,
         "analyst_count": 26,
-        "target_mean": 742.18,
-        "target_high": 877.52,
-        "target_low": 425.0,
-        "implied_upside_pct": 3.2,
+        "target_mean": 759.48,
+        "target_high": 920.0,
+        "target_low": 430.0,
+        "implied_upside_pct": -4.4,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 10,
@@ -1796,12 +1846,12 @@
       },
       {
         "ticker": "DE",
-        "current_price": 570.72,
+        "current_price": 592.935,
         "analyst_count": 23,
-        "target_mean": 664.01,
+        "target_mean": 665.1,
         "target_high": 793.0,
         "target_low": 500.0,
-        "implied_upside_pct": 16.3,
+        "implied_upside_pct": 12.2,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 15,
@@ -1812,12 +1862,12 @@
       },
       {
         "ticker": "UNP",
-        "current_price": 245.19,
+        "current_price": 253.297,
         "analyst_count": 24,
-        "target_mean": 271.38,
+        "target_mean": 273.33,
         "target_high": 311.0,
         "target_low": 218.0,
-        "implied_upside_pct": 10.7,
+        "implied_upside_pct": 7.9,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 12,
@@ -1828,12 +1878,12 @@
       },
       {
         "ticker": "NEE",
-        "current_price": 92.5903,
+        "current_price": 92.915,
         "analyst_count": 22,
-        "target_mean": 94.61,
+        "target_mean": 95.57,
         "target_high": 111.0,
         "target_low": 55.0,
-        "implied_upside_pct": 2.2,
+        "implied_upside_pct": 2.9,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 14,
@@ -1844,13 +1894,13 @@
       },
       {
         "ticker": "DUK",
-        "current_price": 131.315,
+        "current_price": 128.985,
         "analyst_count": 17,
-        "target_mean": 138.29,
+        "target_mean": 139.82,
         "target_high": 146.0,
-        "target_low": 127.0,
-        "implied_upside_pct": 5.3,
-        "recommendation_key": "none",
+        "target_low": 130.0,
+        "implied_upside_pct": 8.4,
+        "recommendation_key": "buy",
         "strong_buy": 4,
         "buy": 9,
         "hold": 14,
@@ -1865,66 +1915,11 @@
         "name": "Walton Family Holdings Trust",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 516838456,
-        "price": 125.1464,
-        "value_usd": 64680472150,
-        "date": "2026-03-11",
-        "days_ago": 26
-      },
-      {
-        "ticker": "WMT",
-        "name": "Walton Family Holdings Trust",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 518228248,
-        "price": 124.4098,
-        "value_usd": 64472672688,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "WMT",
-        "name": "Walton Family Holdings Trust",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 516856723,
-        "price": 124.5949,
-        "value_usd": 64397711717,
-        "date": "2026-03-11",
-        "days_ago": 26
-      },
-      {
-        "ticker": "WMT",
-        "name": "Walton Family Holdings Trust",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 518285393,
-        "price": 124.223,
-        "value_usd": 64382966375,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "WMT",
-        "name": "Walton Family Holdings Trust",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 517232960,
-        "price": 123.4979,
-        "value_usd": 63877184371,
-        "date": "2026-03-11",
-        "days_ago": 26
-      },
-      {
-        "ticker": "WMT",
-        "name": "Walton Family Holdings Trust",
-        "title": "",
-        "transaction_type": "SELL",
         "shares": 515434920,
         "price": 122.7118,
         "value_usd": 63249946816,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "WMT",
@@ -1935,7 +1930,7 @@
         "price": 123.1054,
         "value_usd": 63217633566,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "WMT",
@@ -1946,7 +1941,7 @@
         "price": 122.3277,
         "value_usd": 63182773151,
         "date": "2026-03-24",
-        "days_ago": 13
+        "days_ago": 27
       },
       {
         "ticker": "AVGO",
@@ -1957,7 +1952,7 @@
         "price": 323.92,
         "value_usd": 11987430854,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -1968,7 +1963,7 @@
         "price": 323.17,
         "value_usd": 11960455127,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -1979,7 +1974,7 @@
         "price": 322.23,
         "value_usd": 11928027222,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -1990,7 +1985,7 @@
         "price": 321.22,
         "value_usd": 11896127330,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2001,7 +1996,7 @@
         "price": 320.31,
         "value_usd": 11874015980,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2012,7 +2007,7 @@
         "price": 319.36,
         "value_usd": 11854331185,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2023,7 +2018,7 @@
         "price": 318.39,
         "value_usd": 11837444734,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2034,7 +2029,7 @@
         "price": 317.3,
         "value_usd": 11810952773,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2045,7 +2040,7 @@
         "price": 323.9,
         "value_usd": 10007797096,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2056,7 +2051,7 @@
         "price": 323.15,
         "value_usd": 9986482829,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2067,7 +2062,7 @@
         "price": 322.19,
         "value_usd": 9960847305,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2078,7 +2073,7 @@
         "price": 318.33,
         "value_usd": 9953573318,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2089,7 +2084,7 @@
         "price": 317.27,
         "value_usd": 9949740124,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2100,7 +2095,7 @@
         "price": 319.31,
         "value_usd": 9944209065,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2111,7 +2106,7 @@
         "price": 321.16,
         "value_usd": 9942874015,
         "date": "2026-03-25",
-        "days_ago": 12
+        "days_ago": 26
       },
       {
         "ticker": "AVGO",
@@ -2122,29 +2117,7 @@
         "price": 320.26,
         "value_usd": 9939289276,
         "date": "2026-03-25",
-        "days_ago": 12
-      },
-      {
-        "ticker": "NVDA",
-        "name": "STEVENS MARK A",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 7521453,
-        "price": 172.6068,
-        "value_usd": 1298253934,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "STEVENS MARK A",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 7399771,
-        "price": 174.5685,
-        "value_usd": 1291766924,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "days_ago": 26
       },
       {
         "ticker": "AAPL",
@@ -2155,7 +2128,7 @@
         "price": 254.37,
         "value_usd": 842771562,
         "date": "2026-04-02",
-        "days_ago": 4
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -2166,7 +2139,7 @@
         "price": 253.13,
         "value_usd": 842734318,
         "date": "2026-04-02",
-        "days_ago": 4
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -2177,7 +2150,7 @@
         "price": 252.11,
         "value_usd": 839811941,
         "date": "2026-04-02",
-        "days_ago": 4
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -2188,7 +2161,7 @@
         "price": 256,
         "value_usd": 839787008,
         "date": "2026-04-02",
-        "days_ago": 4
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -2199,7 +2172,7 @@
         "price": 251.25,
         "value_usd": 839245350,
         "date": "2026-04-02",
-        "days_ago": 4
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -2210,139 +2183,7 @@
         "price": 255.17,
         "value_usd": 838229367,
         "date": "2026-04-02",
-        "days_ago": 4
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3146006,
-        "price": 203.15,
-        "value_usd": 639111119,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3147506,
-        "price": 202.46,
-        "value_usd": 637244065,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3214778,
-        "price": 197.42,
-        "value_usd": 634661473,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3150509,
-        "price": 201.13,
-        "value_usd": 633661875,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3154609,
-        "price": 199.98,
-        "value_usd": 630858708,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3179191,
-        "price": 198.2,
-        "value_usd": 630115656,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "AMD",
-        "name": "Su Lisa T",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3160912,
-        "price": 199.15,
-        "value_usd": 629495625,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Puri Ajay K",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3343487,
-        "price": 182.4663,
-        "value_usd": 610073702,
-        "date": "2026-03-10",
-        "days_ago": 27
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Puri Ajay K",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3318547,
-        "price": 183.114,
-        "value_usd": 607672415,
-        "date": "2026-03-10",
-        "days_ago": 27
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Puri Ajay K",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3298666,
-        "price": 181.312,
-        "value_usd": 598087730,
-        "date": "2026-03-18",
-        "days_ago": 19
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Puri Ajay K",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3018547,
-        "price": 182.9386,
-        "value_usd": 552208762,
-        "date": "2026-03-18",
-        "days_ago": 19
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Puri Ajay K",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 3028532,
-        "price": 182.2978,
-        "value_usd": 552094721,
-        "date": "2026-03-18",
-        "days_ago": 19
+        "days_ago": 18
       },
       {
         "ticker": "WMT",
@@ -2353,436 +2194,95 @@
         "price": 123.1603,
         "value_usd": 518924347,
         "date": "2026-03-26",
-        "days_ago": 11
+        "days_ago": 25
       },
       {
-        "ticker": "GOOGL",
-        "name": "Pichai Sundar",
+        "ticker": "JPM",
+        "name": "DIMON JAMES",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 1668367,
-        "price": 306.21,
-        "value_usd": 510870659,
-        "date": "2026-03-18",
-        "days_ago": 19
+        "shares": 1680625,
+        "price": 306.557,
+        "value_usd": 515207358,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
-        "ticker": "GOOGL",
-        "name": "Pichai Sundar",
+        "ticker": "AMD",
+        "name": "Papermaster Mark D",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 1660265,
-        "price": 307.11,
-        "value_usd": 509883984,
-        "date": "2026-03-18",
-        "days_ago": 19
+        "shares": 1267357,
+        "price": 275,
+        "value_usd": 348523175,
+        "date": "2026-04-16",
+        "days_ago": 4
       },
       {
-        "ticker": "GOOGL",
-        "name": "Pichai Sundar",
+        "ticker": "AMD",
+        "name": "Papermaster Mark D",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 1653644,
-        "price": 308.18,
-        "value_usd": 509620008,
-        "date": "2026-03-18",
-        "days_ago": 19
+        "shares": 1294466,
+        "price": 255.54,
+        "value_usd": 330787842,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
-        "ticker": "GOOGL",
-        "name": "Pichai Sundar",
+        "ticker": "AMD",
+        "name": "Papermaster Mark D",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 1642060,
-        "price": 310.18,
-        "value_usd": 509334171,
-        "date": "2026-03-18",
-        "days_ago": 19
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Pichai Sundar",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 1643675,
-        "price": 309,
-        "value_usd": 507895575,
-        "date": "2026-03-18",
-        "days_ago": 19
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 923322,
-        "price": 172.0119,
-        "value_usd": 158822372,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 905526,
-        "price": 174.731,
-        "value_usd": 158223464,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 909751,
-        "price": 173.6291,
-        "value_usd": 157959247,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 913058,
-        "price": 172.7096,
-        "value_usd": 157693882,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 881387,
-        "price": 177.5115,
-        "value_usd": 156456328,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 883294,
-        "price": 176.8336,
-        "value_usd": 156196058,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 887506,
-        "price": 175.7773,
-        "value_usd": 156003408,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 712934,
-        "price": 177.5122,
-        "value_usd": 126554483,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 713405,
-        "price": 176.8288,
-        "value_usd": 126150550,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 714439,
-        "price": 175.8248,
-        "value_usd": 125616094,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 718315,
-        "price": 174.7468,
-        "value_usd": 125523248,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 719631,
-        "price": 173.6275,
-        "value_usd": 124947731,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "shares": 1294466,
+        "price": 225,
+        "value_usd": 291254850,
+        "date": "2026-04-06",
+        "days_ago": 14
       },
       {
         "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
+        "name": "Kawwas Charlie B",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 386624,
-        "price": 322.83,
-        "value_usd": 124813826,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "shares": 787184,
+        "price": 345.227,
+        "value_usd": 271757171,
+        "date": "2026-04-08",
+        "days_ago": 12
       },
       {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
+        "ticker": "JPM",
+        "name": "Erdoes Mary E.",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 387794,
-        "price": 321.463,
-        "value_usd": 124661423,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "shares": 639047,
+        "price": 306.5657,
+        "value_usd": 195909891,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
+        "ticker": "AMZN",
+        "name": "Herrington Douglas J",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 720365,
-        "price": 172.7095,
-        "value_usd": 124413879,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "shares": 499861,
+        "price": 245,
+        "value_usd": 122465945,
+        "date": "2026-04-14",
+        "days_ago": 6
       },
       {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
+        "ticker": "JPM",
+        "name": "Petno Douglas B",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 384230,
-        "price": 323.792,
-        "value_usd": 124410600,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 722704,
-        "price": 171.9681,
-        "value_usd": 124282034,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 379067,
-        "price": 324.736,
-        "value_usd": 123096701,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 375291,
-        "price": 325.842,
-        "value_usd": 122285570,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 371986,
-        "price": 326.786,
-        "value_usd": 121559817,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 366839,
-        "price": 327.78,
-        "value_usd": 120242487,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 364052,
-        "price": 328.524,
-        "value_usd": 119599819,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 361503,
-        "price": 322.12,
-        "value_usd": 116447346,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 361743,
-        "price": 320.83,
-        "value_usd": 116058007,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 358796,
-        "price": 323.157,
-        "value_usd": 115947439,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 354413,
-        "price": 324.241,
-        "value_usd": 114915226,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 360337,
-        "price": 318.05,
-        "value_usd": 114605183,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 357047,
-        "price": 318.903,
-        "value_usd": 113863359,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 348406,
-        "price": 324.981,
-        "value_usd": 113225330,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 350443,
-        "price": 320.094,
-        "value_usd": 112174702,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 342773,
-        "price": 326.097,
-        "value_usd": 111777247,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 345553,
-        "price": 320.985,
-        "value_usd": 110917330,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 337375,
-        "price": 327.162,
-        "value_usd": 110376280,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 340264,
-        "price": 322.034,
-        "value_usd": 109576577,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "shares": 381807,
+        "price": 306.5758,
+        "value_usd": 117052786,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "AMZN",
@@ -2793,304 +2293,161 @@
         "price": 210.5,
         "value_usd": 109535990,
         "date": "2026-04-01",
-        "days_ago": 5
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 335009,
-        "price": 323.013,
-        "value_usd": 108212262,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 329389,
-        "price": 328.173,
-        "value_usd": 108096576,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 328629,
-        "price": 328.841,
-        "value_usd": 108066689,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 332951,
-        "price": 324.123,
-        "value_usd": 107917077,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 329919,
-        "price": 324.98,
-        "value_usd": 107217077,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 327760,
-        "price": 326.742,
-        "value_usd": 107092958,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Spears Kirsten M.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 328240,
-        "price": 326.037,
-        "value_usd": 107018385,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 324346,
-        "price": 317.97,
-        "value_usd": 103132298,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 319589,
-        "price": 318.762,
-        "value_usd": 101872829,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 311404,
-        "price": 319.956,
-        "value_usd": 99635578,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 303733,
-        "price": 320.8,
-        "value_usd": 97437546,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 296839,
-        "price": 321.893,
-        "value_usd": 95550396,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 289550,
-        "price": 322.817,
-        "value_usd": 93471662,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 286200,
-        "price": 323.777,
-        "value_usd": 92664977,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 281776,
-        "price": 324.817,
-        "value_usd": 91525635,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 278995,
-        "price": 325.894,
-        "value_usd": 90922797,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Brazeal Mark David",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 278141,
-        "price": 326.673,
-        "value_usd": 90861155,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "days_ago": 19
       },
       {
         "ticker": "WMT",
         "name": "Furner John R.",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 687287,
-        "price": 121.9595,
-        "value_usd": 83821179,
-        "date": "2026-03-19",
-        "days_ago": 18
+        "shares": 680584,
+        "price": 124.63,
+        "value_usd": 84821184,
+        "date": "2026-04-16",
+        "days_ago": 4
+      },
+      {
+        "ticker": "WMT",
+        "name": "Furner John R.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 674162,
+        "price": 125.06,
+        "value_usd": 84310700,
+        "date": "2026-04-16",
+        "days_ago": 4
       },
       {
         "ticker": "WMT",
         "name": "Bartlett Daniel J",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 638178,
-        "price": 126.285,
-        "value_usd": 80592309,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "shares": 636843,
+        "price": 124.63,
+        "value_usd": 79369743,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
+        "ticker": "JPM",
+        "name": "BACON ASHLEY",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 337120,
-        "price": 177.3117,
-        "value_usd": 59775320,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "shares": 252855,
+        "price": 306.5535,
+        "value_usd": 77513585,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
+        "ticker": "WMT",
+        "name": "Nicholas Christopher James",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 339820,
-        "price": 174.8467,
-        "value_usd": 59416406,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "shares": 596008,
+        "price": 125.51,
+        "value_usd": 74804964,
+        "date": "2026-04-16",
+        "days_ago": 4
       },
       {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
+        "ticker": "WMT",
+        "name": "Nicholas Christopher James",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 337720,
-        "price": 175.7948,
-        "value_usd": 59369420,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 340420,
-        "price": 173.778,
-        "value_usd": 59157507,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 340920,
-        "price": 172.97,
-        "value_usd": 58968932,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Robertson Donald F Jr",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 341320,
-        "price": 172.5777,
-        "value_usd": 58904221,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "shares": 596905,
+        "price": 124.37,
+        "value_usd": 74237075,
+        "date": "2026-04-16",
+        "days_ago": 4
       },
       {
         "ticker": "META",
         "name": "Olivan Javier",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 88861,
-        "price": 634.94,
-        "value_usd": 56421403,
-        "date": "2026-03-09",
-        "days_ago": 28
+        "shares": 86821,
+        "price": 634.5661,
+        "value_usd": 55093663,
+        "date": "2026-04-13",
+        "days_ago": 7
       },
       {
         "ticker": "META",
         "name": "Olivan Javier",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 88453,
-        "price": 632.02,
-        "value_usd": 55904065,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "shares": 86910,
+        "price": 633.29,
+        "value_usd": 55039234,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 86970,
+        "price": 632.424,
+        "value_usd": 55001915,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 87801,
+        "price": 626.2567,
+        "value_usd": 54985965,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 87445,
+        "price": 628.7609,
+        "value_usd": 54981997,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 87613,
+        "price": 627.5004,
+        "value_usd": 54977193,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 87120,
+        "price": 630.9149,
+        "value_usd": 54965306,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 87242,
+        "price": 629.8729,
+        "value_usd": 54951372,
+        "date": "2026-04-13",
+        "days_ago": 7
       },
       {
         "ticker": "META",
@@ -3101,216 +2458,18 @@
         "price": 605.38,
         "value_usd": 53300682,
         "date": "2026-03-23",
-        "days_ago": 14
+        "days_ago": 28
       },
       {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
+        "ticker": "JPM",
+        "name": "Lake Marianne",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 160166,
-        "price": 322.104,
-        "value_usd": 51590109,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 158408,
-        "price": 323.129,
-        "value_usd": 51186219,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 154834,
-        "price": 324.196,
-        "value_usd": 50196563,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 150039,
-        "price": 325.008,
-        "value_usd": 48763875,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 145905,
-        "price": 326.096,
-        "value_usd": 47579037,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 141836,
-        "price": 327.129,
-        "value_usd": 46398669,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 139340,
-        "price": 321.29,
-        "value_usd": 44768549,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 135796,
-        "price": 328.131,
-        "value_usd": 44558877,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 137649,
-        "price": 323.018,
-        "value_usd": 44463105,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 134988,
-        "price": 328.766,
-        "value_usd": 44379465,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 134247,
-        "price": 324.088,
-        "value_usd": 43507842,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 129335,
-        "price": 324.898,
-        "value_usd": 42020683,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 131856,
-        "price": 317.946,
-        "value_usd": 41923088,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 128017,
-        "price": 318.74,
-        "value_usd": 40804139,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 125144,
-        "price": 325.999,
-        "value_usd": 40796819,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 120930,
-        "price": 327.05,
-        "value_usd": 39550156,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 121612,
-        "price": 319.972,
-        "value_usd": 38912435,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 115422,
-        "price": 328.039,
-        "value_usd": 37862917,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 113742,
-        "price": 328.695,
-        "value_usd": 37386427,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "shares": 130872,
+        "price": 306.5666,
+        "value_usd": 40120984,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "AAPL",
@@ -3321,40 +2480,7 @@
         "price": 255.12,
         "value_usd": 37368447,
         "date": "2026-04-02",
-        "days_ago": 4
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 115816,
-        "price": 320.818,
-        "value_usd": 37155857,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 110393,
-        "price": 321.895,
-        "value_usd": 35534955,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 110432,
-        "price": 317.972,
-        "value_usd": 35114284,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "days_ago": 18
       },
       {
         "ticker": "AAPL",
@@ -3365,172 +2491,62 @@
         "price": 255.82,
         "value_usd": 34998734,
         "date": "2026-04-02",
-        "days_ago": 4
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 106716,
-        "price": 318.757,
-        "value_usd": 34016472,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "days_ago": 18
       },
       {
         "ticker": "AVGO",
         "name": "Velaga S. Ram",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 104761,
-        "price": 322.855,
-        "value_usd": 33822613,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "shares": 83192,
+        "price": 352.0223,
+        "value_usd": 29285439,
+        "date": "2026-04-08",
+        "days_ago": 12
+      },
+      {
+        "ticker": "JPM",
+        "name": "Piepszak Jennifer",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 90001,
+        "price": 306.5579,
+        "value_usd": 27590518,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "AVGO",
         "name": "Velaga S. Ram",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 102218,
-        "price": 323.824,
-        "value_usd": 33100642,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "shares": 65932,
+        "price": 352.1184,
+        "value_usd": 23215870,
+        "date": "2026-04-09",
+        "days_ago": 11
       },
       {
         "ticker": "AVGO",
         "name": "Velaga S. Ram",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 98901,
-        "price": 324.843,
-        "value_usd": 32127298,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "shares": 57932,
+        "price": 370.5223,
+        "value_usd": 21465098,
+        "date": "2026-04-10",
+        "days_ago": 10
       },
       {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
+        "ticker": "JPM",
+        "name": "Beer Lori A",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 100397,
-        "price": 319.97,
-        "value_usd": 32124028,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 96635,
-        "price": 325.93,
-        "value_usd": 31496246,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Velaga S. Ram",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 96147,
-        "price": 326.718,
-        "value_usd": 31412956,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 94297,
-        "price": 320.826,
-        "value_usd": 30252929,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 88830,
-        "price": 321.929,
-        "value_usd": 28596953,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 83249,
-        "price": 322.871,
-        "value_usd": 26878688,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AMD",
-        "name": "GRASBY PAUL DARREN",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 129598,
-        "price": 204.87,
-        "value_usd": 26550742,
-        "date": "2026-03-11",
-        "days_ago": 26
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 80832,
-        "price": 323.838,
-        "value_usd": 26176473,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 77360,
-        "price": 324.841,
-        "value_usd": 25129700,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 75357,
-        "price": 325.906,
-        "value_usd": 24559298,
-        "date": "2026-03-17",
-        "days_ago": 20
-      },
-      {
-        "ticker": "AVGO",
-        "name": "Kawwas Charlie B",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 74626,
-        "price": 326.611,
-        "value_usd": 24373672,
-        "date": "2026-03-17",
-        "days_ago": 20
+        "shares": 69948,
+        "price": 306.5887,
+        "value_usd": 21445266,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "TSLA",
@@ -3541,7 +2557,7 @@
         "price": 352.833,
         "value_usd": 20347526,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3552,7 +2568,7 @@
         "price": 353.658,
         "value_usd": 19815104,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3563,7 +2579,7 @@
         "price": 354.802,
         "value_usd": 19240558,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "JPM",
@@ -3574,7 +2590,7 @@
         "price": 295.06,
         "value_usd": 19155295,
         "date": "2026-03-23",
-        "days_ago": 14
+        "days_ago": 28
       },
       {
         "ticker": "TSLA",
@@ -3585,7 +2601,7 @@
         "price": 355.644,
         "value_usd": 18403866,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3596,7 +2612,7 @@
         "price": 356.794,
         "value_usd": 17621342,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3607,7 +2623,7 @@
         "price": 357.839,
         "value_usd": 17272173,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3618,7 +2634,7 @@
         "price": 358.77,
         "value_usd": 17130550,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3629,7 +2645,7 @@
         "price": 360.181,
         "value_usd": 16520782,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3640,18 +2656,7 @@
         "price": 361.035,
         "value_usd": 16198918,
         "date": "2026-03-30",
-        "days_ago": 7
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 92880,
-        "price": 171.9951,
-        "value_usd": 15974905,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "days_ago": 21
       },
       {
         "ticker": "GOOGL",
@@ -3662,29 +2667,7 @@
         "price": 273.91,
         "value_usd": 15920745,
         "date": "2026-03-27",
-        "days_ago": 10
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 90484,
-        "price": 172.7091,
-        "value_usd": 15627410,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 89719,
-        "price": 173.6281,
-        "value_usd": 15577740,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "days_ago": 24
       },
       {
         "ticker": "GOOGL",
@@ -3695,18 +2678,7 @@
         "price": 274.93,
         "value_usd": 15563237,
         "date": "2026-03-27",
-        "days_ago": 10
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 88668,
-        "price": 174.7333,
-        "value_usd": 15493252,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "days_ago": 24
       },
       {
         "ticker": "TSLA",
@@ -3717,7 +2689,7 @@
         "price": 362.142,
         "value_usd": 15408418,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "GOOGL",
@@ -3728,40 +2700,7 @@
         "price": 276.21,
         "value_usd": 15249002,
         "date": "2026-03-27",
-        "days_ago": 10
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 84512,
-        "price": 175.7857,
-        "value_usd": 14856001,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 83513,
-        "price": 176.8343,
-        "value_usd": 14767963,
-        "date": "2026-03-20",
-        "days_ago": 17
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Kress Colette",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 83060,
-        "price": 177.5117,
-        "value_usd": 14744122,
-        "date": "2026-03-20",
-        "days_ago": 17
+        "days_ago": 24
       },
       {
         "ticker": "GOOGL",
@@ -3772,7 +2711,7 @@
         "price": 277.42,
         "value_usd": 14733221,
         "date": "2026-03-27",
-        "days_ago": 10
+        "days_ago": 24
       },
       {
         "ticker": "GOOGL",
@@ -3783,7 +2722,7 @@
         "price": 278.3,
         "value_usd": 14418166,
         "date": "2026-03-27",
-        "days_ago": 10
+        "days_ago": 24
       },
       {
         "ticker": "TSLA",
@@ -3794,7 +2733,7 @@
         "price": 363.083,
         "value_usd": 13995760,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3805,7 +2744,7 @@
         "price": 363.947,
         "value_usd": 12599845,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3816,7 +2755,7 @@
         "price": 364.888,
         "value_usd": 12428085,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3827,7 +2766,7 @@
         "price": 366.855,
         "value_usd": 12421710,
         "date": "2026-03-30",
-        "days_ago": 7
+        "days_ago": 21
       },
       {
         "ticker": "TSLA",
@@ -3838,51 +2777,29 @@
         "price": 365.897,
         "value_usd": 12418544,
         "date": "2026-03-30",
-        "days_ago": 7
-      },
-      {
-        "ticker": "TMO",
-        "name": "Shafer Michael D",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 20950,
-        "price": 499.4,
-        "value_usd": 10462430,
-        "date": "2026-03-11",
-        "days_ago": 26
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 15187,
-        "price": 634.94,
-        "value_usd": 9642834,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 14261,
-        "price": 632.02,
-        "value_usd": 9013237,
-        "date": "2026-03-16",
         "days_ago": 21
       },
       {
-        "ticker": "NVDA",
-        "name": "Shah Aarti S.",
+        "ticker": "AVGO",
+        "name": "DELLY GAYLA J",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 46491,
-        "price": 176.2743,
-        "value_usd": 8195168,
-        "date": "2026-03-19",
-        "days_ago": 18
+        "shares": 32352,
+        "price": 358.31,
+        "value_usd": 11592045,
+        "date": "2026-04-09",
+        "days_ago": 11
+      },
+      {
+        "ticker": "JPM",
+        "name": "Barnum Jeremy",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 35460,
+        "price": 306.5522,
+        "value_usd": 10870341,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "META",
@@ -3893,51 +2810,117 @@
         "price": 605.38,
         "value_usd": 8072742,
         "date": "2026-03-23",
-        "days_ago": 14
-      },
-      {
-        "ticker": "BAC",
-        "name": "Mensah Bernard A",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 170184,
-        "price": 46.943,
-        "value_usd": 7988948,
-        "date": "2026-03-12",
-        "days_ago": 25
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Shah Aarti S.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 36209,
-        "price": 177.0565,
-        "value_usd": 6411039,
-        "date": "2026-03-19",
-        "days_ago": 18
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Shah Aarti S.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 36007,
-        "price": 177.7335,
-        "value_usd": 6399650,
-        "date": "2026-03-19",
-        "days_ago": 18
-      },
-      {
-        "ticker": "COST",
-        "name": "Adamo Claudine",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 6121,
-        "price": 1003.021,
-        "value_usd": 6139492,
-        "date": "2026-03-09",
         "days_ago": 28
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 12822,
+        "price": 626.2352,
+        "value_usd": 8029588,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 12175,
+        "price": 627.4862,
+        "value_usd": 7639644,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 12033,
+        "price": 628.4125,
+        "value_usd": 7561688,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 11517,
+        "price": 629.6809,
+        "value_usd": 7252035,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 11334,
+        "price": 630.5391,
+        "value_usd": 7146530,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 11153,
+        "price": 631.531,
+        "value_usd": 7043465,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 10872,
+        "price": 632.559,
+        "value_usd": 6877181,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 10713,
+        "price": 633.664,
+        "value_usd": 6788442,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 10557,
+        "price": 634.6768,
+        "value_usd": 6700283,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "AVGO",
+        "name": "PAGE JUSTINE",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 18164,
+        "price": 353.0001,
+        "value_usd": 6411894,
+        "date": "2026-04-08",
+        "days_ago": 12
       },
       {
         "ticker": "COST",
@@ -3948,51 +2931,7 @@
         "price": 993,
         "value_usd": 5774295,
         "date": "2026-04-01",
-        "days_ago": 5
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 8294,
-        "price": 634.94,
-        "value_usd": 5266192,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 8294,
-        "price": 634.94,
-        "value_usd": 5266192,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 8212,
-        "price": 632.02,
-        "value_usd": 5190148,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 8212,
-        "price": 632.02,
-        "value_usd": 5190148,
-        "date": "2026-03-16",
-        "days_ago": 21
+        "days_ago": 19
       },
       {
         "ticker": "GOOGL",
@@ -4003,6 +2942,28 @@
         "price": 275.19,
         "value_usd": 5040380,
         "date": "2026-03-30",
+        "days_ago": 21
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 7884,
+        "price": 629.53,
+        "value_usd": 4963215,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "META",
+        "name": "Olivan Javier",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 7884,
+        "price": 629.53,
+        "value_usd": 4963215,
+        "date": "2026-04-13",
         "days_ago": 7
       },
       {
@@ -4014,7 +2975,7 @@
         "price": 605.38,
         "value_usd": 4921739,
         "date": "2026-03-23",
-        "days_ago": 14
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -4025,7 +2986,7 @@
         "price": 605.38,
         "value_usd": 4921739,
         "date": "2026-03-23",
-        "days_ago": 14
+        "days_ago": 28
       },
       {
         "ticker": "GOOGL",
@@ -4036,62 +2997,18 @@
         "price": 289.63,
         "value_usd": 2923236,
         "date": "2026-04-01",
-        "days_ago": 5
+        "days_ago": 19
       },
       {
         "ticker": "META",
         "name": "KIMMITT ROBERT M",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 4427,
-        "price": 632.02,
-        "value_usd": 2797953,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "NVDA",
-        "name": "Dabiri John",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 14788,
-        "price": 184.9,
-        "value_usd": 2734301,
-        "date": "2026-03-13",
-        "days_ago": 24
-      },
-      {
-        "ticker": "CRM",
-        "name": "Kirk David Blair",
-        "title": "",
-        "transaction_type": "BUY",
-        "shares": 13689,
-        "price": 194.6219,
-        "value_usd": 2664179,
-        "date": "2026-03-18",
-        "days_ago": 19
-      },
-      {
-        "ticker": "XOM",
-        "name": "Talley Darrin L",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 17124,
-        "price": 155.495,
-        "value_usd": 2662696,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "CRM",
-        "name": "ALBER LAURA",
-        "title": "",
-        "transaction_type": "BUY",
-        "shares": 9530,
-        "price": 194.5899,
-        "value_usd": 1854442,
-        "date": "2026-03-19",
-        "days_ago": 18
+        "shares": 3847,
+        "price": 667,
+        "value_usd": 2565949,
+        "date": "2026-04-15",
+        "days_ago": 5
       },
       {
         "ticker": "CVX",
@@ -4102,61 +3019,6 @@
         "price": 213.3049,
         "value_usd": 1842528,
         "date": "2026-03-30",
-        "days_ago": 7
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 2771,
-        "price": 634.94,
-        "value_usd": 1759419,
-        "date": "2026-03-09",
-        "days_ago": 28
-      },
-      {
-        "ticker": "META",
-        "name": "Olivan Javier",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 2714,
-        "price": 632.02,
-        "value_usd": 1715302,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 5576,
-        "price": 302.48,
-        "value_usd": 1686628,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 5344,
-        "price": 303.55,
-        "value_usd": 1622171,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 5281,
-        "price": 304.78,
-        "value_usd": 1609543,
-        "date": "2026-03-16",
         "days_ago": 21
       },
       {
@@ -4168,503 +3030,412 @@
         "price": 605.38,
         "value_usd": 1608495,
         "date": "2026-03-23",
-        "days_ago": 14
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 5138,
-        "price": 302.74,
-        "value_usd": 1555478,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 4959,
-        "price": 303.72,
-        "value_usd": 1506147,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 4931,
-        "price": 304.36,
-        "value_usd": 1500799,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "CRM",
-        "name": "ALBER LAURA",
-        "title": "",
-        "transaction_type": "BUY",
-        "shares": 7450,
-        "price": 194.54,
-        "value_usd": 1449323,
-        "date": "2026-03-19",
-        "days_ago": 18
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 4763,
-        "price": 302.97,
-        "value_usd": 1443046,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "GOOGL",
-        "name": "Hennessy John L.",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 4631,
-        "price": 303.9,
-        "value_usd": 1407361,
-        "date": "2026-03-16",
-        "days_ago": 21
-      },
-      {
-        "ticker": "KO",
-        "name": "Douglas Monica Howard",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 17725,
-        "price": 77.3738,
-        "value_usd": 1371451,
-        "date": "2026-03-09",
         "days_ago": 28
       },
       {
-        "ticker": "V",
-        "name": "CARNEY LLOYD",
+        "ticker": "META",
+        "name": "Olivan Javier",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 2679,
-        "price": 309.6198,
-        "value_usd": 829471,
-        "date": "2026-03-11",
-        "days_ago": 26
+        "shares": 2486,
+        "price": 629.53,
+        "value_usd": 1565012,
+        "date": "2026-04-13",
+        "days_ago": 7
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4526,
+        "price": 330.54,
+        "value_usd": 1496024,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4421,
+        "price": 331.74,
+        "value_usd": 1466623,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4346,
+        "price": 332.91,
+        "value_usd": 1446827,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4274,
+        "price": 334.35,
+        "value_usd": 1429012,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4240,
+        "price": 329.88,
+        "value_usd": 1398691,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4103,
+        "price": 330.91,
+        "value_usd": 1357724,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 4035,
+        "price": 331.88,
+        "value_usd": 1339136,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 3950,
+        "price": 332.92,
+        "value_usd": 1315034,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 3882,
+        "price": 329.78,
+        "value_usd": 1280206,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 3740,
+        "price": 330.67,
+        "value_usd": 1236706,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 3676,
+        "price": 331.84,
+        "value_usd": 1219844,
+        "date": "2026-04-15",
+        "days_ago": 5
+      },
+      {
+        "ticker": "GOOGL",
+        "name": "Hennessy John L.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 3581,
+        "price": 332.81,
+        "value_usd": 1191793,
+        "date": "2026-04-15",
+        "days_ago": 5
       }
     ],
     "fmp_institutional_holders": {},
     "activist_filings": [],
     "unusual_options": [
       {
+        "ticker": "AAPL",
+        "type": "call",
+        "strike": 275.0,
+        "expiry": "2026-04-20",
+        "volume": 155702,
+        "open_interest": 6632,
+        "vol_oi_ratio": 23.5,
+        "implied_volatility": 24.8,
+        "in_the_money": false,
+        "last_price": 0.36,
+        "signal": "bullish"
+      },
+      {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 177.5,
-        "expiry": "2026-04-06",
-        "volume": 162161,
-        "open_interest": 12319,
-        "vol_oi_ratio": 13.2,
-        "implied_volatility": 5.5,
+        "strike": 200.0,
+        "expiry": "2026-04-20",
+        "volume": 67890,
+        "open_interest": 11122,
+        "vol_oi_ratio": 6.1,
+        "implied_volatility": 22.7,
+        "in_the_money": false,
+        "last_price": 0.39,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "AAPL",
+        "type": "call",
+        "strike": 272.5,
+        "expiry": "2026-04-20",
+        "volume": 54167,
+        "open_interest": 6404,
+        "vol_oi_ratio": 8.5,
+        "implied_volatility": 28.5,
+        "in_the_money": false,
+        "last_price": 1.32,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 202.5,
+        "expiry": "2026-04-20",
+        "volume": 52564,
+        "open_interest": 10453,
+        "vol_oi_ratio": 5.0,
+        "implied_volatility": 25.1,
+        "in_the_money": false,
+        "last_price": 0.07,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "AAPL",
+        "type": "call",
+        "strike": 277.5,
+        "expiry": "2026-04-20",
+        "volume": 27757,
+        "open_interest": 2935,
+        "vol_oi_ratio": 9.5,
+        "implied_volatility": 26.1,
         "in_the_money": false,
         "last_price": 0.1,
         "signal": "bullish"
       },
       {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 350.0,
-        "expiry": "2026-04-06",
-        "volume": 157283,
-        "open_interest": 4145,
-        "vol_oi_ratio": 37.9,
-        "implied_volatility": 16.2,
-        "in_the_money": false,
-        "last_price": 0.58,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 355.0,
-        "expiry": "2026-04-06",
-        "volume": 122919,
-        "open_interest": 4101,
-        "vol_oi_ratio": 30.0,
-        "implied_volatility": 32.0,
-        "in_the_money": true,
-        "last_price": 4.44,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 352.5,
-        "expiry": "2026-04-06",
-        "volume": 103452,
-        "open_interest": 3390,
-        "vol_oi_ratio": 30.5,
-        "implied_volatility": 21.4,
-        "in_the_money": true,
-        "last_price": 2.11,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 350.0,
-        "expiry": "2026-04-06",
-        "volume": 100004,
-        "open_interest": 1159,
-        "vol_oi_ratio": 86.3,
-        "implied_volatility": 0.0,
-        "in_the_money": true,
-        "last_price": 1.24,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 360.0,
-        "expiry": "2026-04-06",
-        "volume": 99405,
-        "open_interest": 2422,
-        "vol_oi_ratio": 41.0,
-        "implied_volatility": 20.9,
-        "in_the_money": false,
-        "last_price": 0.02,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "AAPL",
-        "type": "call",
-        "strike": 260.0,
-        "expiry": "2026-04-06",
-        "volume": 97362,
-        "open_interest": 6114,
-        "vol_oi_ratio": 15.9,
-        "implied_volatility": 9.2,
-        "in_the_money": false,
-        "last_price": 0.08,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 355.0,
-        "expiry": "2026-04-06",
-        "volume": 95727,
-        "open_interest": 544,
-        "vol_oi_ratio": 176.0,
-        "implied_volatility": 13.4,
-        "in_the_money": false,
-        "last_price": 0.09,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 347.5,
-        "expiry": "2026-04-06",
-        "volume": 93601,
-        "open_interest": 898,
-        "vol_oi_ratio": 104.2,
-        "implied_volatility": 16.2,
-        "in_the_money": false,
-        "last_price": 0.11,
-        "signal": "bearish"
-      },
-      {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 180.0,
-        "expiry": "2026-04-06",
-        "volume": 92572,
-        "open_interest": 28423,
-        "vol_oi_ratio": 3.3,
-        "implied_volatility": 16.0,
-        "in_the_money": false,
-        "last_price": 0.01,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 352.5,
-        "expiry": "2026-04-06",
-        "volume": 85524,
-        "open_interest": 502,
-        "vol_oi_ratio": 170.4,
-        "implied_volatility": 9.3,
-        "in_the_money": false,
-        "last_price": 0.3,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "AAPL",
-        "type": "call",
-        "strike": 262.5,
-        "expiry": "2026-04-06",
-        "volume": 73347,
-        "open_interest": 2027,
-        "vol_oi_ratio": 36.2,
-        "implied_volatility": 13.3,
-        "in_the_money": false,
-        "last_price": 0.01,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 357.5,
-        "expiry": "2026-04-06",
-        "volume": 72772,
-        "open_interest": 2033,
-        "vol_oi_ratio": 35.8,
-        "implied_volatility": 43.4,
+        "strike": 197.5,
+        "expiry": "2026-04-20",
+        "volume": 23324,
+        "open_interest": 5114,
+        "vol_oi_ratio": 4.6,
+        "implied_volatility": 33.3,
         "in_the_money": true,
-        "last_price": 6.95,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 345.0,
-        "expiry": "2026-04-06",
-        "volume": 68454,
-        "open_interest": 3511,
-        "vol_oi_ratio": 19.5,
-        "implied_volatility": 19.7,
-        "in_the_money": false,
-        "last_price": 0.04,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 367.5,
-        "expiry": "2026-04-06",
-        "volume": 63905,
-        "open_interest": 2710,
-        "vol_oi_ratio": 23.6,
-        "implied_volatility": 32.8,
-        "in_the_money": false,
-        "last_price": 0.01,
+        "last_price": 2.0,
         "signal": "bullish"
       },
       {
-        "ticker": "TSLA",
+        "ticker": "MSFT",
         "type": "call",
-        "strike": 365.0,
-        "expiry": "2026-04-06",
-        "volume": 59936,
-        "open_interest": 3293,
-        "vol_oi_ratio": 18.2,
-        "implied_volatility": 28.5,
+        "strike": 422.5,
+        "expiry": "2026-04-20",
+        "volume": 20443,
+        "open_interest": 1054,
+        "vol_oi_ratio": 19.4,
+        "implied_volatility": 25.5,
         "in_the_money": false,
-        "last_price": 0.01,
+        "last_price": 0.6,
         "signal": "bullish"
       },
       {
-        "ticker": "TSLA",
+        "ticker": "MSFT",
         "type": "call",
-        "strike": 357.5,
-        "expiry": "2026-04-06",
-        "volume": 59618,
-        "open_interest": 611,
-        "vol_oi_ratio": 97.6,
-        "implied_volatility": 16.6,
+        "strike": 425.0,
+        "expiry": "2026-04-20",
+        "volume": 19477,
+        "open_interest": 3864,
+        "vol_oi_ratio": 5.0,
+        "implied_volatility": 24.9,
         "in_the_money": false,
-        "last_price": 0.02,
+        "last_price": 0.23,
         "signal": "bullish"
       },
       {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 360.0,
-        "expiry": "2026-04-06",
-        "volume": 58910,
-        "open_interest": 3960,
-        "vol_oi_ratio": 14.9,
-        "implied_volatility": 50.6,
-        "in_the_money": true,
-        "last_price": 9.4,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
+        "ticker": "MSFT",
         "type": "call",
-        "strike": 370.0,
-        "expiry": "2026-04-06",
-        "volume": 56183,
-        "open_interest": 4234,
-        "vol_oi_ratio": 13.3,
-        "implied_volatility": 37.5,
+        "strike": 420.0,
+        "expiry": "2026-04-20",
+        "volume": 16067,
+        "open_interest": 1744,
+        "vol_oi_ratio": 9.2,
+        "implied_volatility": 26.8,
         "in_the_money": false,
-        "last_price": 0.01,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 362.5,
-        "expiry": "2026-04-06",
-        "volume": 49576,
-        "open_interest": 1995,
-        "vol_oi_ratio": 24.9,
-        "implied_volatility": 23.8,
-        "in_the_money": false,
-        "last_price": 0.01,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 175.0,
-        "expiry": "2026-04-06",
-        "volume": 47446,
-        "open_interest": 10046,
-        "vol_oi_ratio": 4.7,
-        "implied_volatility": 0.0,
-        "in_the_money": true,
-        "last_price": 2.08,
+        "last_price": 1.38,
         "signal": "bullish"
       },
       {
         "ticker": "AMZN",
         "type": "call",
-        "strike": 212.5,
-        "expiry": "2026-04-06",
-        "volume": 44531,
-        "open_interest": 3176,
-        "vol_oi_ratio": 14.0,
-        "implied_volatility": 7.3,
+        "strike": 250.0,
+        "expiry": "2026-04-20",
+        "volume": 16024,
+        "open_interest": 2326,
+        "vol_oi_ratio": 6.9,
+        "implied_volatility": 24.7,
         "in_the_money": false,
-        "last_price": 0.2,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 347.5,
-        "expiry": "2026-04-06",
-        "volume": 38267,
-        "open_interest": 110,
-        "vol_oi_ratio": 347.9,
-        "implied_volatility": 0.0,
-        "in_the_money": true,
-        "last_price": 3.3,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 375.0,
-        "expiry": "2026-04-06",
-        "volume": 36258,
-        "open_interest": 4151,
-        "vol_oi_ratio": 8.7,
-        "implied_volatility": 46.1,
-        "in_the_money": false,
-        "last_price": 0.01,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "call",
-        "strike": 360.0,
-        "expiry": "2026-04-08",
-        "volume": 35834,
-        "open_interest": 2061,
-        "vol_oi_ratio": 17.4,
-        "implied_volatility": 40.3,
-        "in_the_money": false,
-        "last_price": 1.99,
+        "last_price": 0.15,
         "signal": "bullish"
       },
       {
         "ticker": "AAPL",
         "type": "call",
-        "strike": 257.5,
-        "expiry": "2026-04-06",
-        "volume": 32108,
-        "open_interest": 5187,
-        "vol_oi_ratio": 6.2,
-        "implied_volatility": 16.9,
-        "in_the_money": true,
-        "last_price": 1.52,
+        "strike": 280.0,
+        "expiry": "2026-04-20",
+        "volume": 15720,
+        "open_interest": 3643,
+        "vol_oi_ratio": 4.3,
+        "implied_volatility": 28.7,
+        "in_the_money": false,
+        "last_price": 0.04,
         "signal": "bullish"
       },
       {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 365.0,
-        "expiry": "2026-04-06",
-        "volume": 31739,
-        "open_interest": 3810,
-        "vol_oi_ratio": 8.3,
-        "implied_volatility": 65.5,
-        "in_the_money": true,
-        "last_price": 14.48,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 362.5,
-        "expiry": "2026-04-06",
-        "volume": 29195,
-        "open_interest": 2712,
-        "vol_oi_ratio": 10.8,
-        "implied_volatility": 62.1,
-        "in_the_money": true,
-        "last_price": 12.52,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "TSLA",
-        "type": "put",
-        "strike": 350.0,
-        "expiry": "2026-04-08",
-        "volume": 28727,
-        "open_interest": 1829,
-        "vol_oi_ratio": 15.7,
-        "implied_volatility": 45.9,
-        "in_the_money": false,
-        "last_price": 5.08,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "GOOGL",
+        "ticker": "AMZN",
         "type": "call",
-        "strike": 300.0,
-        "expiry": "2026-04-06",
-        "volume": 25677,
-        "open_interest": 3002,
-        "vol_oi_ratio": 8.6,
-        "implied_volatility": 6.4,
+        "strike": 247.5,
+        "expiry": "2026-04-20",
+        "volume": 11918,
+        "open_interest": 1081,
+        "vol_oi_ratio": 11.0,
+        "implied_volatility": 25.7,
+        "in_the_money": false,
+        "last_price": 0.7,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "MSFT",
+        "type": "call",
+        "strike": 427.5,
+        "expiry": "2026-04-20",
+        "volume": 9857,
+        "open_interest": 2353,
+        "vol_oi_ratio": 4.2,
+        "implied_volatility": 25.9,
+        "in_the_money": false,
+        "last_price": 0.11,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "AMZN",
+        "type": "call",
+        "strike": 252.5,
+        "expiry": "2026-04-20",
+        "volume": 7454,
+        "open_interest": 3580,
+        "vol_oi_ratio": 2.1,
+        "implied_volatility": 26.6,
+        "in_the_money": false,
+        "last_price": 0.04,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "INTC",
+        "type": "put",
+        "strike": 63.0,
+        "expiry": "2026-04-24",
+        "volume": 4539,
+        "open_interest": 2263,
+        "vol_oi_ratio": 2.0,
+        "implied_volatility": 108.4,
+        "in_the_money": false,
+        "last_price": 1.95,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "AAPL",
+        "type": "call",
+        "strike": 282.5,
+        "expiry": "2026-04-20",
+        "volume": 4189,
+        "open_interest": 853,
+        "vol_oi_ratio": 4.9,
+        "implied_volatility": 32.4,
+        "in_the_money": false,
+        "last_price": 0.01,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "INTC",
+        "type": "call",
+        "strike": 100.0,
+        "expiry": "2026-04-24",
+        "volume": 3268,
+        "open_interest": 613,
+        "vol_oi_ratio": 5.3,
+        "implied_volatility": 146.1,
+        "in_the_money": false,
+        "last_price": 0.02,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "MSFT",
+        "type": "call",
+        "strike": 417.5,
+        "expiry": "2026-04-20",
+        "volume": 2242,
+        "open_interest": 559,
+        "vol_oi_ratio": 4.0,
+        "implied_volatility": 31.9,
         "in_the_money": true,
-        "last_price": 0.51,
+        "last_price": 2.85,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "XOM",
+        "type": "call",
+        "strike": 148.0,
+        "expiry": "2026-04-24",
+        "volume": 1030,
+        "open_interest": 394,
+        "vol_oi_ratio": 2.6,
+        "implied_volatility": 31.4,
+        "in_the_money": true,
+        "last_price": 2.54,
         "signal": "bullish"
       }
     ],
     "ticker_confidence": {
       "AAPL": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 14.1,
+        "conflicts": [],
+        "analyst_upside_pct": 9.4,
         "insider_net_usd": -5114946727
       },
       "MSFT": {
@@ -4674,21 +3445,18 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 57.6,
+        "analyst_upside_pct": 38.8,
         "insider_net_usd": 0
       },
       "NVDA": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
-          "insider_selling"
+          "analyst_consensus"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 51.3,
-        "insider_net_usd": -7975374323
+        "conflicts": [],
+        "analyst_upside_pct": 35.3,
+        "insider_net_usd": 0
       },
       "GOOGL": {
         "level": "low",
@@ -4700,8 +3468,8 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 25.3,
-        "insider_net_usd": -2643783557
+        "analyst_upside_pct": 11.6,
+        "insider_net_usd": -100025607
       },
       "AMZN": {
         "level": "low",
@@ -4713,8 +3481,8 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 32.5,
-        "insider_net_usd": -109535990
+        "analyst_upside_pct": 14.3,
+        "insider_net_usd": -232001935
       },
       "META": {
         "level": "low",
@@ -4727,48 +3495,39 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 49.0,
-        "insider_net_usd": -230992290
+        "analyst_upside_pct": 27.6,
+        "insider_net_usd": -591918289
       },
       "TSLA": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 18.3,
+        "conflicts": [],
+        "analyst_upside_pct": 6.2,
         "insider_net_usd": -241823181
       },
       "JPM": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 14.0,
-        "insider_net_usd": -19155295
+        "conflicts": [],
+        "analyst_upside_pct": 7.7,
+        "insider_net_usd": -1024866024
       },
       "V": {
-        "level": "low",
-        "sources_count": 3,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
           "13F_holding",
-          "analyst_consensus",
-          "insider_selling"
+          "analyst_consensus"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 30.6,
-        "insider_net_usd": -829471
+        "conflicts": [],
+        "analyst_upside_pct": 25.2,
+        "insider_net_usd": 0
       },
       "UNH": {
         "level": "low",
@@ -4777,27 +3536,30 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 27.2,
+        "analyst_upside_pct": 12.5,
         "insider_net_usd": 0
       },
       "XOM": {
         "level": "low",
         "sources_count": 1,
         "sources": [
-          "insider_selling"
+          "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": -1.4,
-        "insider_net_usd": -2662696
+        "analyst_upside_pct": 10.7,
+        "insider_net_usd": 0
       },
       "CVX": {
         "level": "low",
-        "sources_count": 1,
+        "sources_count": 2,
         "sources": [
+          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [],
-        "analyst_upside_pct": 2.3,
+        "conflicts": [
+          "Analyst says bullish but insider activity says bearish"
+        ],
+        "analyst_upside_pct": 15.3,
         "insider_net_usd": -1842528
       },
       "LLY": {
@@ -4807,7 +3569,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 30.7,
+        "analyst_upside_pct": 30.2,
         "insider_net_usd": 0
       },
       "JNJ": {
@@ -4815,7 +3577,7 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 0.1,
+        "analyst_upside_pct": 7.5,
         "insider_net_usd": 0
       },
       "WMT": {
@@ -4825,8 +3587,8 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 7.4,
-        "insider_net_usd": -512144698669
+        "analyst_upside_pct": 6.9,
+        "insider_net_usd": -190566821546
       },
       "PG": {
         "level": "medium",
@@ -4836,7 +3598,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 17.3,
+        "analyst_upside_pct": 12.7,
         "insider_net_usd": 0
       },
       "HD": {
@@ -4847,21 +3609,18 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 25.6,
+        "analyst_upside_pct": 17.8,
         "insider_net_usd": 0
       },
       "BAC": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
-          "insider_selling"
+          "analyst_consensus"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 21.9,
-        "insider_net_usd": -7988948
+        "conflicts": [],
+        "analyst_upside_pct": 16.5,
+        "insider_net_usd": 0
       },
       "MA": {
         "level": "medium",
@@ -4871,7 +3630,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 31.0,
+        "analyst_upside_pct": 26.3,
         "insider_net_usd": 0
       },
       "AVGO": {
@@ -4884,8 +3643,8 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 50.5,
-        "insider_net_usd": -180243370437
+        "analyst_upside_pct": 19.5,
+        "insider_net_usd": -175197325750
       },
       "COST": {
         "level": "low",
@@ -4894,15 +3653,15 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 4.7,
-        "insider_net_usd": -11913787
+        "analyst_upside_pct": 6.8,
+        "insider_net_usd": -5774295
       },
       "MRK": {
         "level": "no_signal",
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 6.5,
+        "analyst_upside_pct": 9.4,
         "insider_net_usd": 0
       },
       "ABBV": {
@@ -4920,31 +3679,26 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 9.0,
+        "analyst_upside_pct": 8.9,
         "insider_net_usd": 0
       },
       "KO": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "insider_selling"
-        ],
+        "level": "no_signal",
+        "sources_count": 0,
+        "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 8.2,
-        "insider_net_usd": -1371451
+        "analyst_upside_pct": 10.0,
+        "insider_net_usd": 0
       },
       "TMO": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
-          "insider_selling"
+          "analyst_consensus"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 36.3,
-        "insider_net_usd": -10462430
+        "conflicts": [],
+        "analyst_upside_pct": 23.0,
+        "insider_net_usd": 0
       },
       "ORCL": {
         "level": "low",
@@ -4953,49 +3707,43 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 69.2,
+        "analyst_upside_pct": 40.0,
         "insider_net_usd": 0
       },
       "CRM": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "insider_buying"
-        ],
-        "conflicts": [],
-        "analyst_upside_pct": 47.1,
-        "insider_net_usd": 5967944
-      },
-      "AMD": {
-        "level": "low",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "insider_selling"
-        ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 31.6,
-        "insider_net_usd": -4461699263
-      },
-      "INTC": {
-        "level": "no_signal",
-        "sources_count": 0,
-        "sources": [],
-        "conflicts": [],
-        "analyst_upside_pct": -7.1,
-        "insider_net_usd": 0
-      },
-      "QCOM": {
         "level": "low",
         "sources_count": 1,
         "sources": [
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 23.5,
+        "analyst_upside_pct": 45.4,
+        "insider_net_usd": 0
+      },
+      "AMD": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "insider_selling"
+        ],
+        "conflicts": [],
+        "analyst_upside_pct": 6.3,
+        "insider_net_usd": -970565867
+      },
+      "INTC": {
+        "level": "no_signal",
+        "sources_count": 0,
+        "sources": [],
+        "conflicts": [],
+        "analyst_upside_pct": -20.9,
+        "insider_net_usd": 0
+      },
+      "QCOM": {
+        "level": "no_signal",
+        "sources_count": 0,
+        "sources": [],
+        "conflicts": [],
+        "analyst_upside_pct": 10.0,
         "insider_net_usd": 0
       },
       "PLTR": {
@@ -5005,7 +3753,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 24.8,
+        "analyst_upside_pct": 29.0,
         "insider_net_usd": 0
       },
       "COIN": {
@@ -5016,40 +3764,37 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 36.9,
+        "analyst_upside_pct": 17.6,
         "insider_net_usd": 0
       },
       "GS": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "13F_holding",
-          "analyst_consensus"
+          "13F_holding"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 10.2,
+        "analyst_upside_pct": 0.7,
         "insider_net_usd": 0
       },
       "MS": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "13F_holding",
-          "analyst_consensus"
+          "13F_holding"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 16.0,
+        "analyst_upside_pct": 3.0,
         "insider_net_usd": 0
       },
       "C": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "13F_holding",
-          "analyst_consensus"
+          "13F_holding"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 13.0,
+        "analyst_upside_pct": 6.7,
         "insider_net_usd": 0
       },
       "WFC": {
@@ -5059,31 +3804,37 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 21.5,
+        "analyst_upside_pct": 18.0,
         "insider_net_usd": 0
       },
       "RTX": {
-        "level": "no_signal",
-        "sources_count": 0,
-        "sources": [],
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
         "conflicts": [],
-        "analyst_upside_pct": 9.4,
+        "analyst_upside_pct": 10.2,
         "insider_net_usd": 0
       },
       "LMT": {
-        "level": "no_signal",
-        "sources_count": 0,
-        "sources": [],
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
         "conflicts": [],
-        "analyst_upside_pct": 5.1,
+        "analyst_upside_pct": 14.3,
         "insider_net_usd": 0
       },
       "NOC": {
-        "level": "no_signal",
-        "sources_count": 0,
-        "sources": [],
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
         "conflicts": [],
-        "analyst_upside_pct": 4.8,
+        "analyst_upside_pct": 11.2,
         "insider_net_usd": 0
       },
       "GD": {
@@ -5093,7 +3844,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 12.3,
+        "analyst_upside_pct": 17.2,
         "insider_net_usd": 0
       },
       "BA": {
@@ -5104,7 +3855,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 27.0,
+        "analyst_upside_pct": 19.3,
         "insider_net_usd": 0
       },
       "CAT": {
@@ -5112,7 +3863,7 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 3.2,
+        "analyst_upside_pct": -4.4,
         "insider_net_usd": 0
       },
       "DE": {
@@ -5123,17 +3874,15 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 16.3,
+        "analyst_upside_pct": 12.2,
         "insider_net_usd": 0
       },
       "UNP": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
+        "level": "no_signal",
+        "sources_count": 0,
+        "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 10.7,
+        "analyst_upside_pct": 7.9,
         "insider_net_usd": 0
       },
       "NEE": {
@@ -5141,7 +3890,7 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 2.2,
+        "analyst_upside_pct": 2.9,
         "insider_net_usd": 0
       },
       "DUK": {
@@ -5149,11 +3898,11 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 5.3,
+        "analyst_upside_pct": 8.4,
         "insider_net_usd": 0
       }
     },
-    "as_of": "2026-04-06 19:13 UTC"
+    "as_of": "2026-04-20 15:11 UTC"
   },
-  "generated_at": "2026-04-06T19:14:15.544544"
+  "generated_at": "2026-04-20T15:11:35.270429"
 }

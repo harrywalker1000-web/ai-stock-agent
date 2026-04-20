@@ -1,192 +1,124 @@
 {
   "position_decisions": [
     {
-      "ticker": "MKC",
+      "ticker": "UNH",
       "action": "enter_long",
-      "conviction": 68,
+      "conviction": 74,
       "stop_loss": null,
       "target_price": null,
-      "investment_thesis": "MKC presents a strong mean reversion opportunity with a significant discount to peer valuations, indicating that the market has oversold the stock. The upcoming earnings report within the next 30 days could act as a catalyst for a price rebound, and if the stock fails to recover above its recent lows, it may signal a need to exit.",
+      "investment_thesis": "UNH is showing strong revenue growth and positive sentiment, supported by a bullish analyst consensus. The upcoming earnings report in the next 10 days could act as a catalyst for further price appreciation, with an exit condition set if the price falls below recent support levels.",
       "key_catalysts": [
-        "upcoming earnings report within 30 days"
+        "upcoming earnings report within 10 days"
       ],
       "key_risks": [
-        "continued market downtrend affecting overall sentiment"
+        "potential market volatility affecting healthcare sector"
       ],
       "conflict_resolution": "No conflict",
+      "use_native_stop": false,
       "size_pct": 10.0
     },
     {
-      "ticker": "NKE",
-      "action": "skip",
-      "conviction": 62,
+      "ticker": "V",
+      "action": "enter_long",
+      "conviction": 74,
       "stop_loss": null,
       "target_price": null,
-      "investment_thesis": "",
+      "investment_thesis": "Visa's strong profitability metrics and bullish sentiment indicate a favorable setup for a long position. The anticipated earnings report in the next 15 days could provide a significant catalyst for upward movement, with an exit condition if the price breaks below key support levels.",
+      "key_catalysts": [
+        "upcoming earnings report within 15 days"
+      ],
+      "key_risks": [
+        "market corrections impacting consumer spending"
+      ],
+      "conflict_resolution": "No conflict",
+      "use_native_stop": false,
+      "size_pct": 10.0
+    },
+    {
+      "ticker": "TSLA",
+      "action": "skip",
+      "conviction": null,
+      "stop_loss": null,
+      "target_price": null,
+      "investment_thesis": "The mixed signals regarding Tesla's valuation and market sentiment, combined with its high P/E ratio, create uncertainty. The current risk-off environment suggests that it may be better to avoid this position until clearer signals emerge.",
       "key_catalysts": [],
       "key_risks": [],
       "conflict_resolution": "No conflict",
-      "skip_reason": "Current position is already held; no new entry is warranted.",
-      "size_pct": 10.0
+      "skip_reason": "Mixed signals and high valuation create uncertainty."
     },
     {
-      "ticker": "TTD",
-      "action": "enter_long",
-      "conviction": 63,
-      "stop_loss": null,
-      "target_price": null,
-      "investment_thesis": "TTD shows strong profitability and is currently oversold, indicating a potential for mean reversion. The technical setup suggests a bounce is likely in the next 5-10 days, and if it fails to hold above key support levels, we may need to reassess the position.",
-      "key_catalysts": [
-        "potential bounce in the next 5-10 days"
-      ],
-      "key_risks": [
-        "failure to hold key support levels"
-      ],
-      "conflict_resolution": "No conflict",
-      "size_pct": 10.0
-    },
-    {
-      "ticker": "LLY",
-      "action": "skip",
-      "conviction": 67,
-      "stop_loss": null,
-      "target_price": null,
-      "investment_thesis": "",
+      "ticker": "CRM",
+      "action": "exit",
+      "conviction": 49,
+      "investment_thesis": "conviction 49 vs new entry UNH conviction 74",
       "key_catalysts": [],
       "key_risks": [],
-      "conflict_resolution": "No conflict",
-      "skip_reason": "Current position is already held; no new entry is warranted.",
-      "size_pct": 15.0
-    },
-    {
-      "ticker": "EL",
-      "action": "enter_long",
-      "conviction": 61,
-      "stop_loss": null,
-      "target_price": null,
-      "investment_thesis": "EL is experiencing a dislocation with strong mean reversion potential despite its current downtrend. The upcoming earnings report could serve as a catalyst for recovery, and if the stock does not show improvement post-earnings, we may need to exit.",
-      "key_catalysts": [
-        "upcoming earnings report within 30 days"
-      ],
-      "key_risks": [
-        "poor earnings results leading to further declines"
-      ],
-      "conflict_resolution": "No conflict",
-      "size_pct": 10.0
+      "skip_reason": ""
     },
     {
       "ticker": "NVDA",
       "action": "decrease",
       "conviction": 68,
-      "size_pct": -10.0,
-      "investment_thesis": "Portfolio rebalancing: construction target -10.0% vs current 7.4%",
+      "size_pct": -7.4,
+      "investment_thesis": "Portfolio rebalancing: construction target -7.4% vs current 7.4%",
       "key_catalysts": [],
       "key_risks": []
     }
   ],
-  "total_decisions": 5,
+  "total_decisions": 3,
   "actions_taken": {
-    "enter": 3,
+    "enter": 2,
     "hold": 0,
     "increase": 0,
     "decrease": 0,
     "exit": 0,
-    "skip": 2
+    "skip": 1
   },
   "portfolio_allocation": {
     "cash_reserve": 100
   },
-  "committee_narrative": "In today's risk-off macro environment, the Investment Committee has decided to enter long positions in MKC, TTD, and EL, each presenting distinct mean reversion opportunities. MKC, with a conviction score of 68/100, is currently undervalued compared to peers and is poised for a rebound ahead of its earnings report in the next 30 days, although continued market downtrends pose a risk. TTD, rated 63/100, is oversold with a favorable technical setup suggesting a bounce within 5-10 days, but it must maintain key support levels to avoid further declines. Lastly, EL, with a conviction score of 61/100, is also positioned for recovery as it faces an upcoming earnings report, though poor results could exacerbate its current downtrend.",
+  "committee_narrative": "In today's risk-off macro regime, the Investment Committee has decided to enter long positions in UNH (conviction 74/100) and V (conviction 74/100). UNH is positioned favorably due to its strong revenue growth and a bullish analyst consensus, with the upcoming earnings report in 10 days serving as a potential catalyst for price appreciation. Similarly, Visa's strong profitability metrics and positive sentiment suggest a favorable setup, with its earnings report in 15 days likely to act as a significant catalyst. Both positions carry risks associated with market volatility; for UNH, this pertains to the healthcare sector, while for V, potential market corrections could impact consumer spending.",
   "macro_regime": "RISK-OFF",
   "weights_used": {
     "fundamental": 0.4,
     "quant": 0.3,
     "sentiment": 0.3
   },
-  "candidates_evaluated": 7,
-  "candidates_debated": 6,
+  "candidates_evaluated": 8,
+  "candidates_debated": 3,
   "scorecards": [
     {
-      "ticker": "MKC",
-      "composite_score": 67,
-      "fundamental_score": 70,
-      "quant_score": 65,
-      "sentiment_score": 65,
-      "agent_spread": 5,
+      "ticker": "NVDA",
+      "composite_score": 82,
+      "fundamental_score": 85,
+      "quant_score": 85,
+      "sentiment_score": 75,
+      "agent_spread": 10,
       "conflict_flag": false,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 4.19,
-      "suggested_size_pct": 12.9,
-      "candidate_signals": [
-        "dislocation_screen(-22%_1m)",
-        "macro_tailwind"
-      ],
-      "candidate_score": 2.5,
-      "fundamental_summary": "MKC has a P/E ratio of 8.34, which is well below the peer average of 49.20, indicating a strong valuation opportunity. However, its current ratio of 0.76 suggests potential liquidity concerns compared to peers.",
-      "quant_summary": "Despite the current downtrend and bearish momentum indicators, MKC shows a strong mean reversion setup with oversold conditions. In the next 5-10 days, a bounce is likely as the price approaches support levels, potentially moving towards the resistance at $68.78.",
-      "sentiment_summary": "Despite a risk-off macro regime, MKC shows a bullish sentiment from analysts with a significant upside potential based on price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in the stock amidst market fears.",
-      "analyst_consensus": "Buy",
-      "upside_pct": 30.6,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 60,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": true,
-      "price_vs_intrinsic_value": "-83.1% discount vs peer median P/E",
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 7108700160,
-          "sec_edgar_value": 6662200000.0,
-          "diff_pct": 6.3,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 6.1,
-          "sec_edgar_value": 2.52,
-          "diff_pct": 58.7,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ]
-    },
-    {
-      "ticker": "NVDA",
-      "composite_score": 64,
-      "fundamental_score": 85,
-      "quant_score": 50,
-      "sentiment_score": 50,
-      "agent_spread": 40,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 3.05,
-      "suggested_size_pct": 12.0,
+      "atr_pct": 2.54,
+      "suggested_size_pct": 16.0,
       "candidate_signals": [
         "institutional_signal",
         "analyst_upgrade",
-        "unusual_calls(13.2x_vol_oi)"
+        "unusual_calls(6.1x_vol_oi)",
+        "sector_momentum"
       ],
-      "candidate_score": 4.5,
-      "fundamental_summary": "NVDA shows strong growth with a revenue growth of 65.5% and a high operating margin of 65.0%. Its balance sheet is healthy with a net debt/EBITDA of -0.38, indicating no debt concerns, while its P/E is below the peer average, suggesting a favorable valuation.",
-      "quant_summary": "The technical setup indicates a potential for a bounce despite the current downtrend, as selling exhaustion signals may support a reversal. Over the next 5-10 days, NVDA could experience a short-term rally towards resistance levels, particularly if momentum continues to build.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 6.0,
+      "fundamental_summary": "NVDA shows strong profitability with an operating margin of 65.0% and a high ROE of 101.5%. Its revenue growth of 65.5% significantly outpaces peers, while its P/E ratio is below the peer average, indicating a favorable valuation.",
+      "quant_summary": "NVDA is currently in an uptrend, supported by bullish momentum indicators and a strong volume trend. In the next 5-10 days, the price is likely to continue its upward movement, targeting the resistance level at $197.62.",
+      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value for contrarian long positions.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 35.3,
       "retail_euphoria_warning": false,
-      "mean_reversion_score": 15,
-      "forward_bias": "neutral",
-      "trade_type": "mean_reversion",
+      "mean_reversion_score": 0,
+      "forward_bias": "bullish",
+      "trade_type": "momentum",
       "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "-27.6% discount vs peer median P/E.",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "price_vs_intrinsic_value": "-34.0% discount vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
@@ -214,255 +146,49 @@
           "resolution": "yf_av used (conservative)"
         }
       ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 45,
-        "high_agent_score": 85,
-        "spread": 40,
-        "tension_identified": "The Fundamental analysis highlights strong growth and a favorable valuation, while the Quant analysis suggests a downtrend and potential selling exhaustion, indicating a bearish sentiment despite strong fundamentals.",
-        "committee_challenge": "Given the strong fundamental indicators such as NVDA's impressive revenue growth and healthy balance sheet, how do you reconcile your bearish technical outlook with these positive fundamentals? Are there specific technical indicators or market conditions that you believe could overshadow the fundamental strengths in the short term?",
-        "analyst_response": "While NVDA's fundamentals are indeed strong, my technical analysis indicates a prevailing downtrend characterized by lower highs and lower lows, which suggests ongoing selling pressure. The mean reversion score of 15 reflects limited upside potential in the current environment, despite the bullish MACD and potential for a short-term bounce. Additionally, the distribution in volume trends and recent negative returns over 1M and 3M highlight a lack of strong buying momentum that could overshadow the positive fundamentals in the near term.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 45,
-        "committee_resolution": "I weigh the fundamental position more heavily due to NVDA's impressive revenue growth of 65.5% and a high operating margin of 65.0%, which indicate strong underlying business performance. However, I acknowledge the technical concerns raised, particularly the prevailing downtrend and lack of strong buying momentum, which warrant caution in the short term.",
-        "committee_resolution_reasoning": "The strong fundamentals provide a solid foundation, but the technical indicators suggest potential short-term risks that cannot be ignored.",
-        "final_dissenter_score": 50
-      }
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "10-15%",
+      "thesis_bullets": [
+        "Revenue of $60.9B demonstrates strong market presence.",
+        "Compared to peers, NVIDIA has a higher gross margin of 71.1%.",
+        "NVIDIA's leadership in AI technology positions it for continued growth."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null
     },
     {
-      "ticker": "NKE",
-      "composite_score": 60,
-      "fundamental_score": 55,
-      "quant_score": 75,
-      "sentiment_score": 50,
-      "agent_spread": 25,
-      "conflict_flag": true,
+      "ticker": "AAPL",
+      "composite_score": 74,
+      "fundamental_score": 83,
+      "quant_score": 65,
+      "sentiment_score": 70,
+      "agent_spread": 18,
+      "conflict_flag": false,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 4.41,
-      "suggested_size_pct": 11.5,
+      "atr_pct": 2.19,
+      "suggested_size_pct": 14.5,
       "candidate_signals": [
-        "dislocation_screen(-23%_1m)"
+        "institutional_signal",
+        "unusual_calls(23.5x_vol_oi)",
+        "sector_momentum"
       ],
-      "candidate_score": 2.0,
-      "fundamental_summary": "NKE has a P/E ratio of 28.99, which is above the peer average of 24.30, indicating a premium valuation. The company is experiencing a revenue decline of -9.8% YoY, which is a concern compared to peers.",
-      "quant_summary": "NKE is currently in a downtrend but shows strong mean reversion potential due to extreme oversold conditions. In the next 5-10 days, a bounce back towards resistance at $64.15 is likely as the market corrects from its dislocation.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 95,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "19.8% premium vs peer median P/E.",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 46522998784,
-          "sec_edgar_value": 51217000000.0,
-          "diff_pct": 10.1,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 1.52,
-          "sec_edgar_value": 3.23,
-          "diff_pct": 112.5,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 51217000000.0,
-          "fmp_value": 46309000000,
-          "diff_pct": 9.6,
-          "conservative_value": 46309000000,
-          "resolution": "fmp used (conservative)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Sentiment",
-        "high_agent": "Quant",
-        "original_dissenter_score": 50,
-        "high_agent_score": 75,
-        "spread": 25,
-        "tension_identified": "The Quant analyst is optimistic about a short-term price recovery, while the Sentiment analyst has a neutral score without providing supporting reasoning.",
-        "committee_challenge": "Given that the Quant analyst sees strong mean reversion potential for NKE due to extreme oversold conditions, can you elaborate on the specific factors or data points that led you to a neutral sentiment score despite this potential for a bounce back? What aspects of market sentiment or external factors are influencing your view?",
-        "analyst_response": "While I acknowledge the Quant's perspective on mean reversion potential for NKE, my neutral sentiment score of 50/100 is supported by several factors. The lack of retail euphoria and the absence of a short squeeze risk indicate that market sentiment is not overly bullish, which can dampen the potential for a significant bounce back. Additionally, the current analyst consensus and news sentiment do not suggest strong upward momentum, leading me to maintain my original assessment.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 50,
-        "committee_resolution": "The Quant's score of 75/100 is supported by the identification of extreme oversold conditions and the potential for a bounce back towards $64.15, indicating a strong short-term trading opportunity. However, the Sentiment analyst's score of 50/100 is justified by the lack of bullish market sentiment indicators, such as retail euphoria and short squeeze potential, which could limit the upside. Given these considerations, I will maintain the Sentiment analyst's score at 50/100 as it reflects a cautious outlook despite the Quant's more optimistic view.",
-        "committee_resolution_reasoning": "The key factor in this resolution is the absence of strong bullish sentiment indicators, which the Sentiment analyst effectively highlighted as a counterbalance to the Quant's mean reversion thesis.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "TTD",
-      "composite_score": 61,
-      "fundamental_score": 78,
-      "quant_score": 50,
-      "sentiment_score": 50,
-      "agent_spread": 33,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 6.48,
-      "suggested_size_pct": 11.3,
-      "candidate_signals": [
-        "dislocation_screen(-24%_1m)"
-      ],
-      "candidate_score": 2.0,
-      "fundamental_summary": "TTD shows strong profitability with a gross margin of 78.6% and a net margin of 15.3%. Its revenue growth of 18.5% year-over-year is above the peer average, and its leverage is lower than peers, with a net debt/EBITDA of -1.23.",
-      "quant_summary": "The technical setup indicates a potential for mean reversion as TTD is oversold and near key support levels. In the next 5-10 days, a bounce towards resistance at $28.54 is likely, despite the current downtrend.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 45,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "-41.0%",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 2896283904,
-          "sec_edgar_value": 1946120000.0,
-          "diff_pct": 32.8,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 0.9,
-          "sec_edgar_value": 0.36,
-          "diff_pct": 60.0,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 45,
-        "high_agent_score": 78,
-        "spread": 33,
-        "tension_identified": "The Fundamental analysis indicates strong profitability and growth, while the Quant analysis suggests a bearish sentiment despite the potential for a short-term bounce.",
-        "committee_challenge": "Given the strong profitability metrics and revenue growth highlighted in the Fundamental analysis, how do you reconcile your bearish outlook with the potential for mean reversion you identified? Are there specific technical indicators or market conditions that you believe could overshadow the positive fundamentals?",
-        "analyst_response": "While the Fundamental analysis highlights strong profitability metrics and revenue growth, my bearish outlook is primarily driven by the current technical indicators. The downtrend, characterized by lower highs and lower lows, suggests that despite potential mean reversion, the overall market sentiment remains negative. The RSI indicates oversold conditions, but the bearish moving average stack and recent returns show persistent weakness that could overshadow the positive fundamentals in the short term.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 45,
-        "committee_resolution": "The Fundamental analysis presents compelling data with a gross margin of 78.6% and revenue growth of 18.5% year-over-year, indicating strong underlying business performance. However, the Quant analyst's concerns about the bearish technical indicators, such as the downtrend and moving average stack, suggest that market sentiment could indeed overshadow these fundamentals in the short term. Therefore, while the fundamentals are strong, the technical outlook warrants caution.",
-        "committee_resolution_reasoning": "The decision to adjust the score reflects a balance between strong fundamentals and valid concerns about technical indicators, acknowledging the potential for short-term volatility despite solid long-term prospects.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "LLY",
-      "composite_score": 63,
-      "fundamental_score": 82,
-      "quant_score": 50,
-      "sentiment_score": 50,
-      "agent_spread": 42,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 3.06,
-      "suggested_size_pct": 11.6,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ],
-      "candidate_score": 2.0,
-      "fundamental_summary": "LLY shows strong profitability with a gross margin of 83.0% and a net margin of 31.7%. However, its P/E ratio of 40.35 is well above the peer average of 19.10, indicating a premium valuation, while its D/E ratio of 165.31 is higher than the peer average, suggesting elevated leverage.",
-      "quant_summary": "The current technical setup indicates a downtrend with a lack of strong bullish signals. However, given the bullish MACD and the potential for a bounce, LLY may see some upward movement in the next 5-10 days, but caution is warranted due to low signal confidence.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 5.0,
+      "fundamental_summary": "AAPL has a strong ROIC of 52.0% and a net debt to EBITDA ratio of 0.16, indicating solid balance sheet health. However, its high D/E ratio of 102.63 compared to peers suggests elevated leverage risk.",
+      "quant_summary": "AAPL is currently in an uptrend, supported by bullish momentum indicators despite a risk-off macro environment. In the next 5-10 days, the price is likely to test the resistance level at $276.11, with a bullish bias supported by the technical setup.",
+      "sentiment_summary": "Despite a risk-off macro regime, AAPL shows a bullish sentiment from analysts with a mean price target significantly above the current price, indicating potential value. The lack of news catalysts suggests that current sentiment is leading, reflecting optimism about future performance rather than reacting to past price movements.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 9.3,
       "retail_euphoria_warning": false,
       "mean_reversion_score": 0,
-      "forward_bias": "neutral",
+      "forward_bias": "bullish",
       "trade_type": "momentum",
       "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "111.8% premium vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
-      "thesis_intact": null,
-      "entry_vs_today": null,
-      "pnl_pct": null,
-      "key_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 65179000832,
-          "sec_edgar_value": 34124000000.0,
-          "diff_pct": 47.6,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 22.92,
-          "sec_edgar_value": 5.8,
-          "diff_pct": 74.7,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "agent_debate": {
-        "dissenter": "Quant",
-        "high_agent": "Fundamental",
-        "original_dissenter_score": 40,
-        "high_agent_score": 82,
-        "spread": 42,
-        "tension_identified": "The Fundamental analyst sees strong profitability, while the Quant analyst indicates a downtrend and low bullish signals, suggesting a disconnect between financial health and market momentum.",
-        "committee_challenge": "Given the strong profitability metrics highlighted by the Fundamental analyst, such as a gross margin of 83.0% and a net margin of 31.7%, how do you reconcile your assessment of a downtrend in LLY's technical setup with these positive financial indicators? Are there specific technical signals that you believe overshadow the fundamental strengths?",
-        "analyst_response": "While the strong profitability metrics such as an 83.0% gross margin and 31.7% net margin are impressive, my technical analysis indicates a prevailing downtrend characterized by lower highs and lower lows. The neutral RSI(14) at 44.4 and the lack of strong bullish signals suggest that the market sentiment may not yet reflect the fundamental strengths. Therefore, despite the potential for a short-term bounce indicated by the bullish MACD, the overall technical setup warrants caution, supporting my original score.",
-        "analyst_outcome": "held",
-        "analyst_score_delta": 0,
-        "analyst_revised_score": 40,
-        "committee_resolution": "I weigh the Fundamental analyst's position more heavily due to the strong profitability metrics, particularly the gross margin of 83.0% and net margin of 31.7%, which indicate robust financial health. However, I acknowledge the Quant analyst's concerns regarding the prevailing downtrend and lack of bullish signals, which warrant caution in the short term.",
-        "committee_resolution_reasoning": "The strong fundamental indicators suggest long-term potential, but the technical analysis highlights immediate risks that cannot be ignored.",
-        "final_dissenter_score": 50
-      }
-    },
-    {
-      "ticker": "EL",
-      "composite_score": 57,
-      "fundamental_score": 34,
-      "quant_score": 70,
-      "sentiment_score": 75,
-      "agent_spread": 41,
-      "conflict_flag": true,
-      "overall_confidence": "medium",
-      "direction": "LONG",
-      "atr_pct": 6.12,
-      "suggested_size_pct": 10.7,
-      "candidate_signals": [
-        "dislocation_screen(-23%_1m)",
-        "macro_tailwind"
-      ],
-      "candidate_score": 2.5,
-      "fundamental_summary": "EL has a gross margin of 74.3%, which is strong, but it is facing significant challenges with a net income of -1.1B and a high D/E ratio of 232.94. The revenue growth is negative at -8.2%, indicating distress compared to peers.",
-      "quant_summary": "Despite the current downtrend, the strong mean reversion setup suggests a likely bounce in the next 5-10 days. Key resistance at $109.28 will be crucial to watch as the price attempts to recover from oversold conditions.",
-      "sentiment_summary": "Despite a risk-off macro regime, analysts maintain a bullish outlook on EL, with significant upside potential indicated by price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, reflecting optimism in the face of broader market fears.",
-      "analyst_consensus": "Buy",
-      "upside_pct": 58.1,
-      "retail_euphoria_warning": false,
-      "mean_reversion_score": 60,
-      "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
-      "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "N/A",
+      "price_vs_intrinsic_value": "36.5% premium vs peer median P/E.",
       "contrarian_signal": true,
       "sentiment_type": "leading",
       "thesis_intact": null,
@@ -471,67 +197,461 @@
       "key_conflicts": [
         {
           "metric": "revenue (EDGAR override)",
-          "yfinance_value": 14670999552,
-          "sec_edgar_value": 15910000000.0,
-          "diff_pct": 8.4,
+          "yfinance_value": 435617005568,
+          "sec_edgar_value": 215639000000.0,
+          "diff_pct": 50.5,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 7.89,
+          "sec_edgar_value": 6.13,
+          "diff_pct": 22.3,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 215639000000.0,
+          "fmp_value": 416161000000,
+          "diff_pct": 93.0,
+          "conservative_value": 215639000000.0,
+          "resolution": "yf_av used (conservative)"
+        }
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "5-10%",
+      "thesis_bullets": [
+        "Revenue of $215.6B indicates strong market presence.",
+        "Peer comparison shows AAPL's margins outperforming many competitors.",
+        "Apple's consistent innovation and brand loyalty position it well for future growth."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null
+    },
+    {
+      "ticker": "AMZN",
+      "composite_score": 74,
+      "fundamental_score": 76,
+      "quant_score": 75,
+      "sentiment_score": 70,
+      "agent_spread": 6,
+      "conflict_flag": false,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 2.64,
+      "suggested_size_pct": 14.4,
+      "candidate_signals": [
+        "institutional_signal",
+        "unusual_calls(6.9x_vol_oi)"
+      ],
+      "candidate_score": 4.0,
+      "fundamental_summary": "AMZN shows a revenue growth of 12.4% year-over-year, with a stable operating margin of 10.5%. Its ROIC of 10.7% and low net debt to EBITDA ratio of 0.38 indicate a healthy balance sheet compared to peers.",
+      "quant_summary": "AMZN is currently in an uptrend, trading above both the 50-day and 200-day SMAs, with bullish momentum indicators. Given the strong signal confidence and the absence of mean reversion signals, the price is likely to continue moving higher in the next 5-10 days, targeting resistance at $247.78.",
+      "sentiment_summary": "Despite a risk-off macro regime, Amazon (AMZN) shows a strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in a long position.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 14.2,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 0,
+      "forward_bias": "bullish",
+      "trade_type": "momentum",
+      "dislocation_opportunity": false,
+      "price_vs_intrinsic_value": "-43.3% discount vs peer median P/E of 60.50.",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 716923994112,
+          "sec_edgar_value": 574785000000.0,
+          "diff_pct": 19.8,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 7.17,
+          "sec_edgar_value": 2.9,
+          "diff_pct": 59.6,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 574785000000.0,
+          "fmp_value": 716924000000,
+          "diff_pct": 24.7,
+          "conservative_value": 574785000000.0,
+          "resolution": "yf_av used (conservative)"
+        }
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "10-15%",
+      "thesis_bullets": [
+        "Revenue of $574.8B demonstrates strong market presence.",
+        "Compared to peers, Amazon's diverse revenue streams provide a competitive edge.",
+        "The company's strong focus on innovation positions it well for future growth."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null
+    },
+    {
+      "ticker": "UNH",
+      "composite_score": 74,
+      "fundamental_score": 73,
+      "quant_score": 75,
+      "sentiment_score": 75,
+      "agent_spread": 2,
+      "conflict_flag": false,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 2.56,
+      "suggested_size_pct": 14.4,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
+      "candidate_score": 3.5,
+      "fundamental_summary": "UNH shows a revenue growth of 11.8%, which is competitive, but its P/E ratio of 24.20 is above the peer average of 21.40, indicating a higher valuation. The company has a high D/E ratio of 81.62, which raises concerns about leverage compared to peers.",
+      "quant_summary": "UNH is currently in an uptrend with strong momentum indicators suggesting a continuation of this trend. In the next 5-10 days, the price is likely to test the resistance level at $349.89, supported by bullish volume and momentum signals.",
+      "sentiment_summary": "The sentiment around UNH is currently bullish, supported by a strong analyst consensus and positive news catalysts. With a significant upside potential and no major structural issues, the sentiment appears to be leading, indicating a potential contrarian long opportunity.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 12.6,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 0,
+      "forward_bias": "bullish",
+      "trade_type": "momentum",
+      "dislocation_opportunity": false,
+      "price_vs_intrinsic_value": "13.3% premium vs peer median P/E.",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 447567003648,
+          "sec_edgar_value": 371622000000.0,
+          "diff_pct": 17.0,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         },
         {
           "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": -0.51,
-          "sec_edgar_value": 2.79,
-          "diff_pct": 647.1,
+          "yfinance_value": 13.24,
+          "sec_edgar_value": 23.86,
+          "diff_pct": 80.2,
           "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 371622000000.0,
+          "fmp_value": 447567000000,
+          "diff_pct": 20.4,
+          "conservative_value": 371622000000.0,
+          "resolution": "yf_av used (conservative)"
         }
       ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "5-10%",
+      "thesis_bullets": [
+        "Revenue of $371.6B demonstrates strong market presence.",
+        "Compared to peers, UNH has a higher gross margin and EBITDA margin.",
+        "The healthcare sector's growth potential is bolstered by technological advancements and demographic trends."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null
+    },
+    {
+      "ticker": "V",
+      "composite_score": 74,
+      "fundamental_score": 81,
+      "quant_score": 55,
+      "sentiment_score": 85,
+      "agent_spread": 30,
+      "conflict_flag": true,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 1.87,
+      "suggested_size_pct": 14.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum"
+      ],
+      "candidate_score": 3.0,
+      "fundamental_summary": "V shows strong profitability with a net margin of 50.2% and an ROIC of 28.4%. Its revenue growth of 11.3% is solid, although below the peer average growth of 16.4%. The company's leverage is lower than peers, with a net debt to EBITDA ratio of 0.17.",
+      "quant_summary": "The technical setup indicates a potential for a bullish reversal despite the current sideways trend. Over the next 5-10 days, price may test resistance at $308.49, supported by positive momentum signals.",
+      "sentiment_summary": "The current market sentiment for Visa (V) is strongly bullish, supported by a consensus of analysts recommending a long position and positive news catalysts. With a significant upside potential and low short interest, the sentiment appears to be leading, indicating confidence in future performance.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 25.1,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 10,
+      "forward_bias": "bullish",
+      "trade_type": "momentum",
+      "dislocation_opportunity": false,
+      "price_vs_intrinsic_value": "-2.58% discount vs peer median P/E.",
+      "contrarian_signal": false,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 41391001600,
+          "sec_edgar_value": 20609000000.0,
+          "diff_pct": 50.2,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 20609000000.0,
+          "fmp_value": 40000000000,
+          "diff_pct": 94.1,
+          "conservative_value": 20609000000.0,
+          "resolution": "yf_av used (conservative)"
+        }
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "8-12%",
+      "thesis_bullets": [
+        "Revenue of $20.6B with strong EBITDA margins of 71.3%.",
+        "Compared to peers, Visa has a higher net margin of 50.2% than Mastercard's 45.6%.",
+        "Visa's extensive global network and brand recognition provide a competitive edge."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null,
       "agent_debate": {
-        "dissenter": "Fundamental",
+        "dissenter": "Quant",
         "high_agent": "Sentiment",
-        "original_dissenter_score": 34,
-        "high_agent_score": 75,
-        "spread": 41,
-        "tension_identified": "The Sentiment score reflects optimism and potential upside despite macro risks, while the Fundamental score indicates distress with negative revenue growth and high debt levels.",
-        "committee_challenge": "Given the strong bullish sentiment reflected in the analysts' outlook and the significant upside potential indicated by price targets, how do you reconcile this with the negative revenue growth and high debt-to-equity ratio that you highlighted? Are there specific factors or data points that you believe could lead to a more favorable fundamental outlook in the near term?",
-        "analyst_response": "While the bullish sentiment and price targets are noteworthy, my analysis highlights significant fundamental challenges for EL, including a negative revenue growth of -8.2% and a high debt-to-equity ratio of 232.94. These factors indicate underlying financial distress that could undermine any potential upside. The strong gross margin of 74.3% is a positive aspect, but without a turnaround in revenue and a reduction in debt, the outlook remains concerning. Therefore, I maintain my original score as the fundamental issues outweigh the positive sentiment.",
+        "original_dissenter_score": 55,
+        "high_agent_score": 85,
+        "spread": 30,
+        "tension_identified": "The Sentiment score indicates strong bullish confidence, while the Quant score suggests a sideways trend with potential resistance, highlighting a significant divergence in outlook.",
+        "committee_challenge": "Given the strong bullish sentiment reflected in the high score of 85, can you elaborate on the specific technical indicators or market conditions that led to your lower score of 55? What data or trends did you consider that might suggest a divergence from the positive sentiment and analyst recommendations?",
+        "analyst_response": "While sentiment is bullish at 85, my score of 55 reflects concerns about the current sideways trend and the presence of lower highs and lower lows, indicating potential weakness in price action. The 1M return of 0.0418% and 3M return of -0.0336% suggest a lack of momentum that contradicts the positive sentiment. Additionally, the mean reversion score of 10 indicates a strong tendency for price to revert, which could limit upside potential in the short term.",
         "analyst_outcome": "held",
         "analyst_score_delta": 0,
-        "analyst_revised_score": 34,
-        "committee_resolution": "The original challenge effectively highlighted the disparity between the strong bullish sentiment and the concerning fundamental metrics. However, the fundamental analyst's response provided a solid rationale for maintaining a low score, emphasizing the negative revenue growth of -8.2% and the high debt-to-equity ratio of 232.94, which are critical indicators of financial health that cannot be overlooked.",
-        "committee_resolution_reasoning": "The fundamental issues presented, particularly the negative revenue growth and high debt levels, outweigh the positive sentiment and potential upside indicated by analysts.",
-        "final_dissenter_score": 34
+        "analyst_revised_score": 55,
+        "committee_resolution": "The bullish sentiment score of 85 is supported by analyst recommendations and positive news catalysts, indicating strong confidence in Visa's future performance. However, the Quant analyst's concerns about the sideways trend, lower highs and lows, and lack of momentum are valid and highlight potential risks that could impact short-term performance. Therefore, I will maintain the Quant analyst's score of 55, as it reflects a cautious approach in light of the technical indicators.",
+        "committee_resolution_reasoning": "The divergence between strong sentiment and weak technical indicators necessitates a conservative stance, prioritizing data-driven caution over optimistic sentiment.",
+        "final_dissenter_score": 55
+      }
+    },
+    {
+      "ticker": "MSFT",
+      "composite_score": 74,
+      "fundamental_score": 85,
+      "quant_score": 60,
+      "sentiment_score": 75,
+      "agent_spread": 30,
+      "conflict_flag": true,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 2.33,
+      "suggested_size_pct": 14.3,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "unusual_calls(19.4x_vol_oi)",
+        "sector_momentum"
+      ],
+      "candidate_score": 6.0,
+      "fundamental_summary": "MSFT shows strong profitability with a net margin of 39.0% and a solid ROIC of 21.6%. Its low net debt to EBITDA ratio of 0.21 indicates a healthy balance sheet compared to peers.",
+      "quant_summary": "Despite the risk-off macro regime, MSFT shows signs of an uptrend with bullish momentum indicators. The price is likely to test resistance at $413.05 in the next 5-10 days, supported by accumulation in volume.",
+      "sentiment_summary": "Despite a risk-off macro regime, MSFT shows strong bullish sentiment from analysts, with significant upside potential reflected in price targets. The lack of news catalysts suggests that current sentiment is leading, indicating potential value in the stock amidst broader market fears.",
+      "analyst_consensus": "Strong Buy",
+      "upside_pct": 38.8,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 8,
+      "forward_bias": "bullish",
+      "trade_type": "mean_reversion",
+      "dislocation_opportunity": true,
+      "price_vs_intrinsic_value": "-52.0% discount vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
+          "yfinance_value": 305453006848,
+          "sec_edgar_value": 13762000000.0,
+          "diff_pct": 95.5,
+          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 15.98,
+          "sec_edgar_value": 9.68,
+          "diff_pct": 39.4,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "revenue_ttm (fmp vs reconciled)",
+          "yf_av_value": 305453006848,
+          "fmp_value": 281724000000,
+          "diff_pct": 7.8,
+          "conservative_value": 281724000000,
+          "resolution": "fmp used (conservative)"
+        }
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "10-15%",
+      "thesis_bullets": [
+        "Revenue of $305.5B demonstrates strong market demand.",
+        "Peer comparison shows MSFT's P/E is significantly lower than the average, indicating potential undervaluation.",
+        "Microsoft's leadership in cloud computing and AI positions it well for future growth."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null,
+      "agent_debate": {
+        "dissenter": "Quant",
+        "high_agent": "Fundamental",
+        "original_dissenter_score": 55,
+        "high_agent_score": 85,
+        "spread": 30,
+        "tension_identified": "The Fundamental analysis emphasizes strong profitability and a healthy balance sheet, while the Quant analysis suggests a lower score despite bullish momentum, indicating a potential disconnect between technical indicators and fundamental performance.",
+        "committee_challenge": "Given the strong profitability metrics and healthy balance sheet highlighted by the Fundamental analysis, how do you reconcile your lower score with the bullish momentum indicators and the potential resistance at $413.05? Are there specific technical factors or market conditions that you believe could undermine the fundamental strengths of MSFT?",
+        "analyst_response": "While the fundamental analysis highlights strong profitability and a healthy balance sheet, my score reflects concerns about the broader market conditions and the recent performance trends. The 3M return of -0.0797% indicates potential volatility and a lack of sustained momentum, which could undermine the bullish sentiment. Additionally, the RSI of 66.8 suggests that MSFT may be approaching overbought territory, making it susceptible to a pullback, especially as it tests the resistance at $413.05.",
+        "analyst_outcome": "held",
+        "analyst_score_delta": 0,
+        "analyst_revised_score": 55,
+        "committee_resolution": "The fundamental analysis presents compelling data with a high profitability score of 85/100, supported by strong metrics like a 39.0% net margin and a 21.6% ROIC. However, the quant analysis raises valid concerns about potential volatility and overbought conditions, as indicated by the RSI of 66.8 and a recent 3M return of -0.0797%. Balancing these insights, I believe the quant score should be adjusted slightly upwards to reflect the bullish momentum indicators while still acknowledging the risks.",
+        "committee_resolution_reasoning": "The key factor in this resolution is the need to account for both the strong fundamentals and the potential market volatility indicated by the quant analysis.",
+        "final_dissenter_score": 60
+      }
+    },
+    {
+      "ticker": "CRM",
+      "composite_score": 61,
+      "fundamental_score": 70,
+      "quant_score": 45,
+      "sentiment_score": 65,
+      "agent_spread": 25,
+      "conflict_flag": true,
+      "overall_confidence": "medium",
+      "direction": "LONG",
+      "atr_pct": 4.02,
+      "suggested_size_pct": 11.7,
+      "candidate_signals": [
+        "analyst_upgrade",
+        "sector_momentum"
+      ],
+      "candidate_score": 2.5,
+      "fundamental_summary": "CRM has a gross margin of 77.7% and a P/E ratio of 23.75, which is significantly lower than the peer average of 77.40, suggesting it is undervalued. However, the current ratio of 0.76 raises concerns about liquidity.",
+      "quant_summary": "CRM is currently in a downtrend with bearish patterns detected, but momentum indicators suggest a potential for a bounce. Over the next 5-10 days, the price may attempt to rally towards resistance at $188.51, though caution is warranted due to the overall risk-off environment.",
+      "sentiment_summary": "Despite a risk-off macro regime, analyst sentiment for CRM remains bullish with a significant upside potential reflected in price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in the stock amidst market fears.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 45.0,
+      "retail_euphoria_warning": false,
+      "mean_reversion_score": 25,
+      "forward_bias": "neutral",
+      "trade_type": "mean_reversion",
+      "dislocation_opportunity": true,
+      "price_vs_intrinsic_value": "-69.4% discount vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "thesis_intact": null,
+      "entry_vs_today": null,
+      "pnl_pct": null,
+      "key_conflicts": [
+        {
+          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
+          "yfinance_value": 41524998144,
+          "sec_edgar_value": 1511167000.0,
+          "diff_pct": 96.4,
+          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 7.8,
+          "sec_edgar_value": 4.2,
+          "diff_pct": 46.2,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "10-15%",
+      "thesis_bullets": [
+        "Revenue of $41.5B demonstrates strong market presence.",
+        "Compared to peers, CRM maintains a competitive edge with a wide moat.",
+        "Salesforce's ongoing innovation and customer-centric approach position it well for future growth."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null,
+      "agent_debate": {
+        "dissenter": "Quant",
+        "high_agent": "Fundamental",
+        "original_dissenter_score": 45,
+        "high_agent_score": 70,
+        "spread": 25,
+        "tension_identified": "The Fundamental analysis suggests CRM is undervalued based on strong margins and P/E ratio, while the Quant analysis indicates a bearish trend and downtrend patterns.",
+        "committee_challenge": "Given the strong gross margin and lower P/E ratio highlighted by the Fundamental analysis, how do you reconcile your bearish outlook with the potential for CRM to be undervalued? Are there specific technical indicators or market conditions that you believe outweigh these fundamental strengths?",
+        "analyst_response": "While the Fundamental analysis highlights strong gross margins and a lower P/E ratio, my quantitative assessment indicates a prevailing downtrend characterized by bearish patterns and lower highs/lower lows. The mean reversion score of 25 suggests limited potential for a significant bounce, despite the bullish MACD and neutral RSI. Given the current risk-off environment and the recent negative returns, I maintain a cautious outlook on CRM, which justifies my original score.",
+        "analyst_outcome": "held",
+        "analyst_score_delta": 0,
+        "analyst_revised_score": 45,
+        "committee_resolution": "The Fundamental analysis presents compelling data with a gross margin of 77.7% and a P/E ratio of 23.75, indicating potential undervaluation. However, the Quant analysis highlights a significant downtrend and bearish patterns, which cannot be overlooked in the current risk-off environment. The lack of a strong mean reversion score further supports a cautious stance.",
+        "committee_resolution_reasoning": "The prevailing downtrend and bearish technical indicators outweigh the fundamental strengths, justifying the Quant analyst's cautious outlook.",
+        "final_dissenter_score": 45
       }
     },
     {
       "ticker": "TSLA",
-      "composite_score": 40,
+      "composite_score": 47,
       "fundamental_score": 36,
-      "quant_score": 35,
-      "sentiment_score": 50,
-      "agent_spread": 15,
-      "conflict_flag": false,
+      "quant_score": 45,
+      "sentiment_score": 65,
+      "agent_spread": 29,
+      "conflict_flag": true,
       "overall_confidence": "medium",
       "direction": "LONG",
-      "atr_pct": 4.21,
-      "suggested_size_pct": 7.7,
+      "atr_pct": 4.06,
+      "suggested_size_pct": 9.0,
       "candidate_signals": [
-        "institutional_signal",
-        "analyst_upgrade",
-        "unusual_puts(37.9x_vol_oi)"
+        "fresh_catalyst"
       ],
-      "candidate_score": 3.75,
-      "fundamental_summary": "TSLA has a trailing P/E of 325.58, which is significantly above the peer average of 18.00, indicating overvaluation. The revenue growth is negative at -2.9%, and the operating margin is lower than many peers, contributing to a fundamental score of 36.",
-      "quant_summary": "The current technical setup indicates a downtrend with oversold conditions, suggesting a potential bounce in the next 5-10 days. Despite the bearish momentum, the mean reversion signals indicate a likelihood of price recovery towards resistance levels.",
-      "sentiment_summary": "",
-      "analyst_consensus": "N/A",
-      "upside_pct": null,
+      "candidate_score": 2.0,
+      "fundamental_summary": "TSLA has a high P/E ratio of 362.09 compared to the peer average of 19.50, indicating significant overvaluation. The revenue growth is negative at -2.9%, and the operating margin is lower than some peers, suggesting potential concerns about profitability.",
+      "quant_summary": "Despite the current downtrend and the presence of a death cross, the bullish MACD and accumulation in volume suggest potential upward movement in the next 5-10 days. Watch the support level at $387.53 closely, as a bounce from this level could signal a short-term reversal.",
+      "sentiment_summary": "Despite a risk-off macro regime, TSLA shows a positive sentiment driven by bullish analyst targets and a favorable earnings preview. However, the mixed signals from different sources indicate a level of uncertainty, suggesting that while there is potential for upside, caution is warranted.",
+      "analyst_consensus": "Buy",
+      "upside_pct": 5.8,
       "retail_euphoria_warning": false,
-      "mean_reversion_score": 28,
+      "mean_reversion_score": 0,
       "forward_bias": "bullish",
-      "trade_type": "mean_reversion",
+      "trade_type": "momentum",
       "dislocation_opportunity": false,
-      "price_vs_intrinsic_value": "1705.44% premium vs peer median P/E",
-      "contrarian_signal": false,
-      "sentiment_type": "mixed",
+      "price_vs_intrinsic_value": "1745.4% premium vs peer median P/E",
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
       "thesis_intact": null,
       "entry_vs_today": null,
       "pnl_pct": null,
@@ -542,47 +662,78 @@
           "sec_edgar_value": 4.3,
           "diff_pct": 298.1,
           "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ]
+        },
+        "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      ],
+      "mandate_pass": null,
+      "mandate_fail_reasons": [],
+      "valuation_summary": null,
+      "intrinsic_value": null,
+      "expected_return_2_3yr": "10-15%",
+      "thesis_bullets": [
+        "Tesla's revenue stands at $96.8B, showcasing strong sales performance.",
+        "Compared to peers, Tesla maintains a higher gross margin of 18.0%.",
+        "The electric vehicle market is rapidly expanding, providing significant growth opportunities."
+      ],
+      "scenario_bull_target": null,
+      "scenario_base_target": null,
+      "scenario_bear_target": null,
+      "agent_debate": {
+        "dissenter": "Fundamental",
+        "high_agent": "Sentiment",
+        "original_dissenter_score": 36,
+        "high_agent_score": 65,
+        "spread": 29,
+        "tension_identified": "The Fundamental analyst emphasizes overvaluation and declining revenue, while the Sentiment analyst points to positive market sentiment and bullish forecasts, creating a stark contrast in outlook.",
+        "committee_challenge": "Given the high P/E ratio and negative revenue growth you've highlighted, how do you reconcile these concerns with the positive sentiment reflected in the bullish analyst targets and favorable earnings preview? Are there specific factors or data points that you believe are being overlooked in the sentiment analysis?",
+        "analyst_response": "While the positive sentiment and bullish analyst targets may reflect optimism about TSLA's future, my analysis highlights significant concerns regarding its current valuation and financial performance. The P/E ratio of 362.09 indicates extreme overvaluation compared to the peer average of 19.50, and the negative revenue growth of -2.9% raises questions about the company's ability to sustain profitability. These fundamental issues suggest that the sentiment may be overlooking the inherent risks associated with TSLA's current financial state.",
+        "analyst_outcome": "held",
+        "analyst_score_delta": 0,
+        "analyst_revised_score": 36,
+        "committee_resolution": "The original challenge effectively highlighted the disconnect between the positive sentiment and the fundamental concerns, particularly the extreme P/E ratio of 362.09 and negative revenue growth of -2.9%. However, the fundamental analyst's response did not adequately address how potential future growth or market positioning could justify the current valuation, which is a critical aspect of sentiment analysis. Therefore, I will maintain the original score of 36/100 for the Fundamental analyst, as the concerns raised are valid but lack a counterpoint regarding future potential.",
+        "committee_resolution_reasoning": "The fundamental issues presented are significant enough to warrant a low score, despite the positive sentiment, indicating a cautious approach to TSLA's valuation.",
+        "final_dissenter_score": 36
+      }
     }
   ],
-  "generated_at": "2026-04-06 19:22 UTC",
+  "generated_at": "2026-04-20 15:20 UTC",
   "portfolio_construction": {
     "target_weights": {
-      "NVDA": -10.0,
-      "NKE": 10.0,
-      "SMCI": 10.0,
-      "AAPL": 15.0,
-      "LLY": 15.0,
-      "MKC": 10.0,
-      "TTD": 10.0,
-      "EL": 10.0,
-      "AMCR": -10.0,
-      "LEN": -20.0
+      "NVDA": -7.4,
+      "AMCR": -9.9,
+      "LEN": -20.0,
+      "UNH": 10.0,
+      "V": 10.0,
+      "AAPL": 6.3,
+      "GOOGL": 10.2,
+      "JPM": 14.8,
+      "AMZN": 10.0,
+      "META": 10.0,
+      "MSFT": 10.0,
+      "CRM": 0.0
     },
-    "reasoning": "The portfolio is adjusted to reflect higher conviction positions while maintaining a risk-off stance. NVDA and AMCR are reduced due to their lower conviction scores, while new entries MKC, TTD, and EL are allocated to capitalize on their mean reversion potential. Cash remains available for future opportunities, ensuring flexibility in a volatile market.",
+    "reasoning": "To accommodate the new high-conviction entries for UNH and V, I decided to exit the lower-conviction position in CRM. I adjusted the weights of NVDA, AMCR, and LEN to maintain balance while ensuring that the new positions are adequately funded. This maintains a focus on higher-conviction opportunities in a risk-off environment.",
     "rebalancing": {
       "NVDA": {
         "from_pct": 7.4,
-        "to_pct": -10.0
+        "to_pct": -7.4
       },
-      "NKE": {
-        "from_pct": 11.9,
-        "to_pct": 10.0
-      },
-      "MKC": {
+      "UNH": {
         "from_pct": 0,
         "to_pct": 10.0
       },
-      "TTD": {
+      "V": {
         "from_pct": 0,
         "to_pct": 10.0
       },
-      "EL": {
-        "from_pct": 0,
-        "to_pct": 10.0
+      "CRM": {
+        "from_pct": 13.8,
+        "to_pct": 0.0
       }
     },
-    "generated_at": "2026-04-06 19:22 UTC"
+    "capital_swap_exits": [
+      "CRM"
+    ],
+    "generated_at": "2026-04-20 15:20 UTC"
   }
 }
