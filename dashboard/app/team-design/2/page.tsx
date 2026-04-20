@@ -170,9 +170,9 @@ export default function TeamDesign2() {
         @keyframes d2-dash{to{stroke-dashoffset:-28}} .d2-signal{animation:d2-dash 2s linear infinite}
         @keyframes d2-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d2-live-dot{animation:d2-dot 2s ease-in-out infinite}
         @keyframes d2-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d2-pulse-ring{animation:d2-ring 2.8s ease-out infinite}
-        @keyframes d2-orb-a{0%,100%{transform:translate(0,0) scale(1)}45%{transform:translate(55px,-38px) scale(1.1)}80%{transform:translate(-25px,18px) scale(0.95)}}
-        @keyframes d2-orb-b{0%,100%{transform:translate(0,0) scale(1)}40%{transform:translate(-65px,45px) scale(1.08)}75%{transform:translate(35px,-25px) scale(0.93)}}
-        @keyframes d2-orb-c{0%,100%{transform:translate(0,0)}55%{transform:translate(28px,55px)}}
+        @keyframes d2-radar{0%{transform:scale(0.05);opacity:0.55}80%{opacity:0.08}100%{transform:scale(1.8);opacity:0}}
+        @keyframes d2-radar-b{0%{transform:scale(0.05);opacity:0.45}80%{opacity:0.06}100%{transform:scale(1.6);opacity:0}}
+        @keyframes d2-radar-c{0%{transform:scale(0.05);opacity:0.38}80%{opacity:0.05}100%{transform:scale(1.4);opacity:0}}
         @keyframes d2-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d2-panel-in{animation:d2-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d2-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -182,14 +182,23 @@ export default function TeamDesign2() {
       <div className="min-h-[100dvh] flex flex-col pt-16 relative overflow-hidden" style={{background:"#080C10"}}>
         {/* Dot-grid base texture */}
         <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-          backgroundImage:"radial-gradient(rgba(255,255,255,0.055) 1px,transparent 1px)",
+          backgroundImage:"radial-gradient(rgba(255,255,255,0.04) 1px,transparent 1px)",
           backgroundSize:"36px 36px"
         }}/>
-        {/* CSS animated orb background — GPU-safe (transform + opacity only) */}
-        <div className="fixed inset-0 pointer-events-none" aria-hidden>
-          <div style={{position:"absolute",top:"4%",left:"4%",width:"720px",height:"720px",borderRadius:"50%",background:"radial-gradient(circle,rgba(14,165,233,0.12) 0%,transparent 65%)",animation:"d2-orb-a 22s ease-in-out infinite"}}/>
-          <div style={{position:"absolute",bottom:"8%",right:"4%",width:"620px",height:"620px",borderRadius:"50%",background:"radial-gradient(circle,rgba(245,166,35,0.10) 0%,transparent 65%)",animation:"d2-orb-b 28s ease-in-out infinite"}}/>
-          <div style={{position:"absolute",top:"42%",left:"36%",width:"460px",height:"460px",borderRadius:"50%",background:"radial-gradient(circle,rgba(99,102,241,0.08) 0%,transparent 65%)",animation:"d2-orb-c 35s ease-in-out infinite"}}/>
+        {/* Radar / sonar rings expanding from center — GPU-safe (transform + opacity only) */}
+        <div className="fixed inset-0 pointer-events-none" aria-hidden style={{display:"flex",alignItems:"center",justifyContent:"center"}}>
+          {/* Ring set 1 — blue */}
+          <div style={{position:"absolute",width:"600px",height:"600px",borderRadius:"50%",border:"1px solid rgba(14,165,233,0.35)",animation:"d2-radar 7s ease-out infinite"}}/>
+          <div style={{position:"absolute",width:"600px",height:"600px",borderRadius:"50%",border:"1px solid rgba(14,165,233,0.28)",animation:"d2-radar 7s ease-out 2.3s infinite"}}/>
+          <div style={{position:"absolute",width:"600px",height:"600px",borderRadius:"50%",border:"1px solid rgba(14,165,233,0.2)",animation:"d2-radar 7s ease-out 4.6s infinite"}}/>
+          {/* Ring set 2 — amber, slightly offset */}
+          <div style={{position:"absolute",width:"480px",height:"480px",borderRadius:"50%",border:"1px solid rgba(245,166,35,0.28)",animation:"d2-radar-b 9s ease-out 1.5s infinite"}}/>
+          <div style={{position:"absolute",width:"480px",height:"480px",borderRadius:"50%",border:"1px solid rgba(245,166,35,0.2)",animation:"d2-radar-b 9s ease-out 4.5s infinite"}}/>
+          {/* Ring set 3 — indigo, large */}
+          <div style={{position:"absolute",width:"760px",height:"760px",borderRadius:"50%",border:"1px solid rgba(99,102,241,0.22)",animation:"d2-radar-c 12s ease-out 3s infinite"}}/>
+          <div style={{position:"absolute",width:"760px",height:"760px",borderRadius:"50%",border:"1px solid rgba(99,102,241,0.15)",animation:"d2-radar-c 12s ease-out 9s infinite"}}/>
+          {/* Center glow */}
+          <div style={{position:"absolute",width:"120px",height:"120px",borderRadius:"50%",background:"radial-gradient(circle,rgba(14,165,233,0.18) 0%,transparent 100%)"}}/>
         </div>
 
         {/* Header */}

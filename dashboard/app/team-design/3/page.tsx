@@ -171,37 +171,45 @@ export default function TeamDesign3() {
         @keyframes d3-dash{to{stroke-dashoffset:-28}} .d3-signal{animation:d3-dash 2s linear infinite}
         @keyframes d3-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d3-live-dot{animation:d3-dot 2s ease-in-out infinite}
         @keyframes d3-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d3-pulse-ring{animation:d3-ring 2.8s ease-out infinite}
-        @keyframes d3-aurora-a{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-28px) scaleY(1.35)}}
-        @keyframes d3-aurora-b{0%,100%{transform:translateY(0)}45%{transform:translateY(22px)}}
-        @keyframes d3-aurora-c{0%,100%{transform:translateY(0)}62%{transform:translateY(-16px)}}
+        @keyframes d3-flare-a{0%,100%{opacity:0.65}50%{opacity:1}}
+        @keyframes d3-flare-b{0%,100%{opacity:0.5}50%{opacity:0.9}}
+        @keyframes d3-flare-c{0%,100%{opacity:0.4}50%{opacity:0.75}}
+        @keyframes d3-flare-d{0%,100%{opacity:0.55}50%{opacity:0.85}}
         @keyframes d3-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d3-panel-in{animation:d3-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d3-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d3-stagger{opacity:0;animation:d3-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* Aurora background — fixed, GPU-safe: transform + opacity only */}
+      {/* D3 background: vibrant corner flares — GPU-safe opacity-only animation */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#060A12"}}/>
-      {/* Band 1 — teal, mid-screen */}
+      {/* Top-left — electric blue */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"38%",left:"-15%",right:"-15%",height:"140px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(0,210,180,0.11) 35%,rgba(0,210,180,0.14) 50%,rgba(0,210,180,0.11) 65%,transparent 100%)",
+        top:"-20%",left:"-15%",width:"65vw",height:"65vh",
+        background:"radial-gradient(ellipse at top left,rgba(14,165,233,0.22) 0%,rgba(14,165,233,0.08) 45%,transparent 70%)",
+        filter:"blur(45px)",
+        animation:"d3-flare-a 11s ease-in-out infinite"
+      }}/>
+      {/* Top-right — violet */}
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        top:"-18%",right:"-15%",width:"60vw",height:"60vh",
+        background:"radial-gradient(ellipse at top right,rgba(139,92,246,0.2) 0%,rgba(99,102,241,0.07) 45%,transparent 70%)",
+        filter:"blur(50px)",
+        animation:"d3-flare-b 15s ease-in-out infinite"
+      }}/>
+      {/* Bottom-left — teal */}
+      <div className="fixed pointer-events-none" aria-hidden style={{
+        bottom:"-22%",left:"-12%",width:"55vw",height:"60vh",
+        background:"radial-gradient(ellipse at bottom left,rgba(0,210,180,0.18) 0%,rgba(0,210,180,0.06) 45%,transparent 70%)",
         filter:"blur(55px)",
-        animation:"d3-aurora-a 20s ease-in-out infinite"
+        animation:"d3-flare-c 18s ease-in-out infinite"
       }}/>
-      {/* Band 2 — indigo, lower */}
+      {/* Bottom-right — amber */}
       <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"58%",left:"-15%",right:"-15%",height:"100px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.1) 30%,rgba(99,102,241,0.13) 55%,rgba(99,102,241,0.08) 75%,transparent 100%)",
+        bottom:"-18%",right:"-10%",width:"50vw",height:"55vh",
+        background:"radial-gradient(ellipse at bottom right,rgba(245,166,35,0.17) 0%,rgba(245,166,35,0.05) 45%,transparent 70%)",
         filter:"blur(48px)",
-        animation:"d3-aurora-b 26s ease-in-out infinite"
-      }}/>
-      {/* Band 3 — gold, upper */}
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"18%",left:"-15%",right:"-15%",height:"80px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(245,166,35,0.07) 40%,rgba(245,166,35,0.1) 55%,rgba(245,166,35,0.06) 70%,transparent 100%)",
-        filter:"blur(60px)",
-        animation:"d3-aurora-c 32s ease-in-out infinite"
+        animation:"d3-flare-d 13s ease-in-out infinite"
       }}/>
 
       <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">

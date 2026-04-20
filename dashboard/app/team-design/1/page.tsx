@@ -171,22 +171,37 @@ export default function TeamDesign1() {
         @keyframes d1-dash{to{stroke-dashoffset:-28}} .d1-signal{animation:d1-dash 2s linear infinite}
         @keyframes d1-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .d1-live-dot{animation:d1-dot 2s ease-in-out infinite}
         @keyframes d1-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .d1-pulse-ring{animation:d1-ring 2.8s ease-out infinite}
-        @keyframes d1-breathe{0%,100%{opacity:0.5}50%{opacity:1}}
+        @keyframes d1-sweep{0%{transform:translateX(-130%) skewX(-18deg)}100%{transform:translateX(230%) skewX(-18deg)}}
+        @keyframes d1-breathe{0%,100%{opacity:0.4}50%{opacity:0.85}}
         @keyframes d1-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .d1-panel-in{animation:d1-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes d1-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .d1-stagger{opacity:0;animation:d1-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* CSS line-grid background — GPU-safe, no animated layout properties */}
+      {/* D1 background: Line grid + diagonal light sweep */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#07090E"}}/>
+      {/* Fine grid */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
         backgroundImage:"linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)",
         backgroundSize:"62px 62px"
       }}/>
-      {/* Breathing center glow — opacity-only animation */}
+      {/* Subtle vignette from edges */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
-        background:"radial-gradient(ellipse 58% 55% at 50% 48%, rgba(14,165,233,0.1) 0%, rgba(245,166,35,0.04) 55%, transparent 75%)",
+        background:"radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)"
+      }}/>
+      {/* Slow diagonal light sweep — cinematic beam crossing the screen */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        <div style={{
+          position:"absolute",top:0,left:0,width:"35%",height:"100%",
+          background:"linear-gradient(90deg,transparent 0%,rgba(14,165,233,0.055) 40%,rgba(14,165,233,0.09) 50%,rgba(245,166,35,0.04) 60%,transparent 100%)",
+          filter:"blur(8px)",
+          animation:"d1-sweep 14s ease-in-out infinite"
+        }}/>
+      </div>
+      {/* Soft center ambient glow */}
+      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{
+        background:"radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,165,233,0.07) 0%, transparent 70%)",
         animation:"d1-breathe 9s ease-in-out infinite"
       }}/>
 
