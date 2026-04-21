@@ -4,20 +4,21 @@
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "high-yield bonds",
+    "high-quality bonds",
     "commodities",
-    "gold"
+    "healthcare"
   ],
   "avoid_themes": [
-    "growth stocks",
-    "emerging markets",
-    "high-risk investments"
+    "high-growth tech",
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions affecting market sentiment",
-    "potential disruptions in oil supply due to geopolitical conflicts"
+    "Iran conflict escalation",
+    "US-China trade tensions",
+    "European economic instability"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly between the US and Iran. While the Fed Funds Rate remains stable at 3.64%, the yield curve indicates recession risks with a 0.54% spread. Conflicts exist between the FRED and newsapi_finnhub signals indicating RISK-OFF, and yfinance_market signaling NEUTRAL, leading to a low confidence level.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to the Iran conflict. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, leading to a conflict in signals. The yield curve remains positive, but the Fed Funds Rate and rising CPI suggest caution in growth expectations.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -31,14 +32,14 @@
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The presence of conflicting signals from multiple sources results in a low confidence level for downstream agents."
+    "confidence_note": "The low confidence level reflects significant conflicts among the data sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.32,
-    "us_2y_yield": 3.78,
-    "yield_curve_spread": 0.54,
+    "us_10y_yield": 4.26,
+    "us_2y_yield": 3.71,
+    "yield_curve_spread": 0.55,
     "cpi_latest": 330.29,
     "cpi_prev": 327.46,
     "cpi_trend": "rising",
@@ -46,42 +47,42 @@
     "gdp_latest": 31422.5,
     "gdp_prev": 31098.0,
     "gdp_growth": 1.04,
-    "dxy_current": 98.17,
-    "dxy_1m_ago": 99.65,
+    "dxy_current": 98.24,
+    "dxy_1m_ago": 98.95,
     "dxy_trend": "weakening",
-    "vix": 19.56,
-    "tlt_1m_change_pct": 1.5,
-    "hyg_1m_change_pct": 2.53,
+    "vix": 19.14,
+    "tlt_1m_change_pct": 0.63,
+    "hyg_1m_change_pct": 1.65,
     "macro_headlines": [
-      "S&P 500, Nasdaq retreat as mounting U.S.-Iran tensions dampen sentiment - Reuters",
-      "Iran may join peace talks after Pakistan works to end US blockade, Iran source says - Reuters",
-      "US-Iran tensions, firmer dollar push gold to one-week low - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Monday",
-      "Stop saying 'how was your weekend?' Do this instead, says public speaking expert: 'It doesn't have to be deep'",
-      "How highly successful people talk to others at work\u2014and what you should learn from them",
-      "Don't 'leave money behind' when you exit your job, says advisor\u2014how to get what you're owed",
-      "We're trimming a stock near its 2026 highs and buying more of our newest name",
-      "AST SpaceMobile shares drop after its satellite is placed in wrong orbit by Bezos' Blue Origin",
-      "Israel says it thwarted Iranian plan to attack Baku-Ceyhan oil pipeline - Reuters"
+      "Trump surprised by stock market comeback amid Iran conflict, thought Dow would be down 20%",
+      "UPS and FedEx have begun filing for some tariff refunds",
+      "Trump says 'maybe' government should help struggling Spirit Airlines",
+      "Trump says he does not want to extend ceasefire with Iran - Reuters",
+      "German investor morale sinks to three-year low on Iran war fears, ZEW finds - Reuters",
+      "Many Americans question Trump\u2019s temperament amid Iran war, pope spat: Reuters/Ipsos poll - Reuters",
+      "Morning Bid: Tech overwhelms Iran tension - Reuters",
+      "UnitedHealth tops quarterly estimates, hikes profit outlook as insurer manages high medical costs",
+      "World's top condom maker Karex to raise prices sharply as Iran war strains supply chain - Reuters",
+      "European shares subdued; all eyes on US-Iran talks - Reuters"
     ],
     "geopolitical_headlines": [
       "IMF, World Bank meetings show limits in mitigating shocks, reliance on US for solutions",
-      "After Woman\u2019s Death From Exploding Charger, Power Banks Recalled for Second Time",
-      "Solid-state battery tech is finally mainstream, starting with BMX SolidSafe power banks",
-      "Wall Street CEOs keep getting pressed on AI \u2014 here's what banks have said about how they're using it",
-      "Anthropic\u2019s new cybersecurity model could get it back in the government\u2019s good graces",
-      "I didn't think I was the type of person who would fall for a scam. A $15,000 charge on my credit card proves otherwise.",
+      "Canada's prime minister says economic ties with US are a weakness that must be corrected",
+      "The explosion of U.S. debt is wiping out the \u2018safety premium\u2019 of Treasury bonds, and time is running out for an orderly fiscal solution, IMF warns",
       "Cheap stuff that doesn\u2019t suck, take 3",
-      "2026 Green Powered Challenge: SolMate Charges On the Move",
-      "This MagSafe power bank was recalled a year ago but people are still getting hurt",
-      "Gas prices are sky-high. Here are 8 ways to save at the pump."
+      "Deutsche\u00a0Bank\u00a0self-reports\u00a0potential Russian\u00a0sanctions\u00a0breach",
+      "Target Gadgets Under $75 That Users Swear By",
+      "Global stablecoin rulemaking slows, prompting BIS to urge cooperation to avoid fragmentation risks",
+      "Time to allow greater freedom to banks, raise sector\u2019s FDI limits: Deepak Parekh",
+      "Israeli ministers celebrate re-establishment of Sa-Nur West Bank settlement",
+      "\u201cYou\u2019ll get good performance with the OmniBook X Flip\u201d as HP\u2019s AI\u2011focused 2\u2011in\u20111 pairs long battery life with dependable speed for real\u2011world workloads"
     ],
     "central_bank_headlines": [
       "The California Governor\u2019s Race Is a Debacle",
-      "Why don't some kids play sports? Maybe you should ask them",
-      "Herz P1 Smart Oximeter Claims Evaluated: Best Pulse Oxygen Monitor Device on the Market with Clinical-Grade Accuracy"
+      "Herz P1 Smart Oximeter Claims Evaluated: Best Pulse Oxygen Monitor Device on the Market with Clinical-Grade Accuracy",
+      "Design and acceptance assessment of a digital product passport for recycled and natural aggregate concrete elements"
     ],
-    "as_of": "2026-04-20 15:06 UTC"
+    "as_of": "2026-04-21 15:02 UTC"
   },
-  "generated_at": "2026-04-20T15:06:30.403792"
+  "generated_at": "2026-04-21T15:02:17.353032"
 }
