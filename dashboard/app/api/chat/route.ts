@@ -13,7 +13,7 @@ const AGENT_PERSONALITIES: Record<string, string> = {
   quant: "You are the Quant & Technical Analyst for Haz Capital Management. You produce a mean_reversion_score (0–100) and forward_bias for every ticker. You look at RSI oversold depth, % below SMA200, proximity to 52-week lows, selling volume exhaustion, Bollinger Bands, and Stochastic oscillators. High scores mean the stock is likely to bounce. You speak in numbers: 'RSI 24, 31% below SMA200, mean_reversion_score 82 — this is oversold, not broken.'",
   sentiment: "You are the Sentiment Analyst for Haz Capital Management. You classify sentiment as leading (pricing in future events) or lagging (reacting to past price moves). Lagging negative sentiment on a fundamentally strong stock after a broad selloff is a contrarian buy signal. You output contrarian_signal=true when analyst consensus still shows significant upside but sentiment looks backward-looking. You're the team's contrarian — you ask 'is the crowd right, or just loud?'",
   memory: "You are the Memory & Pattern Agent for Haz Capital Management. You remember every trade, every decision, every mistake. You surface historical patterns: 'The last 3 times we entered a RISK-OFF dislocation long, 2 of 3 were profitable within 6 weeks.' You maintain the entry theses and compare them against current conditions. You don't make decisions — you provide context and track record.",
-  committee: "You are the Investment Committee of Haz Capital Management. You are the final decision-maker — you hear from all 9 other agents and make the call. You classify every candidate as Scenario A (momentum), B (dislocation long), C (dislocation short), or D (skip). You are authoritative and direct. You own every decision. You cite the specific data points that drove each choice. CRITICAL: Always refer to stocks by their real ticker symbol (e.g. NVDA, AAPL, META) — never use placeholders like 'Company X'.",
+  committee: "You are the Investment Committee of Haz Capital Management. You are the final decision-maker — you hear from all 9 other agents and make the call. You classify every candidate as Scenario A (momentum), B (dislocation long), C (dislocation short), or D (skip). You are authoritative and direct. You own every decision. You cite the specific data points that drove each choice. CRITICAL: Always refer to stocks by their real ticker symbol (e.g. NVDA, AAPL, META) — never use placeholders like 'Company X'. If a question is better answered by a specific agent (e.g. live macro conditions → Macro Agent, technical levels → Quant Agent, recent news → News Agent), say so and direct Harry there.",
   executor: "You are the Trade Executor for Haz Capital Management. You don't form opinions on markets — that's not your job. The Committee decides. You execute. You speak in operational terms: order types, position sizes, timing, slippage estimates, paper vs live trading status. You are always in paper trading mode until explicitly changed by Harry Walker.",
 };
 
@@ -46,6 +46,14 @@ function safeRead(filePath: string): Record<string, unknown> | null {
   }
 }
 
+function getReportDate(agentId: string, base: string): string | null {
+  // Try to extract generated_at from the primary report
+  const primary = AGENT_REPORT_FILES[agentId]?.[0];
+  if (!primary) return null;
+  const data = safeRead(path.join(base, primary));
+  return (data?.generated_at as string) ?? (data?.run_date as string) ?? null;
+}
+
 function loadAgentContext(agentId: string): string {
   const files = AGENT_REPORT_FILES[agentId] ?? ["reports/pipeline_result.json"];
   const base = dataDir();
@@ -55,7 +63,6 @@ function loadAgentContext(agentId: string): string {
     const data = safeRead(path.join(base, rel));
     if (!data) continue;
 
-    // For committee/executor: summarise positions concisely rather than dumping the whole log
     if (rel === "memory/positions_log.json") {
       const positions = Object.entries(data as Record<string, Record<string, unknown>>).map(([ticker, p]) => ({
         ticker,
@@ -72,14 +79,12 @@ function loadAgentContext(agentId: string): string {
       continue;
     }
 
-    // For decision_log: last 10 decisions only
     if (rel === "memory/decision_log.json") {
       const decisions = Array.isArray(data) ? data.slice(-10) : data;
       chunks.push(`RECENT DECISIONS (last 10):\n${JSON.stringify(decisions, null, 2)}`);
       continue;
     }
 
-    // For pipeline_result: top-level summary + phase_b committee decisions only
     if (rel === "reports/pipeline_result.json") {
       const summary = {
         pipeline_summary: (data as Record<string, unknown>).pipeline_summary,
@@ -97,7 +102,44 @@ function loadAgentContext(agentId: string): string {
   return chunks.join("\n\n---\n\n");
 }
 
-// Use gpt-4o for the committee (decision quality matters); mini for others
+// Fetch live prices for key market indicators + portfolio tickers via Yahoo Finance (no API key needed)
+async function fetchLivePrices(agentId: string, base: string): Promise<string> {
+  const tickers = new Set(["SPY", "QQQ", "%5EVIX"]); // SPY, QQQ, VIX always
+
+  // Add portfolio tickers so committee/quant/fundamental can reference live prices
+  const posLog = safeRead(path.join(base, "memory/positions_log.json"));
+  if (posLog) {
+    for (const ticker of Object.keys(posLog)) tickers.add(ticker);
+  }
+
+  const results: string[] = [];
+  const now = new Date().toLocaleString("en-US", { timeZone: "America/New_York", dateStyle: "medium", timeStyle: "short" });
+
+  await Promise.allSettled(
+    Array.from(tickers).map(async (ticker) => {
+      try {
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+        const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(4000) });
+        if (!res.ok) return;
+        const json = await res.json();
+        const meta = json?.chart?.result?.[0]?.meta;
+        if (!meta) return;
+        const price = meta.regularMarketPrice;
+        const prev = meta.chartPreviousClose ?? meta.previousClose;
+        const chg = prev ? (((price - prev) / prev) * 100).toFixed(2) : "?";
+        const displayTicker = ticker === "%5EVIX" ? "^VIX" : ticker;
+        results.push(`${displayTicker}: $${price?.toFixed(2)} (${Number(chg) >= 0 ? "+" : ""}${chg}% today)`);
+      } catch {
+        // silently skip failed tickers
+      }
+    })
+  );
+
+  if (!results.length) return "";
+  return `LIVE MARKET PRICES (as of ${now} ET):\n${results.join("\n")}`;
+}
+
+// Use gpt-4o for the committee; mini for others
 const MODEL_FOR_AGENT: Record<string, string> = {
   committee: "gpt-4o",
 };
@@ -111,22 +153,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ reply: "[Error]: OpenAI API key not configured on this deployment." }, { status: 200 });
     }
 
+    const base = dataDir();
     const personality = AGENT_PERSONALITIES[agentId] || AGENT_PERSONALITIES.committee;
-    const liveContext = loadAgentContext(agentId);
+    const reportContext = loadAgentContext(agentId);
+    const reportDate = getReportDate(agentId, base);
+    const liveContext = await fetchLivePrices(agentId, base);
     const model = MODEL_FOR_AGENT[agentId] ?? "gpt-4o-mini";
+
+    const dataAgeNote = reportDate
+      ? `Note: your report data below is from the pipeline run on ${reportDate}. When referencing this data, always clarify it is as of that date — not live.`
+      : "Note: your report data has an unknown timestamp. Always clarify to Harry that your data may not be current.";
 
     const systemPrompt = `${personality}
 
-${liveContext ? `=== LIVE DATA FROM YOUR LAST PIPELINE RUN ===\n${liveContext}\n=== END LIVE DATA ===\n` : ""}
-You are responding to a message from Harry Walker, the fund manager and owner of Haz Capital Management. Be specific — cite real ticker symbols, real numbers, real conviction scores from the data above. Never use placeholders like "Company X". If you don't have data for something, say so explicitly rather than inventing generic statements. Maximum 4 paragraphs unless asked for more.
+${dataAgeNote}
+
+${liveContext ? `${liveContext}\n` : ""}
+${reportContext ? `=== PIPELINE REPORT DATA (as of ${reportDate ?? "last run"}) ===\n${reportContext}\n=== END REPORT DATA ===\n` : ""}
+You are responding to Harry Walker, the fund manager and owner of Haz Capital Management. Rules:
+- Always cite real ticker symbols and real numbers from the data above — never invent or use placeholders.
+- Always clarify whether you're drawing from live prices (fetched now) vs pipeline report data (from ${reportDate ?? "last run"}).
+- If you genuinely don't have the data to answer a question, say "I don't have that data — you'd need to run the pipeline or check [specific source]." Do not speculate or make up numbers.
+- If the question is better suited to another agent, say so: e.g. "That's more the Quant Agent's territory — check their technical read."
+- Maximum 4 paragraphs unless specifically asked for more.
 ${notifyAgent ? "\n[NOTIFY MODE: This message will be logged and considered in tomorrow's pipeline run. Acknowledge this.]" : ""}`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
         messages: [
