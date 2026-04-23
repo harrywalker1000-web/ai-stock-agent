@@ -29,13 +29,15 @@ const AGENT_REPORT_FILES: Record<string, string[]> = {
   sentiment:     ["reports/sentiment_report.json"],
   memory:        ["memory/decision_log.json", "memory/pattern_history.json"],
   committee:     [
-    "reports/committee_report.json",
     "memory/positions_log.json",
     "memory/decision_log.json",
     "reports/pipeline_result.json",
   ],
   executor:      ["reports/pipeline_result.json", "memory/positions_log.json"],
 };
+
+// Hard cap on characters for any single report block sent to the LLM
+const MAX_REPORT_CHARS = 3000;
 
 function safeRead(filePath: string): Record<string, unknown> | null {
   try {
@@ -73,30 +75,35 @@ function loadAgentContext(agentId: string): string {
         pnl_absolute: p.pnl_absolute,
         conviction: p.conviction,
         scenario: p.scenario,
-        entry_thesis: p.entry_thesis,
+        thesis: String(p.entry_thesis ?? "").slice(0, 120),
       }));
-      chunks.push(`CURRENT PORTFOLIO POSITIONS:\n${JSON.stringify(positions, null, 2)}`);
+      chunks.push(`PORTFOLIO POSITIONS:\n${JSON.stringify(positions, null, 2)}`);
       continue;
     }
 
     if (rel === "memory/decision_log.json") {
-      const decisions = Array.isArray(data) ? data.slice(-10) : data;
-      chunks.push(`RECENT DECISIONS (last 10):\n${JSON.stringify(decisions, null, 2)}`);
+      const raw = Array.isArray(data) ? data.slice(-5) : [];
+      const decisions = raw.map((d: Record<string, unknown>) => ({
+        date: d.date,
+        ticker: d.ticker,
+        action: d.action,
+        conviction: d.conviction,
+        reason: String(d.reason ?? "").slice(0, 100),
+      }));
+      chunks.push(`RECENT DECISIONS (last 5):\n${JSON.stringify(decisions, null, 2)}`);
       continue;
     }
 
     if (rel === "reports/pipeline_result.json") {
-      const summary = {
-        pipeline_summary: (data as Record<string, unknown>).pipeline_summary,
-        phase_b_decisions: ((data as Record<string, unknown>).phase_b as Record<string, unknown>)?.committee,
-        phase_a_mode: (data as Record<string, unknown>).phase_a_mode,
-        run_date: (data as Record<string, unknown>).run_date,
-      };
-      chunks.push(`LAST PIPELINE RUN SUMMARY:\n${JSON.stringify(summary, null, 2)}`);
+      const ps = (data as Record<string, unknown>).pipeline_summary ?? {};
+      chunks.push(`LAST PIPELINE SUMMARY:\n${JSON.stringify({ run_date: (data as Record<string, unknown>).run_date, ...ps as object }, null, 2)}`);
       continue;
     }
 
-    chunks.push(`${rel.toUpperCase().replace(/[/_]/g, " ").replace(".JSON", "")}:\n${JSON.stringify(data, null, 2)}`);
+    // All other reports: send but cap at MAX_REPORT_CHARS
+    const raw = JSON.stringify(data, null, 2);
+    const label = rel.toUpperCase().replace(/[/_]/g, " ").replace(".JSON", "");
+    chunks.push(`${label}:\n${raw.slice(0, MAX_REPORT_CHARS)}${raw.length > MAX_REPORT_CHARS ? "\n...[truncated]" : ""}`);
   }
 
   return chunks.join("\n\n---\n\n");
