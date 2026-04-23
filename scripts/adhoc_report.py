@@ -593,6 +593,135 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
     return report
 
 
+def generate_from_pipeline_data(
+    ticker: str,
+    fundamental_report: dict,
+    quant_report: dict,
+    sentiment_report: dict,
+    macro_report: dict,
+    news_report: dict,
+    committee_conviction: int | None = None,
+    committee_direction: str | None = None,
+    committee_decision: dict | None = None,
+) -> dict | None:
+    """
+    Build and cache a full 14-section research report using data already
+    computed by the pipeline agents — no agent re-runs.
+
+    Called automatically by investment_committee after every enter_long /
+    enter_short decision so the position page always has institutional-grade
+    research attached at the moment a trade is placed.
+
+    committee_conviction: the committee's operative conviction score — passed
+      through directly to s7_recommendation so the research report and the
+      trade record always show the same conviction number.
+    committee_decision: the full committee decision dict for enriching s7.
+
+    Returns the saved report dict, or None if fundamental data is absent.
+    """
+    ticker = ticker.upper().strip()
+    generated_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
+
+    # Extract ticker-specific slices from batch agent reports
+    fund_analyses = fundamental_report.get("fundamental_analyses", [])
+    fundamental = next((a for a in fund_analyses if a.get("ticker", "").upper() == ticker), {})
+
+    quant_analyses = quant_report.get("quant_analyses", [])
+    quant = next((a for a in quant_analyses if a.get("ticker", "").upper() == ticker), {})
+
+    sent_analyses = sentiment_report.get("sentiment_analyses", [])
+    sentiment = next((a for a in sent_analyses if a.get("ticker", "").upper() == ticker), {})
+
+    all_cats = news_report.get("company_catalysts", [])
+    news_catalysts = [c for c in all_cats if str(c.get("ticker", "")).upper() == ticker]
+
+    if not fundamental:
+        return None
+
+    # Rule-based sections
+    s1 = _build_s1_mandate(fundamental)
+
+    # LLM synthesis (GPT-4o) — sections 5, 6, 7, 13
+    synthesis = _synthesize_sections(ticker, fundamental, quant, sentiment, macro_report, news_catalysts, s1)
+
+    current_price = quant.get("current_price") or fundamental.get("current_price") or 0
+    company_info = fundamental.get("company_info") or {}
+    rec7 = synthesis.get("s7_recommendation") or {}
+
+    # The committee's conviction is authoritative — it has more context than the adhoc
+    # synthesis (portfolio state, fund memory, capital constraints, macro overlay).
+    # Override the GPT-4o re-scored conviction so research report and trade record agree.
+    if committee_conviction is not None:
+        rec7["conviction"] = committee_conviction
+    if committee_direction is not None:
+        rec7["direction"] = committee_direction.upper()
+    if committee_decision:
+        rec7.setdefault("stop_loss_pct", None)
+        if committee_decision.get("stop_loss") and current_price:
+            try:
+                rec7["stop_loss_pct"] = round(
+                    abs(float(committee_decision["stop_loss"]) - float(current_price)) / float(current_price) * 100, 1
+                )
+            except Exception:
+                pass
+        if committee_decision.get("key_risks") and not rec7.get("key_risks"):
+            rec7["key_risks"] = committee_decision["key_risks"]
+        if committee_decision.get("key_catalysts"):
+            rec7["key_catalysts"] = committee_decision["key_catalysts"]
+        if committee_decision.get("investment_thesis"):
+            rec7["committee_rationale"] = committee_decision["investment_thesis"]
+
+    report = {
+        # Header
+        "ticker":        ticker,
+        "company_name":  company_info.get("name") or fundamental.get("company_name", ticker),
+        "sector":        fundamental.get("sector", "N/A"),
+        "current_price": round(float(current_price), 2) if current_price else None,
+        "market_cap":    fundamental.get("market_cap"),
+        "date":          datetime.utcnow().date().isoformat(),
+        "generated_at":  generated_at,
+        "cached":        False,
+        "source":        "pipeline_auto",
+
+        "mandate_pass":          s1["pass"],
+        "mandate_fail_reason":   s1.get("fail_reason"),
+        "direction":             rec7.get("direction", "PASS"),
+        "conviction":            rec7.get("conviction"),
+        "expected_return_2_3yr": rec7.get("expected_return_2_3yr"),
+
+        # 14 sections
+        "s1_mandate":        s1,
+        "s2_company":        _build_s2_company(fundamental),
+        "s3_setup":          _build_s3_setup(fundamental),
+        "s4_valuation":      _build_s4_valuation(fundamental),
+        "s5_timing":         synthesis.get("s5_timing", {}),
+        "s6_thesis":         synthesis.get("s6_thesis", {}),
+        "s7_recommendation": rec7,
+        "s8_technical":      _build_s8_technical(quant),
+        "s9_sentiment":      _build_s9_sentiment(sentiment),
+        "s10_institutional": _build_s10_institutional(ticker),
+        "s11_performance":   _build_s11_performance(quant),
+        "s12_risk":          _build_s12_risk(fundamental, quant),
+        "s13_scenarios":     synthesis.get("s13_scenarios", {}),
+        "s14_data":          _build_s14_data(fundamental, quant, sentiment, generated_at),
+
+        "agent_scores": {
+            "fundamental": fundamental.get("fundamental_score"),
+            "quant":       quant.get("quant_score"),
+            "sentiment":   sentiment.get("sentiment_score"),
+        },
+        "macro_regime": macro_report.get("regime", "NEUTRAL"),
+    }
+
+    date_str = datetime.utcnow().date().isoformat()
+    out_path = ADHOC_DIR / f"{ticker}_{date_str}.json"
+    with open(out_path, "w") as f:
+        json.dump(report, f, indent=2)
+
+    print(f"  [auto-research] Saved full 14-section report for {ticker} → {out_path.name}", flush=True)
+    return report
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ad-hoc deep-dive research report")
     parser.add_argument("--ticker",        required=True,       help="Stock ticker (e.g. AAPL)")

@@ -15,9 +15,9 @@ on:
         type: choice
         options: ['false', 'true']
       phase_a_mode:
-        description: 'Phase A mode'
+        description: 'Phase A mode (Standard=daily sentiment refresh; Full=full re-analysis every day; Auto=Standard + Fundamental near earnings)'
         required: false
-        default: 'Auto'
+        default: 'Standard'
         type: choice
         options: ['Auto', 'Lite', 'Standard', 'Full']
 
@@ -64,7 +64,6 @@ jobs:
           PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || '' }}
           SKIP_PHASE_A: ${{ github.event.inputs.skip_phase_a || 'false' }}
           ALLOW_LIVE_TRADING: 'true'
-          MAX_CANDIDATES: '20'
         run: python main.py
 
       - name: Sync reports to dashboard

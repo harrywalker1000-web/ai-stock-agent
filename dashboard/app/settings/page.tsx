@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 
 type AnalysisMode = "Lite" | "Standard" | "Full" | "Auto";
 
+type CandidateLimits = Record<AnalysisMode, { analyze: number; debate: number }>;
+
+const DEFAULT_LIMITS: CandidateLimits = {
+  Lite:     { analyze: 15, debate: 10 },
+  Standard: { analyze: 25, debate: 20 },
+  Full:     { analyze: 50, debate: 40 },
+  Auto:     { analyze: 30, debate: 25 },
+};
+
 const MODE_INFO: Record<AnalysisMode, { description: string; phaseA: string; phaseB: string; time: string; cost: string }> = {
   Auto: {
     description: "Recommended. Standard every day — automatically adds Fundamental Analyst for held positions with earnings within 3 days.",
@@ -39,7 +48,11 @@ export default function SettingsPage() {
   const [mode, setMode] = useState<AnalysisMode>("Auto");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [savedLimits, setSavedLimits] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [limits, setLimits] = useState<CandidateLimits>(DEFAULT_LIMITS);
+  const [editingLimits, setEditingLimits] = useState(false);
+  const [draftLimits, setDraftLimits] = useState<CandidateLimits>(DEFAULT_LIMITS);
 
   useEffect(() => {
     fetch("/api/settings")
@@ -47,6 +60,10 @@ export default function SettingsPage() {
       .then((data) => {
         if (data.mode && ["Auto", "Lite", "Standard", "Full"].includes(data.mode)) setMode(data.mode as AnalysisMode);
         if (data.updated_at) setUpdatedAt(data.updated_at);
+        if (data.candidate_limits) {
+          setLimits(data.candidate_limits as CandidateLimits);
+          setDraftLimits(data.candidate_limits as CandidateLimits);
+        }
       })
       .catch(() => {});
   }, []);
@@ -69,6 +86,39 @@ export default function SettingsPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const saveLimits = async () => {
+    setSaving(true);
+    setSavedLimits(false);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidate_limits: draftLimits }),
+      });
+      if (res.ok) {
+        setLimits({ ...draftLimits });
+        setEditingLimits(false);
+        setSavedLimits(true);
+        setUpdatedAt(new Date().toISOString());
+        setTimeout(() => setSavedLimits(false), 3000);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateDraft = (m: AnalysisMode, field: "analyze" | "debate", raw: string) => {
+    const val = Math.max(1, Math.min(200, parseInt(raw, 10) || 1));
+    setDraftLimits((prev) => ({
+      ...prev,
+      [m]: {
+        ...prev[m],
+        [field]: field === "debate" ? Math.min(val, prev[m].analyze) : val,
+        ...(field === "analyze" && val < prev[m].debate ? { debate: val } : {}),
+      },
+    }));
   };
 
   return (
@@ -153,6 +203,115 @@ export default function SettingsPage() {
               Last saved: {new Date(updatedAt).toLocaleString()}
             </p>
           )}
+        </div>
+
+        {/* Phase B Candidate Limits */}
+        <div className="card p-6 mb-6">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Phase B Candidate Limits</h2>
+            <div className="flex items-center gap-2">
+              {savedLimits && (
+                <span className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md">Saved</span>
+              )}
+              {editingLimits ? (
+                <>
+                  <button
+                    onClick={() => { setDraftLimits({ ...limits }); setEditingLimits(false); }}
+                    className="text-xs text-[#6B7280] hover:text-[#E8EDF2] px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveLimits}
+                    disabled={saving}
+                    className="text-xs font-semibold text-[#080C10] bg-[#F5A623] hover:bg-[#F5A623]/90 px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    Save
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={() => setEditingLimits(true)}
+                  className="text-xs text-[#6B7280] hover:text-[#E8EDF2] px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-[#6B7280] mb-5">
+            Controls how many stocks are deeply analysed and debated by the committee each day in Phase B, per mode.
+            Analyze = stocks fundamental analysis runs on. Debate = stocks the committee actually votes on.
+          </p>
+
+          <div className="overflow-hidden rounded-xl border border-white/08">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/08 bg-white/02">
+                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Mode</th>
+                  <th className="text-center px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Analyze</th>
+                  <th className="text-center px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Debate</th>
+                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(["Auto", "Lite", "Standard", "Full"] as AnalysisMode[]).map((m, i) => {
+                  const isActive = mode === m;
+                  const row = editingLimits ? draftLimits[m] : limits[m];
+                  const def = DEFAULT_LIMITS[m];
+                  const changed = limits[m].analyze !== def.analyze || limits[m].debate !== def.debate;
+                  return (
+                    <tr key={m} className={`border-b border-white/05 last:border-0 ${i % 2 === 0 ? "bg-white/01" : ""} ${isActive ? "bg-[#F5A623]/04" : ""}`}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`font-semibold text-sm ${isActive ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{m}</span>
+                          {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F5A623]/15 text-[#F5A623] font-semibold">Active</span>}
+                          {changed && !editingLimits && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#06B6D4]/15 text-[#06B6D4] font-semibold">Custom</span>}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {editingLimits ? (
+                          <input
+                            type="number"
+                            min={1}
+                            max={200}
+                            value={draftLimits[m].analyze}
+                            onChange={(e) => updateDraft(m, "analyze", e.target.value)}
+                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#F5A623]/60"
+                          />
+                        ) : (
+                          <span className="text-[#E8EDF2] font-mono">{row.analyze}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {editingLimits ? (
+                          <input
+                            type="number"
+                            min={1}
+                            max={draftLimits[m].analyze}
+                            value={draftLimits[m].debate}
+                            onChange={(e) => updateDraft(m, "debate", e.target.value)}
+                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#F5A623]/60"
+                          />
+                        ) : (
+                          <span className="text-[#E8EDF2] font-mono">{row.debate}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-[#6B7280] text-xs hidden sm:table-cell">
+                        {m === "Full" ? "Max coverage — good for weekend catch-up runs" :
+                         m === "Auto" ? "Slightly above Standard for smarter days" :
+                         m === "Standard" ? "Balanced — recommended for daily use" :
+                         "Fastest run — essential signals only"}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[10px] text-[#4B5563] mt-3">
+            Debate must be ≤ Analyze. Max 200. Defaults: Lite 15/10 · Standard 25/20 · Auto 30/25 · Full 50/40.
+          </p>
         </div>
 
         {/* Info card */}

@@ -132,7 +132,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
     );
   }
 
-  const isProfit = position.pct_change >= 0;
+  const isProfit = (position.pct_change ?? 0) >= 0;
   const pnlColor = isProfit ? "#10B981" : "#EF4444";
   const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
   const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 70).map((a: {agent:string}) => a.agent);
@@ -218,19 +218,19 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             </div>
             <div className="text-right">
               <p className="font-display text-4xl font-bold" style={{ color: pnlColor }}>
-                {position.pct_change >= 0 ? "+" : ""}{position.pct_change.toFixed(2)}%
+                {(position.pct_change ?? 0) >= 0 ? "+" : ""}{(position.pct_change ?? 0).toFixed(2)}%
               </p>
               <p className="text-sm mt-0.5" style={{ color: pnlColor }}>
-                {position.pnl_absolute >= 0 ? "+$" : "-$"}{Math.abs(position.pnl_absolute).toLocaleString()}
+                {(position.pnl_absolute ?? 0) >= 0 ? "+$" : "-$"}{Math.abs(position.pnl_absolute ?? 0).toLocaleString()}
               </p>
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 pt-6 border-t border-white/06">
             {[
-              { label: "Entry Price", value: `$${position.entry_price.toFixed(2)}` },
-              { label: "Current Price", value: `$${position.current_price.toFixed(2)}` },
-              { label: "Position Size", value: `$${(position.position_size / 1000).toFixed(1)}K` },
-              { label: "% Portfolio", value: `${position.pct_portfolio.toFixed(1)}%` },
+              { label: "Entry Price", value: `$${(position.entry_price ?? 0).toFixed(2)}` },
+              { label: "Current Price", value: `$${(position.current_price ?? 0).toFixed(2)}` },
+              { label: "Position Size", value: `$${((position.position_size ?? 0) / 1000).toFixed(1)}K` },
+              { label: "% Portfolio", value: `${(position.pct_portfolio ?? 0).toFixed(1)}%` },
               { label: "Entry Date", value: position.entry_date },
               { label: "Conviction", value: `${position.conviction}/100` },
             ].map(({ label, value }) => (
@@ -270,9 +270,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             </div>
           </div>
 
-          {/* Investment thesis bullets */}
+          {/* Investment thesis bullets + narrative */}
           <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-[#F5A623]/10 to-transparent border border-[#F5A623]/20">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Investment Thesis</h2>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Investment Thesis</h2>
+              {(position as any).adhoc_generated_at && (
+                <span className="text-[10px] text-[#6B7280] px-2 py-0.5 rounded bg-white/05">
+                  Deep-dive: {(position as any).adhoc_generated_at}
+                </span>
+              )}
+            </div>
+            {/* GPT-4o narrative (from adhoc report) */}
+            {(position as any).thesis_narrative && (
+              <p className="text-sm text-[#E8EDF2] leading-relaxed mb-5 border-b border-white/06 pb-5">
+                {(position as any).thesis_narrative}
+              </p>
+            )}
             <ul className="space-y-2.5">
               {thesisBullets.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
@@ -283,6 +296,58 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             </ul>
           </div>
         </div>
+
+        {/* ── Scenario Analysis (from adhoc deep-dive) ── */}
+        {(position as any).scenarios && (() => {
+          const sc13 = (position as any).scenarios as any;
+          return (
+            <div className="card p-6 mb-6">
+              <div className="flex items-center gap-2 mb-5">
+                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Scenario Analysis</h2>
+                <span className="text-[10px] text-[#0EA5E9] px-2 py-0.5 rounded bg-[#0EA5E9]/10">GPT-4o Synthesis</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {[
+                  { key: "bull", label: "Bull", color: "#10B981", bg: "rgba(16,185,129,0.08)", prob: sc13.bull?.probability ?? 30 },
+                  { key: "base", label: "Base", color: "#0EA5E9", bg: "rgba(14,165,233,0.08)", prob: sc13.base?.probability ?? 50 },
+                  { key: "bear", label: "Bear", color: "#EF4444", bg: "rgba(239,68,68,0.08)",  prob: sc13.bear?.probability ?? 20 },
+                ].map(({ key, label, color, bg, prob }) => {
+                  const s = sc13[key] ?? {};
+                  const priceTgt = s.price_target;
+                  const updown = key === "bear" ? s.downside_pct : s.upside_pct;
+                  const trigger = s.catalyst ?? s.trigger ?? s.assumptions ?? "—";
+                  return (
+                    <div key={key} className="rounded-xl p-4 border" style={{ background: bg, borderColor: `${color}30` }}>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color }}>{label}</span>
+                        <span className="text-xs text-[#6B7280]">{prob}% probability</span>
+                      </div>
+                      {priceTgt && (
+                        <p className="font-display text-2xl font-bold mb-1" style={{ color }}>
+                          ${Number(priceTgt).toFixed(0)}
+                        </p>
+                      )}
+                      {updown != null && (
+                        <p className="text-xs mb-3" style={{ color }}>
+                          {key === "bear" ? "-" : "+"}{Number(Math.abs(updown)).toFixed(1)}% from current
+                        </p>
+                      )}
+                      <p className="text-xs text-[#6B7280] leading-relaxed">{String(trigger).slice(0, 120)}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              {(position as any).adhoc_entry_verdict && (
+                <div className="mt-4 pt-4 border-t border-white/06 flex items-center gap-3">
+                  <span className="text-xs text-[#6B7280]">Entry timing verdict:</span>
+                  <span className={`text-xs font-bold uppercase px-2.5 py-1 rounded-lg ${(position as any).adhoc_entry_verdict === "favourable" ? "bg-[#10B981]/20 text-[#10B981]" : (position as any).adhoc_entry_verdict === "unfavourable" ? "bg-[#EF4444]/20 text-[#EF4444]" : "bg-white/05 text-[#6B7280]"}`}>
+                    {(position as any).adhoc_entry_verdict}
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── Price chart ── */}
         <div className="card p-6 mb-6">
@@ -882,6 +947,141 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           </div>
         </div>
 
+        {/* ── Historical Performance + Risk Dashboard (S11 + S12) ── */}
+        {((position as any).historical_performance || (position as any).risk_dashboard) && (() => {
+          const hp = (position as any).historical_performance as any;
+          const rd = (position as any).risk_dashboard as any;
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {hp && (
+                <SectionCard title="Historical Performance" dataSource="live">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {[
+                      { label: "1 Month", value: hp.ret_1m != null ? `${Number(hp.ret_1m) >= 0 ? "+" : ""}${Number(hp.ret_1m).toFixed(1)}%` : "—", positive: Number(hp.ret_1m) >= 0 },
+                      { label: "3 Month", value: hp.ret_3m != null ? `${Number(hp.ret_3m) >= 0 ? "+" : ""}${Number(hp.ret_3m).toFixed(1)}%` : "—", positive: Number(hp.ret_3m) >= 0 },
+                      { label: "6 Month", value: hp.ret_6m != null ? `${Number(hp.ret_6m) >= 0 ? "+" : ""}${Number(hp.ret_6m).toFixed(1)}%` : "—", positive: Number(hp.ret_6m) >= 0 },
+                      { label: "1 Year",  value: hp.ret_1yr != null ? `${Number(hp.ret_1yr) >= 0 ? "+" : ""}${Number(hp.ret_1yr).toFixed(1)}%` : "—", positive: Number(hp.ret_1yr) >= 0 },
+                    ].map(({ label, value, positive }) => (
+                      <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
+                        <p className="text-xs text-[#6B7280] mb-1">{label}</p>
+                        <p className={`text-lg font-display font-bold font-mono ${positive ? "text-[#10B981]" : "text-[#EF4444]"}`}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {hp.vs_spy_1yr != null && (
+                    <div className="px-3 py-2.5 rounded-xl bg-white/03 flex justify-between items-center mb-3">
+                      <span className="text-xs text-[#6B7280]">vs S&P 500 (1yr)</span>
+                      <span className={`text-sm font-mono font-bold ${Number(hp.vs_spy_1yr) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                        {Number(hp.vs_spy_1yr) >= 0 ? "+" : ""}{Number(hp.vs_spy_1yr).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                  {(hp.high_52w || hp.low_52w) && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {hp.high_52w && (
+                        <div className="px-3 py-2 rounded-lg bg-[#10B981]/08">
+                          <p className="text-[10px] text-[#6B7280] mb-0.5">52W High</p>
+                          <p className="text-sm font-mono text-[#10B981] font-bold">${Number(hp.high_52w).toFixed(2)}</p>
+                        </div>
+                      )}
+                      {hp.low_52w && (
+                        <div className="px-3 py-2 rounded-lg bg-[#EF4444]/08">
+                          <p className="text-[10px] text-[#6B7280] mb-0.5">52W Low</p>
+                          <p className="text-sm font-mono text-[#EF4444] font-bold">${Number(hp.low_52w).toFixed(2)}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {hp.pct_from_high != null && (
+                    <p className="text-xs text-[#6B7280] mt-3">
+                      {Number(hp.pct_from_high).toFixed(1)}% from 52-week high
+                    </p>
+                  )}
+                </SectionCard>
+              )}
+              {rd && (
+                <SectionCard title="Risk Dashboard" dataSource="mixed">
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {[
+                      { label: "Beta",         value: rd.beta != null ? Number(rd.beta).toFixed(2) : "—" },
+                      { label: "Max Drawdown", value: rd.max_drawdown != null ? `${Number(rd.max_drawdown).toFixed(1)}%` : "—" },
+                      { label: "Volatility 30d", value: rd.volatility_pct != null ? `${Number(rd.volatility_pct).toFixed(1)}%` : "—" },
+                      { label: "ATR %",        value: rd.atr_pct != null ? `${Number(rd.atr_pct).toFixed(2)}%` : "—" },
+                      { label: "Debt/Equity",  value: rd.debt_to_equity != null ? Number(rd.debt_to_equity).toFixed(2) : "—" },
+                      { label: "Current Ratio", value: rd.current_ratio != null ? Number(rd.current_ratio).toFixed(2) : "—" },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="bg-white/03 rounded-xl p-3">
+                        <p className="text-xs text-[#6B7280] mb-1">{label}</p>
+                        <p className="text-sm font-mono font-semibold text-[#E8EDF2]">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {rd.liquidity_risk && (
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03 mb-2">
+                      <span className="text-xs text-[#6B7280]">Liquidity risk</span>
+                      <span className={`text-xs font-bold uppercase ${rd.liquidity_risk === "low" ? "text-[#10B981]" : rd.liquidity_risk === "medium" ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>{rd.liquidity_risk}</span>
+                    </div>
+                  )}
+                  {((rd.data_conflicts ?? []) as string[]).length > 0 && (
+                    <div className="mt-3 p-3 rounded-lg bg-[#F59E0B]/08 border border-[#F59E0B]/20">
+                      <p className="text-xs font-bold text-[#F59E0B] mb-1">Data conflicts flagged</p>
+                      {((rd.data_conflicts) as string[]).map((c: string, i: number) => (
+                        <p key={i} className="text-xs text-[#6B7280]">• {c}</p>
+                      ))}
+                    </div>
+                  )}
+                </SectionCard>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* ── Institutional Activity (S10) ── */}
+        {(position as any).institutional && (() => {
+          const inst = (position as any).institutional as any;
+          const hasData = (inst.fund_theses?.length > 0) || (inst.convergence_signals?.length > 0) || (inst.unusual_options?.length > 0);
+          if (!hasData) return null;
+          return (
+            <div className="card p-6 mb-6">
+              <div className="flex items-center gap-2 mb-5">
+                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Institutional Activity</h2>
+                {inst.multi_fund_flag && (
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#F5A623]/15 text-[#F5A623]">Multi-fund convergence</span>
+                )}
+              </div>
+              {inst.fund_theses?.length > 0 && (
+                <div className="mb-5">
+                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">Fund Theses</p>
+                  <div className="space-y-3">
+                    {(inst.fund_theses as any[]).map((ft: any, i: number) => (
+                      <div key={i} className="p-3 rounded-xl bg-white/03 border border-white/06">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-bold text-[#E8EDF2]">{ft.fund_name ?? ft.fund ?? "Unknown fund"}</span>
+                          {ft.stake_pct && <span className="text-xs font-mono text-[#F5A623]">{ft.stake_pct}% stake</span>}
+                        </div>
+                        <p className="text-xs text-[#6B7280] leading-relaxed">{ft.thesis ?? ft.summary ?? "—"}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {inst.unusual_options?.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">Unusual Options Activity</p>
+                  <div className="space-y-2">
+                    {(inst.unusual_options as any[]).slice(0, 4).map((o: any, i: number) => (
+                      <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03">
+                        <span className="text-xs text-[#E8EDF2]">{o.description ?? o.type ?? "—"}</span>
+                        {o.premium && <span className="text-xs font-mono text-[#F59E0B]">${o.premium}</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* ── Review timeline ── */}
         <div className="card p-6">
           <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Daily Review Timeline</h2>
@@ -904,7 +1104,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     <div className="flex items-center gap-3 mb-1 flex-wrap">
                       <span className="text-xs font-mono text-[#6B7280]">{r.date}</span>
                       <span className="text-xs font-bold uppercase px-2 py-0.5 rounded-md" style={{ color: actionColor, background: `${actionColor}20` }}>
-                        {r.decision.replace(/_/g, " ")}
+                        {(r.decision ?? "").replace(/_/g, " ")}
                       </span>
                       {r.conviction != null && (
                         <span className="text-xs text-[#6B7280]">conviction {r.conviction}/100</span>

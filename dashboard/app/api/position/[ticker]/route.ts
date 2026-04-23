@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readFileSync, readdirSync } from "fs";
+import { join } from "path";
 import YahooFinanceClass from "yahoo-finance2";
 
 // Static JSON imports — bundler includes these in the serverless function.
@@ -58,6 +60,23 @@ async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
+// Read the most recent adhoc report for a ticker from the filesystem at runtime.
+// Adhoc reports live outside the Next.js build — they are written by the Python pipeline
+// after every entry decision and cannot be statically imported.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function loadAdhocReport(ticker: string): Record<string, any> | null {
+  try {
+    // process.cwd() = dashboard/ in Next.js; adhoc reports are in ../data/adhoc_reports/
+    const adhocDir = join(process.cwd(), "..", "data", "adhoc_reports");
+    const files = readdirSync(adhocDir)
+      .filter(f => f.startsWith(`${ticker}_`) && f.endsWith(".json"))
+      .sort()
+      .reverse();
+    if (!files.length) return null;
+    return JSON.parse(readFileSync(join(adhocDir, files[0]), "utf-8"));
+  } catch { return null; }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function findByTicker(arr: any[], ticker: string) {
   return arr?.find((x: { ticker?: string }) => x.ticker?.toUpperCase() === ticker) ?? null;
@@ -106,6 +125,9 @@ export async function GET(
   const macroReport       = macroReportData as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectorReport      = sectorReportData as any;
+
+  // Load adhoc deep-dive report if available (written at entry time by pipeline)
+  const adhocReport = loadAdhocReport(ticker);
 
   const scorecard    = findByTicker(committeeReport?.scorecards ?? [], ticker);
   const decision     = findByTicker(committeeReport?.position_decisions ?? [], ticker);
@@ -261,6 +283,15 @@ export async function GET(
       management_team: pe.management_team ?? null,
       cap_table:       pe.cap_table ?? null,
       agent_debate:    pe.agent_debate ?? null,
+      // Adhoc deep-dive sections if available
+      thesis_narrative: adhocReport?.s6_thesis?.narrative ?? null,
+      scenarios:        adhocReport?.s13_scenarios ?? null,
+      adhoc_recommendation: adhocReport?.s7_recommendation ?? null,
+      adhoc_entry_verdict:  adhocReport?.s5_timing?.entry_verdict ?? null,
+      adhoc_generated_at:   adhocReport?.generated_at ?? null,
+      institutional:        adhocReport?.s10_institutional ?? null,
+      historical_performance: adhocReport?.s11_performance ?? null,
+      risk_dashboard:       adhocReport?.s12_risk ?? null,
       _source:         "positions_log",
       _pipeline_date:  pe.opened_at ?? "—",
       _macro_regime:   macroReport?.regime,
@@ -518,9 +549,10 @@ export async function GET(
     })(),
   } : null;
 
-  // ── Market timing — prefer pipeline's LLM-generated narrative, augment with quant signals ──
+  // ── Market timing — adhoc s5_timing wins (GPT-4o synthesis), falls back to pipeline ──
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pipelineMarketTiming = (fundamental as any)?.market_timing ?? null;
+  const adhocTimingNarrative = adhocReport?.s5_timing?.narrative ?? null;
   const marketTiming = (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const q = quant as any;
@@ -531,10 +563,16 @@ export async function GET(
     if (q?.forward_bias) quantParts.push(`Bias: ${q.forward_bias}`);
     if (catalysts.length > 0) quantParts.push(`Catalyst: ${catalysts[0].catalyst}`);
     const quantStr = quantParts.length > 0 ? quantParts.join(". ") : null;
-    // Pipeline narrative is richer; prepend quant signals if available
-    if (pipelineMarketTiming && quantStr) return `${quantStr}. ${pipelineMarketTiming}`;
-    return pipelineMarketTiming ?? quantStr ?? positionEntry?.entry_thesis ?? null;
+    // Adhoc GPT-4o timing narrative is richest; prepend quant signals if available
+    const narrative = adhocTimingNarrative ?? pipelineMarketTiming;
+    if (narrative && quantStr) return `${quantStr}. ${narrative}`;
+    return narrative ?? quantStr ?? positionEntry?.entry_thesis ?? null;
   })();
+
+  // ── Adhoc synthesis sections — enriched by GPT-4o at entry time ─────────────
+  const thesisNarrative: string | null = adhocReport?.s6_thesis?.narrative ?? null;
+  const scenarios: Record<string, unknown> | null = adhocReport?.s13_scenarios ?? null;
+  const adhocRec = adhocReport?.s7_recommendation ?? null;
 
   // ── Compute live position stats (Alpaca is source of truth) ─────────────────
   const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? 0;
@@ -596,6 +634,17 @@ export async function GET(
     management_team:      (fundamental as any)?.management_team ?? null,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cap_table:            (fundamental as any)?.cap_table ?? null,
+
+    // Adhoc deep-dive report sections (generated by GPT-4o at entry time)
+    thesis_narrative:     thesisNarrative,
+    scenarios,
+    adhoc_recommendation: adhocRec,
+    adhoc_entry_verdict:  adhocReport?.s5_timing?.entry_verdict ?? null,
+    adhoc_generated_at:   adhocReport?.generated_at ?? null,
+    // Sections 10-12 from adhoc (not available from pipeline batch reports alone)
+    institutional:        adhocReport?.s10_institutional ?? null,
+    historical_performance: adhocReport?.s11_performance ?? null,
+    risk_dashboard:       adhocReport?.s12_risk ?? null,
 
     _source:              "pipeline",
     _pipeline_date:       committeeReport?.generated_at ?? fundamentalReport?.generated_at ?? "—",

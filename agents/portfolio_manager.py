@@ -148,7 +148,7 @@ def _fetch_live_portfolio() -> dict | None:
 # Portfolio Construction helper
 # ---------------------------------------------------------------------------
 
-def _run_portfolio_construction(phase_b_committee: dict) -> dict:
+def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list | None = None) -> dict:
     """
     Runs after both Phase A and Phase B committees have deliberated.
     Calls construct_portfolio_allocation() with the full book context,
@@ -160,17 +160,9 @@ def _run_portfolio_construction(phase_b_committee: dict) -> dict:
     phase_b_decisions = phase_b_committee.get("position_decisions", [])
     open_positions = memory.get_open_positions()
 
-    # Read Phase A decisions from committee_report — the Phase A committee wrote to this
     committee_report_path = ROOT / "data" / "reports" / "committee_report.json"
-    phase_a_decisions: list = []
-    try:
-        # Phase A writes its own committee_report.json during its run.
-        # By Phase B time, the file has been overwritten by Phase B committee.
-        # We read Phase A decisions from the pipeline result instead (written by memory agent).
-        # Fallback: read positions_log for conviction of held tickers.
-        pass
-    except Exception:
-        pass
+    # Phase A decisions passed directly from the main pipeline — no file read needed.
+    phase_a_decisions = list(phase_a_decisions or [])
 
     # Get portfolio state from Alpaca (via portfolio_state.json written by Phase A executor)
     # Use equity-minus-exposure for cash_pct so short-sale proceeds don't inflate the figure.
@@ -393,7 +385,7 @@ def run_phase_a() -> dict:
 # Phase B — New Opportunity Research
 # ---------------------------------------------------------------------------
 
-def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = None) -> dict:
+def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = None, phase_a_decisions: list | None = None) -> dict:
     """
     Full pipeline for identifying new positions to enter.
     Phase 1 runs sequentially (could be parallelised in future).
@@ -404,6 +396,30 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     logger.info("Phase B: New Opportunity Research")
     results: dict = {}
     t0 = time.time()
+
+    # Scale candidate pool and debate cap by mode — read custom limits from dashboard config if present
+    _default_scales = {
+        "Lite":     {"MAX_CANDIDATES": 15,  "MAX_CANDIDATES_TO_DEBATE": 10},
+        "Standard": {"MAX_CANDIDATES": 25,  "MAX_CANDIDATES_TO_DEBATE": 20},
+        "Full":     {"MAX_CANDIDATES": 50,  "MAX_CANDIDATES_TO_DEBATE": 40},
+        "Auto":     {"MAX_CANDIDATES": 30,  "MAX_CANDIDATES_TO_DEBATE": 25},
+    }
+    _scale = dict(_default_scales.get(PHASE_A_MODE, _default_scales["Standard"]))
+    # Try to load custom limits saved from the dashboard settings page
+    try:
+        _config_path = ROOT / "data" / "config" / "analysis_mode.json"
+        if _config_path.exists():
+            _cfg = json.loads(_config_path.read_text())
+            _custom = _cfg.get(f"limits_{PHASE_A_MODE}")
+            if _custom:
+                _scale["MAX_CANDIDATES"] = int(_custom.get("analyze", _scale["MAX_CANDIDATES"]))
+                _scale["MAX_CANDIDATES_TO_DEBATE"] = int(_custom.get("debate", _scale["MAX_CANDIDATES_TO_DEBATE"]))
+    except Exception:
+        pass
+    os.environ["MAX_CANDIDATES"] = str(_scale["MAX_CANDIDATES"])
+    os.environ["MAX_CANDIDATES_TO_DEBATE"] = str(_scale["MAX_CANDIDATES_TO_DEBATE"])
+    logger.info("Phase B: mode=%s → analysing up to %d candidates, debating top %d",
+                PHASE_A_MODE, _scale["MAX_CANDIDATES"], _scale["MAX_CANDIDATES_TO_DEBATE"])
 
     # --- Phase 1: Market Intelligence (run in sequence, results saved to disk) ---
     if not macro_already_ran:
@@ -467,7 +483,7 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     # sees the ENTIRE book — held positions + new entries together — and sets
     # final target weights for everything simultaneously.
     logger.info("Phase B: Portfolio Construction — setting final weights with full portfolio view...")
-    results["construction"] = _run_portfolio_construction(results["committee"])
+    results["construction"] = _run_portfolio_construction(results["committee"], phase_a_decisions=phase_a_decisions or [])
 
     # --- Phase 5: Trade Executor ---
     from agents import trade_executor
@@ -552,7 +568,12 @@ def run() -> dict:
             d["ticker"] for d in phase_a_committee.get("position_decisions", [])
             if d.get("action") == "exit" and d.get("ticker")
         ]
-        summary["phase_b"] = run_phase_b(macro_already_ran=macro_ran_in_phase_a, phase_a_exits=phase_a_exits or None)
+        phase_a_all_decisions = phase_a_committee.get("position_decisions", [])
+        summary["phase_b"] = run_phase_b(
+            macro_already_ran=macro_ran_in_phase_a,
+            phase_a_exits=phase_a_exits or None,
+            phase_a_decisions=phase_a_all_decisions or None,
+        )
 
     # --- Memory consolidation ---
     logger.info("Running Memory Agent consolidation...")

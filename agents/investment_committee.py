@@ -300,6 +300,7 @@ def _deliberate_with_llm(
     exited_today: list[str] | None = None,
     live_portfolio: dict | None = None,
     risk_snapshot: dict | None = None,
+    adhoc_reports: dict[str, dict] | None = None,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -452,6 +453,35 @@ def _deliberate_with_llm(
                if sc.get('thesis_bullets') else "")
             + f"  Memory: {mem_note}"
         )
+
+        # ── Inject pre-deliberation GPT-4o research synthesis ────────────────
+        # This is the full research analyst view — produced before the committee
+        # deliberates so it informs the decision rather than just documenting it.
+        adhoc = (adhoc_reports or {}).get(ticker, {})
+        if adhoc:
+            s5 = adhoc.get("s5_timing") or {}
+            s6 = adhoc.get("s6_thesis") or {}
+            s13 = adhoc.get("s13_scenarios") or {}
+            s7_adhoc = adhoc.get("s7_recommendation") or {}
+            bull_t = (s13.get("bull") or {}).get("price_target")
+            base_t = (s13.get("base") or {}).get("price_target")
+            bear_t = (s13.get("bear") or {}).get("price_target")
+            block += (
+                f"\n  === INDEPENDENT RESEARCH SYNTHESIS (GPT-4o — read before deciding) ===\n"
+                f"  Entry timing verdict: {s5.get('entry_verdict', 'neutral').upper()}"
+                f" | Research conviction: {s7_adhoc.get('conviction', '?')}/100"
+                f" | Expected return: {s7_adhoc.get('expected_return_2_3yr', '?')}\n"
+            )
+            if s5.get("narrative"):
+                block += f"  Timing: {str(s5['narrative'])[:300]}\n"
+            if s6.get("narrative"):
+                block += f"  Thesis: {str(s6['narrative'])[:400]}\n"
+            if any(x is not None for x in [bull_t, base_t, bear_t]):
+                block += f"  Scenarios: Bull=${bull_t or '?'} | Base=${base_t or '?'} | Bear=${bear_t or '?'}\n"
+            if s7_adhoc.get("key_risks"):
+                block += f"  Research risks: {'; '.join(str(r) for r in s7_adhoc['key_risks'][:3])}\n"
+            block += f"  === END RESEARCH SYNTHESIS ===\n"
+
         candidate_blocks.append(block)
 
     n_open = len(open_positions)
@@ -586,15 +616,26 @@ KEY SIGNALS TO PRIORITISE:
   - retail_euphoria_warning=true + weak fundamentals → Scenario C
   - forward_bias from Quant agent reflects where price is going next 5-10 days — weight heavily
 
-INVESTMENT HORIZON (mandatory framing):
-This fund operates on a tactical/swing basis. Typical holding periods: days to a few weeks.
-- Catalysts must be near-term (1-30 days): earnings releases, macro data prints, product launches,
-  technical breakouts, regulatory decisions. Multi-year growth stories are context, not catalysts.
-- Price targets should be the next meaningful technical level (resistance/support), NOT a DCF fair value.
-  A target 5-20% from entry is normal. A "3-year fair value" target is meaningless here.
-- When a trade thesis plays out in 3 days, that is a win — exit and redeploy capital.
-- Every position needs an explicit exit condition: what would prove the thesis wrong?
-- Do NOT hold positions "indefinitely hoping for long-term appreciation." That is not this fund's mandate.
+HOLDING PHILOSOPHY — CONVICTION-DRIVEN, NOT TIME-DRIVEN:
+There is no target holding period. A position may be held for 2 days or 2 years — what determines
+the hold decision is one thing only: is conviction still high and the thesis still intact?
+
+ENTRY: Always needs a specific near-term catalyst or technical signal to justify the entry point
+  now. "Good long-term business" is not an entry catalyst. Something must be happening in the
+  next 1-30 days that makes this the right time to enter.
+
+HOLD (Phase A): If conviction is still strong and nothing has materially changed — HOLD. Duration
+  held is irrelevant. A position held 3 months with conviction 72 and an intact thesis should be
+  held longer. Do not manufacture exit reasons. Do not exit because a position is "old."
+
+EXIT: Only when one of these is true:
+  - Thesis has fundamentally inverted (not just weakened)
+  - Conviction has genuinely dropped below ~50 on fresh re-evaluation
+  - Stock has already reached its price target with no further catalyst
+  - A materially better opportunity exists AND capital is constrained
+
+Price targets should be the next meaningful technical level — a 5-20% move is a normal swing.
+When a thesis plays out, celebrate it and decide fresh: is there a new reason to stay, or redeploy?
 
 COMMITTEE RULES:
 - No fixed quota. Decide 0 to many. If nothing is convincing, decide nothing — cash is a position.
@@ -1243,19 +1284,25 @@ NEW ENTRIES approved by committee:
 {new_block}
 {capital_tradeoff_block}
 YOUR TASK:
-Assign a target weight (% of total portfolio) to every position you want the fund to hold.
+Set the target weight for EVERY position in the portfolio — both existing holds and new entries.
+You must output ALL held positions in `target_weights`, not just the ones changing.
+This is a daily full-portfolio rebalance. Every weight is reset from scratch today based on conviction.
+
 Use your full judgement. Consider:
-- Higher conviction = generally larger allocation
-- How positions interact (e.g. two correlated names in same sector shouldn't both be max size)
-- Portfolio balance: you don't HAVE to be diversified, but concentrated bets need conviction to match
+- Higher conviction = generally larger allocation (conviction 70+ → 8-15%, conviction 60-70 → 4-8%, <60 → 2-4%)
+- Positions with <1% weight and conviction below 60 are not worth holding — either size them properly or exit them
+- Positions at very different weights but similar conviction should be normalised toward each other
 - Cash is fine — if allocations only sum to 70%, 30% stays in cash. That's a valid decision.
-- Positions not listed in your output are assumed to be held at their current weight (no change needed)
 
 RULES:
 - No single position above 25% of portfolio
-- All new entries must fit within available cash ({cash_pct:.1f}%) PLUS any capital freed by capital_swap_exits
 - Positions the committee decided to EXIT should not appear in your output
-- You may include rebalancing for held positions if you think current weights are wrong
+- ACTIVE REBALANCING IS EXPECTED: if available cash ({cash_pct:.1f}%) is insufficient to fund all approved
+  entries at conviction-appropriate sizes, you MUST reduce lower-conviction existing positions to make room.
+  Include them in `target_weights` with a reduced allocation. Do not just assign tiny sizes to new entries —
+  actively trim or resize holds to reflect today's full conviction ranking across the entire portfolio.
+- Every day is a fresh sizing decision. A position's current weight is just where it happens to be —
+  it has no special claim to stay there. Allocate based on today's conviction, not inertia.
 
 Return ONLY valid JSON:
 {{
@@ -1417,7 +1464,8 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
                          if sc["composite_score"] >= DELIBERATION_THRESHOLD
                          and sc["ticker"] in open_positions])
 
-    to_debate = qualifying[:MAX_CANDIDATES_TO_DEBATE]
+    max_to_debate = int(os.environ.get("MAX_CANDIDATES_TO_DEBATE", str(MAX_CANDIDATES_TO_DEBATE)))
+    to_debate = qualifying[:max_to_debate]
 
     logger.info("Pre-filter: %d candidates → %d qualify (composite ≥ %d) → debating top %d",
                 len(scorecards), len(qualifying), DELIBERATION_THRESHOLD, len(to_debate))
@@ -1465,9 +1513,40 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
     except Exception:
         pass
 
-    # LLM deliberation
+    # ── Pre-deliberation: generate full GPT-4o research synthesis per candidate ──
+    # Runs BEFORE committee deliberation so agents can read and discuss the full
+    # timing narrative, investment thesis, scenarios, and research conviction.
+    adhoc_by_ticker: dict[str, dict] = {}
+    _pre_research_tickers = [sc["ticker"] for sc in to_debate]
+    if _pre_research_tickers:
+        try:
+            import sys as _sys_pre
+            from pathlib import Path as _Path_pre
+            _scripts_dir_pre = str(_Path_pre(__file__).resolve().parent.parent / "scripts")
+            if _scripts_dir_pre not in _sys_pre.path:
+                _sys_pre.path.insert(0, _scripts_dir_pre)
+            from adhoc_report import generate_from_pipeline_data as _gen_pre
+            _news_path_pre = REPORTS_DIR / "news_report.json"
+            _news_pre: dict = {}
+            if _news_path_pre.exists():
+                with open(_news_path_pre) as _nf_pre:
+                    _news_pre = json.load(_nf_pre)
+            logger.info("Generating pre-deliberation research synthesis for: %s", _pre_research_tickers)
+            for _ticker_pre in _pre_research_tickers:
+                try:
+                    _report_pre = _gen_pre(_ticker_pre, fundamental, quant, sentiment, macro, _news_pre)
+                    if _report_pre:
+                        adhoc_by_ticker[_ticker_pre] = _report_pre
+                        logger.info("Pre-deliberation synthesis ready: %s (research conviction=%s)",
+                                    _ticker_pre, (_report_pre.get("s7_recommendation") or {}).get("conviction"))
+                except Exception as _exc_pre:
+                    logger.warning("Pre-deliberation synthesis failed for %s: %s", _ticker_pre, _exc_pre)
+        except Exception as _imp_pre:
+            logger.warning("Could not run pre-deliberation synthesis: %s", _imp_pre)
+
+    # LLM deliberation — committee now reads full research synthesis per candidate
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot, adhoc_reports=adhoc_by_ticker)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # Store all decisions in memory
@@ -1539,6 +1618,65 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
             framework_fields["agent_debate"] = sc["agent_debate"]
         if framework_fields:
             memory.enrich_position_framework(ticker_d, framework_fields)
+
+    # ── Post-decision: stamp committee conviction onto pre-generated adhoc reports ──
+    # The full research synthesis was already generated before deliberation.
+    # Here we just overwrite the conviction field so the position page shows the
+    # committee's operative number rather than the research analyst's independent view.
+    # For tickers that didn't get a pre-deliberation report (beyond top-10 cap),
+    # generate the report now using the same pipeline data.
+    entered_tickers = [d["ticker"] for d in decisions if d.get("action") in ("enter_long", "enter_short")]
+    if entered_tickers:
+        try:
+            import sys as _sys
+            from pathlib import Path as _Path
+            _scripts_dir = str(_Path(__file__).resolve().parent.parent / "scripts")
+            if _scripts_dir not in _sys.path:
+                _sys.path.insert(0, _scripts_dir)
+            from adhoc_report import generate_from_pipeline_data as _gen_research
+            _adhoc_dir = _Path(__file__).resolve().parent.parent / "data" / "adhoc_reports"
+            _date_str_out = datetime.utcnow().date().isoformat()
+            news_path = REPORTS_DIR / "news_report.json"
+            news_report: dict = {}
+            if news_path.exists():
+                with open(news_path) as _nf:
+                    news_report = json.load(_nf)
+            _decision_map = {d["ticker"]: d for d in decisions if d.get("action") in ("enter_long", "enter_short")}
+            for _ticker_e in entered_tickers:
+                _d = _decision_map.get(_ticker_e, {})
+                _direction = "LONG" if _d.get("action") == "enter_long" else "SHORT"
+                _conv = _d.get("conviction")
+
+                if _ticker_e in adhoc_by_ticker:
+                    # Report already exists — stamp committee conviction and re-save
+                    _report = adhoc_by_ticker[_ticker_e]
+                    if _report.get("s7_recommendation") is None:
+                        _report["s7_recommendation"] = {}
+                    _report["s7_recommendation"]["conviction"] = _conv
+                    _report["s7_recommendation"]["direction"] = _direction
+                    _report["s7_recommendation"]["committee_rationale"] = _d.get("investment_thesis", "")
+                    if _d.get("key_risks") and not _report["s7_recommendation"].get("key_risks"):
+                        _report["s7_recommendation"]["key_risks"] = _d["key_risks"]
+                    _report["conviction"] = _conv
+                    _report["direction"] = _direction
+                    _out_path = _adhoc_dir / f"{_ticker_e}_{_date_str_out}.json"
+                    with open(_out_path, "w") as _f:
+                        json.dump(_report, _f, indent=2)
+                    logger.info("Stamped committee conviction %s onto pre-generated adhoc report for %s", _conv, _ticker_e)
+                else:
+                    # No pre-deliberation report exists — generate now with committee conviction
+                    try:
+                        _gen_research(
+                            _ticker_e, fundamental, quant, sentiment, macro, news_report,
+                            committee_conviction=_conv,
+                            committee_direction=_direction,
+                            committee_decision=_d,
+                        )
+                        logger.info("Post-decision research report generated for %s (conviction=%s)", _ticker_e, _conv)
+                    except Exception as _exc:
+                        logger.warning("Post-decision research report failed for %s: %s", _ticker_e, _exc)
+        except Exception as _import_exc:
+            logger.warning("Could not process adhoc research reports: %s", _import_exc)
 
     # Portfolio allocation summary (exclude skips and non-sizing decisions)
     sizing_decisions = [d for d in decisions if d.get("action") not in ("skip", "hold") and d.get("size_pct")]

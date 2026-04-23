@@ -1096,6 +1096,11 @@ def _framework_with_llm(
     prompt = f"""You are completing the display framework for a position in an AI hedge fund dashboard.
 Ticker: {ticker}  Sector: {metrics.get('sector','N/A')}  Market Cap: {_fmt_bn(metrics.get('market_cap'))}
 
+FUND MANDATE — READ FIRST: This fund holds positions for as long as conviction remains high — from
+days to years. Entry decisions are driven by near-term catalysts and technical signals. Hold decisions
+are purely conviction-based. Prioritise near-term catalysts and price targets in your output, but
+longer-term business quality context is useful background for hold decisions.
+
 IMPORTANT: This output is for DISPLAY ONLY. It does not affect trading decisions or scores.
 The scoring has already been done separately using only verified data.
 
@@ -1188,17 +1193,14 @@ Return ONLY valid JSON:
     "upcoming_catalysts": ["<catalyst — training knowledge>"],
     "key_risks": ["<risk — training knowledge>"],
     "moat_strength": "<Narrow|Wide|None>",
-    "longevity_estimate": "<assessment>"
+    "near_term_catalyst": "<specific event within 1-30 days that could move price>"
   }},
   "valuation": {{
-    "trade_type_classification": "<Early Disruptor|Scale-up|Mature Growth>",
-    "methodology": "<P/S|DCF+optionality|Comps+multiples>",
+    "methodology": "<P/S|Comps+multiples|EV/EBITDA>",
     "analyst_consensus_target": null,
     "implied_multiples": "{score_result.get('valuation_vs_peers', 'See scoring')}",
-    "is_forecast_realistic": "<training knowledge assessment>",
-    "intrinsic_value_estimate": null,
-    "expected_roi_2_3yr": "<range — training knowledge, null if uncertain>",
-    "moic_estimate": null
+    "cheap_vs_peers": "<cheap|fair|expensive — vs sector peers on key multiple>",
+    "near_term_upside_pct": "<estimated % move to next resistance or analyst target — 1-4 week horizon, null if unclear>"
   }},
   "market_timing": "<1-2 sentences — combine score_result signals with training context>",
   "investment_thesis_bullets": ["<bullet citing live metric>", "<bullet citing peer comparison>", "<bullet from training knowledge — clearly noted>"]
@@ -1295,7 +1297,8 @@ def run(mode: str = "new_opportunities") -> dict:
     with open(candidates_path) as f:
         candidates_data = json.load(f)
 
-    candidates = candidates_data.get("candidates", [])[:MAX_CANDIDATES]
+    max_candidates = int(os.environ.get("MAX_CANDIDATES", str(MAX_CANDIDATES)))
+    candidates = candidates_data.get("candidates", [])[:max_candidates]
     logger.info("Analysing %d candidates", len(candidates))
 
     # Load macro context
