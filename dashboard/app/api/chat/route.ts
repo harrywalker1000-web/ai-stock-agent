@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 });
+      return NextResponse.json({ reply: "[Error]: OpenAI API key not configured on this deployment." }, { status: 200 });
     }
 
     const personality = AGENT_PERSONALITIES[agentId] || AGENT_PERSONALITIES.committee;
@@ -140,14 +140,14 @@ ${notifyAgent ? "\n[NOTIFY MODE: This message will be logged and considered in t
 
     if (!response.ok) {
       const err = await response.text();
-      return NextResponse.json({ error: `OpenAI error: ${err}` }, { status: 500 });
+      return NextResponse.json({ reply: `[API error ${response.status}]: ${err.slice(0, 300)}` }, { status: 200 });
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content ?? "No response generated.";
+    const reply = data.choices?.[0]?.message?.content?.trim() || "[No content returned from model]";
 
     return NextResponse.json({ reply, model });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ reply: `[Chat error]: ${String(err).slice(0, 200)}` }, { status: 200 });
   }
 }
