@@ -108,9 +108,11 @@ function ChatPanel({agent}:{agent:Agent}) {
   const rgb=hexToRgb(agent.color);
   const send=async()=>{
     if(!input.trim()||sending)return;
-    const msg=input.trim();setInput("");setMsgs(p=>[...p,{role:"user",text:msg}]);setSending(true);
-    try{const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({agentId:agent.id,message:msg})});const d=await res.json();setMsgs(p=>[...p,{role:"agent",text:d.reply??"No response."}]);}
-    catch{setMsgs(p=>[...p,{role:"agent",text:"Error."}]);}
+    const msg=input.trim();setInput("");
+    const nextMsgs=[...msgs,{role:"user" as const,text:msg}];
+    setMsgs(nextMsgs);setSending(true);
+    try{const res=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({agentId:agent.id,message:msg,history:nextMsgs.slice(-8)})});const d=await res.json();setMsgs(p=>[...p,{role:"agent" as const,text:d.reply??"No response."}]);}
+    catch{setMsgs(p=>[...p,{role:"agent" as const,text:"Error connecting to agent."}]);}
     setSending(false);
   };
   return (
