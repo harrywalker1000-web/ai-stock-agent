@@ -604,7 +604,7 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         ) : (
-                          <span className="text-xs text-[#374151]">—</span>
+                          <span className="text-xs text-[#9CA3AF]">—</span>
                         )}
                       </td>
                       {/* Entry date */}
@@ -663,7 +663,7 @@ export default function DashboardPage() {
                         benchPeriod === p
                           ? "bg-[#F5A623]/20 text-[#F5A623]"
                           : insufficient
-                          ? "text-[#374151] cursor-not-allowed"
+                          ? "text-[#9CA3AF] cursor-not-allowed"
                           : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
                       }`}
                     >

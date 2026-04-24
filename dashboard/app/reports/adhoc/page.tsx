@@ -168,7 +168,7 @@ export default function AdhocInputPage() {
                     {i + 1}
                   </span>
                   {s.label}
-                  {i < STEPS.length - 1 && <span className="text-[#374151]">→</span>}
+                  {i < STEPS.length - 1 && <span className="text-[#9CA3AF]">→</span>}
                 </div>
               ))}
             </div>

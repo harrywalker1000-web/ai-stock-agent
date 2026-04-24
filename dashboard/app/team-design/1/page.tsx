@@ -68,7 +68,7 @@ function OrbitalNode({agent,x,y,selected,hovered,dimmed,onClick,onMouseEnter,onM
         </text>
         {agent.has_live_data&&<circle cx={r-5} cy={-(r-5)} r="4" fill="#10B981" stroke="#07090E" strokeWidth="1.5" className="d1-live-dot"/>}
       </g>
-      <text textAnchor="middle" y={r+18} fill={selected||hovered?"#CBD5E1":"#374151"} fontSize="9"
+      <text textAnchor="middle" y={r+18} fill={selected||hovered?"#CBD5E1":"#6B7280"} fontSize="9"
         fontFamily="var(--font-space-grotesk)" style={{transition:"fill 0.25s ease",letterSpacing:"0.05em"}}>
         {agent.name.toUpperCase()}
       </text>
@@ -95,11 +95,11 @@ function ReportViewer({agentId,color}:{agentId:string;color:string}) {
   const [report,setReport]=useState<any>(null); const [loading,setLoading]=useState(true);
   const rgb=hexToRgb(color);
   useEffect(()=>{setLoading(true);setReport(null);fetch(`/api/agent-report/${agentId}`).then(r=>r.ok?r.json():Promise.reject()).then(d=>{setReport(d);setLoading(false);}).catch(()=>setLoading(false));},[agentId]);
-  if(loading) return <p className="text-[11px] text-[#1F2937] font-mono py-8 text-center tracking-widest">LOADING...</p>;
-  if(!report) return <p className="text-[11px] text-[#1F2937] py-4 text-center">No report available.</p>;
+  if(loading) return <p className="text-[11px] text-[#6B7280] font-mono py-8 text-center tracking-widest">LOADING...</p>;
+  if(!report) return <p className="text-[11px] text-[#6B7280] py-4 text-center">No report available.</p>;
   return (
     <div className="space-y-2">
-      {report.generated_at&&<p className="text-[9px] font-mono text-[#1F2937] mb-3">GENERATED {new Date(report.generated_at).toLocaleString()}</p>}
+      {report.generated_at&&<p className="text-[9px] font-mono text-[#6B7280] mb-3">GENERATED {new Date(report.generated_at).toLocaleString()}</p>}
       {Object.keys(report).filter(k=>k!=="generated_at"&&k!=="error").slice(0,8).map((key,i)=>{
         const v=report[key];
         const txt=Array.isArray(v)?v.slice(0,4).map((x:unknown)=>(typeof x==="object"?JSON.stringify(x):String(x)).slice(0,90)).join("\n"):String(typeof v==="object"?JSON.stringify(v):v).slice(0,200);
@@ -130,7 +130,7 @@ function ChatPanel({agent}:{agent:Agent}) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-[120px] max-h-[200px]">
-        {msgs.length===0&&<p className="text-[10px] text-[#1F2937] text-center py-8">Ask {agent.name.split(" ")[0]} anything.</p>}
+        {msgs.length===0&&<p className="text-[10px] text-[#6B7280] text-center py-8">Ask {agent.name.split(" ")[0]} anything.</p>}
         {msgs.map((m,i)=>(
           <div key={i} className={`flex ${m.role==="user"?"justify-end":"justify-start"}`}>
             <div className="rounded-xl px-3 py-2 text-[11px] max-w-[85%]"
@@ -175,7 +175,7 @@ export default function TeamDesign1() {
 
   if(loading) return (
     <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#07090E"}}>
-      <p className="text-[#1F2937] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
+      <p className="text-[#6B7280] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
     </div>
   );
 
@@ -225,9 +225,9 @@ export default function TeamDesign1() {
             <h1 className="text-[34px] font-bold tracking-tight text-[#E8EDF2]" style={{fontFamily:"var(--font-syne)"}}>
               Agent Intelligence Map
             </h1>
-            <p className="text-[10px] tracking-[0.22em] text-[#1F2937] font-mono mt-1">11 AGENTS — ONE PORTFOLIO</p>
+            <p className="text-[10px] tracking-[0.22em] text-[#6B7280] font-mono mt-1">11 AGENTS — ONE PORTFOLIO</p>
           </div>
-          <div className="flex gap-5 text-[10px] font-mono text-[#2D3748] items-center">
+          <div className="flex gap-5 text-[10px] font-mono text-[#6B7280] items-center">
             <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#10B981]"/>LIVE</span>
             <span className="flex items-center gap-1.5"><span className="w-5 border-t border-dashed border-[#1F2937]"/>SIGNAL</span>
             <span>{agents.filter(a=>a.has_live_data).length}/{agents.length} ONLINE</span>
@@ -279,7 +279,7 @@ export default function TeamDesign1() {
                         <h2 className="text-xl font-bold text-[#E8EDF2] mt-0.5" style={{fontFamily:"var(--font-syne)"}}>{selected.name}</h2>
                         <p className="text-[11px] text-[#6B7280]">{selected.role}</p>
                       </div>
-                      <button onClick={()=>setSelected(null)} className="text-[#2D3748] hover:text-[#9CA3AF] text-xl cursor-pointer leading-none mt-1"
+                      <button onClick={()=>setSelected(null)} className="text-[#6B7280] hover:text-[#9CA3AF] text-xl cursor-pointer leading-none mt-1"
                         style={{transition:"color 0.15s ease,transform 120ms cubic-bezier(0.32,0.72,0,1)"}}
                         onMouseDown={e=>(e.currentTarget as HTMLElement).style.transform="scale(0.88)"}
                         onMouseUp={e=>(e.currentTarget as HTMLElement).style.transform="scale(1)"}>×</button>
@@ -287,7 +287,7 @@ export default function TeamDesign1() {
                     <div className="flex gap-1">
                       {(["overview","report","chat"] as const).map(t=>(
                         <button key={t} onClick={()=>setTab(t)} className="px-3 py-1 rounded-lg text-[9px] font-mono tracking-widest uppercase cursor-pointer"
-                          style={{background:tab===t?`rgba(${hexToRgb(selected.color)},0.18)`:"transparent",color:tab===t?selected.color:"#374151",border:`1px solid ${tab===t?`rgba(${hexToRgb(selected.color)},0.35)`:"transparent"}`,transition:"all 0.22s cubic-bezier(0.32,0.72,0,1)"}}>
+                          style={{background:tab===t?`rgba(${hexToRgb(selected.color)},0.18)`:"transparent",color:tab===t?selected.color:"#6B7280",border:`1px solid ${tab===t?`rgba(${hexToRgb(selected.color)},0.35)`:"transparent"}`,transition:"all 0.22s cubic-bezier(0.32,0.72,0,1)"}}>
                           {t}
                         </button>
                       ))}
@@ -307,7 +307,7 @@ export default function TeamDesign1() {
                             ))}
                           </div>
                         )}
-                        {selected.feeds&&<div className="pt-2 border-t text-[10px] font-mono text-[#2D3748]" style={{borderColor:`rgba(${hexToRgb(selected.color)},0.12)`}}>FEEDS → <span className="text-[#6B7280]">{selected.feeds}</span></div>}
+                        {selected.feeds&&<div className="pt-2 border-t text-[10px] font-mono text-[#6B7280]" style={{borderColor:`rgba(${hexToRgb(selected.color)},0.12)`}}>FEEDS → <span className="text-[#6B7280]">{selected.feeds}</span></div>}
                       </div>
                     )}
                     {tab==="report"&&<ReportViewer agentId={selected.id} color={selected.color}/>}
