@@ -66,18 +66,30 @@ function loadAgentContext(agentId: string): string {
     if (!data) continue;
 
     if (rel === "memory/positions_log.json") {
-      const positions = Object.entries(data as Record<string, Record<string, unknown>>).map(([ticker, p]) => ({
-        ticker,
-        direction: p.direction,
-        entry_price: p.entry_price,
-        current_price: p.current_price,
-        pct_change: p.pct_change,
-        pnl_absolute: p.pnl_absolute,
-        conviction: p.conviction,
-        scenario: p.scenario,
-        thesis: String(p.entry_thesis ?? "").slice(0, 120),
-      }));
-      chunks.push(`PORTFOLIO POSITIONS:\n${JSON.stringify(positions, null, 2)}`);
+      // Also pull portfolio total value so dollar P&L can be computed
+      const portState = safeRead(path.join(base, "reports/portfolio_state.json"));
+      const portfolioValue = portState?.portfolio_value ?? portState?.equity ?? null;
+
+      const positions = Object.entries(data as Record<string, Record<string, unknown>>).map(([ticker, p]) => {
+        const entryPrice = Number(p.entry_price ?? 0);
+        const sizePct = Number(p.size_pct ?? 0);
+        const dollarAllocated = portfolioValue && sizePct ? Math.round((sizePct / 100) * Number(portfolioValue)) : null;
+        return {
+          ticker,
+          direction: p.direction,
+          entry_price: entryPrice,
+          current_price: p.current_price ?? null,
+          pct_change: p.pct_change ?? null,
+          pnl_absolute: p.pnl_absolute ?? null,
+          size_pct_of_portfolio: sizePct,
+          dollar_allocated: dollarAllocated,
+          conviction: p.conviction,
+          scenario: p.scenario,
+          thesis: String(p.entry_thesis ?? "").slice(0, 120),
+        };
+      });
+      const portLine = portfolioValue ? `Portfolio total value: $${Number(portfolioValue).toLocaleString()}` : "";
+      chunks.push(`PORTFOLIO POSITIONS (${portLine}):\n${JSON.stringify(positions, null, 2)}`);
       continue;
     }
 
@@ -178,11 +190,13 @@ ${dataAgeNote}
 ${liveContext ? `${liveContext}\n` : ""}
 ${reportContext ? `=== PIPELINE REPORT DATA (as of ${reportDate ?? "last run"}) ===\n${reportContext}\n=== END REPORT DATA ===\n` : ""}
 You are responding to Harry Walker, the fund manager and owner of Haz Capital Management. Rules:
+- JUST ANSWER. Never explain methodology, never show your working unless asked. Harry is a professional — he doesn't need you to explain what P&L means.
+- Give the number first, context second. "NVDA is up 12.5% — entry $177, now $199" not "To calculate P&L we compare entry to current..."
 - Always cite real ticker symbols and real numbers from the data above — never invent or use placeholders.
-- Always clarify whether you're drawing from live prices (fetched now) vs pipeline report data (from ${reportDate ?? "last run"}).
-- If you genuinely don't have the data to answer a question, say "I don't have that data — you'd need to run the pipeline or check [specific source]." Do not speculate or make up numbers.
-- If the question is better suited to another agent, say so: e.g. "That's more the Quant Agent's territory — check their technical read."
-- Maximum 4 paragraphs unless specifically asked for more.
+- Note when data is live (prices fetched now) vs from the pipeline report (as of ${reportDate ?? "last run"}) — one short parenthetical is enough, not a paragraph.
+- If you don't have a specific figure, say it in one sentence and move on. Don't pad.
+- If the question is better suited to another agent, say so in one line: "Check the Quant Agent for the technical read."
+- Be direct, sharp, and brief. Max 3 short paragraphs.
 ${notifyAgent ? "\n[NOTIFY MODE: This message will be logged and considered in tomorrow's pipeline run. Acknowledge this.]" : ""}`;
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
