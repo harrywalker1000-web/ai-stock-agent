@@ -3,15 +3,18 @@ import { NextRequest, NextResponse } from "next/server";
 const REPO = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
 const WORKFLOW = "adhoc_report.yml";
 
-// Map GitHub step names → our agent keys
-const STEP_MAP: Record<string, string> = {
-  "agent 1 — macro":              "macro",
-  "agent 2 — news & catalysts":   "news",
-  "agent 3 — fundamental analyst":"fundamental",
-  "agent 4 — quant":              "quant",
-  "agent 5 — sentiment":          "sentiment",
-  "agent 6 — investment committee":"committee",
-};
+// Keyword-based matching — robust against em-dash encoding, capitalisation,
+// or GitHub prefixing step names with "Run " etc.
+function classifyStep(rawName: string): string | null {
+  const n = rawName.toLowerCase();
+  if (n.includes("macro")) return "macro";
+  if (n.includes("news") || n.includes("catalyst")) return "news";
+  if (n.includes("fundamental")) return "fundamental";
+  if (n.includes("quant")) return "quant";
+  if (n.includes("sentiment")) return "sentiment";
+  if (n.includes("committee") || (n.includes("investment") && n.includes("agent"))) return "committee";
+  return null;
+}
 
 export async function GET(req: NextRequest) {
   const ticker    = req.nextUrl.searchParams.get("ticker")?.toUpperCase();
@@ -68,7 +71,7 @@ export async function GET(req: NextRequest) {
     };
 
     for (const step of (job.steps ?? [])) {
-      const key = STEP_MAP[(step.name ?? "").toLowerCase()];
+      const key = classifyStep(step.name ?? "");
       if (!key) continue;
       if (step.conclusion === "success") agents[key] = "done";
       else if (step.conclusion === "failure") agents[key] = "failed";
