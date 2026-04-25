@@ -391,26 +391,42 @@ def _synthesize_sections(
         for c in news_catalysts[:5]
     ) or "  None found for this ticker specifically."
 
+    # Hard gate: if no live data came back at all, refuse to synthesise.
+    # LLM-hallucinated fundamentals are worse than no output for investment decisions.
     data_available = bool(fundamental.get("fundamental_score") or quant.get("rsi_14") or current_price)
-    data_warning = "" if data_available else """
-=== DATA AVAILABILITY WARNING ===
-Live API data is unavailable for this ticker (price feeds returned no data).
-THIS DOES NOT MEAN YOU SHOULD PRODUCE A WEAK REPORT.
-You MUST use your training knowledge to fill ALL sections:
-  - Company business model, products, revenue streams
-  - Recent material news and catalysts (as of your knowledge cutoff)
-  - Competitive landscape and key rivals
-  - Known financial profile (revenue scale, margins, balance sheet quality)
-  - Analyst sentiment and price target ranges known from training
-  - Key risk factors specific to this company/sector
-Do NOT write "data unavailable" or hedge with "I cannot assess". Write what you know.
-If the ticker appears incorrect (e.g. user typed NVO vs NOVO), note this in the thesis.
-"""
+    if not data_available:
+        return {
+            "s5_timing": {
+                "entry_verdict": "unfavourable",
+                "narrative": f"DATA UNAVAILABLE — all price and fundamental APIs returned no data for {ticker}. "
+                             "This usually means the ticker is incorrect, not listed on a major US exchange, "
+                             "or was recently delisted. No analysis was produced to avoid hallucinated output. "
+                             "Please verify the ticker and re-run.",
+            },
+            "s6_thesis": {
+                "narrative": f"No analysis produced. Live data APIs (yfinance, FMP, Alpha Vantage) all returned "
+                             f"no data for {ticker}. Check that this is a valid US-listed ticker symbol and re-run. "
+                             "Common mistakes: NVO vs NOVO, BRK.B vs BRKB, etc."
+            },
+            "s7_recommendation": {
+                "direction": "PASS",
+                "conviction": 0,
+                "expected_return_12m": "N/A — no data",
+                "suggested_size_pct": 0,
+                "stop_loss_pct": 0,
+                "key_risks": [
+                    "Ticker may be incorrect or not listed on a major US exchange",
+                    "All fundamental and price data APIs returned no results",
+                    "Re-run with the correct ticker before making any decision",
+                ],
+            },
+            "s13_scenarios": {},
+        }
 
     prompt = f"""You are the Investment Committee of Haz Capital Management writing a deep-dive research report on {ticker}.
 
 All six agents have completed their analysis. Synthesise into four sections.
-{data_warning}
+
 === AGENT DATA ===
 TICKER: {ticker}  |  COMPANY: {company.get('name', ticker)}  |  SECTOR: {fundamental.get('sector','?')}
 CURRENT PRICE: ${_f(current_price)}
@@ -441,9 +457,8 @@ NEWS CATALYSTS (this ticker):
 {catalyst_text}
 
 === YOUR TASK ===
-Write four sections. Be specific — cite real company names, events, competitive dynamics.
-Use your training knowledge freely for company context, news, and competitive landscape.
-No generic filler. No "data unavailable" hedging.
+Write four sections. Be specific — cite real numbers from the data above. No generic filler.
+Only use what the agent data provides. Do not invent figures.
 
 SECTION 5 — MARKET TIMING: Why is NOW the right entry (or not)?
   - Reference macro regime explicitly
