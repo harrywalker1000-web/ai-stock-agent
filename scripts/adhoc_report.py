@@ -71,6 +71,40 @@ def _emit(progress_mode: bool, step: str, label: str) -> None:
 # Agent runners
 # ---------------------------------------------------------------------------
 
+def _load_agent_output(filename: str) -> dict:
+    p = REPORTS_DIR / filename
+    if p.exists():
+        try:
+            return json.loads(p.read_text())
+        except Exception:
+            pass
+    return {}
+
+def _load_news_cats(ticker: str) -> list:
+    nr = _load_agent_output("news_report.json")
+    all_cats = nr.get("company_catalysts", [])
+    matched = [c for c in all_cats if str(c.get("ticker","")).upper() == ticker.upper()]
+    return matched if matched else all_cats[:10]
+
+def _load_fundamental(ticker: str) -> dict:
+    fr = _load_agent_output("fundamental_report.json")
+    for a in fr.get("fundamental_analyses", []):
+        if str(a.get("ticker","")).upper() == ticker.upper():
+            return a
+    return {}
+
+def _load_agent_output_ticker(filename: str, ticker: str) -> dict:
+    data = _load_agent_output(filename)
+    analyses = data.get("analyses") or data.get("results") or []
+    for a in analyses:
+        if str(a.get("ticker","")).upper() == ticker.upper():
+            return a
+    # Fallback: if report is flat (not a list), return as-is
+    if data.get("ticker","").upper() == ticker.upper():
+        return data
+    return {}
+
+
 def _run_macro(progress_mode: bool) -> dict:
     _emit(progress_mode, "macro", "Macro Agent")
     from agents import macro_agent
@@ -246,7 +280,30 @@ def _build_s3_setup(fundamental: dict) -> dict:
 
 def _build_s4_valuation(fundamental: dict) -> dict:
     """Section 4 — Valuation."""
-    return fundamental.get("valuation") or {}
+    val = dict(fundamental.get("valuation") or {})
+    # Supplement sparse valuation from score_result fields (always API-sourced)
+    if not val.get("narrative"):
+        parts = []
+        vvp = fundamental.get("valuation_vs_peers", "")
+        pvi = fundamental.get("price_vs_intrinsic_value", "")
+        if vvp:
+            parts.append(vvp)
+        if pvi:
+            parts.append(f"Price vs intrinsic: {pvi}")
+        if parts:
+            val["narrative"] = " ".join(parts)
+    if not val.get("methodology"):
+        pe = fundamental.get("pe_ratio") or fundamental.get("pe_trailing")
+        if pe:
+            val["methodology"] = "P/E ratio relative to sector peer median"
+        else:
+            val["methodology"] = "EV/EBITDA and P/S ratio (P/E unavailable)"
+    # Ensure consensus_target comes from analyst_rating_history if valuation doesn't have it
+    if val.get("analyst_consensus_target") is None:
+        arh = fundamental.get("analyst_rating_history") or {}
+        if arh.get("avg_target_price"):
+            val["analyst_consensus_target"] = arh["avg_target_price"]
+    return val
 
 
 def _build_s8_technical(quant: dict) -> dict:
@@ -283,25 +340,50 @@ def _build_s9_sentiment(sentiment: dict) -> dict:
     }
 
 
-def _build_s10_institutional(ticker: str) -> dict:
-    """Section 10 — Institutional Activity (from institutional_report if available)."""
+def _build_s10_institutional(ticker: str, fundamental: dict | None = None) -> dict:
+    """Section 10 — Institutional Activity (from institutional_report if available,
+    falls back to cap_table data from fundamental when institutional agent wasn't run)."""
     inst_path = REPORTS_DIR / "institutional_report.json"
-    if not inst_path.exists():
-        return {"note": "Institutional data not available in this run."}
-    with open(inst_path) as f:
-        inst = json.load(f)
-    # Find convergence signals for this ticker
-    convergence = [c for c in (inst.get("convergence_signals") or [])
-                   if str(c.get("ticker", "")).upper() == ticker.upper()]
-    fund_theses = [t for t in (inst.get("fund_theses") or [])
-                   if str(t.get("ticker", "")).upper() == ticker.upper()]
-    unusual_options = [o for o in (inst.get("unusual_options") or [])
-                       if str(o.get("ticker", "")).upper() == ticker.upper()]
+    if inst_path.exists():
+        with open(inst_path) as f:
+            inst = json.load(f)
+        convergence = [c for c in (inst.get("convergence_signals") or [])
+                       if str(c.get("ticker", "")).upper() == ticker.upper()]
+        fund_theses = [t for t in (inst.get("fund_theses") or [])
+                       if str(t.get("ticker", "")).upper() == ticker.upper()]
+        unusual_options = [o for o in (inst.get("unusual_options") or [])
+                           if str(o.get("ticker", "")).upper() == ticker.upper()]
+        return {
+            "convergence_signals": convergence,
+            "fund_theses":         fund_theses,
+            "unusual_options":     unusual_options,
+            "multi_fund_flag":     len(fund_theses) >= 2,
+            "source":              "institutional_agent",
+        }
+
+    # Fallback: use ownership data from fundamental report's cap_table (Yahoo Finance)
+    cap_table = (fundamental or {}).get("cap_table") or {}
+    inst_pct = cap_table.get("institutional_pct")
+    insider_pct = cap_table.get("insider_pct")
+    major_holders = cap_table.get("major_holders") or []
+    analyst_hist = (fundamental or {}).get("analyst_rating_history") or {}
     return {
-        "convergence_signals": convergence,
-        "fund_theses":         fund_theses,
-        "unusual_options":     unusual_options,
-        "multi_fund_flag":     len(fund_theses) >= 2,
+        "convergence_signals": [],
+        "fund_theses":         [],
+        "unusual_options":     [],
+        "multi_fund_flag":     False,
+        "institutional_pct":   inst_pct,
+        "insider_pct":         insider_pct,
+        "major_holders":       major_holders,
+        "analyst_consensus":   analyst_hist.get("current_consensus"),
+        "analyst_target":      analyst_hist.get("avg_target_price"),
+        "analyst_trend":       analyst_hist.get("trend_24m"),
+        "analyst_summary":     analyst_hist.get("summary"),
+        "source":              "yahoo_finance_cap_table",
+        "note":                (
+            f"Institutional ownership: {inst_pct:.1f}% of shares (Yahoo Finance). "
+            "Full convergence analysis requires the institutional agent (daily pipeline)."
+        ) if inst_pct else "Institutional data not available for this ticker.",
     }
 
 
@@ -344,22 +426,60 @@ def _build_s12_risk(fundamental: dict, quant: dict) -> dict:
 
 def _build_s14_data(fundamental: dict, quant: dict, sentiment: dict, generated_at: str) -> dict:
     """Section 14 — Data Reliability."""
-    sources = []
-    if fundamental.get("data_confidence"):
-        sources.append({"field": "Financial data", "source": "yfinance + Alpha Vantage + SEC EDGAR",
-                        "confidence": fundamental["data_confidence"]})
-    if fundamental.get("data_conflicts"):
-        sources.append({"field": "Conflicts flagged", "source": "Cross-source validation",
-                        "conflicts": fundamental["data_conflicts"]})
-    if quant.get("rsi_14") is not None:
-        sources.append({"field": "Technical indicators", "source": "yfinance OHLCV (calculated)"})
+    dc = fundamental.get("data_confidence") or {}
+    level = dc.get("level", "medium") if isinstance(dc, dict) else str(dc)
+    sources_used = dc.get("sources_used", []) if isinstance(dc, dict) else []
+    sources_count = dc.get("sources_count", 1) if isinstance(dc, dict) else 1
+    conflicts_count = dc.get("conflicts_count", 0) if isinstance(dc, dict) else 0
+    conflicts = fundamental.get("data_conflicts") or []
+
+    # Build human-readable explanation of WHY confidence is at this level
+    level_reasons: list[str] = []
+    if sources_count >= 3:
+        level_reasons.append(f"Data cross-referenced across {sources_count} independent sources ({', '.join(sources_used)})")
+    elif sources_count == 2:
+        level_reasons.append(f"Data from 2 sources ({', '.join(sources_used)}) — third source unavailable or returned no data")
+    else:
+        level_reasons.append(f"Only 1 source available ({', '.join(sources_used) or 'yfinance'}) — could not cross-reference")
+    if conflicts_count > 0:
+        level_reasons.append(f"{conflicts_count} conflict(s) found between sources — conservative figure used where sources disagreed")
+    if level == "high":
+        level_reasons.append("All critical fields verified across 3+ sources with no major conflicts")
+    elif level == "medium":
+        level_reasons.append("Some fields could not be cross-verified — figures are directionally reliable but treat specific numbers with moderate caution")
+    else:
+        level_reasons.append("Limited source coverage — treat all figures as estimates until cross-verified")
+
+    sources = [
+        {"field": "Financial metrics", "source": ", ".join(sources_used) or "yfinance",
+         "type": "live_api", "note": "Market cap, margins, revenue, EPS pulled live from filing data"},
+        {"field": "Technical indicators", "source": "yfinance OHLCV",
+         "type": "live_api", "note": "RSI, MACD, Bollinger Bands calculated from price/volume history"},
+    ]
+    if quant.get("rsi_14") is None:
+        sources[1]["note"] = "Not available — quant agent may not have run"
     if sentiment.get("analyst_consensus"):
-        sources.append({"field": "Analyst consensus", "source": "FMP /stable/ + Finnhub"})
+        sources.append({"field": "Analyst consensus", "source": "FMP + Finnhub",
+                        "type": "live_api", "note": "Wall Street analyst ratings and price targets"})
+    sources.append({"field": "Company overview, comparables narrative, management",
+                    "source": "GPT-4o (LLM training knowledge)",
+                    "type": "llm_knowledge",
+                    "note": "Display-only. Never used for scoring or trade decisions. May be outdated."})
+    if conflicts:
+        sources.append({"field": "Data conflicts detected", "source": "Cross-source validation",
+                        "type": "conflict", "conflicts": conflicts})
+
     return {
-        "sources":          sources,
-        "data_confidence":  fundamental.get("data_confidence", "medium"),
-        "last_updated":     generated_at,
-        "agents_run":       ["Macro", "News", "Fundamental", "Quant", "Sentiment", "Committee"],
+        "sources":           sources,
+        "data_confidence":   level,
+        "confidence_reason": " | ".join(level_reasons),
+        "sources_count":     sources_count,
+        "conflicts_count":   conflicts_count,
+        "last_updated":      generated_at,
+        "agents_run":        ["Macro", "News", "Fundamental", "Quant", "Sentiment", "Committee"],
+        "llm_fields":        ["company_info.overview", "company_info.revenue_segments", "management_team",
+                              "analyst_rating_history.trend", "setup_checklist.sustainability_assessment",
+                              "setup_checklist.upcoming_catalysts", "comparables.company_names"],
     }
 
 
@@ -445,7 +565,9 @@ QUANT:
   RSI: {_f(quant.get('rsi_14'))}  |  Trend: {quant.get('trend','?')}  |  Forward bias: {quant.get('forward_bias','?')}
   Mean reversion score: {_f(quant.get('mean_reversion_score'))}  |  Trade type: {quant.get('trade_type','?')}
   Support: ${_f(quant.get('support'))}  |  Resistance: ${_f(quant.get('resistance'))}
-  ATR%: {_f(quant.get('atr_pct'))}%  |  1M return: {_f(quant.get('ret_1m'))}%  |  3M return: {_f(quant.get('ret_3m'))}%
+  ATR%: {_f(quant.get('atr_pct'))}%  |  1M return: {_f(quant.get('ret_1m'))}%  |  3M return: {_f(quant.get('ret_3m'))}%  |  1yr return: {_f(quant.get('ret_1yr'))}%
+  52w High: ${_f(quant.get('high_52w') or quant.get('week52_high'))}  |  52w Low: ${_f(quant.get('low_52w') or quant.get('week52_low'))}
+  % from 52w High: {_f(quant.get('pct_from_high') or quant.get('pct_from_52w_high'))}%  |  vs SPY 1yr: {_f(quant.get('vs_spy_1yr'))}%
   Q-summary: {quant.get('quant_summary','')[:200]}
 
 SENTIMENT:
@@ -463,12 +585,16 @@ Only use what the agent data provides. Do not invent figures.
 SECTION 5 — MARKET TIMING: Why is NOW the right entry (or not)?
   - Reference macro regime explicitly
   - Reference technical setup (RSI, trend, support/resistance)
-  - Reference any recent catalyst
+  - ALWAYS state current price and % from 52-week high (if data available) — e.g. "trading $X, -Y% from 52w high of $Z"
+  - Reference any recent catalyst or note absence of catalyst data
   - State the downside scenario if timing is wrong
   - Conclude with entry_verdict: "favourable" | "neutral" | "unfavourable"
 
 SECTION 6 — INVESTMENT THESIS (200-400 words)
+  REQUIRED: mention current price, % from 52-week high, and what that price action implies for entry quality
+  REQUIRED: mention any specific news catalysts found above (or explicitly note if none were found)
   Bull case narrative: market position, quality of earnings, growth drivers, moat, sector tailwinds, macro fit
+  Do NOT just say "price is low therefore buy" — reason about WHY the dislocation is an opportunity (or not)
 
 SECTION 7 — RECOMMENDATION
   - direction: "BUY" | "HOLD" | "SELL" | "PASS"
@@ -535,12 +661,12 @@ Return ONLY valid JSON:
 # Main entry point
 # ---------------------------------------------------------------------------
 
-def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = False) -> dict:
+def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = False, agents_already_run: bool = False) -> dict:
     ticker = ticker.upper().strip()
     print(f"Adhoc report: {ticker} | force_refresh={force_refresh}", flush=True)
 
-    # 1. Cache check
-    if not force_refresh:
+    # 1. Cache check (skip if agents already ran in separate steps)
+    if not force_refresh and not agents_already_run:
         cached = _cache_path(ticker)
         if cached:
             print(f"  Serving from cache: {cached.name}", flush=True)
@@ -551,15 +677,24 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
 
     generated_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
 
-    # 2. Write single-ticker candidates_report.json
-    _write_candidates_report(ticker)
+    if agents_already_run:
+        # Agents ran as separate CI steps — read their outputs directly
+        print("  Reading agent outputs from previous steps...", flush=True)
+        macro      = _load_agent_output("macro_report.json")
+        news_cats  = _load_news_cats(ticker)
+        fundamental= _load_fundamental(ticker)
+        quant      = _load_agent_output_ticker("quant_report.json", ticker)
+        sentiment  = _load_agent_output_ticker("sentiment_report.json", ticker)
+    else:
+        # 2. Write single-ticker candidates_report.json
+        _write_candidates_report(ticker)
 
-    # 3. Run agents in order
-    macro      = _run_macro(progress_mode)
-    news_cats  = _run_news(ticker, progress_mode)
-    fundamental= _run_fundamental(ticker, progress_mode)
-    quant      = _run_quant(ticker, progress_mode)
-    sentiment  = _run_sentiment(ticker, progress_mode)
+        # 3. Run agents in order
+        macro      = _run_macro(progress_mode)
+        news_cats  = _run_news(ticker, progress_mode)
+        fundamental= _run_fundamental(ticker, progress_mode)
+        quant      = _run_quant(ticker, progress_mode)
+        sentiment  = _run_sentiment(ticker, progress_mode)
 
     if not fundamental:
         return {"error": f"Fundamental analysis failed for {ticker} — ticker may not be supported.", "ticker": ticker}
@@ -607,7 +742,7 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
         "s8_news":       {"catalysts": news_cats[:10], "count": len(news_cats)},
         "s8_technical":  _build_s8_technical(quant),
         "s9_sentiment":  _build_s9_sentiment(sentiment),
-        "s10_institutional": _build_s10_institutional(ticker),
+        "s10_institutional": _build_s10_institutional(ticker, fundamental),
         "s11_performance": _build_s11_performance(quant),
         "s12_risk":      _build_s12_risk(fundamental, quant),
         "s13_scenarios": synthesis.get("s13_scenarios", {}),
@@ -739,7 +874,7 @@ def generate_from_pipeline_data(
         "s8_news":           {"catalysts": news_catalysts[:10], "count": len(news_catalysts)},
         "s8_technical":      _build_s8_technical(quant),
         "s9_sentiment":      _build_s9_sentiment(sentiment),
-        "s10_institutional": _build_s10_institutional(ticker),
+        "s10_institutional": _build_s10_institutional(ticker, fundamental),
         "s11_performance":   _build_s11_performance(quant),
         "s12_risk":          _build_s12_risk(fundamental, quant),
         "s13_scenarios":     synthesis.get("s13_scenarios", {}),
@@ -767,7 +902,31 @@ if __name__ == "__main__":
     parser.add_argument("--ticker",        required=True,       help="Stock ticker (e.g. AAPL)")
     parser.add_argument("--force-refresh", action="store_true", help="Ignore cache and re-run all agents")
     parser.add_argument("--progress",      action="store_true", help="Emit JSON progress lines to stdout (for web UI)")
+    parser.add_argument("--agent",         choices=["macro","news","fundamental","quant","sentiment","committee"],
+                        help="Run only one agent stage (used by CI to split into trackable steps)")
     args = parser.parse_args()
+
+    # Single-agent mode: run one stage and exit. Used by the workflow for per-step tracking.
+    if args.agent:
+        ticker = args.ticker.upper()
+        if args.agent == "macro":
+            _run_macro(progress_mode=False)
+        elif args.agent == "news":
+            os.environ["ADHOC_TICKER"] = ticker
+            _run_news(ticker, progress_mode=False)
+        elif args.agent == "fundamental":
+            _run_fundamental(ticker, progress_mode=False)
+        elif args.agent == "quant":
+            _run_quant(ticker, progress_mode=False)
+        elif args.agent == "sentiment":
+            _run_sentiment(ticker, progress_mode=False)
+        elif args.agent == "committee":
+            # Committee step: assemble final report from already-written agent outputs
+            result = generate(ticker, force_refresh=args.force_refresh, progress_mode=False, agents_already_run=True)
+            if "error" in result:
+                print(f"\nERROR: {result['error']}", flush=True)
+                sys.exit(1)
+        sys.exit(0)
 
     result = generate(args.ticker, force_refresh=args.force_refresh, progress_mode=args.progress)
 

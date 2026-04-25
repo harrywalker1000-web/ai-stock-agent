@@ -32,23 +32,34 @@ const STEPS = [
   { key: "committee",   label: "Investment Committee" },
 ];
 
+type AgentStatus = "pending" | "running" | "done" | "failed";
+interface Progress {
+  status: string;
+  agents: Record<string, AgentStatus>;
+  pct: number;
+  done: number;
+  total: number;
+}
+
 export default function AdhocInputPage() {
   const [ticker, setTicker]       = useState("");
   const [useCache, setUseCache]   = useState(true);
   const [status, setStatus]       = useState<"idle"|"queued"|"error">("idle");
   const [queued, setQueued]       = useState<string | null>(null);
+  const [queuedAt, setQueuedAt]   = useState<number | null>(null);
   const [errorMsg, setErrorMsg]   = useState<string | null>(null);
   const [recent, setRecent]       = useState<ReportPreview[]>([]);
+  const [progress, setProgress]   = useState<Progress | null>(null);
 
   useEffect(() => {
     // Restore queued state across refreshes
     try {
       const raw = localStorage.getItem("adhocQueued");
       if (raw) {
-        const { ticker: t, queuedAt } = JSON.parse(raw) as { ticker: string; queuedAt: number };
-        const age = Date.now() - queuedAt;
-        if (age < 20 * 60 * 1000) { // keep for up to 20 minutes
-          setQueued(t); setStatus("queued");
+        const { ticker: t, queuedAt: qa } = JSON.parse(raw) as { ticker: string; queuedAt: number };
+        const age = Date.now() - qa;
+        if (age < 20 * 60 * 1000) {
+          setQueued(t); setQueuedAt(qa); setStatus("queued");
         } else {
           localStorage.removeItem("adhocQueued");
         }
@@ -82,6 +93,32 @@ export default function AdhocInputPage() {
       .catch(() => {});
   }, []);
 
+  // Poll GitHub Actions for per-agent progress while queued
+  useEffect(() => {
+    if (status !== "queued" || !queued || !queuedAt) return;
+    let stopped = false;
+    const poll = async () => {
+      try {
+        const res = await fetch(`/api/adhoc/progress?ticker=${queued}&queuedAt=${queuedAt}`);
+        const data: Progress & { status: string } = await res.json();
+        if (!stopped) {
+          setProgress(data);
+          // If completed, refresh the reports list after a short delay
+          if (data.status === "completed") {
+            setTimeout(() => {
+              fetch("/api/adhoc").then(r => r.json()).then(d => {
+                if (Array.isArray(d)) setRecent(d);
+              }).catch(() => {});
+            }, 3000);
+          }
+        }
+      } catch { /* ignore */ }
+    };
+    poll();
+    const iv = setInterval(poll, 6000);
+    return () => { stopped = true; clearInterval(iv); };
+  }, [status, queued, queuedAt]);
+
   const run = async () => {
     const t = ticker.trim().toUpperCase().replace(/[^A-Z]/g, "");
     if (!t) return;
@@ -100,9 +137,12 @@ export default function AdhocInputPage() {
         setErrorMsg(data.error);
         setStatus("error");
       } else {
+        const now = Date.now();
         setQueued(t);
+        setQueuedAt(now);
+        setProgress(null);
         setStatus("queued");
-        try { localStorage.setItem("adhocQueued", JSON.stringify({ ticker: t, queuedAt: Date.now() })); } catch { /* ignore */ }
+        try { localStorage.setItem("adhocQueued", JSON.stringify({ ticker: t, queuedAt: now })); } catch { /* ignore */ }
       }
     } catch (e) {
       setErrorMsg(String(e));
@@ -171,24 +211,68 @@ export default function AdhocInputPage() {
         {/* Status: queued */}
         {status === "queued" && queued && (
           <div className="card p-5 mb-6 border border-[#10B981]/30 bg-[#10B981]/05">
-            <p className="text-sm font-bold text-[#10B981] mb-2">Analysis queued for {queued}</p>
+            <p className="text-sm font-bold text-[#10B981] mb-1">Analysis queued for {queued}</p>
+            {/* Dynamic status line */}
             <p className="text-xs text-[#9CA3AF] mb-4">
-              All 6 agents are running in the cloud. The report will appear below once
-              the workflow completes and the dashboard redeploys (~3–5 minutes).
+              {progress?.status === "completed"
+                ? "All agents done — report will appear below shortly."
+                : progress?.status === "failed"
+                ? "Workflow failed. Check GitHub Actions for details."
+                : progress?.status === "in_progress"
+                ? (() => {
+                    const running = STEPS.find(s => progress?.agents[s.key] === "running");
+                    return running
+                      ? `${running.label} running…`
+                      : `Workflow in progress (${progress?.done ?? 0}/${progress?.total ?? 6} agents done)`;
+                  })()
+                : "Agents are starting up in the cloud (~3–5 min total)."}
             </p>
-            {/* Agent pipeline progress visualization */}
-            <div className="flex flex-wrap gap-2">
-              {STEPS.map((s, i) => (
-                <div key={s.key} className="flex items-center gap-1.5 text-xs text-[#6B7280]">
-                  <span className="w-5 h-5 rounded-full border border-[#374151] flex items-center justify-center text-[10px]">
-                    {i + 1}
-                  </span>
-                  {s.label}
-                  {i < STEPS.length - 1 && <span className="text-[#9CA3AF]">→</span>}
-                </div>
-              ))}
+            {/* Agent pipeline steps */}
+            <div className="flex flex-wrap gap-x-1 gap-y-2 mb-4">
+              {STEPS.map((s, i) => {
+                const agentStatus = progress?.agents[s.key] ?? "pending";
+                const isDone    = agentStatus === "done";
+                const isRunning = agentStatus === "running";
+                const isFailed  = agentStatus === "failed";
+                const dotColor  = isDone    ? "bg-[#10B981] border-[#10B981]"
+                                : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] animate-pulse"
+                                : isFailed  ? "bg-[#EF4444] border-[#EF4444]"
+                                :             "bg-transparent border-[#374151]";
+                const labelColor = isDone    ? "text-[#10B981]"
+                                 : isRunning ? "text-[#0EA5E9]"
+                                 : isFailed  ? "text-[#EF4444]"
+                                 :             "text-[#4B5563]";
+                return (
+                  <div key={s.key} className="flex items-center gap-1.5 text-xs">
+                    <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all ${dotColor}`}>
+                      {isDone ? (
+                        <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      ) : isFailed ? "✕" : i + 1}
+                    </span>
+                    <span className={`transition-colors ${labelColor}`}>{s.label}</span>
+                    {i < STEPS.length - 1 && (
+                      <span className={`${isDone ? "text-[#10B981]/50" : "text-[#374151]"}`}>→</span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <div className="mt-4 pt-3 border-t border-white/05">
+            {/* Progress bar */}
+            <div className="mb-4">
+              <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
+                <span>{progress?.done ?? 0} of {progress?.total ?? 6} agents complete</span>
+                <span>{progress?.pct ?? 0}%</span>
+              </div>
+              <div className="h-1.5 bg-white/05 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#0EA5E9] rounded-full transition-all duration-500"
+                  style={{ width: `${progress?.pct ?? 0}%` }}
+                />
+              </div>
+            </div>
+            <div className="pt-3 border-t border-white/05">
               <Link
                 href={`/reports/adhoc/${queued}`}
                 className="text-xs text-[#0EA5E9] hover:underline"

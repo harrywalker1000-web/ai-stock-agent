@@ -58,6 +58,17 @@ function KV({ label, value, color }: { label: string; value: React.ReactNode; co
 function prettify(s: string) {
   return s.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 }
+
+function AiTag({ title = "Estimated by LLM — not directly from live API data" }: { title?: string }) {
+  return (
+    <span
+      title={title}
+      className="ml-1 text-[9px] font-bold px-1 py-0.5 rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 cursor-help align-middle"
+    >
+      AI
+    </span>
+  );
+}
 function safeNote(n: any): string | null {
   if (n == null || n === "") return null;
   if (typeof n === "object") {
@@ -321,7 +332,10 @@ export default function AdhocTickerPage() {
           <Card id="s2" title="2. Company Info" open={open.s2} onToggle={() => toggle("s2")}>
             {/* Overview text */}
             {(s2.background?.overview ?? s2.background?.description) && (
-              <p className="text-xs text-[#C4CDD6] leading-relaxed mb-4">{s2.background.overview ?? s2.background.description}</p>
+              <p className="text-xs text-[#C4CDD6] leading-relaxed mb-4">
+                {s2.background.overview ?? s2.background.description}
+                <AiTag title="Company overview from LLM training knowledge — may be outdated" />
+              </p>
             )}
             {/* HQ / employees */}
             {(s2.background?.hq || s2.background?.employees) && (
@@ -596,7 +610,53 @@ export default function AdhocTickerPage() {
             {s10.multi_fund_flag && (
               <p className="text-xs text-[#10B981] font-bold mb-3">2+ institutional funds holding — convergence signal</p>
             )}
-            {Array.isArray(s10.convergence_signals) && s10.convergence_signals.length > 0 ? (
+            {/* Ownership summary from Yahoo Finance */}
+            {(s10.institutional_pct != null || s10.insider_pct != null) && (
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {s10.institutional_pct != null && (
+                  <div className="bg-white/03 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#6B7280] uppercase tracking-wider mb-1">Institutional</p>
+                    <p className="text-lg font-bold font-mono text-[#0EA5E9]">{Number(s10.institutional_pct).toFixed(1)}%</p>
+                  </div>
+                )}
+                {s10.insider_pct != null && (
+                  <div className="bg-white/03 rounded-xl p-3 text-center">
+                    <p className="text-[10px] text-[#6B7280] uppercase tracking-wider mb-1">Insider</p>
+                    <p className="text-lg font-bold font-mono text-[#E8EDF2]">{Number(s10.insider_pct).toFixed(1)}%</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Major holders */}
+            {Array.isArray(s10.major_holders) && s10.major_holders.length > 0 && (
+              <div className="mb-4">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">
+                  Known Major Holders <AiTag title="From LLM training knowledge — verify with SEC 13F filings" />
+                </p>
+                <div className="space-y-1">
+                  {(s10.major_holders as any[]).slice(0, 6).map((h: any, i: number) => (
+                    <div key={i} className="flex justify-between text-xs">
+                      <span className="text-[#C4CDD6]">{h.name ?? h}</span>
+                      {h.pct != null && <span className="font-mono text-[#6B7280]">{Number(h.pct).toFixed(1)}%</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {/* Analyst consensus from rating history */}
+            {(s10.analyst_consensus || s10.analyst_target || s10.analyst_trend) && (
+              <div className="mb-3 bg-white/02 rounded-lg p-3">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-1.5">
+                  Analyst Ratings <AiTag title="From LLM training knowledge — verify with current broker data" />
+                </p>
+                {s10.analyst_consensus && <KV label="Consensus" value={s10.analyst_consensus} />}
+                {s10.analyst_target && <KV label="Avg Target" value={usd(s10.analyst_target)} color="#10B981" />}
+                {s10.analyst_trend && <KV label="Rating Trend (24m)" value={s10.analyst_trend} />}
+                {s10.analyst_summary && <p className="text-[11px] text-[#9CA3AF] mt-2">{s10.analyst_summary}</p>}
+              </div>
+            )}
+            {/* Convergence signals from institutional agent */}
+            {Array.isArray(s10.convergence_signals) && s10.convergence_signals.length > 0 && (
               <div className="space-y-2">
                 {(s10.convergence_signals as any[]).map((c: any, i: number) => (
                   <div key={i} className="bg-white/03 rounded-lg p-3 text-xs text-[#C4CDD6]">
@@ -606,9 +666,8 @@ export default function AdhocTickerPage() {
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-xs text-[#4B5563]">{s10.note ?? "No institutional convergence signals found."}</p>
             )}
+            {s10.note && <p className="text-[11px] text-[#4B5563] mt-2">{s10.note}</p>}
           </Card>
 
           {/* S11 — Performance */}
@@ -630,14 +689,34 @@ export default function AdhocTickerPage() {
 
           {/* S12 — Risk */}
           <Card id="s12" title="12. Risk Dashboard" open={open.s12} onToggle={() => toggle("s12")}>
-            <KV label="Beta" value={num(s12.beta)} />
-            <KV label="Max Drawdown" value={pct(s12.max_drawdown)} />
-            <KV label="30d Volatility" value={pct(s12.volatility_pct)} />
-            <KV label="ATR %" value={pct(s12.atr_pct)} />
-            <KV label="Net Debt / EBITDA" value={num(s12.debt_to_equity)} />
-            <KV label="Current Ratio" value={num(s12.current_ratio)} />
-            <KV label="Liquidity Risk" value={s12.liquidity_risk} />
-            <KV label="Geographic Concentration" value={s12.geographic_concentration ?? "No flag"} />
+            <div className="grid grid-cols-2 gap-x-6">
+              <KV label="Beta" value={s12.beta != null ? num(s12.beta) : "—"}
+                color={s12.beta != null ? (s12.beta > 1.5 ? "#EF4444" : s12.beta < 0.8 ? "#10B981" : "#C4CDD6") : undefined} />
+              <KV label="Liquidity Risk" value={s12.liquidity_risk ?? "—"}
+                color={s12.liquidity_risk === "low" ? "#10B981" : s12.liquidity_risk === "high" ? "#EF4444" : "#F59E0B"} />
+              <KV label="Max Drawdown" value={s12.max_drawdown != null ? pct(s12.max_drawdown) : "—"}
+                color={s12.max_drawdown != null && s12.max_drawdown < -30 ? "#EF4444" : undefined} />
+              <KV label="30d Volatility" value={s12.volatility_pct != null ? pct(s12.volatility_pct) : "—"} />
+              <KV label="ATR %" value={s12.atr_pct != null ? pct(s12.atr_pct) : "—"} />
+              <KV label="Net Debt / EBITDA" value={s12.debt_to_equity != null ? num(s12.debt_to_equity) : "—"}
+                color={s12.debt_to_equity != null ? (s12.debt_to_equity > 4 ? "#EF4444" : s12.debt_to_equity > 2 ? "#F59E0B" : "#10B981") : undefined} />
+              <KV label="Current Ratio" value={s12.current_ratio != null ? num(s12.current_ratio) : "—"}
+                color={s12.current_ratio != null ? (s12.current_ratio < 1 ? "#EF4444" : s12.current_ratio > 2 ? "#10B981" : "#C4CDD6") : undefined} />
+              <KV label="Geographic Risk" value={s12.geographic_concentration ?? "No flag"} />
+            </div>
+            {/* Key risks from recommendation */}
+            {Array.isArray(s7.key_risks) && s7.key_risks.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Key Risks</p>
+                <ul className="space-y-1.5">
+                  {(s7.key_risks as string[]).map((r, i) => (
+                    <li key={i} className="flex items-start gap-2 text-xs text-[#C4CDD6]">
+                      <span className="text-[#EF4444] mt-0.5 shrink-0">▲</span>{r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {Array.isArray(s12.data_conflicts) && s12.data_conflicts.length > 0 && (
               <div className="mt-3">
                 <p className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider mb-1">Data Conflicts</p>
@@ -711,19 +790,57 @@ export default function AdhocTickerPage() {
 
           {/* S14 — Data Reliability */}
           <Card id="s14" title="14. Data Reliability" open={open.s14} onToggle={() => toggle("s14")}>
-            <KV label="Data Confidence" value={
-              typeof s14.data_confidence === "string"
-                ? s14.data_confidence
-                : (s14.data_confidence as any)?.level ?? "—"
-            } />
+            {/* Confidence level with colour */}
+            {(() => {
+              const lvl = typeof s14.data_confidence === "string" ? s14.data_confidence : (s14.data_confidence as any)?.level ?? "medium";
+              const color = lvl === "high" ? "#10B981" : lvl === "low" ? "#EF4444" : "#F59E0B";
+              return (
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-xs font-bold uppercase" style={{ color }}>{lvl} confidence</span>
+                  <div className="flex gap-1">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="w-8 h-1.5 rounded-full"
+                        style={{ background: i <= (lvl === "high" ? 3 : lvl === "medium" ? 2 : 1) ? color : "rgba(255,255,255,0.08)" }} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+            {/* Why is confidence at this level */}
+            {s14.confidence_reason && (
+              <p className="text-[11px] text-[#9CA3AF] leading-relaxed mb-4">{s14.confidence_reason}</p>
+            )}
+            <KV label="Sources checked" value={s14.sources_count ?? "—"} />
+            {s14.conflicts_count != null && (
+              <KV label="Data conflicts" value={s14.conflicts_count}
+                color={s14.conflicts_count > 0 ? "#F59E0B" : "#10B981"} />
+            )}
             <KV label="Last Updated" value={s14.last_updated} />
             <KV label="Agents Run" value={(s14.agents_run as string[] ?? []).join(", ")} />
-            {Array.isArray(s14.sources) && (s14.sources as any[]).map((src: any, i: number) => (
-              <div key={i} className="mt-2 bg-white/02 rounded-lg p-2">
-                <p className="text-[10px] font-bold text-[#6B7280]">{src.field}</p>
-                <p className="text-[10px] text-[#4B5563]">{src.source}</p>
+            {/* Per-source breakdown */}
+            {Array.isArray(s14.sources) && s14.sources.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Data Sources</p>
+                <div className="space-y-1.5">
+                  {(s14.sources as any[]).filter(src => src.type !== "conflict").map((src: any, i: number) => {
+                    const isLlm = src.type === "llm_knowledge";
+                    return (
+                      <div key={i} className="flex items-start gap-2 bg-white/02 rounded-lg p-2">
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 mt-0.5 ${
+                          isLlm ? "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20"
+                                : "bg-[#0EA5E9]/10 text-[#0EA5E9] border border-[#0EA5E9]/20"
+                        }`}>{isLlm ? "AI" : "API"}</span>
+                        <div>
+                          <p className="text-[10px] font-bold text-[#C4CDD6]">{src.field}</p>
+                          <p className="text-[10px] text-[#4B5563]">{src.source}</p>
+                          {src.note && <p className="text-[10px] text-[#374151] mt-0.5">{src.note}</p>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            ))}
+            )}
           </Card>
 
         </main>

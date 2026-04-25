@@ -174,6 +174,7 @@ def _fetch_yf_metrics(ticker: str) -> dict:
         result["beta"] = info.get("beta")
         result["sector"] = info.get("sector", "")
         result["industry"] = info.get("industry", "")
+        result["avg_daily_volume"] = info.get("averageVolume") or info.get("averageDailyVolume10Day")
 
         # Revenue growth YoY from financials
         try:
@@ -642,6 +643,7 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
         "shares_outstanding", "historical_financials", "net_income_ttm", "ebitda",
         "total_cash", "total_debt",
         "analyst_revenue_estimates", "analyst_eps_estimates",
+        "avg_daily_volume",
     ):
         reconciled[field] = yf.get(field)
 
@@ -715,8 +717,8 @@ def _fetch_peers(ticker: str) -> list[str]:
     try:
         client = finnhub.Client(api_key=key)
         peers = client.company_peers(ticker) or []
-        # Remove the ticker itself, cap at 5 peers
-        peers = [p for p in peers if p != ticker][:5]
+        # Keep only US-listed tickers (no exchange suffixes like .CO, .L, .PA)
+        peers = [p for p in peers if p != ticker and "." not in p][:5]
         return peers
     except Exception as exc:
         logger.warning("Finnhub peers failed for %s: %s", ticker, exc)
@@ -1375,6 +1377,28 @@ def run(mode: str = "new_opportunities") -> dict:
             "sources_used": reconciled["sources_used"],
             "conflicts_count": len(conflicts),
         }
+
+        # Pass through key API-sourced metrics that the LLM output doesn't carry
+        llm_result.setdefault("market_cap", reconciled.get("market_cap"))
+        llm_result.setdefault("beta", reconciled.get("beta"))
+        llm_result.setdefault("current_ratio", reconciled.get("current_ratio"))
+        llm_result.setdefault("avg_daily_volume", reconciled.get("avg_daily_volume"))
+        llm_result.setdefault("current_price", reconciled.get("current_price"))
+
+        # Compute 3yr revenue CAGR from historical_financials (live API data)
+        # The framework LLM previously returned null for this — compute it here instead
+        hist = reconciled.get("historical_financials") or []
+        if len(hist) >= 2:
+            r_latest = hist[0].get("revenue")
+            r_oldest = hist[-1].get("revenue")
+            n_years = len(hist) - 1
+            if r_latest and r_oldest and r_oldest > 0 and n_years > 0:
+                cagr = (r_latest / r_oldest) ** (1.0 / n_years) - 1
+                sc = llm_result.get("setup_checklist") or {}
+                if sc.get("revenue_cagr_3yr") is None:
+                    sc["revenue_cagr_3yr"] = round(cagr * 100, 1)
+                    sc["above_20pct_threshold"] = cagr >= 0.20
+                    llm_result["setup_checklist"] = sc
 
         # Attach P&L context in portfolio_review mode
         if position_context:
