@@ -174,6 +174,7 @@ def _fetch_yf_metrics(ticker: str) -> dict:
         result["beta"] = info.get("beta")
         result["sector"] = info.get("sector", "")
         result["industry"] = info.get("industry", "")
+        result["company_name"] = info.get("longName") or info.get("shortName", "")
         result["avg_daily_volume"] = info.get("averageVolume") or info.get("averageDailyVolume10Day")
 
         # Revenue growth YoY from financials
@@ -643,7 +644,7 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
         "shares_outstanding", "historical_financials", "net_income_ttm", "ebitda",
         "total_cash", "total_debt",
         "analyst_revenue_estimates", "analyst_eps_estimates",
-        "avg_daily_volume",
+        "avg_daily_volume", "company_name",
     ):
         reconciled[field] = yf.get(field)
 
@@ -705,24 +706,74 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
 # Peer identification
 # ---------------------------------------------------------------------------
 
-def _fetch_peers(ticker: str) -> list[str]:
-    """
-    Fetch 3-5 peer tickers via Finnhub company_peers.
-    Falls back to empty list (LLM will note peer data unavailable).
-    """
-    import finnhub
-    key = os.environ.get("FINNHUB_API_KEY")
+def _suggest_peers_llm(ticker: str, company_name: str, sector: str, industry: str) -> list[str]:
+    """Ask GPT-4o-mini for the real sector competitors when Finnhub gives bad results."""
+    key = os.environ.get("OPENAI_API_KEY")
     if not key:
         return []
+    client = OpenAI(api_key=key)
+    prompt = (
+        f"List 4-5 publicly traded companies that are the REAL direct competitors of "
+        f"{company_name or ticker} ({sector} / {industry}). "
+        "Same industry, same customers, similar products. Include global ADRs that trade in the US. "
+        "Return ONLY a JSON object: {\"peers\": [\"TICK1\", \"TICK2\", \"TICK3\", \"TICK4\"]}"
+    )
     try:
-        client = finnhub.Client(api_key=key)
-        peers = client.company_peers(ticker) or []
-        # Keep only US-listed tickers (no exchange suffixes like .CO, .L, .PA)
-        peers = [p for p in peers if p != ticker and "." not in p][:5]
-        return peers
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            max_tokens=60,
+            response_format={"type": "json_object"},
+        )
+        data = json.loads(resp.choices[0].message.content)
+        raw = data.get("peers") or data.get("tickers") or data.get("competitors") or []
+        # Normalise: strip exchanges (e.g. "NVO:US" → "NVO")
+        result = [str(t).split(":")[0].split(".")[0].upper().strip() for t in raw if t]
+        return [p for p in result if p and p != ticker][:5]
     except Exception as exc:
-        logger.warning("Finnhub peers failed for %s: %s", ticker, exc)
+        logger.warning("LLM peer suggestion failed for %s: %s", ticker, exc)
         return []
+
+
+def _fetch_peers(ticker: str, company_name: str = "", sector: str = "", industry: str = "") -> list[str]:
+    """
+    Fetch 3-5 peer tickers.
+
+    Priority:
+      1. Finnhub company_peers — fast, data-driven
+      2. LLM fallback (GPT-4o-mini) — used when Finnhub returns < 2 valid peers,
+         e.g. for ADRs of foreign companies where Finnhub returns same-company cross-listings.
+
+    Peers don't have to be US-listed, but tickers must be resolvable by yfinance
+    (so US-traded ADRs and major international ADRs are fine; obscure local-exchange
+    tickers without US ADRs will have no yfinance data and show blank in comparables).
+    """
+    import finnhub
+    finnhub_key = os.environ.get("FINNHUB_API_KEY")
+    peers: list[str] = []
+
+    if finnhub_key:
+        try:
+            fh = finnhub.Client(api_key=finnhub_key)
+            raw = fh.company_peers(ticker) or []
+            ticker_base = ticker.upper().rstrip("0123456789")  # e.g. "NVO" from "NVO"
+            peers = [
+                p for p in raw
+                if p and p != ticker
+                # Filter same-company cross-listings: e.g. "NOVO B.CO" when ticker is "NVO"
+                # Heuristic: if the peer's base name (before dot) starts with our base ticker letters
+                and p.split(".")[0].upper()[:3] != ticker_base[:3]
+            ][:5]
+        except Exception as exc:
+            logger.warning("Finnhub peers failed for %s: %s", ticker, exc)
+
+    # LLM fallback when Finnhub gives < 2 useful peers
+    if len(peers) < 2:
+        logger.info("Finnhub returned < 2 peers for %s — using LLM to suggest real competitors", ticker)
+        peers = _suggest_peers_llm(ticker, company_name, sector, industry)
+
+    return peers[:5]
 
 
 def _fetch_peer_snapshot(peers: list[str]) -> dict[str, dict]:
@@ -1355,7 +1406,12 @@ def run(mode: str = "new_opportunities") -> dict:
         reconciled, conflicts = _cross_reference(yf_metrics, av_metrics, edgar_metrics, fmp_metrics)
 
         # Identify peers and fetch their snapshot
-        peers = _fetch_peers(ticker)
+        peers = _fetch_peers(
+            ticker,
+            company_name=yf_metrics.get("company_name", ""),
+            sector=yf_metrics.get("sector", ""),
+            industry=yf_metrics.get("industry", ""),
+        )
         peers_snapshot = _fetch_peer_snapshot(peers) if peers else {}
 
         # LLM analysis
@@ -1385,20 +1441,41 @@ def run(mode: str = "new_opportunities") -> dict:
         llm_result.setdefault("avg_daily_volume", reconciled.get("avg_daily_volume"))
         llm_result.setdefault("current_price", reconciled.get("current_price"))
 
-        # Compute 3yr revenue CAGR from historical_financials (live API data)
-        # The framework LLM previously returned null for this — compute it here instead
+        # Compute all null setup_checklist fields from live API data
         hist = reconciled.get("historical_financials") or []
-        if len(hist) >= 2:
+        sc = llm_result.get("setup_checklist") or {}
+
+        # Revenue 3yr CAGR
+        if sc.get("revenue_cagr_3yr") is None and len(hist) >= 2:
             r_latest = hist[0].get("revenue")
             r_oldest = hist[-1].get("revenue")
             n_years = len(hist) - 1
             if r_latest and r_oldest and r_oldest > 0 and n_years > 0:
                 cagr = (r_latest / r_oldest) ** (1.0 / n_years) - 1
-                sc = llm_result.get("setup_checklist") or {}
-                if sc.get("revenue_cagr_3yr") is None:
-                    sc["revenue_cagr_3yr"] = round(cagr * 100, 1)
-                    sc["above_20pct_threshold"] = cagr >= 0.20
-                    llm_result["setup_checklist"] = sc
+                sc["revenue_cagr_3yr"] = round(cagr * 100, 1)
+                sc["above_20pct_threshold"] = cagr >= 0.20
+
+        # EPS growth consistency from net income trend (proxy for EPS since shares ~stable)
+        if sc.get("eps_growth_consistent") is None and len(hist) >= 3:
+            ni_vals = [h.get("net_income") for h in hist[:3] if h.get("net_income") is not None]
+            if len(ni_vals) >= 2:
+                # hist is newest-first; positive means ni grew each year
+                sc["eps_growth_consistent"] = all(ni_vals[i] > ni_vals[i + 1] for i in range(len(ni_vals) - 1))
+
+        # FCF positive — also supplemented by score_result but double-check from reconciled
+        if sc.get("fcf_positive") is None:
+            fcf = reconciled.get("free_cashflow") or reconciled.get("fcf")
+            if fcf is not None:
+                sc["fcf_positive"] = fcf > 0
+
+        # Margin trend from operating margin trend in historical data (if available)
+        if sc.get("margin_trend") is None and len(hist) >= 2:
+            # Can't compute easily without per-year margins in historical_financials
+            # Leave for LLM (it has margin_trend from score_result already)
+            pass
+
+        if sc:
+            llm_result["setup_checklist"] = sc
 
         # Attach P&L context in portfolio_review mode
         if position_context:

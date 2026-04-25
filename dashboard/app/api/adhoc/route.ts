@@ -1,10 +1,42 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 
 function getAdhocDir(): string {
   const local = path.join(process.cwd(), "data", "adhoc_reports");
   return fs.existsSync(local) ? local : path.join(process.cwd(), "..", "data", "adhoc_reports");
+}
+
+export async function DELETE(req: NextRequest) {
+  const ticker = req.nextUrl.searchParams.get("ticker")?.toUpperCase().replace(/[^A-Z]/g, "");
+  const date   = req.nextUrl.searchParams.get("date");   // "2026-04-25" or omit for all
+  const all    = req.nextUrl.searchParams.get("all") === "1";
+
+  if (!ticker && !all) {
+    return NextResponse.json({ error: "ticker or all=1 required" }, { status: 400 });
+  }
+
+  const adhocDir = getAdhocDir();
+  if (!fs.existsSync(adhocDir)) {
+    return NextResponse.json({ deleted: 0 });
+  }
+
+  try {
+    const files = fs.readdirSync(adhocDir).filter((f) => f.endsWith(".json"));
+    const toDelete = files.filter((f) => {
+      if (all) return true;
+      if (date) return f === `${ticker}_${date}.json`;
+      return f.startsWith(`${ticker}_`);
+    });
+
+    for (const file of toDelete) {
+      try { fs.unlinkSync(path.join(adhocDir, file)); } catch { /* ignore */ }
+    }
+
+    return NextResponse.json({ deleted: toDelete.length, files: toDelete });
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }
 
 export async function GET() {
