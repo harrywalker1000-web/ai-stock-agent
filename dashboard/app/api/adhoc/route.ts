@@ -59,7 +59,7 @@ async function listFromGitHub(token: string): Promise<string[]> {
     }
   }
   // Deduplicate by filename
-  return [...new Set(files)];
+  return Array.from(new Set(files));
 }
 
 export async function DELETE(req: NextRequest) {
