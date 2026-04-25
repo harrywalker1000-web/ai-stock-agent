@@ -846,8 +846,8 @@ def _score_with_llm(
     hist_section = "\n".join(hist_lines) if hist_lines else "  Not available from filed data"
 
     # Analyst forward estimates (Yahoo Finance consensus — NOT LLM)
-    rev_ests = metrics.get("analyst_revenue_estimates", [])
-    eps_ests = metrics.get("analyst_eps_estimates", [])
+    rev_ests = metrics.get("analyst_revenue_estimates") or []
+    eps_ests = metrics.get("analyst_eps_estimates") or []
     fwd_section = ""
     if rev_ests:
         fwd_section += "  Revenue estimates (analyst consensus from Yahoo Finance):\n"
@@ -1082,8 +1082,8 @@ def _framework_with_llm(
     )
 
     # Forward estimates from Yahoo Finance if available
-    rev_ests = metrics.get("analyst_revenue_estimates", [])
-    eps_ests = metrics.get("analyst_eps_estimates", [])
+    rev_ests = metrics.get("analyst_revenue_estimates") or []
+    eps_ests = metrics.get("analyst_eps_estimates") or []
     fwd_note = "analyst consensus from Yahoo Finance" if rev_ests else "unavailable — no Yahoo Finance estimates found"
 
     # Historical from filed data
@@ -1143,7 +1143,7 @@ Return ONLY valid JSON:
     "historical": <use the verified historical array provided above exactly>,
     "forward": [
       {{"year": "{rev_ests[0]['period'] if rev_ests else 'N/A'}", "revenue": {rev_ests[0].get('revenue_avg') if rev_ests else 'null'}, "ebitda": null, "net_income": {eps_ests[0].get('eps_avg') if eps_ests else 'null'}, "source": "{fwd_note}"}},
-      {{"year": "{rev_ests[1]['period'] if len(rev_ests) > 1 else 'N/A'}", "revenue": {rev_ests[1].get('revenue_avg') if len(rev_ests) > 1 else 'null'}, "ebitda": null, "net_income": {eps_ests[1].get('eps_avg') if len(eps_ests) > 1 else 'null'}, "source": "{fwd_note}"}}
+      {{"year": "{rev_ests[1]['period'] if rev_ests and len(rev_ests) > 1 else 'N/A'}", "revenue": {rev_ests[1].get('revenue_avg') if rev_ests and len(rev_ests) > 1 else 'null'}, "ebitda": null, "net_income": {eps_ests[1].get('eps_avg') if eps_ests and len(eps_ests) > 1 else 'null'}, "source": "{fwd_note}"}}
     ]
   }},
   "comparables": <use the pre-built comparables array above exactly — only fill in "company" name for each ticker>,
