@@ -35,6 +35,7 @@ from utils.data_fetcher import (
     fetch_fmp_income_statement,
     fetch_fmp_key_metrics,
     fetch_fmp_analyst_estimates,
+    fetch_fmp_revenue_segments,
 )
 import agents.memory_agent as memory
 from utils.logger import get_logger
@@ -498,6 +499,13 @@ def _fetch_fmp_metrics(ticker: str) -> dict:
     except Exception as exc:
         logger.warning("FMP analyst estimates parse failed for %s: %s", ticker, exc)
 
+    try:
+        segments = fetch_fmp_revenue_segments(ticker)
+        if segments:
+            result["revenue_segments"] = segments
+    except Exception as exc:
+        logger.warning("FMP revenue segments parse failed for %s: %s", ticker, exc)
+
     return result
 
 
@@ -698,6 +706,11 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
 
     reconciled["sources_used"] = sources_used
     reconciled["sources_count"] = len(sources_used)
+
+    # FMP product revenue segments (real filing data — not LLM)
+    if fmp and fmp.get("revenue_segments"):
+        reconciled["revenue_segments"] = fmp["revenue_segments"]
+        reconciled["revenue_segments_source"] = "fmp"
 
     return reconciled, conflicts
 
@@ -1189,7 +1202,7 @@ Return ONLY valid JSON:
     "hq": "<city, country — training knowledge>",
     "employees": <integer or null>,
     "overview": "<1 paragraph — training knowledge, clearly labelled>",
-    "revenue_segments": [{{"segment": "<name>", "weight_pct": <float>}}],
+    "revenue_segments": [{{"segment": "<name>", "weight_pct": <float — use real reported percentages, NOT rounded estimates like 70/20/10>}}],
     "geography_breakdown": [{{"region": "<name>", "pct": <float>}}]
   }},
   "financial_snapshot": {{
@@ -1313,6 +1326,13 @@ def _analyse_with_llm(
     ):
         if key in framework:
             result[key] = framework[key]
+
+    # Override LLM-generated revenue_segments with real FMP data if available
+    if metrics.get("revenue_segments") and result.get("company_info") is not None:
+        result["company_info"]["revenue_segments"] = metrics["revenue_segments"]
+        result["company_info"]["revenue_segments_source"] = "fmp"
+    elif result.get("company_info") is not None:
+        result["company_info"].setdefault("revenue_segments_source", "llm")
 
     result["_data_sources"] = {
         "fundamental_score": "live_api_only",

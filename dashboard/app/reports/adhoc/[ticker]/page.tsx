@@ -339,15 +339,21 @@ export default function AdhocTickerPage() {
             )}
             {/* HQ / employees */}
             {(s2.background?.hq || s2.background?.employees) && (
-              <div className="flex gap-4 mb-4">
+              <div className="flex gap-4 mb-4 items-center">
                 {s2.background.hq && <KV label="HQ" value={s2.background.hq} />}
                 {s2.background.employees && <KV label="Employees" value={Number(s2.background.employees).toLocaleString()} />}
+                <AiTag title="HQ and employee count from LLM training knowledge — verify with company filings" />
               </div>
             )}
             {/* Revenue segments */}
             {Array.isArray(s2.background?.revenue_segments) && s2.background.revenue_segments.length > 0 && (
               <div className="mb-4">
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Revenue Segments</p>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  Revenue Segments
+                  {(s2.background as any)?.revenue_segments_source !== "fmp" && (
+                    <AiTag title="Estimated from LLM training knowledge — real segment data unavailable from API" />
+                  )}
+                </p>
                 <div className="space-y-1.5">
                   {(s2.background.revenue_segments as any[]).map((seg: any, i: number) => (
                     <div key={i} className="flex justify-between items-center">
@@ -432,7 +438,10 @@ export default function AdhocTickerPage() {
             )}
             {s2.quality_of_earnings?.moat && (
               <div>
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-1">Quality of Earnings / Moat</p>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                  Quality of Earnings / Moat
+                  <AiTag title="Moat assessment from LLM training knowledge — qualitative estimate" />
+                </p>
                 <p className="text-xs text-[#C4CDD6]">{s2.quality_of_earnings.moat}</p>
               </div>
             )}
@@ -479,10 +488,14 @@ export default function AdhocTickerPage() {
 
           {/* S6 — Investment Thesis */}
           <Card id="s6" title="6. Investment Thesis" open={open.s6} onToggle={() => toggle("s6")}>
-            {s6.narrative
-              ? <p className="text-xs text-[#C4CDD6] leading-relaxed whitespace-pre-wrap">{s6.narrative}</p>
-              : <p className="text-xs text-[#4B5563]">No thesis generated.</p>
-            }
+            {s6.narrative ? (
+              <>
+                <p className="text-xs text-[#C4CDD6] leading-relaxed whitespace-pre-wrap">{s6.narrative}</p>
+                <p className="mt-2"><AiTag title="Thesis narrative synthesised by Committee AI from live scoring data and LLM training knowledge" /></p>
+              </>
+            ) : (
+              <p className="text-xs text-[#4B5563]">No thesis generated.</p>
+            )}
           </Card>
 
           {/* S7 — Recommendation */}
@@ -505,7 +518,10 @@ export default function AdhocTickerPage() {
             )}
             {Array.isArray(s7.key_risks) && s7.key_risks.length > 0 && (
               <div className="mt-3">
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Key Risks</p>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  Key Risks
+                  <AiTag title="Risk factors from LLM training knowledge — not exhaustive" />
+                </p>
                 <ul className="space-y-1">
                   {(s7.key_risks as string[]).map((r, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-[#C4CDD6]">
@@ -707,7 +723,10 @@ export default function AdhocTickerPage() {
             {/* Key risks from recommendation */}
             {Array.isArray(s7.key_risks) && s7.key_risks.length > 0 && (
               <div className="mt-4">
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2">Key Risks</p>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  Key Risks
+                  <AiTag title="Risk factors from LLM training knowledge — not exhaustive" />
+                </p>
                 <ul className="space-y-1.5">
                   {(s7.key_risks as string[]).map((r, i) => (
                     <li key={i} className="flex items-start gap-2 text-xs text-[#C4CDD6]">
@@ -729,6 +748,7 @@ export default function AdhocTickerPage() {
 
           {/* S13 — Scenarios */}
           <Card id="s13" title="13. Scenario Analysis" open={open.s13} onToggle={() => toggle("s13")}>
+            <p className="mb-3"><AiTag title="Bull/Base/Bear scenarios and price targets are AI-synthesised from live scoring data and LLM training knowledge — not analyst forecasts" /></p>
             {/* Price target chart */}
             {(s13.bull?.price_target || s13.base?.price_target || s13.bear?.price_target) && (() => {
               const chartData = [

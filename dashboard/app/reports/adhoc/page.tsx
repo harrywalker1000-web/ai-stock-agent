@@ -124,8 +124,15 @@ export default function AdhocInputPage() {
     const key = `${ticker}_${date}`;
     setDeleting(key);
     try {
-      await fetch(`/api/adhoc?ticker=${ticker}&date=${date}`, { method: "DELETE" });
-      setRecent((prev) => prev.filter((r) => !(r.ticker === ticker && r.date === date)));
+      const res = await fetch(`/api/adhoc?ticker=${ticker}&date=${date}`, { method: "DELETE" });
+      if (res.ok) {
+        setRecent((prev) => prev.filter((r) => !(r.ticker === ticker && r.date === date)));
+      } else {
+        const body = await res.json().catch(() => ({}));
+        alert(`Delete failed: ${body.error ?? res.status}`);
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err}`);
     } finally {
       setDeleting(null);
     }
@@ -135,8 +142,15 @@ export default function AdhocInputPage() {
     if (!window.confirm(`Delete all ${recent.length} cached report${recent.length !== 1 ? "s" : ""}? This cannot be undone.`)) return;
     setDeleting("all");
     try {
-      await fetch("/api/adhoc?all=1", { method: "DELETE" });
-      setRecent([]);
+      const res = await fetch("/api/adhoc?all=1", { method: "DELETE" });
+      if (res.ok) {
+        setRecent([]);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        alert(`Delete failed: ${body.error ?? res.status}`);
+      }
+    } catch (err) {
+      alert(`Delete failed: ${err}`);
     } finally {
       setDeleting(null);
     }

@@ -493,6 +493,47 @@ def fetch_fmp_institutional_holders(ticker: str) -> list[dict]:
         return []
 
 
+def fetch_fmp_revenue_segments(ticker: str) -> list[dict]:
+    """
+    Return product revenue segmentation from FMP.
+    Returns list of {segment, weight_pct} dicts normalised to percentages.
+    Falls back to empty list if endpoint unavailable (requires paid plan).
+    """
+    logger.debug("FMP revenue segments: %s", ticker)
+    try:
+        url = f"{FMP_BASE}/revenue-product-segmentation"
+        resp = requests.get(url, params={"symbol": ticker, "apikey": _fmp_key()}, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        if not data:
+            return []
+        # FMP returns list of {date: {SegmentName: value, ...}} or a flat dict
+        # Shape 1: [{"date": "...", "SegA": 1234, "SegB": 5678}]
+        # Shape 2: {"2024-12-31": {"SegA": 1234, ...}}
+        row: dict = {}
+        if isinstance(data, list) and data:
+            first = data[0]
+            if isinstance(first, dict):
+                # Strip non-numeric keys
+                row = {k: v for k, v in first.items() if isinstance(v, (int, float)) and k != "date"}
+        elif isinstance(data, dict):
+            # Take the most recent date key
+            latest_key = sorted(data.keys(), reverse=True)[0]
+            row = {k: v for k, v in data[latest_key].items() if isinstance(v, (int, float))}
+        if not row:
+            return []
+        total = sum(abs(v) for v in row.values()) or 1
+        segments = [
+            {"segment": k, "weight_pct": round(abs(v) / total * 100, 1)}
+            for k, v in sorted(row.items(), key=lambda x: -abs(x[1]))
+            if abs(v) > 0
+        ]
+        return segments
+    except Exception as exc:
+        logger.error("FMP revenue segments failed for %s: %s", ticker, exc)
+        return []
+
+
 # ---------------------------------------------------------------------------
 # SEC activist filing helpers (13D / 13G)
 # ---------------------------------------------------------------------------
