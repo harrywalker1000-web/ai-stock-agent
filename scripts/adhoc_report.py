@@ -79,16 +79,21 @@ def _run_macro(progress_mode: bool) -> dict:
 
 def _run_news(ticker: str, progress_mode: bool) -> list[dict]:
     _emit(progress_mode, "news", "News & Catalyst Agent")
+    import os as _os
     from agents import news_agent
+    # Inject ticker so news agent fetches it specifically
+    _os.environ["ADHOC_TICKER"] = ticker.upper()
     news_agent.run()
+    _os.environ.pop("ADHOC_TICKER", None)
     news_path = REPORTS_DIR / "news_report.json"
     if not news_path.exists():
         return []
     with open(news_path) as f:
         nr = json.load(f)
-    # Filter catalysts to this ticker only
     all_cats = nr.get("company_catalysts", [])
-    return [c for c in all_cats if str(c.get("ticker", "")).upper() == ticker.upper()]
+    # Return catalysts for this ticker; fall back to all catalysts if none matched
+    matched = [c for c in all_cats if str(c.get("ticker", "")).upper() == ticker.upper()]
+    return matched if matched else all_cats[:10]
 
 
 def _run_fundamental(ticker: str, progress_mode: bool) -> dict:
@@ -386,10 +391,26 @@ def _synthesize_sections(
         for c in news_catalysts[:5]
     ) or "  None found for this ticker specifically."
 
+    data_available = bool(fundamental.get("fundamental_score") or quant.get("rsi_14") or current_price)
+    data_warning = "" if data_available else """
+=== DATA AVAILABILITY WARNING ===
+Live API data is unavailable for this ticker (price feeds returned no data).
+THIS DOES NOT MEAN YOU SHOULD PRODUCE A WEAK REPORT.
+You MUST use your training knowledge to fill ALL sections:
+  - Company business model, products, revenue streams
+  - Recent material news and catalysts (as of your knowledge cutoff)
+  - Competitive landscape and key rivals
+  - Known financial profile (revenue scale, margins, balance sheet quality)
+  - Analyst sentiment and price target ranges known from training
+  - Key risk factors specific to this company/sector
+Do NOT write "data unavailable" or hedge with "I cannot assess". Write what you know.
+If the ticker appears incorrect (e.g. user typed NVO vs NOVO), note this in the thesis.
+"""
+
     prompt = f"""You are the Investment Committee of Haz Capital Management writing a deep-dive research report on {ticker}.
 
 All six agents have completed their analysis. Synthesise into four sections.
-
+{data_warning}
 === AGENT DATA ===
 TICKER: {ticker}  |  COMPANY: {company.get('name', ticker)}  |  SECTOR: {fundamental.get('sector','?')}
 CURRENT PRICE: ${_f(current_price)}
@@ -420,7 +441,9 @@ NEWS CATALYSTS (this ticker):
 {catalyst_text}
 
 === YOUR TASK ===
-Write four sections. Be specific — cite real numbers. No generic filler.
+Write four sections. Be specific — cite real company names, events, competitive dynamics.
+Use your training knowledge freely for company context, news, and competitive landscape.
+No generic filler. No "data unavailable" hedging.
 
 SECTION 5 — MARKET TIMING: Why is NOW the right entry (or not)?
   - Reference macro regime explicitly
@@ -566,6 +589,7 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
         "s5_timing":     synthesis.get("s5_timing", {}),
         "s6_thesis":     synthesis.get("s6_thesis", {}),
         "s7_recommendation": rec7,
+        "s8_news":       {"catalysts": news_cats[:10], "count": len(news_cats)},
         "s8_technical":  _build_s8_technical(quant),
         "s9_sentiment":  _build_s9_sentiment(sentiment),
         "s10_institutional": _build_s10_institutional(ticker),
@@ -697,6 +721,7 @@ def generate_from_pipeline_data(
         "s5_timing":         synthesis.get("s5_timing", {}),
         "s6_thesis":         synthesis.get("s6_thesis", {}),
         "s7_recommendation": rec7,
+        "s8_news":           {"catalysts": news_catalysts[:10], "count": len(news_catalysts)},
         "s8_technical":      _build_s8_technical(quant),
         "s9_sentiment":      _build_s9_sentiment(sentiment),
         "s10_institutional": _build_s10_institutional(ticker),

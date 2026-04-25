@@ -339,10 +339,16 @@ def _fetch_market_catalysts() -> list[dict]:
 def _collect_news_data() -> dict:
     logger.info("News Agent: collecting catalysts and news")
 
-    company_catalysts = _fetch_company_catalysts(CATALYST_TICKERS)
+    # If running for a specific adhoc ticker, always include it in the search
+    adhoc_ticker = os.environ.get("ADHOC_TICKER", "").strip().upper()
+    tickers = list(CATALYST_TICKERS)
+    if adhoc_ticker and adhoc_ticker not in tickers:
+        tickers = [adhoc_ticker] + tickers
+
+    company_catalysts = _fetch_company_catalysts(tickers)
     market_catalysts = _fetch_market_catalysts()
     upcoming_earnings = _fetch_upcoming_earnings()
-    reddit_mentions = _fetch_reddit_mentions(CATALYST_TICKERS)
+    reddit_mentions = _fetch_reddit_mentions(tickers)
 
     logger.info(
         "News Agent: found %d company catalysts, %d market catalysts, %d upcoming earnings, %d Reddit tickers",

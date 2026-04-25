@@ -15,6 +15,7 @@ const SECTIONS = [
   { key: "s5",  label: "Market Timing" },
   { key: "s6",  label: "Investment Thesis" },
   { key: "s7",  label: "Recommendation" },
+  { key: "snews", label: "News & Catalysts" },
   { key: "s8",  label: "Technical Analysis" },
   { key: "s9",  label: "Sentiment" },
   { key: "s10", label: "Institutional Activity" },
@@ -205,6 +206,7 @@ export default function AdhocTickerPage() {
   const s5   = report.s5_timing    ?? {};
   const s6   = report.s6_thesis    ?? {};
   const s7   = report.s7_recommendation ?? {};
+  const snews = report.s8_news ?? {};
   const s8   = report.s8_technical ?? {};
   const s9   = report.s9_sentiment ?? {};
   const s10  = report.s10_institutional ?? {};
@@ -498,6 +500,32 @@ export default function AdhocTickerPage() {
                   ))}
                 </ul>
               </div>
+            )}
+          </Card>
+
+          {/* S News — News & Catalysts */}
+          <Card id="snews" title="News & Catalysts" open={open.snews} onToggle={() => toggle("snews")}>
+            {Array.isArray(snews.catalysts) && snews.catalysts.length > 0 ? (
+              <div className="space-y-3">
+                {(snews.catalysts as any[]).map((c: any, i: number) => {
+                  const dir = c.direction ?? c.catalyst_type ?? "NEUTRAL";
+                  const dirColor = dir === "BULLISH" ? "#10B981" : dir === "BEARISH" ? "#EF4444" : "#F59E0B";
+                  return (
+                    <div key={i} className="rounded-xl p-3 bg-white/02 border border-white/05">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-mono font-bold" style={{ color: dirColor }}>{dir}</span>
+                        {c.ticker && <span className="text-[10px] font-mono text-[#6B7280]">{c.ticker}</span>}
+                        {c.date && <span className="text-[10px] text-[#4B5563]">{c.date}</span>}
+                      </div>
+                      <p className="text-xs text-[#C4CDD6] font-medium mb-1">{c.catalyst ?? c.headline ?? c.title ?? "—"}</p>
+                      {c.reasoning && <p className="text-[11px] text-[#6B7280] leading-relaxed">{c.reasoning}</p>}
+                      {c.source && <p className="text-[10px] text-[#4B5563] mt-1">Source: {c.source}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-[#6B7280]">No news catalysts found for this ticker in the current news cycle. Re-run the analysis for fresh data.</p>
             )}
           </Card>
 
