@@ -252,7 +252,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 {rec?.direction ?? position.direction?.toUpperCase() ?? "LONG"}
               </div>
               <div>
-                <p className="text-3xl font-display font-bold text-[#E8EDF2]">{val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
+                <p className="text-3xl font-display font-bold text-[#E8EDF2]">{val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
                 <p className="text-xs text-[#6B7280]">Expected Return</p>
               </div>
             </div>
@@ -579,7 +579,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 { label: "Analyst Target (Live)", value: sentimentData?.analyst_target_live != null ? `$${sentimentData.analyst_target_live.toFixed(0)}` : val?.analyst_consensus_target ? `$${val.analyst_consensus_target}` : "—" },
                 { label: "P/E (Trailing)", value: (fs as unknown as {pe_ratio?: number})?.pe_ratio != null ? `${((fs as unknown as {pe_ratio: number}).pe_ratio).toFixed(1)}x` : "—" },
                 { label: "P/E vs Peers", value: (fs as unknown as {pe_ratio?: number; pe_peer_avg?: number})?.pe_ratio != null && (fs as unknown as {pe_peer_avg?: number})?.pe_peer_avg != null ? `${((fs as unknown as {pe_ratio: number}).pe_ratio).toFixed(1)}x vs ${((fs as unknown as {pe_peer_avg: number}).pe_peer_avg).toFixed(1)}x avg` : "—" },
-                { label: "Expected ROI 2-3yr", value: val?.expected_roi_2_3yr ?? "—" },
+                { label: "Expected ROI 12M", value: val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-white/03 rounded-xl p-3">
                   <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">{label}</p>

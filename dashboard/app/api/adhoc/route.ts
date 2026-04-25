@@ -30,7 +30,7 @@ export async function GET() {
             direction: data.direction,
             conviction: data.conviction,
             mandate_pass: data.mandate_pass,
-            expected_return_2_3yr: data.expected_return_2_3yr,
+            expected_return_12m: data.expected_return_12m ?? data.expected_return_2_3yr,
             macro_regime: data.macro_regime,
             cached: data.cached,
           });

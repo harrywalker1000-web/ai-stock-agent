@@ -292,9 +292,9 @@ export default function AdhocTickerPage() {
               )}
             </div>
 
-            {s7.expected_return_2_3yr && (
+            {(s7.expected_return_12m ?? s7.expected_return_2_3yr) && (
               <span className="ml-3 text-xs text-[#6B7280]">
-                Expected return 2–3yr: <span className="text-[#E8EDF2] font-mono">{s7.expected_return_2_3yr}</span>
+                Expected return 12M: <span className="text-[#E8EDF2] font-mono">{s7.expected_return_12m ?? s7.expected_return_2_3yr}</span>
               </span>
             )}
           </div>
@@ -434,7 +434,7 @@ export default function AdhocTickerPage() {
           <Card id="s4" title="4. Valuation" open={open.s4} onToggle={() => toggle("s4")}>
             {s4.narrative && <p className="text-xs text-[#C4CDD6] leading-relaxed mb-3">{s4.narrative}</p>}
             {s4.methodology && <KV label="Methodology" value={s4.methodology} />}
-            {(s4.expected_roi_2_3yr ?? s4.expected_return_2_3yr) && <KV label="Expected ROI 2–3yr" value={s4.expected_roi_2_3yr ?? s4.expected_return_2_3yr} color="#10B981" />}
+            {(s4.expected_roi_12m ?? s4.expected_roi_2_3yr ?? s4.expected_return_12m ?? s4.expected_return_2_3yr) && <KV label="Expected ROI 12M" value={s4.expected_roi_12m ?? s4.expected_roi_2_3yr ?? s4.expected_return_12m ?? s4.expected_return_2_3yr} color="#10B981" />}
             {(s4.consensus_target ?? s4.analyst_consensus_target) != null && <KV label="Consensus Target" value={usd(s4.consensus_target ?? s4.analyst_consensus_target)} />}
             {s4.intrinsic_value_estimate != null && <KV label="Intrinsic Value Est." value={usd(s4.intrinsic_value_estimate)} />}
             {s4.moic_estimate && <KV label="MOIC Estimate" value={s4.moic_estimate} />}
@@ -475,7 +475,7 @@ export default function AdhocTickerPage() {
               {[
                 { label: "Direction",       value: direction,                  color: direction === "BUY" ? "#10B981" : direction === "SELL" ? "#EF4444" : "#F59E0B" },
                 { label: "Conviction",      value: conviction ?? "—",          color: cvColor },
-                { label: "2–3yr Return",    value: s7.expected_return_2_3yr ?? "—", color: "#E8EDF2" },
+                { label: "12M Return",       value: s7.expected_return_12m ?? s7.expected_return_2_3yr ?? "—", color: "#E8EDF2" },
                 { label: "Suggested Size",  value: s7.suggested_size_pct ? `${s7.suggested_size_pct}%` : "—", color: "#E8EDF2" },
               ].map(({ label, value, color }) => (
                 <div key={label} className="bg-white/03 rounded-xl p-3 text-center">

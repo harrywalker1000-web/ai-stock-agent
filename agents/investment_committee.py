@@ -201,7 +201,7 @@ def _build_scorecard(
             "mandate_fail_reasons": (f.get("fund_mandate") or {}).get("fail_reasons") or [],
             "valuation_summary": (f.get("valuation") or {}).get("analyst_consensus_target") or f.get("analyst_consensus_target"),
             "intrinsic_value": (f.get("valuation") or {}).get("intrinsic_value_estimate") or f.get("intrinsic_value_estimate"),
-            "expected_return_2_3yr": (f.get("valuation") or {}).get("expected_roi_2_3yr") or f.get("expected_roi_2_3yr"),
+            "expected_return_12m": (f.get("valuation") or {}).get("expected_roi_12m") or f.get("expected_roi_12m") or (f.get("valuation") or {}).get("expected_roi_2_3yr") or f.get("expected_roi_2_3yr"),
             "thesis_bullets": f.get("investment_thesis_bullets") or [],
             "scenario_bull_target": _extract_scenario(f, "bull", "price_target"),
             "scenario_base_target": _extract_scenario(f, "base", "price_target"),
@@ -444,7 +444,7 @@ def _deliberate_with_llm(
             f"  Mandate: {'PASS' if sc.get('mandate_pass') else 'FAIL' if sc.get('mandate_pass') is False else 'N/A'}"
             + (f" — {'; '.join(sc['mandate_fail_reasons'][:2])}" if sc.get('mandate_fail_reasons') else "") + "\n"
             f"  Intrinsic value: {sc.get('intrinsic_value') or 'N/A'} | "
-            f"Expected 2-3yr return: {sc.get('expected_return_2_3yr') or 'N/A'}\n"
+            f"Expected 12M return: {sc.get('expected_return_12m') or 'N/A'}\n"
             + (f"  Scenarios: Bull={sc.get('scenario_bull_target') or '?'}  "
                f"Base={sc.get('scenario_base_target') or '?'}  "
                f"Bear={sc.get('scenario_bear_target') or '?'}\n"
@@ -470,7 +470,7 @@ def _deliberate_with_llm(
                 f"\n  === INDEPENDENT RESEARCH SYNTHESIS (GPT-4o — read before deciding) ===\n"
                 f"  Entry timing verdict: {s5.get('entry_verdict', 'neutral').upper()}"
                 f" | Research conviction: {s7_adhoc.get('conviction', '?')}/100"
-                f" | Expected return: {s7_adhoc.get('expected_return_2_3yr', '?')}\n"
+                f" | Expected return 12M: {s7_adhoc.get('expected_return_12m') or s7_adhoc.get('expected_return_2_3yr', '?')}\n"
             )
             if s5.get("narrative"):
                 block += f"  Timing: {str(s5['narrative'])[:300]}\n"
@@ -1602,7 +1602,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
         if fund_data.get("fund_mandate"):
             framework_fields["setup_type"] = fund_data["fund_mandate"].get("setup_type")
         if fund_data.get("valuation"):
-            framework_fields["expected_roi"] = fund_data["valuation"].get("expected_roi_2_3yr")
+            framework_fields["expected_roi"] = fund_data["valuation"].get("expected_roi_12m") or fund_data["valuation"].get("expected_roi_2_3yr")
         sc = next((s for s in scorecards if s["ticker"] == ticker_d), {})
         framework_fields["agent_scores_detail"] = {
             "fundamental": sc.get("fundamental_score"),

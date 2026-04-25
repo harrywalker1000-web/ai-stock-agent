@@ -402,7 +402,7 @@ FUNDAMENTAL:
   Op margin: {_f(fundamental.get('operating_margin'))}%  |  ROIC: {_f(fundamental.get('roic'))}%
   Net debt/EBITDA: {_f(fundamental.get('net_debt_ebitda'))}
   Thesis (Fundamental): {rec_raw.get('thesis','')[:200]}
-  Valuation note: {valuation.get('narrative','')[:200]}  |  Expected ROI: {valuation.get('expected_roi_2_3yr','?')}
+  Valuation note: {valuation.get('narrative','')[:200]}  |  Expected ROI 12M: {valuation.get('expected_roi_12m', valuation.get('expected_roi_2_3yr','?'))}
 
 QUANT:
   RSI: {_f(quant.get('rsi_14'))}  |  Trend: {quant.get('trend','?')}  |  Forward bias: {quant.get('forward_bias','?')}
@@ -435,7 +435,7 @@ SECTION 6 — INVESTMENT THESIS (200-400 words)
 SECTION 7 — RECOMMENDATION
   - direction: "BUY" | "HOLD" | "SELL" | "PASS"
   - conviction: integer 40-89, NEVER a multiple of 5
-  - expected_return_2_3yr: e.g. "18-28%"
+  - expected_return_12m: expected return over the next 12 months, e.g. "12-18%". REQUIRED — provide even for PASS (use negative or low number like "-5 to 5%")
   - suggested_size_pct: Kelly-adjusted, max 15
   - stop_loss_pct: % below current price (e.g. 12.0)
   - key_risks: list of 3-5 specific risks
@@ -462,7 +462,7 @@ Return ONLY valid JSON:
   "s7_recommendation": {{
     "direction": "BUY|HOLD|SELL|PASS",
     "conviction": <integer, not multiple of 5>,
-    "expected_return_2_3yr": "<string>",
+    "expected_return_12m": "<string — REQUIRED, never null>",
     "suggested_size_pct": <number>,
     "stop_loss_pct": <number>,
     "key_risks": ["<risk>", "<risk>", "<risk>"]
@@ -556,7 +556,7 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
         "mandate_fail_reason": s1.get("fail_reason"),
         "direction":     rec7.get("direction", "PASS"),
         "conviction":    rec7.get("conviction"),
-        "expected_return_2_3yr": rec7.get("expected_return_2_3yr"),
+        "expected_return_12m": rec7.get("expected_return_12m") or rec7.get("expected_return_2_3yr"),
 
         # 14 sections
         "s1_mandate":    s1,
@@ -687,7 +687,7 @@ def generate_from_pipeline_data(
         "mandate_fail_reason":   s1.get("fail_reason"),
         "direction":             rec7.get("direction", "PASS"),
         "conviction":            rec7.get("conviction"),
-        "expected_return_2_3yr": rec7.get("expected_return_2_3yr"),
+        "expected_return_12m": rec7.get("expected_return_12m") or rec7.get("expected_return_2_3yr"),
 
         # 14 sections
         "s1_mandate":        s1,
@@ -743,6 +743,6 @@ if __name__ == "__main__":
         print(f"\n{'='*60}")
         print(f"  {result.get('ticker')} — {result.get('company_name')}")
         print(f"  Direction:  {rec.get('direction','?')}   Conviction: {rec.get('conviction','?')}")
-        print(f"  Return 2-3yr: {rec.get('expected_return_2_3yr','?')}")
+        print(f"  Return 12M: {rec.get('expected_return_12m', rec.get('expected_return_2_3yr','?'))}")
         print(f"  Mandate: {'PASS ✓' if result.get('mandate_pass') else 'FAIL ✗ — ' + str(result.get('mandate_fail_reason'))}")
         print(f"{'='*60}")

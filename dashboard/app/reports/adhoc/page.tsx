@@ -12,7 +12,7 @@ interface ReportPreview {
   direction: string;
   conviction: number | null;
   mandate_pass: boolean;
-  expected_return_2_3yr: string | null;
+  expected_return_12m: string | null;
   macro_regime: string;
 }
 
@@ -41,24 +41,40 @@ export default function AdhocInputPage() {
   const [recent, setRecent]       = useState<ReportPreview[]>([]);
 
   useEffect(() => {
-    // Restore queued state if user navigated away and came back
+    // Restore queued state across refreshes
     try {
-      const saved = sessionStorage.getItem("adhocQueued");
-      if (saved) { setQueued(saved); setStatus("queued"); }
-    } catch { /* sessionStorage unavailable */ }
+      const raw = localStorage.getItem("adhocQueued");
+      if (raw) {
+        const { ticker: t, queuedAt } = JSON.parse(raw) as { ticker: string; queuedAt: number };
+        const age = Date.now() - queuedAt;
+        if (age < 20 * 60 * 1000) { // keep for up to 20 minutes
+          setQueued(t); setStatus("queued");
+        } else {
+          localStorage.removeItem("adhocQueued");
+        }
+      }
+    } catch { /* ignore */ }
 
     fetch("/api/adhoc")
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
           setRecent(data);
-          // Clear queued banner if the report has now appeared
+          // Clear queued banner only if a fresh report appeared (dated today)
           try {
-            const saved = sessionStorage.getItem("adhocQueued");
-            if (saved && data.some((r: ReportPreview) => r.ticker === saved)) {
-              sessionStorage.removeItem("adhocQueued");
-              setStatus("idle");
-              setQueued(null);
+            const raw = localStorage.getItem("adhocQueued");
+            if (raw) {
+              const { ticker: t, queuedAt } = JSON.parse(raw) as { ticker: string; queuedAt: number };
+              const today = new Date().toISOString().slice(0, 10);
+              const freshReport = data.find(
+                (r: ReportPreview) => r.ticker === t && r.date >= today
+              );
+              const isStale = Date.now() - queuedAt > 20 * 60 * 1000;
+              if (freshReport || isStale) {
+                localStorage.removeItem("adhocQueued");
+                setStatus("idle");
+                setQueued(null);
+              }
             }
           } catch { /* ignore */ }
         }
@@ -86,7 +102,7 @@ export default function AdhocInputPage() {
       } else {
         setQueued(t);
         setStatus("queued");
-        try { sessionStorage.setItem("adhocQueued", t); } catch { /* ignore */ }
+        try { localStorage.setItem("adhocQueued", JSON.stringify({ ticker: t, queuedAt: Date.now() })); } catch { /* ignore */ }
       }
     } catch (e) {
       setErrorMsg(String(e));
@@ -228,10 +244,10 @@ export default function AdhocInputPage() {
                             <p className="text-sm font-bold font-mono" style={{ color: cvColor }}>{cv}</p>
                           </div>
                         )}
-                        {r.expected_return_2_3yr && (
+                        {r.expected_return_12m && (
                           <div>
-                            <p className="text-[10px] text-[#6B7280]">2–3yr Return</p>
-                            <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_2_3yr}</p>
+                            <p className="text-[10px] text-[#6B7280]">12M Return</p>
+                            <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_12m}</p>
                           </div>
                         )}
                         <div>
