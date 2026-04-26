@@ -41,6 +41,68 @@ interface Progress {
   total: number;
 }
 
+// Workflow takes ~10-12 min total. We creep the bar slowly toward the next real milestone
+// so it's always visually moving, then snaps to real values when agents complete.
+const TOTAL_MS = 11 * 60 * 1000;
+
+function ProgressBar({ pct, done, total, queuedAt, active }: {
+  pct: number; done: number; total: number; queuedAt: number | null; active: boolean;
+}) {
+  const [displayPct, setDisplayPct] = useState(pct);
+
+  useEffect(() => {
+    if (!active || !queuedAt) { setDisplayPct(pct); return; }
+
+    const tick = () => {
+      const elapsed = Date.now() - queuedAt;
+      // Time-based estimate: creep linearly over TOTAL_MS, but cap just below next real milestone
+      const timePct = Math.min((elapsed / TOTAL_MS) * 100, 99);
+      // Never go backwards from real progress; also cap below the next whole step boundary
+      const nextMilestone = ((done + 1) / total) * 100 - 1; // 1% below next real step
+      const creep = Math.min(timePct, nextMilestone);
+      setDisplayPct(Math.max(pct, creep));
+    };
+
+    tick();
+    const id = setInterval(tick, 500);
+    return () => clearInterval(id);
+  }, [pct, done, total, queuedAt, active]);
+
+  // Snap immediately to real value when agents complete
+  useEffect(() => { if (!active) setDisplayPct(pct); }, [pct, active]);
+
+  const shown = Math.round(displayPct);
+
+  return (
+    <div className="mb-4">
+      <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
+        <span>{done} of {total} agents complete</span>
+        <span>{shown}%</span>
+      </div>
+      <div className="h-1.5 bg-white/05 rounded-full overflow-hidden relative">
+        {/* Real progress fill */}
+        <div
+          className="h-full bg-[#0EA5E9] rounded-full transition-all duration-300"
+          style={{ width: `${displayPct}%` }}
+        />
+        {/* Shimmer sweep on top while active */}
+        {active && (
+          <div
+            className="absolute inset-y-0 w-16 rounded-full opacity-40"
+            style={{
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
+              animation: "shimmer 1.8s infinite",
+              left: `${displayPct}%`,
+              transform: "translateX(-50%)",
+            }}
+          />
+        )}
+      </div>
+      <style>{`@keyframes shimmer { 0%,100% { opacity: 0.2; } 50% { opacity: 0.5; } }`}</style>
+    </div>
+  );
+}
+
 export default function AdhocInputPage() {
   const [ticker, setTicker]       = useState("");
   const [useCache, setUseCache]   = useState(true);
@@ -297,18 +359,13 @@ export default function AdhocInputPage() {
               })}
             </div>
             {/* Progress bar */}
-            <div className="mb-4">
-              <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
-                <span>{progress?.done ?? 0} of {progress?.total ?? 6} agents complete</span>
-                <span>{progress?.pct ?? 0}%</span>
-              </div>
-              <div className="h-1.5 bg-white/05 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-[#0EA5E9] rounded-full transition-all duration-500"
-                  style={{ width: `${progress?.pct ?? 0}%` }}
-                />
-              </div>
-            </div>
+            <ProgressBar
+              pct={progress?.pct ?? 0}
+              done={progress?.done ?? 0}
+              total={progress?.total ?? 6}
+              queuedAt={queuedAt}
+              active={progress?.status === "in_progress" || progress?.status === "queued" || !progress}
+            />
             <div className="pt-3 border-t border-white/05">
               <Link
                 href={`/reports/adhoc/${queued}`}
