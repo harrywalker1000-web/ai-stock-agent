@@ -32,13 +32,102 @@ const STEPS = [
   { key: "committee",   label: "Investment Committee" },
 ];
 
-type AgentStatus = "pending" | "running" | "done" | "failed";
+type StepStatus = "pending" | "running" | "done" | "failed";
 interface Progress {
   status: string;
-  agents: Record<string, AgentStatus>;
+  steps: Record<string, StepStatus>;
+  agents: Record<string, StepStatus>; // legacy compat
   pct: number;
   done: number;
   total: number;
+}
+
+const SETUP_STEPS    = [
+  { key: "checkout",    label: "Checkout" },
+  { key: "python",      label: "Python" },
+  { key: "install",     label: "Dependencies" },
+];
+const FINALIZE_STEPS = [
+  { key: "sync",    label: "Sync" },
+  { key: "commit",  label: "Commit" },
+  { key: "deploy",  label: "Deploy" },
+];
+
+function StepDot({ status, label, num }: { status: StepStatus; label: string; num: number }) {
+  const isDone    = status === "done";
+  const isRunning = status === "running";
+  const isFailed  = status === "failed";
+  const dot = isDone    ? "bg-[#10B981] border-[#10B981] text-white"
+            : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] text-white animate-pulse"
+            : isFailed  ? "bg-[#EF4444] border-[#EF4444] text-white"
+            :             "bg-transparent border-[#374151] text-[#374151]";
+  const lbl = isDone ? "text-[#10B981]" : isRunning ? "text-[#0EA5E9]" : isFailed ? "text-[#EF4444]" : "text-[#4B5563]";
+  return (
+    <div className="flex flex-col items-center gap-1 min-w-0">
+      <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold shrink-0 transition-all ${dot}`}>
+        {isDone ? (
+          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        ) : isFailed ? "✕" : num}
+      </span>
+      <span className={`text-[9px] text-center leading-tight transition-colors ${lbl}`}>{label}</span>
+    </div>
+  );
+}
+
+function PhaseDivider({ done }: { done: boolean }) {
+  return (
+    <div className="flex items-center self-start mt-2.5">
+      <div className={`w-4 h-px ${done ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+      <span className={`text-[10px] px-1 ${done ? "text-[#10B981]/40" : "text-[#374151]"}`}>›</span>
+      <div className={`w-4 h-px ${done ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+    </div>
+  );
+}
+
+function PipelineSteps({ steps }: { steps: Record<string, StepStatus> }) {
+  const get = (k: string): StepStatus => steps[k] ?? "pending";
+  const setupDone = SETUP_STEPS.every(s => get(s.key) === "done");
+  const agentsDone = STEPS.every(s => get(s.key) === "done");
+  return (
+    <div className="mb-4 space-y-3">
+      {/* Row 1: Setup */}
+      <div>
+        <p className="text-[9px] font-bold text-[#374151] uppercase tracking-widest mb-2">Setup</p>
+        <div className="flex items-start gap-1">
+          {SETUP_STEPS.map((s, i) => (
+            <div key={s.key} className="flex items-start">
+              <StepDot status={get(s.key)} label={s.label} num={i + 1} />
+              {i < SETUP_STEPS.length - 1 && (
+                <div className={`self-start mt-2.5 w-5 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+              )}
+            </div>
+          ))}
+          <PhaseDivider done={setupDone} />
+          {/* Agents inline after setup */}
+          {STEPS.map((s, i) => (
+            <div key={s.key} className="flex items-start">
+              <StepDot status={get(s.key)} label={s.label} num={i + 4} />
+              {i < STEPS.length - 1 && (
+                <div className={`self-start mt-2.5 w-3 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+              )}
+            </div>
+          ))}
+          <PhaseDivider done={agentsDone} />
+          {/* Finalize */}
+          {FINALIZE_STEPS.map((s, i) => (
+            <div key={s.key} className="flex items-start">
+              <StepDot status={get(s.key)} label={s.label} num={i + 10} />
+              {i < FINALIZE_STEPS.length - 1 && (
+                <div className={`self-start mt-2.5 w-3 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Workflow takes ~10-12 min total. We creep the bar slowly toward the next real milestone
@@ -314,50 +403,21 @@ export default function AdhocInputPage() {
             {/* Dynamic status line */}
             <p className="text-xs text-[#9CA3AF] mb-4">
               {progress?.status === "completed"
-                ? "All agents done — report will appear below shortly."
+                ? "Pipeline complete — report will appear below shortly."
                 : progress?.status === "failed"
                 ? "Workflow failed. Check GitHub Actions for details."
                 : progress?.status === "in_progress"
                 ? (() => {
-                    const running = STEPS.find(s => progress?.agents[s.key] === "running");
+                    const allSteps = [...SETUP_STEPS, ...STEPS, ...FINALIZE_STEPS];
+                    const running = allSteps.find(s => progress?.steps?.[s.key] === "running");
                     return running
                       ? `${running.label} running…`
-                      : `Workflow in progress (${progress?.done ?? 0}/${progress?.total ?? 6} agents done)`;
+                      : `Workflow in progress (${progress?.done ?? 0}/${progress?.total ?? 12} steps done)`;
                   })()
-                : "Agents are starting up in the cloud (~3–5 min total)."}
+                : "Pipeline starting in the cloud (~10–12 min total)."}
             </p>
-            {/* Agent pipeline steps */}
-            <div className="flex flex-wrap gap-x-1 gap-y-2 mb-4">
-              {STEPS.map((s, i) => {
-                const agentStatus = progress?.agents[s.key] ?? "pending";
-                const isDone    = agentStatus === "done";
-                const isRunning = agentStatus === "running";
-                const isFailed  = agentStatus === "failed";
-                const dotColor  = isDone    ? "bg-[#10B981] border-[#10B981]"
-                                : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] animate-pulse"
-                                : isFailed  ? "bg-[#EF4444] border-[#EF4444]"
-                                :             "bg-transparent border-[#374151]";
-                const labelColor = isDone    ? "text-[#10B981]"
-                                 : isRunning ? "text-[#0EA5E9]"
-                                 : isFailed  ? "text-[#EF4444]"
-                                 :             "text-[#4B5563]";
-                return (
-                  <div key={s.key} className="flex items-center gap-1.5 text-xs">
-                    <span className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all ${dotColor}`}>
-                      {isDone ? (
-                        <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      ) : isFailed ? "✕" : i + 1}
-                    </span>
-                    <span className={`transition-colors ${labelColor}`}>{s.label}</span>
-                    {i < STEPS.length - 1 && (
-                      <span className={`${isDone ? "text-[#10B981]/50" : "text-[#374151]"}`}>→</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Full pipeline — 3 phases */}
+            <PipelineSteps steps={progress?.steps ?? {}} />
             {/* Progress bar */}
             <ProgressBar
               pct={progress?.pct ?? 0}
