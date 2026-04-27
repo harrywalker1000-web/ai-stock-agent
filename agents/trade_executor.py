@@ -649,6 +649,7 @@ def run(mode: str = "new_opportunities") -> dict:
     decisions = sorted(decisions, key=lambda d: _ACTION_ORDER.get(d.get("action", "skip"), 5))
 
     freed_capital = 0.0  # capital freed by decrease/exit orders placed this run
+    stop_triggers: list[dict] = []  # stop-loss exits triggered this run
 
     # --- Process Committee decisions ---
     for decision in decisions:
