@@ -1331,6 +1331,18 @@ def construct_portfolio_allocation(
     except Exception:
         pass
 
+    # Build a cash balance summary so the LLM can see exactly what buying power it has
+    current_invested_pct = sum(
+        abs(pos.get("size_pct") or 0.0)
+        for ticker, pos in open_positions.items()
+        if phase_a_map.get(ticker, {}).get("action") != "exit"
+    )
+    total_buying_needed_pct = sum(
+        max(0.0, (d.get("size_pct") or 0.0) - abs(open_positions.get(d["ticker"], {}).get("size_pct") or 0.0))
+        for d in phase_b_decisions
+        if "enter" in d.get("action", "") and d.get("size_pct")
+    )
+
     prompt = f"""You are the Portfolio Manager of an AI hedge fund. Today is {today}.
 
 Your job is PORTFOLIO CONSTRUCTION — setting the final target allocation for every position.
@@ -1340,19 +1352,32 @@ You decide HOW MUCH of each position to hold.
 
 PORTFOLIO STATE:
   Total equity: ${equity:,.0f}
-  Available cash: ~{cash_pct:.1f}% of portfolio
+  Available cash: ~{cash_pct:.1f}% of portfolio  (≈ ${equity * cash_pct / 100:,.0f})
+  Currently invested: ~{current_invested_pct:.1f}% across existing positions
 {macro_block}
 {_construction_risk_block}
-EXISTING POSITIONS (after today's committee review):
+EXISTING POSITIONS — showing ACTUAL current allocation in Alpaca (after today's committee review):
 {held_section}
 
 NEW ENTRIES approved by committee:
 {new_section}
 {capital_tradeoff_block}
+CRITICAL CASH CONSTRAINT:
+You have {cash_pct:.1f}% (≈ ${equity * cash_pct / 100:,.0f}) of free cash available RIGHT NOW.
+Any target weight ABOVE a position's current actual weight requires buying more shares — that costs cash.
+If the total additional buying you assign exceeds {cash_pct:.1f}%, YOUR TARGETS ARE UNFUNDED and will not execute.
+
+You MUST balance the books. To increase a position you must either:
+  a) Have enough free cash to cover it, OR
+  b) Explicitly reduce or exit another position to free up that cash first (use `capital_swap_exits` and reduce their target_weight)
+
+Do NOT assign a 9% target to a position that currently sits at 1.6% if you only have 2% cash — that is impossible.
+Either set the target at what is actually fundable, or sell something else to make room.
+
 YOUR TASK:
 Set the target weight for EVERY position in the portfolio — both existing holds and new entries.
-You must output ALL held positions in `target_weights`, not just the ones changing.
-This is a daily full-portfolio rebalance. Every weight is set from scratch today based on your full assessment.
+You must output ALL held positions in `target_weights`.
+This is a daily full-portfolio rebalance. Base every weight on your full assessment of the data.
 
 Use your full judgement across ALL the data provided above. For each position you have:
 - Action and conviction score from the investment committee
@@ -1370,14 +1395,8 @@ Use this data. Do not mechanically map conviction scores to fixed size bands —
 RULES:
 - No single position above 25% of portfolio
 - Positions the committee decided to EXIT should not appear in your output
-- Positions with very weak data support and conviction below 55 should not be given meaningful size —
-  either size them at 1-2% as a tracker or don't include them at all
-- ACTIVE REBALANCING IS EXPECTED: if available cash ({cash_pct:.1f}%) is insufficient to fund all approved
-  entries at appropriate sizes, you MUST reduce lower-conviction existing positions to make room.
-  Include them in `target_weights` with a reduced allocation. Do not assign tiny sizes to new entries —
-  actively trim or resize holds to reflect today's full conviction ranking across the entire portfolio.
-- Every day is a fresh sizing decision. A position's current weight is just where it happens to be —
-  it has no special claim to stay there. Allocate based on today's conviction and data, not inertia.
+- Your target_weights must be FUNDABLE with the available cash — if they aren't, trim other positions first
+- Every day is a fresh sizing decision. A position's current weight has no special claim to stay there.
 - Cash is fine — if allocations only sum to 70%, 30% stays in cash. That is a valid defensive decision.
 
 Return ONLY valid JSON:
@@ -1389,14 +1408,13 @@ Return ONLY valid JSON:
   "capital_swap_exits": [
     {{
       "ticker": "<ticker to exit>",
-      "reason": "<why exiting: conviction X vs new entry Y conviction Z>"
+      "reason": "<why exiting to free up cash>"
     }}
   ],
-  "reasoning": "<3-4 sentences explaining the key sizing decisions, what drove the biggest allocations, and any tradeoffs made>"
+  "reasoning": "<3-4 sentences: what drove the biggest allocations, how you balanced the cash constraint, and any tradeoffs>"
 }}
 
-Only include tickers where you want to SET or CHANGE the weight. Omit tickers you're leaving unchanged.
-`capital_swap_exits` may be an empty array [] if no swaps are needed."""
+`capital_swap_exits` may be [] if free cash is sufficient for all targets."""
 
     try:
         resp = client.chat.completions.create(

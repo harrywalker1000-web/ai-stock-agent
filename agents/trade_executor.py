@@ -664,14 +664,13 @@ def run(mode: str = "new_opportunities") -> dict:
             continue
 
         if action == "hold":
-            # If portfolio construction set a target size_pct that differs meaningfully
-            # from the current actual allocation, convert to increase/decrease so the
-            # executor rebalances to hit the target rather than ignoring it.
+            # If portfolio construction set a target size_pct that differs from the
+            # actual current allocation, convert to increase/decrease to rebalance.
             current_actual_pct = round(
                 open_positions.get(ticker, {}).get("size_pct") or 0.0, 1
             )
             target_pct = size_pct
-            if target_pct and abs(target_pct - current_actual_pct) >= 2.0:
+            if target_pct and abs(target_pct - current_actual_pct) >= 0.5:
                 if target_pct > current_actual_pct:
                     logger.info(
                         "%s: HOLD with rebalance — current=%.1f%% target=%.1f%% → converting to increase",
