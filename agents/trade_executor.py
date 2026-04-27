@@ -639,37 +639,16 @@ def run(mode: str = "new_opportunities") -> dict:
     if not safe:
         logger.warning("Trading blocked: %s — will log decisions without executing", hours_reason)
 
-    # Load open positions from memory (includes stop-loss levels)
+    # Load open positions from memory
     open_positions = memory.get_open_positions()
 
-    # --- Stop-loss check (always runs, regardless of market hours decision) ---
-    stop_triggers = _check_stop_losses(open_positions, alpaca_positions, api)
-    for trigger in stop_triggers:
-        ticker = trigger["ticker"]
-        qty = int(abs(float(alpaca_positions.get(ticker, {}).get("qty", 0))))
-        if qty > 0 and safe:
-            order = _place_order(api, ticker, qty, "sell", f"Stop-loss triggered at ${trigger['stop_loss']}")
-            if order:
-                memory.store_trade_exit(
-                    ticker=ticker,
-                    exit_date=today,
-                    exit_price=trigger["current_price"],
-                    exit_reason="stop_loss",
-                    rationale=f"Stop-loss hit at ${trigger['stop_loss']}",
-                )
-                trade = {
-                    "date": today, "ticker": ticker, "action": "stop_loss_exit",
-                    "direction": trigger["direction"], "shares": qty,
-                    "price": trigger["current_price"],
-                    "notional": round(qty * trigger["current_price"], 2),
-                    "pnl_pct": round(
-                        (trigger["current_price"] - trigger["entry_price"]) / trigger["entry_price"] * 100, 2
-                    ) if trigger.get("entry_price") else None,
-                    "conviction": None,
-                    "rationale": f"Auto stop-loss: hit ${trigger['stop_loss']}",
-                }
-                _log_trade(trade)
-                executed_trades.append(trade)
+    # Sort decisions: exits and decreases first so freed capital is available for enters/increases.
+    # Alpaca executes orders immediately but our available_capital snapshot is static — processing
+    # decreases first lets us track freed capital and apply it to subsequent increases.
+    _ACTION_ORDER = {"exit": 0, "decrease": 1, "reverse": 2, "enter_long": 3, "enter_short": 3, "increase": 4, "hold": 5, "skip": 6}
+    decisions = sorted(decisions, key=lambda d: _ACTION_ORDER.get(d.get("action", "skip"), 5))
+
+    freed_capital = 0.0  # capital freed by decrease/exit orders placed this run
 
     # --- Process Committee decisions ---
     for decision in decisions:
@@ -685,8 +664,29 @@ def run(mode: str = "new_opportunities") -> dict:
             continue
 
         if action == "hold":
-            logger.info("%s: HOLD — no action required", ticker)
-            continue
+            # If portfolio construction set a target size_pct that differs meaningfully
+            # from the current actual allocation, convert to increase/decrease so the
+            # executor rebalances to hit the target rather than ignoring it.
+            current_actual_pct = round(
+                open_positions.get(ticker, {}).get("size_pct") or 0.0, 1
+            )
+            target_pct = size_pct
+            if target_pct and abs(target_pct - current_actual_pct) >= 2.0:
+                if target_pct > current_actual_pct:
+                    logger.info(
+                        "%s: HOLD with rebalance — current=%.1f%% target=%.1f%% → converting to increase",
+                        ticker, current_actual_pct, target_pct,
+                    )
+                    action = "increase"
+                else:
+                    logger.info(
+                        "%s: HOLD with rebalance — current=%.1f%% target=%.1f%% → converting to decrease",
+                        ticker, current_actual_pct, target_pct,
+                    )
+                    action = "decrease"
+            else:
+                logger.info("%s: HOLD — allocation on target (current=%.1f%% target=%s%%)", ticker, current_actual_pct, target_pct)
+                continue
 
         current_price = _get_live_price(ticker)
         if current_price is None:
@@ -730,12 +730,12 @@ def run(mode: str = "new_opportunities") -> dict:
                 size_pct = HARD_MAX_POSITION_PCT
 
             notional = portfolio_value * size_pct / 100
-            # Hard cap: never use margin — limit to equity-safe available capital
-            max_notional = _available_capital(portfolio)
+            # Hard cap: never use margin — include capital freed by exits/decreases earlier this run
+            max_notional = _available_capital(portfolio) + freed_capital
             if notional > max_notional:
-                logger.warning("%s: notional $%.0f capped to $%.0f (equity $%.0f, exposure $%.0f) — no margin",
+                logger.warning("%s: notional $%.0f capped to $%.0f (available $%.0f + freed $%.0f) — no margin",
                                ticker, notional, max_notional,
-                               portfolio.get("equity", 0), portfolio.get("total_exposure", 0))
+                               _available_capital(portfolio), freed_capital)
                 notional = max_notional
             shares = int(notional / current_price)
             if shares < 1:
@@ -760,11 +760,11 @@ def run(mode: str = "new_opportunities") -> dict:
             # Only store the Alpaca order ID if the order was actually placed
             alpaca_order_id = order.get("order_id") if (safe and order) else None
 
-            # Native protective order — placed immediately after entry if Committee requested it
-            use_native_stop = decision.get("use_native_stop", False)
+            # Native Alpaca stop order — always placed when stop_loss price is set.
+            # Native orders trigger instantly in Alpaca; no local polling needed.
             native_order_type = decision.get("native_order_type", "stop")
             native_stop_order_id = None
-            if safe and order and use_native_stop:
+            if safe and order and stop_loss:
                 stop_order = _place_native_order(
                     api=api,
                     ticker=ticker,
@@ -814,7 +814,19 @@ def run(mode: str = "new_opportunities") -> dict:
             # Use abs() — Alpaca returns negative qty for short positions
             qty = int(abs(float(alpaca_pos["qty"]))) if alpaca_pos else 0
             if qty <= 0:
-                logger.warning("%s: exit requested but no Alpaca position found", ticker)
+                logger.warning("%s: exit requested but no Alpaca position found — marking closed in positions_log", ticker)
+                memory.store_trade_exit(
+                    ticker=ticker, exit_date=today, exit_price=current_price,
+                    exit_reason="position_not_found_in_alpaca",
+                    rationale="Position not found in Alpaca — closing record to prevent repeated exit decisions",
+                )
+                executed.append({
+                    "ticker": ticker, "action": "exit", "shares": 0,
+                    "price": current_price, "notional": 0,
+                    "pnl_pct": None, "conviction": conviction,
+                    "rationale": "Position absent from Alpaca — record closed",
+                    "order": {"status": "not_in_alpaca_record_closed"},
+                })
                 continue
             direction = open_positions.get(ticker, {}).get("direction", "LONG").upper()
             side = "sell" if direction == "LONG" else "buy"
@@ -829,6 +841,7 @@ def run(mode: str = "new_opportunities") -> dict:
                 exit_reason=decision.get("skip_reason", "committee_exit"),
                 rationale=rationale,
             )
+            freed_capital += qty * current_price
             entry_price = open_positions.get(ticker, {}).get("entry_price")
             pnl = round((current_price - entry_price) / entry_price * 100, 2) if entry_price else None
             if direction == "SHORT" and pnl is not None:
@@ -855,8 +868,13 @@ def run(mode: str = "new_opportunities") -> dict:
             existing_dir = open_positions.get(ticker, {}).get("direction", "LONG").upper()
 
             if existing_qty <= 0:
-                logger.warning("%s: reverse requested but no Alpaca position — skipping", ticker)
-                errors.append({"ticker": ticker, "error": "no position to reverse"})
+                logger.warning("%s: reverse requested but no Alpaca position — marking closed, skipping reversal", ticker)
+                memory.store_trade_exit(
+                    ticker=ticker, exit_date=today, exit_price=current_price,
+                    exit_reason="position_not_found_in_alpaca",
+                    rationale="Position absent from Alpaca during reverse — closing record",
+                )
+                errors.append({"ticker": ticker, "error": "no position to reverse — record closed"})
                 continue
 
             # Step 1: close existing
@@ -941,13 +959,14 @@ def run(mode: str = "new_opportunities") -> dict:
                 additional_pct = max(0, size_pct - current_pct)
                 additional_notional = min(
                     portfolio_value * additional_pct / 100,
-                    _available_capital(portfolio),
+                    _available_capital(portfolio) + freed_capital,
                 )
                 shares = int(additional_notional / current_price)
                 if shares >= 1 and safe:
                     side = "buy" if direction == "LONG" else "sell"
                     order = _place_order(api, ticker, shares, side, f"Increasing position: {rationale}")
                     if order:
+                        freed_capital = max(0.0, freed_capital - shares * current_price)
                         memory.update_position(ticker, conviction=conviction, size_pct=size_pct)
                         trade = {
                             "date": today, "ticker": ticker, "action": "increase",
@@ -959,8 +978,8 @@ def run(mode: str = "new_opportunities") -> dict:
                         executed_trades.append(trade)
                 elif shares < 1:
                     reason = (
-                        f"insufficient_capital: available ${_available_capital(portfolio):.0f} < 1 share at ${current_price:.2f}"
-                        if _available_capital(portfolio) < current_price
+                        f"insufficient_capital: available ${_available_capital(portfolio) + freed_capital:.0f} < 1 share at ${current_price:.2f}"
+                        if (_available_capital(portfolio) + freed_capital) < current_price
                         else f"no additional allocation needed (current {current_pct:.1f}% ≥ target {size_pct:.1f}%)"
                     )
                     logger.info("%s: increase skipped — %s", ticker, reason)
@@ -980,6 +999,7 @@ def run(mode: str = "new_opportunities") -> dict:
                     side = "sell" if direction == "LONG" else "buy"
                     order = _place_order(api, ticker, shares, side, f"Reducing position: {rationale}")
                     if order:
+                        freed_capital += shares * current_price
                         memory.update_position(ticker, conviction=conviction, size_pct=size_pct)
                         trade = {
                             "date": today, "ticker": ticker, "action": "decrease",
