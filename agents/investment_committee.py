@@ -1143,6 +1143,9 @@ def construct_portfolio_allocation(
     equity: float,
     cash_pct: float,
     macro_regime: str,
+    scorecards: list[dict] | None = None,
+    adhoc_reports: dict | None = None,
+    macro_data: dict | None = None,
 ) -> dict:
     """
     Portfolio Construction: a single LLM call that sees the ENTIRE book simultaneously.
@@ -1167,44 +1170,107 @@ def construct_portfolio_allocation(
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     today = datetime.utcnow().date().isoformat()
 
-    # Build context: existing holdings after Phase A decisions
-    # Map Phase A outcomes
+    sc_map = {sc["ticker"]: sc for sc in (scorecards or [])}
+    adhoc_map = adhoc_reports or {}
+
+    def _ticker_block(ticker: str, decision: dict, pos: dict) -> str:
+        """Build a rich per-ticker context block for the construction prompt."""
+        sc = sc_map.get(ticker, {})
+        adhoc = adhoc_map.get(ticker, {})
+        lines = []
+
+        action = decision.get("action", "hold").upper()
+        conviction = decision.get("conviction") or pos.get("conviction") or 50
+        current_wt = pos.get("size_pct") or 0
+        direction = decision.get("direction") or pos.get("direction", "LONG")
+
+        lines.append(f"=== {ticker} | {direction} | action={action} | conviction={conviction}/100 | current_weight={current_wt:.1f}% ===")
+
+        # Agent scores
+        fs = sc.get("fundamental_score") or decision.get("fundamental_score") or "?"
+        qs = sc.get("quant_score") or decision.get("quant_score") or "?"
+        ss = sc.get("sentiment_score") or decision.get("sentiment_score") or "?"
+        comp = sc.get("composite_score") or "?"
+        atr = sc.get("atr_pct") or "?"
+        conf = sc.get("overall_confidence") or "?"
+        conflict = sc.get("conflict_flag", False)
+        lines.append(f"  Scores: Fundamental={fs} Quant={qs} Sentiment={ss} Composite={comp} | Confidence={conf} | ATR={atr}% | AgentConflict={'YES' if conflict else 'no'}")
+
+        # Agent summaries
+        if sc.get("fundamental_summary"):
+            lines.append(f"  Fundamental: {sc['fundamental_summary'][:200]}")
+        if sc.get("quant_summary"):
+            lines.append(f"  Quant: {sc['quant_summary'][:200]}")
+        if sc.get("sentiment_summary"):
+            lines.append(f"  Sentiment: {sc['sentiment_summary'][:200]}")
+
+        # Debate outcome if agents disagreed
+        debate = sc.get("agent_debate", {})
+        if debate:
+            lines.append(f"  Debate: {debate.get('dissenter','')} dissented ({debate.get('original_dissenter_score','?')} vs {debate.get('high_agent_score','?')}). "
+                         f"Tension: {str(debate.get('tension_identified',''))[:120]}. "
+                         f"Resolution: {str(debate.get('committee_resolution',''))[:120]}")
+
+        # Committee thesis and catalysts/risks
+        thesis = decision.get("investment_thesis") or pos.get("entry_thesis") or ""
+        if thesis:
+            lines.append(f"  Thesis: {thesis[:250]}")
+        catalysts = decision.get("key_catalysts") or []
+        if catalysts:
+            lines.append(f"  Catalysts: {'; '.join(str(c) for c in catalysts[:3])[:200]}")
+        risks = decision.get("key_risks") or []
+        if risks:
+            lines.append(f"  Risks: {'; '.join(str(r) for r in risks[:3])[:200]}")
+
+        # Adhoc report highlights if available
+        if adhoc:
+            s7 = adhoc.get("s7_recommendation") or {}
+            s8 = adhoc.get("s8_technical") or {}
+            s12 = adhoc.get("s12_risk") or {}
+            s4 = adhoc.get("s4_valuation") or {}
+            if s7.get("expected_return_12m"):
+                lines.append(f"  Expected 12M return: {s7['expected_return_12m']}")
+            if s4.get("narrative"):
+                lines.append(f"  Valuation: {str(s4['narrative'])[:150]}")
+            if s8.get("trend") or s8.get("rsi_14"):
+                lines.append(f"  Technical: trend={s8.get('trend','?')} RSI={s8.get('rsi_14','?')} bias={s8.get('forward_bias','?')}")
+            if s12.get("beta") is not None:
+                lines.append(f"  Risk: beta={s12['beta']} debt/eq={s12.get('debt_to_equity','?')} current_ratio={s12.get('current_ratio','?')}")
+
+        return "\n".join(lines)
+
+    # Build context: existing holdings after committee review
     phase_a_map = {d["ticker"]: d for d in phase_a_decisions if d.get("ticker")}
-    held_lines = []
+    all_decisions_map = {d["ticker"]: d for d in phase_b_decisions if d.get("ticker")}
+
+    held_blocks = []
     for ticker, pos in open_positions.items():
         pa = phase_a_map.get(ticker, {})
-        action = pa.get("action", "hold")
+        action = pa.get("action") or all_decisions_map.get(ticker, {}).get("action", "hold")
         if action == "exit":
-            continue  # Already exiting — don't include
-        conviction = pa.get("conviction") or pos.get("conviction") or 50
-        size_pct = pos.get("size_pct") or 0
-        sector = pos.get("sector") or "Unknown"
-        direction = pos.get("direction", "LONG")
-        thesis = (pa.get("investment_thesis") or pos.get("entry_thesis") or "")[:150]
-        held_lines.append(
-            f"  {ticker}: {direction} | action={action.upper()} | "
-            f"conviction={conviction}/100 | current_weight={size_pct:.1f}% | "
-            f"sector={sector} | thesis={thesis}"
-        )
+            continue
+        decision = all_decisions_map.get(ticker, pa) or {}
+        held_blocks.append(_ticker_block(ticker, decision, pos))
 
-    # Build context: Phase B new entries
-    new_entry_lines = []
+    # New entries
+    new_blocks = []
     for d in phase_b_decisions:
         if "enter" not in d.get("action", ""):
             continue
-        conviction = d.get("conviction", 50)
-        thesis = (d.get("investment_thesis") or "")[:150]
-        catalysts = ", ".join(d.get("key_catalysts") or [])[:80]
-        f_score = d.get("fundamental_score") or "?"
-        q_score = d.get("quant_score") or "?"
-        s_score = d.get("sentiment_score") or "?"
-        new_entry_lines.append(
-            f"  {d['ticker']}: {d['action'].upper()} | conviction={conviction}/100 | "
-            f"F:{f_score} Q:{q_score} S:{s_score} | thesis={thesis} | catalyst={catalysts}"
-        )
+        new_blocks.append(_ticker_block(d["ticker"], d, {}))
 
-    held_block = "\n".join(held_lines) if held_lines else "  (none)"
-    new_block = "\n".join(new_entry_lines) if new_entry_lines else "  (none)"
+    held_section = "\n\n".join(held_blocks) if held_blocks else "  (none)"
+    new_section = "\n\n".join(new_blocks) if new_blocks else "  (none)"
+
+    # Macro context
+    macro_block = f"Macro regime: {macro_regime}"
+    if macro_data:
+        regime_detail = macro_data.get("regime_detail") or macro_data.get("narrative") or ""
+        key_risks = macro_data.get("key_risks") or []
+        if regime_detail:
+            macro_block += f"\n  {str(regime_detail)[:200]}"
+        if key_risks:
+            macro_block += f"\n  Macro risks: {'; '.join(str(r) for r in key_risks[:3])[:150]}"
 
     # Build capital tradeoff block: compare new entry conviction vs held position conviction
     # so the LLM can proactively decide to exit lower-conviction holds to fund better opportunities
@@ -1275,34 +1341,44 @@ You decide HOW MUCH of each position to hold.
 PORTFOLIO STATE:
   Total equity: ${equity:,.0f}
   Available cash: ~{cash_pct:.1f}% of portfolio
-  Macro regime: {macro_regime}
+{macro_block}
 {_construction_risk_block}
 EXISTING POSITIONS (after today's committee review):
-{held_block}
+{held_section}
 
 NEW ENTRIES approved by committee:
-{new_block}
+{new_section}
 {capital_tradeoff_block}
 YOUR TASK:
 Set the target weight for EVERY position in the portfolio — both existing holds and new entries.
 You must output ALL held positions in `target_weights`, not just the ones changing.
-This is a daily full-portfolio rebalance. Every weight is reset from scratch today based on conviction.
+This is a daily full-portfolio rebalance. Every weight is set from scratch today based on your full assessment.
 
-Use your full judgement. Consider:
-- Higher conviction = generally larger allocation (conviction 70+ → 8-15%, conviction 60-70 → 4-8%, <60 → 2-4%)
-- Positions with <1% weight and conviction below 60 are not worth holding — either size them properly or exit them
-- Positions at very different weights but similar conviction should be normalised toward each other
-- Cash is fine — if allocations only sum to 70%, 30% stays in cash. That's a valid decision.
+Use your full judgement across ALL the data provided above. For each position you have:
+- Action and conviction score from the investment committee
+- Individual agent scores (fundamental, quant, sentiment) and summaries
+- Any debate/dissent among the committee agents and how it was resolved
+- Investment thesis, key catalysts, and key risks
+- Technical trend, RSI, expected 12-month return (where available from research reports)
+- Risk metrics: beta, debt/equity, current ratio
+- ATR (volatility) — higher ATR positions warrant smaller sizing for equivalent risk exposure
+
+Think holistically: a position with high conviction but also high ATR and a contested committee debate
+deserves different sizing than a high-conviction position with strong agent alignment and low volatility.
+Use this data. Do not mechanically map conviction scores to fixed size bands — apply genuine judgment.
 
 RULES:
 - No single position above 25% of portfolio
 - Positions the committee decided to EXIT should not appear in your output
+- Positions with very weak data support and conviction below 55 should not be given meaningful size —
+  either size them at 1-2% as a tracker or don't include them at all
 - ACTIVE REBALANCING IS EXPECTED: if available cash ({cash_pct:.1f}%) is insufficient to fund all approved
-  entries at conviction-appropriate sizes, you MUST reduce lower-conviction existing positions to make room.
-  Include them in `target_weights` with a reduced allocation. Do not just assign tiny sizes to new entries —
+  entries at appropriate sizes, you MUST reduce lower-conviction existing positions to make room.
+  Include them in `target_weights` with a reduced allocation. Do not assign tiny sizes to new entries —
   actively trim or resize holds to reflect today's full conviction ranking across the entire portfolio.
 - Every day is a fresh sizing decision. A position's current weight is just where it happens to be —
-  it has no special claim to stay there. Allocate based on today's conviction, not inertia.
+  it has no special claim to stay there. Allocate based on today's conviction and data, not inertia.
+- Cash is fine — if allocations only sum to 70%, 30% stays in cash. That is a valid defensive decision.
 
 Return ONLY valid JSON:
 {{
@@ -1316,7 +1392,7 @@ Return ONLY valid JSON:
       "reason": "<why exiting: conviction X vs new entry Y conviction Z>"
     }}
   ],
-  "reasoning": "<2-3 sentences on overall portfolio construction decisions, including any swaps>"
+  "reasoning": "<3-4 sentences explaining the key sizing decisions, what drove the biggest allocations, and any tradeoffs made>"
 }}
 
 Only include tickers where you want to SET or CHANGE the weight. Omit tickers you're leaving unchanged.
@@ -1327,7 +1403,7 @@ Only include tickers where you want to SET or CHANGE the weight. Omit tickers yo
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
-            max_tokens=800,
+            max_tokens=1200,
             response_format={"type": "json_object"},
         )
         result = json.loads(resp.choices[0].message.content)
@@ -1562,6 +1638,9 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
             equity=equity_for_construction,
             cash_pct=available_cash_pct,
             macro_regime=macro_regime,
+            scorecards=to_debate,
+            adhoc_reports=adhoc_by_ticker,
+            macro_data=macro,
         )
         target_weights = construction.get("target_weights", {})
         if target_weights:
