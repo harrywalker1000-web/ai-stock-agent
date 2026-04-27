@@ -8,15 +8,14 @@
       "freshness": "today",
       "priced_in_estimate": "not priced in",
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "finnhub",
-          "newsapi"
+          "finnhub"
         ],
-        "note": "multi-source confirmation"
+        "note": "single source \u2014 treat with caution"
       },
-      "reasoning": "The FDA's Priority Review status for a new treatment is a significant catalyst that is likely not priced in, providing a strong long signal."
+      "reasoning": "This FDA approval could significantly impact JNJ's market position, but it is based on a single source, indicating lower confidence."
     },
     {
       "ticker": "META",
@@ -24,17 +23,33 @@
       "catalyst_type": "M&A",
       "direction": "SHORT",
       "freshness": "today",
-      "priced_in_estimate": "likely priced in",
+      "priced_in_estimate": "not priced in",
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "finnhub",
-          "newsapi"
+          "finnhub"
         ],
-        "note": "multi-source confirmation"
+        "note": "single source \u2014 treat with caution"
       },
-      "reasoning": "The veto of a significant deal by China is a major setback for Meta, suggesting a potential short opportunity, although it may already be partially priced in."
+      "reasoning": "The cancellation of a significant deal could negatively affect META's stock, but it is reported by only one source, indicating lower confidence."
+    },
+    {
+      "ticker": "MSFT",
+      "catalyst": "OpenAI breaks off Microsoft exclusivity to free up path for Amazon, Google deals",
+      "catalyst_type": "M&A",
+      "direction": "SHORT",
+      "freshness": "today",
+      "priced_in_estimate": "not priced in",
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "finnhub"
+        ],
+        "note": "single source \u2014 treat with caution"
+      },
+      "reasoning": "The shift in partnership dynamics could impact MSFT negatively, but it is based on a single source, indicating lower confidence."
     }
   ],
   "stale_catalysts": [],
@@ -42,84 +57,13 @@
   "reddit_unusual": [],
   "top_catalyst_tickers": [
     "JNJ",
-    "META"
+    "META",
+    "MSFT"
   ],
-  "news_summary": "Today's market is influenced by significant catalysts, including the FDA granting Priority Review for JNJ's new treatment, which is a strong long signal. Conversely, Meta faces a setback as China vetoes its $2B deal, suggesting a potential short opportunity. Overall, the geopolitical tensions are impacting market sentiment.",
-  "confidence": 85,
+  "news_summary": "Today's catalysts include JNJ's FDA Priority Review for a new treatment, which could be a significant market mover despite low confidence due to single-source reporting. META faces a setback as China vetoes a major deal, and MSFT's exclusivity with OpenAI is broken, potentially impacting its strategic position. All catalysts are flagged with low confidence due to reliance on single sources.",
+  "confidence": 30,
   "raw_data": {
     "company_catalysts": [
-      {
-        "ticker": "META",
-        "headline": "China vetoes Meta\u2019s $2B Manus deal after months-long probe",
-        "catalyst_type": "M&A",
-        "source": "finnhub",
-        "published": "2026-04-27T13:16:55",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=b5a032b9db3dc26f9afde40beb079b068bc3f2e521647d2d5c543053877238ac",
-        "confirmed_by_sources": [
-          "newsapi",
-          "finnhub"
-        ],
-        "source_count": 2,
-        "signal_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources": [
-            "newsapi",
-            "finnhub"
-          ],
-          "note": "multi-source confirmation"
-        }
-      },
-      {
-        "ticker": "JNJ",
-        "headline": "FDA grants Priority Review for IMAAVY\u00ae (nipocalimab-aahu) as the potential first approved treatment for people living with warm autoimmune hemolytic anemia (wAIHA)",
-        "catalyst_type": "FDA/regulatory",
-        "source": "finnhub",
-        "published": "2026-04-27T12:03:00",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=db1b5d1c05ad6d87e7b19a9d0b6d34faaa8b9df35ff4a256060e27429fd38a79",
-        "confirmed_by_sources": [
-          "newsapi",
-          "finnhub"
-        ],
-        "source_count": 2,
-        "signal_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources": [
-            "newsapi",
-            "finnhub"
-          ],
-          "note": "multi-source confirmation"
-        }
-      },
-      {
-        "ticker": "CAT",
-        "headline": "Earnings Volatility Watch: What To Expect From Sandisk and 5 Mag Seven Stocks This Week",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-04-27T09:22:01",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=b7d2f90298a76d525161df41fab2167cfc4457bdcfcf102b34b656915a05a694",
-        "confirmed_by_sources": [
-          "newsapi",
-          "finnhub"
-        ],
-        "source_count": 2,
-        "signal_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources": [
-            "newsapi",
-            "finnhub"
-          ],
-          "note": "multi-source confirmation"
-        }
-      },
       {
         "ticker": "AAPL",
         "headline": "Nasdaq Composite Eyes AI Deals, Tech Earnings and Fed but Oil Shock Looms",
@@ -217,6 +161,28 @@
         "freshness": "today",
         "freshness_score": 3,
         "url": "https://finnhub.io/api/news?id=91d7a21a65d8ac3dbf2c9cd0f6d861431e122f7da2b96a876f20f106d153c5fd",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "META",
+        "headline": "China vetoes Meta\u2019s $2B Manus deal after months-long probe",
+        "catalyst_type": "M&A",
+        "source": "finnhub",
+        "published": "2026-04-27T13:16:55",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=b5a032b9db3dc26f9afde40beb079b068bc3f2e521647d2d5c543053877238ac",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -371,6 +337,28 @@
         "freshness": "today",
         "freshness_score": 3,
         "url": "https://finnhub.io/api/news?id=7f6be83049b196c0e5dd4ee3c5c7d39ae6784e042e1b0366813afe4f9f8f6e4a",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "JNJ",
+        "headline": "FDA grants Priority Review for IMAAVY\u00ae (nipocalimab-aahu) as the potential first approved treatment for people living with warm autoimmune hemolytic anemia (wAIHA)",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-04-27T12:03:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=db1b5d1c05ad6d87e7b19a9d0b6d34faaa8b9df35ff4a256060e27429fd38a79",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -671,6 +659,28 @@
         }
       },
       {
+        "ticker": "CAT",
+        "headline": "Earnings Volatility Watch: What To Expect From Sandisk and 5 Mag Seven Stocks This Week",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-04-27T09:22:01",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=b7d2f90298a76d525161df41fab2167cfc4457bdcfcf102b34b656915a05a694",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
         "ticker": "GS",
         "headline": "Goldman Sachs Loves 3 Energy, Mining and Utility Dividend Giants in Front of Q1 Earnings",
         "catalyst_type": "earnings",
@@ -869,28 +879,6 @@
         }
       },
       {
-        "ticker": "UBER",
-        "headline": "Uber (UBER), Block (SQ) Expand Global Partnership to Streamline Restaurant Operations",
-        "catalyst_type": "contract/partnership",
-        "source": "finnhub",
-        "published": "2026-04-27T06:20:14",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=ac454c2c4baf3e35f3b9e9f414761d117b207c6acfef7dfc545cedf7d95f15be",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
         "ticker": "SHOP",
         "headline": "RBC Capital Keeps Outperform Rating on Shopify (SHOP), Sees Strong Growth Outlook",
         "catalyst_type": "earnings",
@@ -957,248 +945,6 @@
         }
       },
       {
-        "ticker": "NVDA",
-        "headline": "Jim Cramer Couldn\u2019t Stop Praising NVIDIA (NVDA) CEO Jensen Huang",
-        "catalyst_type": "management_change",
-        "source": "newsapi",
-        "published": "2026-04-23T19:36:33",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-couldn-t-stop-193633502.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "AMZN",
-        "headline": "Barclays is Still Betting Big on Amazon Stock: AMZN Will 'Continue to Outperform'",
-        "catalyst_type": "analyst_action",
-        "source": "newsapi",
-        "published": "2026-04-22T18:03:46",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://consent.yahoo.com/v2/collectConsent?sessionId=1_cc-session_58ee2487-cf94-487f-b1ce-028b00d7c708",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "TSLA",
-        "headline": "TSLA Stock: 4 Key Things to Watch When Tesla Reports Q1 Earnings",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-04-23T13:00:02",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.barchart.com/story/news/1475847/tsla-stock-4-key-things-to-watch-when-tesla-reports-q1-earnings",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "UNH",
-        "headline": "UnitedHealth Just Raised Its Full-Year Guidance. Is the Long-Anticipated Turnaround in UNH Stock Finally Here?",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-04-23T14:30:02",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.barchart.com/story/news/1478471/unitedhealth-just-raised-its-full-year-guidance-is-the-long-anticipated-turnaround-in-unh-stock-finally-here",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "WMT",
-        "headline": "Focus in on Consumer Staples Dividend Payers With These ETFs",
-        "catalyst_type": "corporate_action",
-        "source": "newsapi",
-        "published": "2026-04-25T12:50:00",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.marketbeat.com/originals/focus-in-on-consumer-staples-dividend-payers-with-these-etfs/?utm_source=yahoofinance&amp;utm_medium=yahoofinance",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "PLTR",
-        "headline": "Palantir Stock Pops on USDA Deal. Should You Buy PLTR Stock Here?",
-        "catalyst_type": "M&A",
-        "source": "newsapi",
-        "published": "2026-04-22T19:03:57",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://consent.yahoo.com/v2/collectConsent?sessionId=1_cc-session_2392dd27-16f1-4d46-8e24-a83ae5d2c60e",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "COIN",
-        "headline": "Trading Tesla stock around earnings is a coin toss, but long-term investors have better odds",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-04-22T21:40:38",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://finance.yahoo.com/markets/article/trading-tesla-stock-around-earnings-is-a-coin-toss-but-long-term-investors-have-better-odds-214038331.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "INTC",
-        "headline": "Citi and Evercore Pile Into Intel With Huge Price Target Hikes: Is the CPU Renaissance Real?",
-        "catalyst_type": "analyst_action",
-        "source": "newsapi",
-        "published": "2026-04-24T16:10:20",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://247wallst.com/investing/2026/04/24/citi-and-evercore-pile-into-intel-with-huge-price-target-hikes-is-the-cpu-renaissance-real/",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "GS",
-        "headline": "The Procter & Gamble Company (PG) Price Target Reduced to $167 by BofA Amid Higher Resin Cost Expectations",
-        "catalyst_type": "analyst_action",
-        "source": "newsapi",
-        "published": "2026-04-23T08:40:15",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://finance.yahoo.com/markets/stocks/articles/procter-gamble-company-pg-price-084015576.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "GS",
-        "headline": "Provident Financial Holdings Announces Quarterly Cash Dividend",
-        "catalyst_type": "corporate_action",
-        "source": "newsapi",
-        "published": "2026-04-23T23:19:00",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.globenewswire.com/news-release/2026/04/23/3280476/8401/en/Provident-Financial-Holdings-Announces-Quarterly-Cash-Dividend.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "MS",
-        "headline": "Morgan Stanley adjusts UNH stock price target after earnings",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-04-24T19:47:00",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.thestreet.com/investing/stocks/morgan-stanley-adjusts-unh-stock-price-target-after-earnings",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
         "ticker": "RTX",
         "headline": "How Many Patriot Missiles Are Left In U.S. Stockpile? Less Than Half, Report Shows.",
         "catalyst_type": "earnings",
@@ -1221,28 +967,6 @@
         }
       },
       {
-        "ticker": "LMT",
-        "headline": "Stocks Slip Before the Open on U.S.-Iran Talks Uncertainty, Earnings and PMI Data in Focus",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-04-23T10:33:31",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.barchart.com/story/news/1470681/stocks-slip-before-the-open-on-u-s-iran-talks-uncertainty-earnings-and-pmi-data-in-focus",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
         "ticker": "NVO",
         "headline": "Novo Nordisk Shares Rise After Positive Oral Semaglutide Trial In Children",
         "catalyst_type": "FDA/regulatory",
@@ -1260,50 +984,6 @@
           "sources_count": 1,
           "sources": [
             "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "MRK",
-        "headline": "Infinimmune and Merck (MRK) Enter into an Antibody Discovery Agreement",
-        "catalyst_type": "contract/partnership",
-        "source": "newsapi",
-        "published": "2026-04-24T18:52:06",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://finance.yahoo.com/sectors/healthcare/articles/infinimmune-merck-mrk-enter-antibody-185206876.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "BNTX",
-        "headline": "BioNTech (BNTX) Price Target Raised Following Successful T-Pam Data",
-        "catalyst_type": "analyst_action",
-        "source": "newsapi",
-        "published": "2026-04-23T16:45:42",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://finance.yahoo.com/sectors/healthcare/articles/biontech-bntx-price-target-raised-164542081.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
           ],
           "note": "single source \u2014 treat with caution"
         }
@@ -1421,7 +1101,31 @@
     ],
     "market_catalysts": [
       {
-        "headline": "Wall St opens lower as investors weigh US-Iran conflict before earnings rush - Reuters",
+        "headline": "Iran oil tankers turned back by US blockade, Hormuz traffic sparse - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
+        "headline": "Renewables in vogue as Iran war drives up Europe power prices - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
+        "headline": "Wall Street indexes enter earnings-heavy week on cautious footing - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
+        "headline": "Russian superyacht crosses blockaded Strait of Hormuz - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
+        "headline": "Two months into Iran war, economic strain mounts across emerging markets - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
@@ -1439,31 +1143,25 @@
         "freshness_score": 3
       },
       {
+        "headline": "Nations meet to discuss fossil fuel exit as Iran war drives up prices - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
+        "headline": "Bahrain revokes citizenship of 69 people over 'support for Iranian attacks' - Reuters",
+        "source": "finnhub",
+        "freshness": "today",
+        "freshness_score": 3
+      },
+      {
         "headline": "Jim Cramer's top 10 things to watch in the stock market Monday",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Renewables in vogue as Iran war drives up Europe power prices - Reuters",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
-      },
-      {
         "headline": "More apartments, more deals: Why nearly 40% of landlords are offering concessions right now",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
-      },
-      {
-        "headline": "Shipping traffic through Hormuz remains muted with no US-Iran deal in sight, data shows - Reuters",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
-      },
-      {
-        "headline": "Two months into Iran war, economic strain mounts across emerging markets - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
@@ -1521,30 +1219,12 @@
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
-      },
-      {
-        "headline": "Mediators still seek to bridge US, Iran gaps despite failure of face-to-face talks - Reuters",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
-      },
-      {
-        "headline": "Iran war disrupts the circuit board supply chain, raises costs for tech firms - Reuters",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
-      },
-      {
-        "headline": "Hengli Petrochemical dives after US imposes Iran oil sanctions - Reuters",
-        "source": "finnhub",
-        "freshness": "today",
-        "freshness_score": 3
       }
     ],
     "upcoming_earnings": [],
     "reddit_mentions": {},
     "reddit_enabled": false,
-    "as_of": "2026-04-27 15:02 UTC"
+    "as_of": "2026-04-27 15:45 UTC"
   },
-  "generated_at": "2026-04-27T15:02:16.086557"
+  "generated_at": "2026-04-27T15:45:28.843578"
 }
