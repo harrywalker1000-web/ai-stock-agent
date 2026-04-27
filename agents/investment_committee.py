@@ -1549,6 +1549,58 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
     decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot, adhoc_reports=adhoc_by_ticker)
     logger.info("Committee produced %d decisions", len(decisions))
 
+    # ── Portfolio Construction: assign final sizes across the full book ──
+    # This is the step that was previously defined but never called.
+    # It sees all decisions + existing holds simultaneously and normalises
+    # weights so conviction scores and allocation actually align.
+    try:
+        equity_for_construction = _equity if "_equity" in dir() else 0.0
+        construction = construct_portfolio_allocation(
+            phase_b_decisions=decisions,
+            phase_a_decisions=[],   # no separate phase A in adhoc mode
+            open_positions=open_positions,
+            equity=equity_for_construction,
+            cash_pct=available_cash_pct,
+            macro_regime=macro_regime,
+        )
+        target_weights = construction.get("target_weights", {})
+        if target_weights:
+            # Apply constructed weights back onto decisions so size_pct is set correctly
+            decision_map = {d["ticker"]: d for d in decisions if d.get("ticker")}
+            for ticker, weight in target_weights.items():
+                if ticker in decision_map:
+                    decision_map[ticker]["size_pct"] = round(float(weight), 1)
+                else:
+                    # Hold decision not in deliberation list (existing position being resized)
+                    decisions.append({
+                        "ticker": ticker,
+                        "action": "hold",
+                        "conviction": open_positions.get(ticker, {}).get("conviction") or 50,
+                        "size_pct": round(float(weight), 1),
+                        "investment_thesis": "Portfolio construction rebalance.",
+                    })
+            logger.info(
+                "Portfolio construction applied: %d weights set | rebalancing: %s | %s",
+                len(target_weights),
+                construction.get("rebalancing", {}),
+                construction.get("reasoning", "")[:120],
+            )
+        else:
+            logger.warning("Portfolio construction returned no weights — falling back to Kelly sizing")
+            # Fallback: apply suggested_size_pct from scorecards to decisions lacking size_pct
+            sc_map = {sc["ticker"]: sc for sc in scorecards}
+            for d in decisions:
+                if not d.get("size_pct") and d.get("action") not in ("skip", "exit"):
+                    sc = sc_map.get(d.get("ticker", ""), {})
+                    d["size_pct"] = sc.get("suggested_size_pct", 5.0)
+    except Exception as _ce:
+        logger.warning("Portfolio construction failed: %s — falling back to Kelly sizing", _ce)
+        sc_map = {sc["ticker"]: sc for sc in scorecards}
+        for d in decisions:
+            if not d.get("size_pct") and d.get("action") not in ("skip", "exit"):
+                sc = sc_map.get(d.get("ticker", ""), {})
+                d["size_pct"] = sc.get("suggested_size_pct", 5.0)
+
     # Store all decisions in memory
     for d in decisions:
         ticker = d.get("ticker", "")
