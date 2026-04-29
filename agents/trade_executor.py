@@ -820,7 +820,7 @@ def run(mode: str = "new_opportunities") -> dict:
                     exit_reason="position_not_found_in_alpaca",
                     rationale="Position not found in Alpaca — closing record to prevent repeated exit decisions",
                 )
-                executed.append({
+                executed_trades.append({
                     "ticker": ticker, "action": "exit", "shares": 0,
                     "price": current_price, "notional": 0,
                     "pnl_pct": None, "conviction": conviction,
