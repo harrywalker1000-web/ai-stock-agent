@@ -1399,6 +1399,9 @@ RULES:
 - Every day is a fresh sizing decision. A position's current weight has no special claim to stay there.
 - Cash is fine — if allocations only sum to 70%, 30% stays in cash. That is a valid defensive decision.
 
+IMPORTANT: Do NOT include "CASH" as a ticker in target_weights. Cash allocation is implicit —
+whatever percentage is not assigned to stocks stays as cash automatically.
+
 Return ONLY valid JSON:
 {{
   "target_weights": {{
@@ -1426,6 +1429,9 @@ Return ONLY valid JSON:
         )
         result = json.loads(resp.choices[0].message.content)
         target_weights = result.get("target_weights", {})
+        # Strip any "CASH" entry — LLMs sometimes use this as shorthand for cash allocation,
+        # but CASH is a real ETF ticker and must never be traded as a position.
+        target_weights = {k: v for k, v in target_weights.items() if k.upper() != "CASH"}
         reasoning = result.get("reasoning", "")
         capital_swap_exits = result.get("capital_swap_exits", [])
 

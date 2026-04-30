@@ -660,6 +660,11 @@ def run(mode: str = "new_opportunities") -> dict:
         stop_loss = decision.get("stop_loss")
         rationale = decision.get("investment_thesis", "")
 
+        if ticker == "CASH":
+            logger.warning("Skipping CASH ticker — LLM used it as cash allocation placeholder, not a real position")
+            skipped.append({"ticker": "CASH", "reason": "reserved word — not a tradeable position"})
+            continue
+
         if action == "skip":
             skipped.append({"ticker": ticker, "reason": decision.get("skip_reason", "")})
             continue
