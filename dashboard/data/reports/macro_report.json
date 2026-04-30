@@ -1,71 +1,90 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "inflation-protected securities",
-    "commodities",
+    "high-yield bonds",
+    "energy sector",
     "defensive stocks"
   ],
   "avoid_themes": [
-    "high-growth tech stocks",
-    "emerging market equities",
-    "high-yield bonds"
+    "equities",
+    "emerging markets",
+    "commodities"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions affecting oil prices",
-    "sanctions on China escalating trade conflicts"
+    "US-Iran conflict escalation",
+    "oil supply disruptions",
+    "global inflationary pressures"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly concerning Iran. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, leading to a conflict in signals. The CPI shows a rising trend, suggesting inflationary pressures are building.",
+  "macro_summary": "The current macro environment shows rising inflation with CPI increasing from 327.46 to 330.29, indicating inflationary pressures. However, the mixed signals from yfinance_market (NEUTRAL) and newsapi_finnhub (RISK-OFF) create a conflict in the assessment of market sentiment. The VIX remains below panic levels, suggesting moderate fear in the market.",
   "signal_confidence": {
-    "level": "low",
-    "sources_count": 3,
+    "level": "medium",
+    "sources_count": 2,
     "sources": [
-      "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The low confidence level reflects conflicting signals from multiple sources."
+    "confidence_note": "The medium confidence level reflects the conflicting signals from the two sources."
   },
-  "confidence": 50,
+  "confidence": 65,
   "raw_data": {
-    "fed_funds_rate": 3.64,
+    "fed_funds_rate": null,
     "us_10y_yield": null,
-    "us_2y_yield": null,
+    "us_2y_yield": 3.84,
     "yield_curve_spread": null,
     "cpi_latest": 330.29,
     "cpi_prev": 327.46,
     "cpi_trend": "rising",
-    "pce_latest": 129.449,
-    "gdp_latest": 31422.5,
-    "gdp_prev": 31098.0,
-    "gdp_growth": 1.04,
-    "dxy_current": 98.8,
+    "pce_latest": null,
+    "gdp_latest": null,
+    "gdp_prev": null,
+    "gdp_growth": null,
+    "dxy_current": 98.26,
     "dxy_1m_ago": 100.51,
     "dxy_trend": "weakening",
-    "vix": 18.3,
-    "tlt_1m_change_pct": -0.77,
-    "hyg_1m_change_pct": 2.28,
+    "vix": 17.69,
+    "tlt_1m_change_pct": -0.82,
+    "hyg_1m_change_pct": 2.4,
     "macro_headlines": [
-      "Trump urges Iran to sign a deal after report suggests US may extend blockade - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
-      "Stocks fall, oil rises, traders wait for tech earnings and Fed - Reuters",
-      "Germany's Merz says relations with Trump are good despite spat over Iran - Reuters",
-      "US sanctions on China's Hengli mark escalation in Iran oil crackdown - Reuters",
-      "China's Iranian oil buying curbed by margins, traders say - Reuters",
-      "Trump meets with oil executives as Iran stalemate drags on, Axios reports - Reuters",
-      "Swiss bank UBS exceeds profit forecasts as Iran war stokes trading volatility - Reuters",
-      "Trump threatens Iran with AI picture of himself with a gun: 'No more Mr. Nice guy!'",
-      "Breakingviews - Iran crisis makes green jet fuel interesting again - Reuters"
+      "Oil retreats after hitting four-year high on concern of US-Iran war escalation - Reuters",
+      "Iran threatens painful response if US resumes attacks, oil prices seesaw - Reuters",
+      "Iranian economic collapse may come too late for Trump - Reuters",
+      "Lawyers to the wealthy warn that AI legal advice comes with serious risks",
+      "Iran's Supreme Leader Mojtaba Khamenei says new management of Strait of Hormuz 'will bring calm' - Reuters",
+      "Unilever to hike prices in 'small doses' as Iran war threatens to hit shoppers - Reuters",
+      "Iran's North American diaspora split over next steps after Trump's ceasefire - Reuters",
+      "From surplus to strain: world rice supply threatened by Iran war, El Nino - Reuters",
+      "Repsol plans to boost jet fuel output as Iran war disrupts global supply - Reuters",
+      "Chinese solar manufacturers post fresh losses despite optimism about Iran war-led boost to overseas demand - Reuters"
     ],
-    "geopolitical_headlines": [],
-    "central_bank_headlines": [],
-    "as_of": "2026-04-29 15:35 UTC"
+    "geopolitical_headlines": [
+      "Dutch central bank dithces AWS and chooses Lidl for European Cloud",
+      "Fed meeting updates: Will FOMC hold interest rates? What to expect from Jerome Powell's last meeting",
+      "5 charts show what the economy looked like under Powell's Federal Reserve",
+      "Fed chair nominee Kevin Warsh advances to Senate confirmation vote",
+      "Fed to announce what may be the final rate decision under Powell",
+      "Swiss money laundering trial of Uzbekistan's Karimova and Lombard Odier begins",
+      "Wall Street is eyeing a new burst of growth for Meta ahead of its Q1 earnings report",
+      "How US and Iran are playing a crypto cat-and-mouse game over sanctions",
+      "Citi is hoping AI agents will supercharge wealth advisors \u2014 but there's still a memory issue standing in the way",
+      "Jamie Dimon gets candid about national debt: \u2018There will be a bond crisis, and then we\u2019ll have to deal with it\u2019"
+    ],
+    "central_bank_headlines": [
+      "Oil advances with Middle East in focus, equities rise slightly",
+      "Oil prices rise with eyes on UAE, AI concerns weigh on stocks",
+      "Oil prices rise with eyes on Iran, UAE; AI concerns weigh on stocks",
+      "Gold steady with US-Iran talks and central bank decisions in focus",
+      "Silver futures decline Rs 1,137 to Rs 2.36 lakh/kg as oil rally weighs on bullion demand",
+      "Why are oil prices up while gold down now, and will Brent, US WTI crude futures continue to rise or experience wild swings?",
+      "Shares fall in Asia and oil prices gain as talks stall on ending the Iran war",
+      "Central banks struggle to navigate open-ended price shock"
+    ],
+    "as_of": "2026-04-30 15:00 UTC"
   },
-  "generated_at": "2026-04-29T15:35:10.132975"
+  "generated_at": "2026-04-30T15:00:41.123452"
 }
