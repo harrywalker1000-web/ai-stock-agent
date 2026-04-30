@@ -86,15 +86,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Fetch and rebase FIRST so the push always lands cleanly
-          git fetch origin main
-          git rebase --autostash origin/main
-          # Stage output files
+          # Stage output files FIRST so they are tracked before the rebase.
+          # Untracked files cause rebase to abort if the remote has the same path.
           git add data/memory/positions_log.json   2>/dev/null || true
           git add data/memory/decision_log.json    2>/dev/null || true
           git add data/memory/pattern_history.json 2>/dev/null || true
           git add dashboard/data/reports/          2>/dev/null || true
           git add dashboard/data/memory/           2>/dev/null || true
+          # Fetch and rebase — files are now tracked so no untracked-file conflicts
+          git fetch origin main
+          git rebase --autostash origin/main
           # Only commit and push if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes to commit"
