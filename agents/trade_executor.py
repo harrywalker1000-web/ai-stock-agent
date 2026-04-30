@@ -660,8 +660,8 @@ def run(mode: str = "new_opportunities") -> dict:
         stop_loss = decision.get("stop_loss")
         rationale = decision.get("investment_thesis", "")
 
-        if ticker == "CASH":
-            logger.warning("Skipping CASH ticker — LLM used it as cash allocation placeholder, not a real position")
+        if ticker == "CASH" and action != "exit":
+            logger.warning("Skipping CASH ticker — LLM used it as cash allocation placeholder, not a tradeable position")
             skipped.append({"ticker": "CASH", "reason": "reserved word — not a tradeable position"})
             continue
 
