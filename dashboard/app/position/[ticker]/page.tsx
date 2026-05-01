@@ -155,7 +155,9 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sentimentData = (position as any).sentiment_data ?? null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const newsCatalysts: Array<{ticker:string;catalyst:string;catalyst_type:string;direction:string;signal_confidence:string;reasoning:string}> = (position as any).news_catalysts ?? [];
+  // signal_confidence may be a string ("high") or an object {level, sources_count, sources, note}
+  type SignalConf = string | { level?: string; sources_count?: number; sources?: string[]; note?: string };
+  const newsCatalysts: Array<{ticker:string;catalyst:string;catalyst_type:string;direction:string;signal_confidence:SignalConf;reasoning:string}> = (position as any).news_catalysts ?? [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pipelineSource: string | undefined = (position as any)._source;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -819,7 +821,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${c.direction === "LONG" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#EF4444]/10 text-[#EF4444]"}`}>{c.direction}</span>
                         <span className="text-xs text-[#6B7280]">{c.catalyst_type?.replace(/_/g, " ")}</span>
-                        <span className={`ml-auto text-xs font-mono ${c.signal_confidence === "high" ? "text-[#10B981]" : c.signal_confidence === "low" ? "text-[#EF4444]" : "text-[#F59E0B]"}`}>{c.signal_confidence}</span>
+                        {(() => {
+                          const conf = typeof c.signal_confidence === "object" ? (c.signal_confidence?.level ?? "medium") : (c.signal_confidence ?? "medium");
+                          return <span className={`ml-auto text-xs font-mono ${conf === "high" ? "text-[#10B981]" : conf === "low" ? "text-[#EF4444]" : "text-[#F59E0B]"}`}>{conf}</span>;
+                        })()}
                       </div>
                       <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{c.catalyst}</p>
                       <p className="text-xs text-[#6B7280] leading-relaxed">{c.reasoning}</p>
