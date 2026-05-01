@@ -478,7 +478,7 @@ SIGNAL CONFIDENCE: {confidence.get('level')} ({confidence.get('confidence_note')
 DATA CONFLICTS: {json.dumps(confidence.get('conflicts', []))}
 {_fmt_position_section(position_context)}
 INSTRUCTIONS:
-- Score 0-100 on overall market sentiment (100 = strongly bullish)
+- Score 0-100 on overall market sentiment (100 = strongly bullish). DO NOT round to a multiple of 5 — derive the exact integer from analyst consensus, short interest, news sentiment, and price-target upside sub-scores (e.g. 71, 83, 58, not 70, 85, 60)
 - If short interest > 20% of float, explicitly address: squeeze potential vs. warranted skepticism
 - If retail_euphoria_warning is true, flag as contrarian risk in summary
 - Note if analyst targets look stale (large upside may reflect pre-selloff targets not yet revised)

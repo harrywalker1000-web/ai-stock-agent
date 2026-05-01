@@ -1015,7 +1015,7 @@ INSTITUTIONAL CONTEXT (from Institutional Agent — informational only, do not l
 {f"INFERRED FUND THESIS: {fund_thesis.get('inferred_thesis', 'unknown')} — {fund_thesis.get('thesis_reasoning', '')}" if fund_thesis else ""}
 
 SCORING RULES (numbers only):
-- fundamental_score 0-100: weight peer-relative valuation (30%), profitability vs peers (25%), balance sheet health (20%), growth vs peers (15%), data completeness (10%)
+- fundamental_score 0-100: weight peer-relative valuation (30%), profitability vs peers (25%), balance sheet health (20%), growth vs peers (15%), data completeness (10%). DO NOT round to a multiple of 5 — derive the exact integer from your sub-component calculations (e.g. 73, 81, 67, not 70, 80, 65)
 - direction: LONG if metrics are above peer median AND no distress signals; SHORT if deteriorating vs peers
 - dislocation_opportunity: true ONLY when P/E (or P/S for unprofitable) is >20% below peer median AND ROE/ROIC confirm business quality
 - setup_type based purely on numbers: Growth = revenue_growth_yoy >15%; Distressed = D/E >3 or net_income negative 2+ yrs; Short = margins contracting + revenue decelerating

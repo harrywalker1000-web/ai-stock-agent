@@ -694,7 +694,7 @@ CRITICAL INSTRUCTIONS:
     * If mean_reversion_score < 30 AND momentum is negative: continuation is more likely.
       Direction = SHORT. Set forward_bias = "bearish".
     * Neutral zone (30-50): exercise judgement. State which scenario you believe is more likely.
-- Score 0-100 on technical setup quality (100 = ideal entry for your chosen direction)
+- Score 0-100 on technical setup quality (100 = ideal entry for your chosen direction). DO NOT round to a multiple of 5 — compute the exact integer from RSI, MACD, trend, volume sub-scores (e.g. 78, 62, 84, not 80, 60, 85)
 - Identify the single most important technical level to watch
 - Flag any conflicts in data_conflicts
 - Keep quant_summary to 2-3 sentences that address WHERE THIS IS GOING, not just where it has been
