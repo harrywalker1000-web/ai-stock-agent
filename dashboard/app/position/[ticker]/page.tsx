@@ -244,6 +244,109 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           </div>
         </div>
 
+        {/* ── Company Snapshot ── */}
+        {(ci || newsCatalysts.length > 0 || sentimentData) && (
+          <div className="card p-6 mb-6">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Company Snapshot</h2>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-md text-[#F59E0B] bg-[#F59E0B]/10">LLM estimate — may be stale</span>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+              {/* What they do + how they make money */}
+              <div className="lg:col-span-1 space-y-4">
+                {ci?.overview && (
+                  <div>
+                    <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">What they do</p>
+                    <p className="text-sm text-[#C4CDD6] leading-relaxed">{String(ci.overview).slice(0, 320)}</p>
+                  </div>
+                )}
+                {((ci?.revenue_segments ?? []) as Array<{segment: string; weight_pct: number}>).length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">How they make money</p>
+                    <div className="space-y-2">
+                      {((ci.revenue_segments ?? []) as Array<{segment: string; weight_pct: number}>).slice(0, 5).map((seg) => (
+                        <div key={seg.segment}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-[#E8EDF2]">{seg.segment}</span>
+                            <span className="font-mono text-[#6B7280]">{seg.weight_pct}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-white/08 overflow-hidden">
+                            <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${seg.weight_pct}%` }} />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Why we like it */}
+              <div className="lg:col-span-1 space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Why we think it&apos;ll do well</p>
+                  <ul className="space-y-2">
+                    {thesisBullets.slice(0, 3).map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-[#C4CDD6] leading-relaxed">
+                        <span className="text-[#F5A623] mt-0.5 flex-shrink-0">▸</span>
+                        <span>{String(b).slice(0, 180)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {sentimentData && (
+                  <div className="pt-3 border-t border-white/06 flex flex-wrap gap-3">
+                    {sentimentData.analyst_consensus && (
+                      <div className="bg-white/04 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-[#6B7280] mb-0.5">Analyst consensus</p>
+                        <p className="text-sm font-bold text-[#10B981]">{sentimentData.analyst_consensus}</p>
+                      </div>
+                    )}
+                    {(sentimentData.price_target_upside_pct ?? sentimentData.analyst_target_live) && (
+                      <div className="bg-white/04 rounded-lg px-3 py-2">
+                        <p className="text-[10px] text-[#6B7280] mb-0.5">Analyst upside</p>
+                        <p className="text-sm font-bold text-[#10B981]">
+                          {sentimentData.price_target_upside_pct != null
+                            ? `+${sentimentData.price_target_upside_pct.toFixed(1)}%`
+                            : sentimentData.analyst_target_live != null
+                            ? `$${sentimentData.analyst_target_live.toFixed(0)} target`
+                            : "—"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent news */}
+              <div className="lg:col-span-1">
+                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">What&apos;s been happening</p>
+                {newsCatalysts.length > 0 ? (
+                  <div className="space-y-3">
+                    {newsCatalysts.slice(0, 4).map((c, i) => {
+                      const confRaw = c.signal_confidence;
+                      const conf = typeof confRaw === "object" ? (confRaw?.level ?? "medium") : (confRaw ?? "medium");
+                      const isPos = String(c.direction ?? "LONG").toUpperCase() === "LONG";
+                      return (
+                        <div key={i} className="flex items-start gap-2 py-2 border-b border-white/05 last:border-0">
+                          <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPos ? "bg-[#10B981]" : "bg-[#EF4444]"}`} />
+                          <div>
+                            <p className="text-xs font-semibold text-[#E8EDF2] leading-snug mb-0.5">{c.catalyst}</p>
+                            <p className="text-[10px] text-[#6B7280]">{c.catalyst_type?.replace(/_/g, " ")} · {conf} confidence</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#6B7280]">No recent catalysts detected.</p>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
         {/* ── Recommendation + Thesis ── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Recommendation badge */}
