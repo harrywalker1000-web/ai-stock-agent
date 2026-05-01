@@ -241,13 +241,17 @@ def store_trade_entry(
 def update_position(ticker: str, conviction: int | None = None, size_pct: float | None = None) -> None:
     """
     Update conviction and/or size_pct on an existing positions_log entry.
-    Called after increase/decrease decisions so the dashboard shows current, not entry, values.
+    Preserves entry_conviction (set once at entry, never overwritten) so the
+    dashboard can show both the initial conviction and the current assessment.
     """
     positions = _load_json(POSITIONS_LOG_PATH, default={})
     if ticker not in positions:
         logger.debug("update_position: %s not in positions_log — skipping", ticker)
         return
     if conviction is not None:
+        # Preserve original entry conviction the first time we update
+        if "entry_conviction" not in positions[ticker]:
+            positions[ticker]["entry_conviction"] = positions[ticker].get("conviction", conviction)
         positions[ticker]["conviction"] = conviction
     if size_pct is not None:
         positions[ticker]["size_pct"] = size_pct

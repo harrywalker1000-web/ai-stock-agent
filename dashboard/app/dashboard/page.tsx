@@ -10,7 +10,7 @@ interface Position {
   ticker: string; company: string; sector: string; direction: string;
   entry_price: number; current_price: number; pct_change: number;
   pnl_absolute: number; position_size: number; pct_portfolio: number;
-  entry_date: string; conviction: number; status: string;
+  entry_date: string; conviction: number; entry_conviction?: number; status: string;
   setup_type?: string; expected_roi?: string;
   stop_price?: number | null; has_native_stop?: boolean;
   native_order_type?: string | null; native_trail_pct?: number | null; native_limit_price?: number | null;
@@ -553,20 +553,25 @@ export default function DashboardPage() {
                           {pos.setup_type ?? "—"}
                         </span>
                       </td>
-                      {/* Conviction */}
+                      {/* Conviction (current + entry) */}
                       <td className="px-2 py-3">
                         {pos.conviction != null ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                              <div
-                                className="h-full rounded-full"
-                                style={{
-                                  width: `${pos.conviction}%`,
-                                  background: pos.conviction >= 70 ? "#10B981" : pos.conviction >= 55 ? "#F5A623" : "#6B7280",
-                                }}
-                              />
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${pos.conviction}%`,
+                                    background: pos.conviction >= 70 ? "#10B981" : pos.conviction >= 55 ? "#F5A623" : "#6B7280",
+                                  }}
+                                />
+                              </div>
+                              <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
                             </div>
-                            <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
+                            {pos.entry_conviction != null && pos.entry_conviction !== pos.conviction && (
+                              <span className="text-[10px] text-[#6B7280]">entry: {pos.entry_conviction}</span>
+                            )}
                           </div>
                         ) : (
                           <span className="text-xs text-[#6B7280]">—</span>

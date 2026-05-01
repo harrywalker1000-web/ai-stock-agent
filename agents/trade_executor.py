@@ -691,6 +691,9 @@ def run(mode: str = "new_opportunities") -> dict:
                     action = "decrease"
             else:
                 logger.info("%s: HOLD — allocation on target (current=%.1f%% target=%s%%)", ticker, current_actual_pct, target_pct)
+                # Still update conviction in log so dashboard shows current committee view
+                if conviction:
+                    memory.update_position(ticker, conviction=conviction)
                 continue
 
         current_price = _get_live_price(ticker)
