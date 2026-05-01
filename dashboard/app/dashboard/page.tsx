@@ -177,25 +177,48 @@ export default function DashboardPage() {
     return new Date(h.date) >= cutoff;
   }) ?? [];
 
-  // Benchmark vs SPY series filtered by selected period
+  // Benchmark vs SPY series — prefer benchmark daily_series, fall back to Alpaca equity history
   const benchSeries = (() => {
     const full = benchmark?.daily_series ?? [];
-    if (benchPeriod === "All") return full;
-    if (benchPeriod === "YTD") {
-      const yearStart = new Date().getFullYear() + "-01-01";
-      return full.filter((d) => d.date >= yearStart);
+
+    // If benchmark tracker has series data, filter by period as normal
+    if (full.length >= 2) {
+      if (benchPeriod === "All") return full;
+      if (benchPeriod === "YTD") {
+        const yearStart = new Date().getFullYear() + "-01-01";
+        return full.filter((d) => d.date >= yearStart);
+      }
+      const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      const cutoffStr = cutoff.toISOString().split("T")[0];
+      return full.filter((d) => d.date >= cutoffStr);
     }
-    const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    const cutoffStr = cutoff.toISOString().split("T")[0];
-    return full.filter((d) => d.date >= cutoffStr);
+
+    // Fallback: build a portfolio-only series from Alpaca history (no SPY comparison yet)
+    const alpacaHistory = data?.history ?? [];
+    if (alpacaHistory.length === 0) return [];
+    const startValue = alpacaHistory[0]?.value ?? 100000;
+    let filtered = alpacaHistory;
+    if (benchPeriod !== "All" && benchPeriod !== "YTD") {
+      const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      const cutoffStr = cutoff.toISOString().split("T")[0];
+      filtered = alpacaHistory.filter((d) => d.date >= cutoffStr);
+    }
+    return filtered.map((d) => ({
+      date: d.date,
+      portfolio_cumulative: parseFloat((((d.value - startValue) / startValue) * 100).toFixed(3)),
+      spy_cumulative: 0,
+    }));
   })();
 
   // Current period alpha/returns for display
   const periodKey = benchPeriod === "1W" ? "1w" : benchPeriod === "1M" ? "1m" : benchPeriod === "6M" ? "6m" : benchPeriod === "YTD" ? "ytd" : null;
   const activePeriod = periodKey ? benchmark?.periods?.[periodKey as keyof typeof benchmark.periods] : null;
   const hasInsufficientHistory = (p: BenchmarkPeriod | null | undefined) => !p || p.note === "insufficient_history" || p.alpha == null;
+  const usingAlpacaFallback = (benchmark?.daily_series ?? []).length < 2 && benchSeries.length > 0;
 
   const stats = data?.stats;
   const positions = [...(data?.positions ?? [])].sort((a, b) => b.pct_portfolio - a.pct_portfolio);
@@ -655,27 +678,19 @@ export default function DashboardPage() {
               )}
               {/* Period toggles */}
               <div className="flex gap-1">
-                {BENCH_PERIODS.map((p) => {
-                  const key = p === "1W" ? "1w" : p === "1M" ? "1m" : p === "6M" ? "6m" : p === "YTD" ? "ytd" : null;
-                  const periodData = key ? benchmark?.periods?.[key as keyof typeof benchmark.periods] : null;
-                  const insufficient = p !== "All" && hasInsufficientHistory(periodData);
-                  return (
-                    <button
-                      key={p}
-                      onClick={() => setBenchPeriod(p)}
-                      disabled={insufficient}
-                      className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                        benchPeriod === p
-                          ? "bg-[#F5A623]/20 text-[#F5A623]"
-                          : insufficient
-                          ? "text-[#9CA3AF] cursor-not-allowed"
-                          : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  );
-                })}
+                {BENCH_PERIODS.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setBenchPeriod(p)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                      benchPeriod === p
+                        ? "bg-[#F5A623]/20 text-[#F5A623]"
+                        : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
@@ -686,19 +701,23 @@ export default function DashboardPage() {
               <div className="w-5 h-0.5 rounded-full bg-[#F5A623]" />
               <span className="text-xs text-[#6B7280]">Portfolio</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
-              <span className="text-xs text-[#6B7280]">SPY</span>
-            </div>
+            {!usingAlpacaFallback && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
+                <span className="text-xs text-[#6B7280]">SPY</span>
+              </div>
+            )}
+            {usingAlpacaFallback && (
+              <span className="text-[10px] text-[#6B7280]/60 italic">SPY comparison available after 2+ pipeline runs</span>
+            )}
           </div>
 
-          {benchmark?.error && !benchmark.inception_date ? (
-            <div className="flex items-center justify-center h-40 text-[#6B7280] text-sm">
-              No benchmark data yet — runs automatically after each pipeline run
-            </div>
-          ) : benchSeries.length < 2 ? (
-            <div className="flex items-center justify-center h-40 text-[#6B7280] text-sm">
-              {benchPeriod !== "All" ? "Insufficient history for this period" : "Accumulating data — check back after more pipeline runs"}
+          {benchSeries.length < 2 ? (
+            <div className="flex flex-col items-center justify-center h-40 gap-2">
+              <p className="text-[#6B7280] text-sm">Accumulating history — check back after a few more pipeline runs</p>
+              {benchmark?.inception_date && (
+                <p className="text-xs text-[#6B7280]/60">Inception: {benchmark.inception_date} · {benchmark.nav_points ?? 1} data point{(benchmark.nav_points ?? 1) !== 1 ? "s" : ""} so far</p>
+              )}
             </div>
           ) : (
             <>
