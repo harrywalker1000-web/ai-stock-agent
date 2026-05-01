@@ -335,12 +335,80 @@ export async function GET(
     { agent: "News",        score: newsScore,  view: catalysts[0]?.reasoning ?? newsReport?.news_summary ?? "—" },
   ] : [];
 
-  // Build investment thesis bullets from pipeline
-  const thesisBullets = decision ? [
-    decision.investment_thesis,
-    ...(decision.key_catalysts ?? []).map((c: string) => `Catalyst: ${c}`),
-    ...(decision.key_risks ?? []).map((r: string) => `Risk: ${r}`),
-  ].filter(Boolean) : [];
+  // Build structured investment thesis bullets covering 4 angles:
+  // Why this market | Why now | Why this price | Why this stock
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const f = fundamental as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const q = quant as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const s = sentiment as any;
+  const thesisBullets: string[] = (() => {
+    const bullets: string[] = [];
+
+    // 1. WHY THIS MARKET — macro regime + sector context
+    const regime = macroReport?.regime ?? null;
+    const favouredThemes: string[] = macroReport?.favoured_themes ?? [];
+    const macroSummary: string | null = macroReport?.macro_summary ?? null;
+    if (regime || macroSummary) {
+      const regimePart = regime ? `Macro regime: ${regime}.` : "";
+      const themePart = favouredThemes.length > 0 ? ` Favoured themes: ${favouredThemes.slice(0, 3).join(", ")}.` : "";
+      const summaryPart = macroSummary ? ` ${String(macroSummary).slice(0, 160)}` : "";
+      bullets.push(`Market context — ${regimePart}${themePart}${summaryPart}`.trim());
+    }
+
+    // 2. WHY NOW — catalyst + quant timing
+    const topCatalyst = catalysts[0];
+    const quantSummary: string | null = q?.quant_summary ?? null;
+    const forwardBias: string | null = q?.forward_bias ?? null;
+    if (topCatalyst) {
+      const confRaw = topCatalyst.signal_confidence;
+      const conf = typeof confRaw === "object" ? (confRaw?.level ?? "medium") : (confRaw ?? "medium");
+      bullets.push(`Catalyst (${conf} confidence) — ${topCatalyst.catalyst}. ${topCatalyst.reasoning ?? ""}`.trim());
+    }
+    if (quantSummary && String(quantSummary) !== "—") {
+      const biasPart = forwardBias ? ` Bias: ${forwardBias}.` : "";
+      bullets.push(`Technical timing — ${String(quantSummary).slice(0, 200)}${biasPart}`.trim());
+    }
+
+    // 3. WHY THIS PRICE — valuation vs peers + discount/premium
+    const valuation: string | null = f?.valuation_vs_peers ?? null;
+    const priceVsIntrinsic: string | null = f?.price_vs_intrinsic_value ?? null;
+    const upside: number | null = s?.price_target_upside_pct ?? null;
+    const analystTarget = liveQuote?.analyst_target ?? null;
+    if (valuation || priceVsIntrinsic) {
+      const vPart = valuation ? String(valuation) : "";
+      const iPart = priceVsIntrinsic ? ` ${String(priceVsIntrinsic)}.` : "";
+      const uPart = upside != null ? ` Analyst consensus implies ${upside.toFixed(1)}% upside${analystTarget ? ` to $${Number(analystTarget).toFixed(0)}` : ""}.` : "";
+      bullets.push(`Valuation — ${vPart}${iPart}${uPart}`.trim());
+    }
+
+    // 4. WHY THIS STOCK — fundamentals + competitive strengths
+    const fundSummary: string | null = f?.fundamental_summary ?? null;
+    const strengths: string[] = f?.key_strengths ?? [];
+    const sentSummary: string | null = s?.sentiment_summary ?? null;
+    if (fundSummary && String(fundSummary) !== "—") {
+      const sPart = strengths.length > 0 ? ` Key strengths: ${strengths.slice(0, 3).join(", ")}.` : "";
+      bullets.push(`Fundamentals — ${String(fundSummary).slice(0, 220)}${sPart}`.trim());
+    }
+    if (sentSummary && String(sentSummary) !== "—") {
+      const consensus = s?.analyst_consensus ?? null;
+      const consPart = consensus ? ` Consensus: ${consensus}.` : "";
+      bullets.push(`Sentiment — ${String(sentSummary).slice(0, 200)}${consPart}`.trim());
+    }
+
+    // Fallback: if we somehow have nothing, use the committee thesis (but only if it's not generic)
+    if (bullets.length === 0) {
+      const raw = decision?.investment_thesis ?? positionEntry?.entry_thesis ?? null;
+      if (raw && !String(raw).toLowerCase().includes("portfolio construction") && !String(raw).toLowerCase().includes("rebalance")) {
+        bullets.push(String(raw));
+      }
+      const keyCatalysts: string[] = decision?.key_catalysts ?? [];
+      keyCatalysts.forEach((c: string) => bullets.push(`Catalyst: ${c}`));
+    }
+
+    return bullets;
+  })();
 
   // Build financial snapshot from fundamental report (real data)
   const financialSnapshot = fundamental ? {

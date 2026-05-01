@@ -774,7 +774,7 @@ Return ONLY valid JSON — an array of position_decisions:
     "conviction": <integer 0-100, MUST NOT be a multiple of 5>,
     "stop_loss": <float price level or null>,
     "target_price": <float or null — near-term technical level (next resistance/support), NOT a DCF fair value>,
-    "investment_thesis": "<2-3 sentence rationale including a specific near-term catalyst and an explicit exit condition>",
+    "investment_thesis": "<Structured 3-4 sentence rationale covering: (1) WHY THIS MARKET — macro/sector tailwind or headwind; (2) WHY NOW — specific near-term catalyst within 1-30 days; (3) WHY THIS PRICE — valuation vs peers or discount to intrinsic value; (4) WHY THIS STOCK — specific competitive edge, moat, or metric that differentiates it from sector peers. Include an explicit exit condition. Do NOT write generic statements like 'Portfolio construction rebalance'.>",
     "key_catalysts": ["<catalyst 1 — must be a specific event within 1-30 days>", "<catalyst 2>"],
     "key_risks": ["<risk 1>"],
     "conflict_resolution": "<how you resolved cross-agent disagreements, or 'No conflict'>",
@@ -1778,12 +1778,22 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
                     decision_map[ticker]["size_pct"] = round(float(weight), 1)
                 else:
                     # Hold decision not in deliberation list (existing position being resized)
+                    # Build a real thesis from agent data rather than a generic placeholder
+                    _pos_data = open_positions.get(ticker, {})
+                    _sc_map_hold = {sc["ticker"]: sc for sc in scorecards}
+                    _sc_hold = _sc_map_hold.get(ticker, {})
+                    _hold_thesis = (
+                        _sc_hold.get("fundamental_summary")
+                        or _pos_data.get("entry_thesis")
+                        or f"Holding {ticker} at {round(float(weight), 1)}% — conviction {_pos_data.get('conviction', 50)}/100."
+                    )
                     decisions.append({
                         "ticker": ticker,
                         "action": "hold",
-                        "conviction": open_positions.get(ticker, {}).get("conviction") or 50,
+                        "conviction": _pos_data.get("conviction") or 50,
                         "size_pct": round(float(weight), 1),
-                        "investment_thesis": "Portfolio construction rebalance.",
+                        "investment_thesis": _hold_thesis,
+                        "key_catalysts": _sc_hold.get("candidate_signals", [])[:3],
                     })
             logger.info(
                 "Portfolio construction applied: %d weights set | rebalancing: %s | %s",
