@@ -95,16 +95,96 @@ def _extract_scenario(f: dict, scenario: str, field: str):
 # Scoring
 # ---------------------------------------------------------------------------
 
+def _compute_macro_score(ticker: str, candidate_signals: list, macro: dict) -> int:
+    """
+    Derive a macro score (0-100) for a ticker from the portfolio-level macro report.
+    Macro is portfolio context, not stock-picker — intentionally lower ceiling (30-75).
+    """
+    if not macro:
+        return 50
+    regime = (macro.get("regime") or "NEUTRAL").upper()
+    favoured = [t.lower() for t in (macro.get("favoured_themes") or [])]
+    avoid    = [t.lower() for t in (macro.get("avoid_themes") or [])]
+
+    # Regime base
+    base = 65 if "RISK-ON" in regime else 35 if "RISK-OFF" in regime else 50
+
+    # Explicit macro tailwind/headwind in candidate signals
+    if "macro_tailwind" in (candidate_signals or []):
+        base = min(75, base + 15)
+    elif "macro_headwind" in (candidate_signals or []):
+        base = max(25, base - 15)
+
+    # Check if sector/ticker themes align with macro favourites
+    tech_terms = {"ai", "technology", "semiconductor", "chip", "cloud", "software"}
+    health_terms = {"healthcare", "pharma", "biotech", "medical"}
+    energy_terms = {"energy", "oil", "gas", "commodity"}
+    finance_terms = {"financ", "bank", "insurance"}
+
+    def theme_overlap(themes: list[str], term_set: set) -> bool:
+        return any(any(t in theme for t in term_set) for theme in themes)
+
+    ticker_upper = ticker.upper()
+    sector_terms: set[str] = set()
+    if ticker_upper in {"NVDA", "AMD", "INTC", "AAPL", "MSFT", "GOOGL", "META", "AMZN", "CRM", "ORCL", "PLTR"}:
+        sector_terms = tech_terms
+    elif ticker_upper in {"LLY", "MRK", "JNJ", "ABBV", "UNH", "TMO"}:
+        sector_terms = health_terms
+    elif ticker_upper in {"XOM", "CVX", "COP", "SLB"}:
+        sector_terms = energy_terms
+    elif ticker_upper in {"JPM", "BAC", "GS", "MS", "WFC"}:
+        sector_terms = finance_terms
+
+    if sector_terms:
+        if theme_overlap(favoured, sector_terms):
+            base = min(75, base + 10)
+        elif theme_overlap(avoid, sector_terms):
+            base = max(25, base - 10)
+
+    return int(base)
+
+
+def _compute_news_score(ticker: str, news: dict) -> int:
+    """
+    Derive a news score (0-100) from fresh/stale catalysts for this ticker.
+    """
+    if not news:
+        return 50
+    all_cats = list(news.get("fresh_catalysts") or []) + list(news.get("stale_catalysts") or [])
+    ticker_cats = [c for c in all_cats if str(c.get("ticker", "")).upper() == ticker.upper()]
+    if not ticker_cats:
+        return 50  # no coverage — neutral, not bearish
+
+    conf_map = {"high": 80, "medium": 60, "low": 40}
+    scores: list[int] = []
+    for cat in ticker_cats:
+        sc = cat.get("signal_confidence")
+        level = sc.get("level") if isinstance(sc, dict) else sc
+        scores.append(conf_map.get(str(level).lower(), 50))
+
+    base = round(sum(scores) / len(scores))
+
+    # Direction tint: fresh bearish catalyst knocks 5 pts
+    bearish = sum(1 for c in ticker_cats if str(c.get("direction", "LONG")).upper() != "LONG")
+    if bearish > len(ticker_cats) / 2:
+        base = max(25, base - 5)
+
+    return int(min(90, max(25, base)))
+
+
 def _build_scorecard(
     candidates: list[dict],
     fundamental: dict,
     quant: dict,
     sentiment: dict,
     weights: dict,
+    macro: dict | None = None,
+    news: dict | None = None,
 ) -> list[dict]:
     """
-    Build a per-ticker scorecard by combining all three Phase 3 agent scores.
-    Tickers missing from a Phase 3 report get a neutral 50 for that dimension.
+    Build a per-ticker scorecard by combining all five agent signals.
+    Macro and news are context signals with lower composite weight (10% each);
+    fundamental/quant/sentiment share the remaining 80% via dynamic weights.
     """
     fund_map = {a["ticker"]: a for a in fundamental.get("fundamental_analyses", [])}
     quant_map = {a["ticker"]: a for a in quant.get("quant_analyses", [])}
@@ -123,15 +203,22 @@ def _build_scorecard(
         fs = f.get("fundamental_score", 50)
         qs = q.get("quant_score", 50)
         ss = s.get("sentiment_score", 50)
+        ms = _compute_macro_score(ticker, cand.get("signals", []), macro or {})
+        ns = _compute_news_score(ticker, news or {})
 
+        # Macro + news each take 10% of composite; core 3 agents share remaining 80%.
+        core_weight_sum = weights["fundamental"] + weights["quant"] + weights["sentiment"]
+        core_scale = 0.80 / core_weight_sum if core_weight_sum > 0 else 1.0
         composite = round(
-            fs * weights["fundamental"] +
-            qs * weights["quant"] +
-            ss * weights["sentiment"]
+            fs * weights["fundamental"] * core_scale +
+            qs * weights["quant"]       * core_scale +
+            ss * weights["sentiment"]   * core_scale +
+            ms * 0.10 +
+            ns * 0.10
         )
 
-        # Detect cross-agent disagreement (spread >= 25 points)
-        scores = [fs, qs, ss]
+        # Detect cross-agent disagreement across all five agents (spread >= 25 points)
+        scores = [fs, qs, ss, ms, ns]
         spread = max(scores) - min(scores)
         conflict_flag = spread >= 25
 
@@ -164,6 +251,8 @@ def _build_scorecard(
             "fundamental_score": fs,
             "quant_score": qs,
             "sentiment_score": ss,
+            "macro_score": ms,
+            "news_score": ns,
             "agent_spread": spread,
             "conflict_flag": conflict_flag,
             "overall_confidence": overall_conf,
@@ -1064,10 +1153,14 @@ Return ONLY valid JSON:
     key = f"{dissenter_name.lower()}_score"
     if key in sc:
         sc[key] = final_score
+    _cws = weights["fundamental"] + weights["quant"] + weights["sentiment"]
+    _cs = 0.80 / _cws if _cws > 0 else 1.0
     sc["composite_score"] = round(
-        sc["fundamental_score"] * weights["fundamental"] +
-        sc["quant_score"] * weights["quant"] +
-        sc["sentiment_score"] * weights["sentiment"]
+        sc["fundamental_score"] * weights["fundamental"] * _cs +
+        sc["quant_score"]       * weights["quant"]       * _cs +
+        sc["sentiment_score"]   * weights["sentiment"]   * _cs +
+        sc.get("macro_score", 50) * 0.10 +
+        sc.get("news_score",  50) * 0.10
     )
 
     net_move = final_score - dissenter_score
@@ -1539,8 +1632,18 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
     logger.info("Agent weights: F=%.0f%% Q=%.0f%% S=%.0f%%",
                 weights["fundamental"] * 100, weights["quant"] * 100, weights["sentiment"] * 100)
 
-    # Build scorecards
-    scorecards = _build_scorecard(candidates, fundamental, quant, sentiment, weights)
+    # Load news_report for news_score computation
+    _news_path = REPORTS_DIR / "news_report.json"
+    _news_report: dict = {}
+    if _news_path.exists():
+        try:
+            with open(_news_path) as _nf:
+                _news_report = json.load(_nf)
+        except Exception:
+            pass
+
+    # Build scorecards (now includes macro_score + news_score)
+    scorecards = _build_scorecard(candidates, fundamental, quant, sentiment, weights, macro=macro, news=_news_report)
 
     # Debate round: iterative challenge/response/resolution for contested tickers
     contested_count = sum(1 for sc in scorecards if sc["agent_spread"] >= 20)

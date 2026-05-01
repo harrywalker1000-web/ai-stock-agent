@@ -298,13 +298,41 @@ export async function GET(
     });
   }
 
+  // Derive macro score from portfolio macro report when scorecard doesn't have it yet
+  function deriveMacroScore(): number {
+    if (!macroReport) return 50;
+    const regime = (macroReport.regime ?? "NEUTRAL").toUpperCase();
+    const base = regime.includes("RISK-ON") ? 65 : regime.includes("RISK-OFF") ? 35 : 50;
+    const signals: string[] = scorecard?.candidate_signals ?? [];
+    if (signals.includes("macro_tailwind")) return Math.min(75, base + 15);
+    if (signals.includes("macro_headwind")) return Math.max(25, base - 15);
+    return base;
+  }
+
+  function deriveNewsScore(): number {
+    if (!catalysts.length) return 50;
+    const confMap: Record<string, number> = { high: 80, medium: 60, low: 40 };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const scores = catalysts.map((c: any) => {
+      const sc = c.signal_confidence;
+      const level = typeof sc === "object" ? (sc?.level ?? "medium") : (sc ?? "medium");
+      return confMap[level.toLowerCase()] ?? 50;
+    });
+    return Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
+  }
+
+  const macroScore = (scorecard?.macro_score != null && scorecard.macro_score > 0)
+    ? scorecard.macro_score : deriveMacroScore();
+  const newsScore = (scorecard?.news_score != null && scorecard.news_score > 0)
+    ? scorecard.news_score : deriveNewsScore();
+
   // Build agent_scores array from scorecard
   const agentScores = scorecard ? [
     { agent: "Fundamental", score: scorecard.fundamental_score ?? 0, view: fundamental?.fundamental_summary ?? "—" },
     { agent: "Quant",       score: scorecard.quant_score ?? 0,       view: quant?.quant_summary ?? quant?.forward_bias ?? "—" },
     { agent: "Sentiment",   score: scorecard.sentiment_score ?? 0,   view: sentiment?.sentiment_summary ?? sentiment?.analyst_consensus ?? "—" },
-    { agent: "Macro",       score: scorecard.macro_score ?? 0,       view: macroReport ? `${macroReport.regime} — ${(macroReport.favoured_themes ?? []).slice(0,2).join(", ")}` : "—" },
-    { agent: "News",        score: scorecard.news_score ?? 0,        view: catalysts[0]?.reasoning ?? newsReport?.news_summary ?? "—" },
+    { agent: "Macro",       score: macroScore, view: macroReport ? `${macroReport.regime} — ${(macroReport.favoured_themes ?? []).slice(0,2).join(", ")}` : "—" },
+    { agent: "News",        score: newsScore,  view: catalysts[0]?.reasoning ?? newsReport?.news_summary ?? "—" },
   ] : [];
 
   // Build investment thesis bullets from pipeline
