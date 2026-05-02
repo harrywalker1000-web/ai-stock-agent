@@ -604,24 +604,47 @@ def run() -> dict:
     except Exception:
         pass
 
-    # Calculate actual daily P&L: equity change from yesterday's close (Alpaca source of truth).
-    # equity - last_equity is the real daily move — not cumulative unrealized which would
-    # double-count the same gains across every report.
+    # Calculate P&L for the last COMPLETE trading day using Alpaca portfolio history.
+    # Fetch the two most recent EOD equity snapshots — close[T-1] minus close[T-2].
+    # This is independent of when the pipeline runs (morning, midday, or after close)
+    # and captures the full session including intraday moves, since Alpaca uses closing prices.
     daily_pnl_abs = 0.0
     daily_pnl_pct = 0.0
     daily_pnl_str = "+$0"
     daily_pnl_pct_str = "+0.00%"
+    daily_pnl_date = None  # the trading day whose P&L this represents
     try:
-        _live = _fetch_live_portfolio()
-        if _live:
-            _equity      = _live["equity"]
-            _last_equity = _live.get("last_equity", _equity)
-            daily_pnl_abs = _equity - _last_equity
-            daily_pnl_pct = (daily_pnl_abs / _last_equity * 100) if _last_equity else 0.0
-            _sign = "+" if daily_pnl_abs >= 0 else "-"
-            daily_pnl_str     = f"{_sign}${abs(daily_pnl_abs):,.0f}"
-            _pct_sign = "+" if daily_pnl_pct >= 0 else ""
-            daily_pnl_pct_str = f"{_pct_sign}{daily_pnl_pct:.2f}%"
+        import alpaca_trade_api as _tradeapi
+        import requests as _requests
+        _key    = os.environ.get("ALPACA_API_KEY")
+        _secret = os.environ.get("ALPACA_SECRET_KEY")
+        _base   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+        if _key and _secret:
+            _resp = _requests.get(
+                f"{_base}/v2/account/portfolio/history",
+                params={"period": "5D", "timeframe": "1D"},
+                headers={"APCA-API-KEY-ID": _key, "APCA-API-SECRET-KEY": _secret},
+                timeout=10,
+            )
+            if _resp.ok:
+                _hist = _resp.json()
+                _ts   = _hist.get("timestamp", [])
+                _eq   = _hist.get("equity", [])
+                # Keep only entries with a valid positive equity (completed trading days)
+                _days = [
+                    (datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"), e)
+                    for t, e in zip(_ts, _eq) if e and e > 0
+                ]
+                if len(_days) >= 2:
+                    _prev_date, _prev_eq = _days[-2]
+                    _last_date, _last_eq = _days[-1]
+                    daily_pnl_abs  = _last_eq - _prev_eq
+                    daily_pnl_pct  = (daily_pnl_abs / _prev_eq * 100) if _prev_eq else 0.0
+                    daily_pnl_date = _last_date
+                    _sign     = "+" if daily_pnl_abs >= 0 else "-"
+                    _pct_sign = "+" if daily_pnl_pct >= 0 else ""
+                    daily_pnl_str     = f"{_sign}${abs(daily_pnl_abs):,.0f}"
+                    daily_pnl_pct_str = f"{_pct_sign}{daily_pnl_pct:.2f}%"
     except Exception:
         pass
 
@@ -634,6 +657,7 @@ def run() -> dict:
         "open_positions_after": actual_position_count,
         "daily_pnl": daily_pnl_str,
         "daily_pnl_pct": daily_pnl_pct_str,
+        "daily_pnl_date": daily_pnl_date,
         "total_elapsed_sec": total_elapsed,
     }
 

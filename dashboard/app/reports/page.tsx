@@ -7,7 +7,7 @@ interface Decision { ticker: string; action: string; conviction: number; thesis:
 interface Report {
   date: string; macro_regime: string; new_positions: number; exits: number;
   holds: number; increases: number; decreases: number;
-  daily_pnl: string; daily_pnl_pct?: string | null;
+  daily_pnl: string; daily_pnl_pct?: string | null; daily_pnl_date?: string | null;
   summary: string; narrative: string; agent_findings: AgentFinding[];
   decisions: Decision[];
   open_positions_after?: number; market_closed?: boolean;
@@ -77,14 +77,15 @@ function ReportCard({ report }: { report: Report }) {
                 report.daily_pnl.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"
               }`}>
                 {report.daily_pnl}
+                {report.daily_pnl_pct && (
+                  <span className="font-normal opacity-70 ml-1">{report.daily_pnl_pct}</span>
+                )}
               </span>
-              {report.daily_pnl_pct && (
-                <span className={`block font-mono text-[10px] ${
-                  report.daily_pnl_pct.startsWith("+") ? "text-[#10B981]/70" : "text-[#EF4444]/70"
-                }`}>
-                  {report.daily_pnl_pct} day
-                </span>
-              )}
+              <span className="block text-[10px] text-[#6B7280] mt-0.5">
+                {report.daily_pnl_date
+                  ? `${report.daily_pnl_date} full day`
+                  : "prev trading day"}
+              </span>
             </div>
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
