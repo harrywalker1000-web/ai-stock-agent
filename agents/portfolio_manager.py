@@ -125,13 +125,15 @@ def _fetch_live_portfolio() -> dict | None:
             return None
         api      = tradeapi.REST(key, secret, base)
         account  = api.get_account()
-        equity   = float(account.equity)
+        equity      = float(account.equity)
+        last_equity = float(account.last_equity or account.equity)
         cash     = float(account.cash)
         long_mv  = float(account.long_market_value or 0)
         short_mv = abs(float(account.short_market_value or 0))
         total_exp = long_mv + short_mv
         return {
             "equity":          equity,
+            "last_equity":     last_equity,
             "cash":            cash,
             "long_mv":         long_mv,
             "short_mv":        short_mv,
@@ -602,19 +604,24 @@ def run() -> dict:
     except Exception:
         pass
 
-    # Calculate actual unrealized P&L from portfolio_state
+    # Calculate actual daily P&L: equity change from yesterday's close (Alpaca source of truth).
+    # equity - last_equity is the real daily move — not cumulative unrealized which would
+    # double-count the same gains across every report.
+    daily_pnl_abs = 0.0
+    daily_pnl_pct = 0.0
     daily_pnl_str = "+$0"
+    daily_pnl_pct_str = "+0.00%"
     try:
-        _ps_path = ROOT / "data" / "reports" / "portfolio_state.json"
-        if _ps_path.exists():
-            with open(_ps_path) as _psf:
-                _ps = _pj.load(_psf)
-            total_unrealized = sum(
-                float(p.get("unrealized_pnl", 0))
-                for p in _ps.get("positions", {}).values()
-            )
-            sign = "+" if total_unrealized >= 0 else "-"
-            daily_pnl_str = f"{sign}${abs(total_unrealized):,.0f}"
+        _live = _fetch_live_portfolio()
+        if _live:
+            _equity      = _live["equity"]
+            _last_equity = _live.get("last_equity", _equity)
+            daily_pnl_abs = _equity - _last_equity
+            daily_pnl_pct = (daily_pnl_abs / _last_equity * 100) if _last_equity else 0.0
+            _sign = "+" if daily_pnl_abs >= 0 else "-"
+            daily_pnl_str     = f"{_sign}${abs(daily_pnl_abs):,.0f}"
+            _pct_sign = "+" if daily_pnl_pct >= 0 else ""
+            daily_pnl_pct_str = f"{_pct_sign}{daily_pnl_pct:.2f}%"
     except Exception:
         pass
 
@@ -626,6 +633,7 @@ def run() -> dict:
         "phase_b_new_entries": phase_b_actions.get("enter", 0),
         "open_positions_after": actual_position_count,
         "daily_pnl": daily_pnl_str,
+        "daily_pnl_pct": daily_pnl_pct_str,
         "total_elapsed_sec": total_elapsed,
     }
 

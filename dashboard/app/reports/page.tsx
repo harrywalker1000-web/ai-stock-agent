@@ -6,9 +6,12 @@ interface AgentFinding { agent: string; finding: string; }
 interface Decision { ticker: string; action: string; conviction: number; thesis: string; }
 interface Report {
   date: string; macro_regime: string; new_positions: number; exits: number;
-  holds: number; increases: number; decreases: number; daily_pnl: string;
+  holds: number; increases: number; decreases: number;
+  daily_pnl: string; daily_pnl_pct?: string | null;
   summary: string; narrative: string; agent_findings: AgentFinding[];
   decisions: Decision[];
+  open_positions_after?: number; market_closed?: boolean;
+  benchmark_summary?: string | null; benchmark_alpha_1w?: number | null;
 }
 
 function RegimeBadge({ regime }: { regime: string }) {
@@ -69,11 +72,20 @@ function ReportCard({ report }: { report: Report }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`font-mono font-semibold text-sm ${
-              report.daily_pnl.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"
-            }`}>
-              {report.daily_pnl}
-            </span>
+            <div className="text-right">
+              <span className={`font-mono font-semibold text-sm ${
+                report.daily_pnl.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"
+              }`}>
+                {report.daily_pnl}
+              </span>
+              {report.daily_pnl_pct && (
+                <span className={`block font-mono text-[10px] ${
+                  report.daily_pnl_pct.startsWith("+") ? "text-[#10B981]/70" : "text-[#EF4444]/70"
+                }`}>
+                  {report.daily_pnl_pct} day
+                </span>
+              )}
+            </div>
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="#6B7280" strokeWidth="2"

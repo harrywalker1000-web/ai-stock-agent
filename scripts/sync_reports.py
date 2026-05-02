@@ -325,6 +325,7 @@ try:
             "increases": action_counts["increases"],
             "decreases": action_counts["decreases"],
             "daily_pnl": pr.get("pipeline_summary", {}).get("daily_pnl", "+$0"),
+            "daily_pnl_pct": pr.get("pipeline_summary", {}).get("daily_pnl_pct", None),
             "market_closed": market_closed,
             "market_closed_note": (
                 f"Market was closed on {date} — {len(deferred_tickers)} order(s) deferred to next trading session"
