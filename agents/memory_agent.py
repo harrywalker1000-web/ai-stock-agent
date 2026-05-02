@@ -271,11 +271,16 @@ def store_trade_exit(
     Computes P&L, stores outcome, updates pattern_history.json.
     exit_reason: 'thesis_broken' | 'target_reached' | 'stop_loss' | 'redeployment' | 'manual'
     """
+    # Always remove from positions_log.json — even if no DB entry exists (ghost cleanup)
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    positions.pop(ticker, None)
+    _save_json(POSITIONS_LOG_PATH, positions)
+
     # Load entry record
     with _db() as conn:
         entry = _fetch(conn, "stock_agent_trades", ticker)
         if not entry:
-            logger.warning("No open trade found for %s — cannot store exit", ticker)
+            logger.warning("No open trade found for %s — removed from positions_log but no DB record to close", ticker)
             return
 
         entry_price = entry.get("entry_price", 0)
@@ -298,11 +303,6 @@ def store_trade_exit(
         # Mark trade as closed
         entry["status"] = "closed"
         _upsert(conn, "stock_agent_trades", ticker, entry)
-
-    # Remove from positions_log.json
-    positions = _load_json(POSITIONS_LOG_PATH, default={})
-    positions.pop(ticker, None)
-    _save_json(POSITIONS_LOG_PATH, positions)
 
     # Update pattern_history.json with outcome
     _update_pattern_history(entry.get("signals", []), entry.get("conviction", 50), pnl_pct)
