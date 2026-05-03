@@ -2,7 +2,7 @@
 
 An autonomous investment system built from scratch that runs a full investment committee in software. Every weekday it wakes up, reads the market, debates trades across 11 specialised AI agents, sizes positions using Kelly Criterion, and executes live orders — all without human intervention.
 
-**Live dashboard → [ruflo.vercel.app](https://ruflo.vercel.app)**
+**Live dashboard → [dashboard-haz-capital.vercel.app](https://dashboard-haz-capital.vercel.app)**
 
 ---
 
@@ -111,7 +111,7 @@ The live dashboard (Next.js / Vercel) shows:
 - Intraday alerts for stop-loss breaches and large moves
 - Ad-hoc research reports for any ticker on demand
 
-**→ [ruflo.vercel.app](https://ruflo.vercel.app)**
+**→ [dashboard-haz-capital.vercel.app](https://dashboard-haz-capital.vercel.app)**
 
 ---
 
