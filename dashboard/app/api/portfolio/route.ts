@@ -201,7 +201,13 @@ export async function GET() {
         conviction:    sc?.composite_score ?? logEntry?.conviction ?? null,
         entry_conviction: logEntry?.entry_conviction ?? null,
         status:        "open",
-        setup_type:         logEntry?.setup_type ?? "Pipeline",
+        setup_type:         (() => {
+          const raw = logEntry?.setup_type ?? "Pipeline";
+          const dir = p.side === "short" ? "short" : "long";
+          // "Short" is a fundamental thesis label — misleading on a long position; relabel
+          if (raw === "Short" && dir === "long") return "Contrarian";
+          return raw;
+        })(),
         expected_roi:       logEntry?.expected_roi ?? "—",
         fundamental_score:  sc?.fundamental_score ?? null,
         quant_score:        sc?.quant_score ?? null,
