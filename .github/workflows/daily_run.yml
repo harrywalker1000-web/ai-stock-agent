@@ -86,16 +86,19 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # Stage output files FIRST so they are tracked before the rebase.
-          # Untracked files cause rebase to abort if the remote has the same path.
+          # Stash pipeline output, pull remote changes, pop — pipeline output wins on conflict.
+          # This handles the case where someone pushes to main while the pipeline is running.
+          git stash push --include-untracked -m "pipeline-output" 2>/dev/null || true
+          git pull --no-rebase origin main
+          git stash pop 2>/dev/null || true
+          # Auto-resolve any conflicts by keeping the pipeline's version (ours)
+          git diff --name-only --diff-filter=U 2>/dev/null | xargs -r git checkout --ours --
+          # Stage all pipeline output files
           git add data/memory/positions_log.json   2>/dev/null || true
           git add data/memory/decision_log.json    2>/dev/null || true
           git add data/memory/pattern_history.json 2>/dev/null || true
           git add dashboard/data/reports/          2>/dev/null || true
           git add dashboard/data/memory/           2>/dev/null || true
-          # Fetch and rebase — files are now tracked so no untracked-file conflicts
-          git fetch origin main
-          git rebase --autostash origin/main
           # Only commit and push if there are staged changes
           if git diff --cached --quiet; then
             echo "No data changes to commit"
