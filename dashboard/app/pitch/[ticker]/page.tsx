@@ -188,7 +188,6 @@ export default function PitchDetail() {
   const s8t = data.s8_technical || {}; const s9  = data.s9_sentiment || {};
   const s10 = data.s10_institutional || {}; const s11 = data.s11_performance || {};
   const s12 = data.s12_risk || {};     const s13 = data.s13_scenarios || {};
-  const s14 = data.s14_data || {};
   const bg  = s2.background || {};     const fin = s2.financial_snapshot || {};
   const moat = s2.quality_of_earnings || {}; const mkt = s2.market_analysis || {};
   const mgmt = s2.management_team || {};
@@ -210,7 +209,6 @@ export default function PitchDetail() {
   const adhocComps: Comp[] = (s2.comparables || [])
     .filter((c: any) => c.ticker && c.company && c.revenue_bn)
     .map((c: any) => ({ ...c, is_subject: c.ticker === ticker }));
-  const useAdhocComps = comps.length === 0 && adhocComps.length > 0;
   const displayComps: Comp[] = comps.length > 0 ? comps : adhocComps;
   const hasLivePE = comps.length > 0;
 
@@ -240,7 +238,7 @@ export default function PitchDetail() {
           <div className="flex items-center gap-3">
             {pitchData?.sources && Object.values(pitchData.sources).some(Boolean) && (
               <span className="text-[10px] text-slate-400 print:hidden">
-                Live data from: {[...new Set(Object.values(pitchData.sources).filter(Boolean))].join(" · ")}
+                Live data from: {Array.from(new Set(Object.values(pitchData.sources).filter(Boolean))).join(" · ")}
               </span>
             )}
             <button onClick={() => window.print()} className="px-5 py-2.5 bg-[#1B2951] text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity">
