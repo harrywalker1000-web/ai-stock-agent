@@ -14,7 +14,7 @@ import os
 import pathlib
 from datetime import datetime, timedelta
 
-import requests
+import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -128,7 +128,7 @@ def _fetch_latest_13f(cik: str, fund_name: str) -> list[dict]:
         logger.error("SEC infotable XML failed for %s: %s", fund_name, exc)
         return []
 
-    return _parse_13f_xml(xml_text, latest_13f_date, fund_name)
+    return _parse_13f_xml(xml_text, latest_13f_date or "", fund_name)
 
 
 def _parse_13f_xml(xml_text: str, filing_date: str, fund_name: str) -> list[dict]:
@@ -148,8 +148,8 @@ def _parse_13f_xml(xml_text: str, filing_date: str, fund_name: str) -> list[dict
         name = extract("nameOfIssuer")
         cusip = extract("cusip")
         value_str = extract("value")
-        shares_str = re.search(r"<sshPrnamt>(.*?)</sshPrnamt>", entry, re.IGNORECASE)
-        shares_str = shares_str.group(1).strip() if shares_str else "0"
+        shares_match = re.search(r"<sshPrnamt>(.*?)</sshPrnamt>", entry, re.IGNORECASE)
+        shares_str = shares_match.group(1).strip() if shares_match else "0"
 
         try:
             value_usd = int(value_str.replace(",", "")) * 1000  # SEC values in thousands
@@ -170,10 +170,10 @@ def _parse_13f_xml(xml_text: str, filing_date: str, fund_name: str) -> list[dict
         })
 
     # Sort by value descending, return top 20
-    holdings.sort(key=lambda x: x["value_usd"], reverse=True)
-    total_value = sum(h["value_usd"] for h in holdings)
+    holdings.sort(key=lambda x: x["value_usd"], reverse=True)  # type: ignore[arg-type, return-value]
+    total_value = sum(h["value_usd"] for h in holdings)  # type: ignore[misc]
     for h in holdings:
-        h["pct_of_portfolio"] = round(h["value_usd"] / total_value * 100, 2) if total_value > 0 else 0
+        h["pct_of_portfolio"] = round(h["value_usd"] / total_value * 100, 2) if total_value > 0 else 0  # type: ignore[operator]
 
     logger.debug("Parsed %d holdings from %s 13F (filed %s)", len(holdings), fund_name, filing_date)
     return holdings[:20]
@@ -207,7 +207,7 @@ def _fetch_analyst_data(tickers: list[str]) -> list[dict]:
 
             # Finnhub recommendation breakdown (buy/sell/hold counts) — this endpoint IS free
             ratings = fetch_finnhub_analyst_ratings(ticker)
-            recent_rating = {}
+            recent_rating: dict[str, int] = {}
             if isinstance(ratings, list) and ratings:
                 recent_rating = ratings[0]
 
@@ -815,7 +815,7 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
         response_format={"type": "json_object"},
     )
 
-    result = json.loads(response.choices[0].message.content)
+    result = json.loads(response.choices[0].message.content or "{}")
     logger.info(
         "Institutional Agent: identified %d institutional signals, %d analyst signals, %d insider signals",
         len(result.get("institutional_buys", [])),

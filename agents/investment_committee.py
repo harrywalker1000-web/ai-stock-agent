@@ -806,7 +806,7 @@ together. Your job is purely: action + conviction + rationale."""
             max_tokens=2500,
             response_format={"type": "json_object"},
         )
-        raw = json.loads(resp.choices[0].message.content)
+        raw = json.loads(resp.choices[0].message.content or "{}")
         if isinstance(raw, list):
             return raw
         return raw.get("position_decisions", raw.get("decisions", []))
@@ -1031,7 +1031,7 @@ Return ONLY valid JSON:
             max_tokens=400,
             response_format={"type": "json_object"},
         )
-        call1 = json.loads(r1.choices[0].message.content)
+        call1 = json.loads(r1.choices[0].message.content or "{}")
         challenge_text = call1.get("challenge", "")
         tension_text = call1.get("tension_identified", "")
     except Exception as exc:
@@ -1075,7 +1075,7 @@ Return ONLY valid JSON:
             max_tokens=500,
             response_format={"type": "json_object"},
         )
-        call2 = json.loads(r2.choices[0].message.content)
+        call2 = json.loads(r2.choices[0].message.content or "{}")
         analyst_response = call2.get("response", "")
         revised_score = int(call2.get("revised_score", dissenter_score))
         outcome = call2.get("outcome", "held")
@@ -1119,7 +1119,7 @@ Return ONLY valid JSON:
             max_tokens=400,
             response_format={"type": "json_object"},
         )
-        call3 = json.loads(r3.choices[0].message.content)
+        call3 = json.loads(r3.choices[0].message.content or "{}")
         resolution_text = call3.get("resolution", "")
         final_score = int(call3.get("final_dissenter_score", revised_score))
         resolution_reasoning = call3.get("resolution_reasoning", "")
@@ -1460,12 +1460,20 @@ You have {cash_pct:.1f}% (≈ ${equity * cash_pct / 100:,.0f}) of free cash avai
 Any target weight ABOVE a position's current actual weight requires buying more shares — that costs cash.
 If the total additional buying you assign exceeds {cash_pct:.1f}%, YOUR TARGETS ARE UNFUNDED and will not execute.
 
-You MUST balance the books. To increase a position you must either:
-  a) Have enough free cash to cover it, OR
-  b) Explicitly reduce or exit another position to free up that cash first (use `capital_swap_exits` and reduce their target_weight)
+You MUST make an explicit decision for every new entry:
 
-Do NOT assign a 9% target to a position that currently sits at 1.6% if you only have 2% cash — that is impossible.
-Either set the target at what is actually fundable, or sell something else to make room.
+  OPTION A — Fund it by trimming: Decide which existing position(s) to reduce or exit to free up cash.
+    List exits in `capital_swap_exits`. Reduce held positions below their current weight in `target_weights`.
+    Only trim a position if you genuinely think the new entry is more attractive right now.
+    Do NOT blindly trim the biggest position — it might be your best trade.
+
+  OPTION B — Accept you cannot enter it: Set the new entry's target_weight to 0 (or omit it).
+    This is the correct answer if every existing position is worth keeping at its current size.
+    Holding cash and the current book is a valid portfolio decision.
+
+There is NO option C. Do not assign targets that sum to more than what cash covers.
+Every funded entry must have a corresponding trim somewhere, or the cash must already exist.
+Make the judgment call explicitly — this is your job as Portfolio Manager.
 
 YOUR TASK:
 Set the target weight for EVERY position in the portfolio — both existing holds and new entries.
@@ -1520,7 +1528,7 @@ Return ONLY valid JSON:
             max_tokens=1200,
             response_format={"type": "json_object"},
         )
-        result = json.loads(resp.choices[0].message.content)
+        result = json.loads(resp.choices[0].message.content or "{}")
         target_weights = result.get("target_weights", {})
         # Strip any "CASH" entry — LLMs sometimes use this as shorthand for cash allocation,
         # but CASH is a real ETF ticker and must never be traded as a position.
@@ -1601,7 +1609,7 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
             )}],
             temperature=0.4, max_tokens=300,
         )
-        return resp.choices[0].message.content.strip()
+        return (resp.choices[0].message.content or "").strip()
     except Exception:
         return "Committee deliberation complete. Actions: " + ", ".join(
             f"{d['ticker']} ({d.get('action', '?')})" for d in acting[:8]

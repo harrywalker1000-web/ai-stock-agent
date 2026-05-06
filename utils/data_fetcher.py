@@ -11,7 +11,7 @@ from typing import Any
 
 import finnhub
 import pandas as pd
-import requests
+import requests  # type: ignore[import-untyped]
 import yfinance as yf
 from alpha_vantage.fundamentaldata import FundamentalData
 from alpha_vantage.timeseries import TimeSeries
@@ -223,7 +223,7 @@ def fetch_finnhub_insider_transactions(ticker: str) -> dict:
         return {}
 
 
-def fetch_finnhub_earnings_calendar(from_date: str = None, to_date: str = None) -> dict:
+def fetch_finnhub_earnings_calendar(from_date: str | None = None, to_date: str | None = None) -> dict:
     """Return upcoming earnings announcements. Dates format: 'YYYY-MM-DD'."""
     if not from_date:
         from_date = datetime.utcnow().strftime("%Y-%m-%d")
@@ -702,7 +702,7 @@ def fetch_unusual_options_activity(
 
 def fetch_reddit_mentions(
     ticker: str,
-    subreddits: list[str] = None,
+    subreddits: list[str] | None = None,
     days_back: int = 7,
     limit: int = 100,
 ) -> dict[str, Any]:

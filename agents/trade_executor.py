@@ -180,7 +180,7 @@ def _is_safe_to_trade(api) -> tuple[bool, str]:
         if not clock.is_open:
             return False, "Market is closed"
         if MARKET_CLOSE_BUFFER_MIN > 0:
-            import dateutil.parser
+            import dateutil.parser  # type: ignore[import-untyped]
             next_close = dateutil.parser.parse(str(clock.next_close))
             now_aware = dateutil.parser.parse(str(clock.timestamp))
             minutes_to_close = (next_close - now_aware).total_seconds() / 60
@@ -534,6 +534,34 @@ def reconcile_positions_with_alpaca() -> dict:
             except Exception as _exc:
                 logger.warning("Reconcile: could not correct direction for %s: %s", ticker, _exc)
                 summary["errors"].append(ticker)
+
+    # --- Case 5: Sync size_pct drift — update positions_log with live Alpaca weights ---
+    # positions_log stores entry-time weights; price drift means they go stale fast.
+    # Portfolio Construction and the concentration check need accurate current weights.
+    if portfolio_value > 0:
+        log_positions = memory.get_open_positions()
+        _log_path = __import__("pathlib").Path(__file__).resolve().parent.parent / "data" / "memory" / "positions_log.json"
+        try:
+            import json as _sjson
+            with open(_log_path) as _sf:
+                _all_pos = _sjson.load(_sf)
+            _dirty = False
+            for tkr, adata in alpaca_pos.items():
+                if tkr not in _all_pos:
+                    continue
+                live_mv = abs(float(adata.get("market_value", 0)))
+                live_wt = round(live_mv / portfolio_value * 100, 1)
+                old_wt  = _all_pos[tkr].get("size_pct", 0.0) or 0.0
+                if abs(live_wt - old_wt) >= 1.0:  # only write if drift ≥ 1%
+                    _all_pos[tkr]["size_pct"] = live_wt
+                    _dirty = True
+                    logger.debug("Size drift sync: %s %.1f%% → %.1f%%", tkr, old_wt, live_wt)
+            if _dirty:
+                with open(_log_path, "w") as _sf:
+                    _sjson.dump(_all_pos, _sf, indent=2)
+                logger.info("Reconcile: synced live Alpaca weights to positions_log")
+        except Exception as _exc:
+            logger.warning("Reconcile: could not sync size_pct weights: %s", _exc)
 
     logger.info(
         "Reconciliation complete: %d pending placed, %d ghosts removed, %d untracked added, %d errors",

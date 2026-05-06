@@ -270,7 +270,7 @@ def _find_support_resistance(df: pd.DataFrame) -> dict:
 
 def _detect_patterns(df: pd.DataFrame, ind: dict) -> list[str]:
     """Identify chart patterns from price structure and indicators."""
-    patterns = []
+    patterns: list[str] = []
     close = df["Close"].dropna()
     if len(close) < 40:
         return patterns
@@ -729,7 +729,7 @@ Return ONLY valid JSON:
             max_tokens=500,
             response_format={"type": "json_object"},
         )
-        return json.loads(resp.choices[0].message.content)
+        return json.loads(resp.choices[0].message.content or "{}")
     except Exception as exc:
         logger.error("LLM analysis failed for %s: %s", ticker, exc)
         return {

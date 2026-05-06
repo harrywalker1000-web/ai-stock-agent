@@ -662,7 +662,7 @@ def _apply_threshold(scored: list[dict]) -> list[dict]:
     else:
         # Edge case: nothing scored well enough — take top 30 regardless
         candidates = scored[:30]
-        threshold_used = 0.0
+        threshold_used = 0
         logger.warning("No stocks exceeded threshold — taking top 30 by score")
 
     logger.info(f"Threshold {threshold_used}: {len(candidates)} candidates selected")
@@ -704,7 +704,7 @@ Write 2-3 sentences explaining today's screening results — what drove the sele
         max_tokens=200,
         response_format={"type": "text"},
     )
-    return resp.choices[0].message.content.strip()
+    return (resp.choices[0].message.content or "").strip()
 
 
 # ---------------------------------------------------------------------------
@@ -723,7 +723,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
                 "mode": "portfolio_review",
                 "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
             }
-        candidates = [
+        candidates: list[dict] = [
             {
                 "ticker": t,
                 "direction_hint": "LONG",  # will be overridden by position context in downstream agents
@@ -821,9 +821,9 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
         extra_new = remaining_new[:needed]
         if extra_new:
             # Replace the lowest-scoring old tickers with fresh ones
-            old_tickers = sorted(old_tickers, key=lambda x: x["score"])
+            old_tickers = sorted(old_tickers, key=lambda x: x["score"] or 0)  # type: ignore[arg-type]
             old_tickers = old_tickers[len(extra_new):]  # drop weakest
-            candidates = sorted(new_tickers + extra_new + old_tickers, key=lambda x: x["score"], reverse=True)
+            candidates = sorted(new_tickers + extra_new + old_tickers, key=lambda x: x["score"] or 0, reverse=True)  # type: ignore[arg-type]
             logger.info("Variety enforcement: added %d fresh tickers to reach 20%% new minimum", len(extra_new))
 
     variety_pct = round(len(new_tickers) / max(1, len(candidates)) * 100, 1)
@@ -851,9 +851,9 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
             },
             "threshold_used": SCORE_THRESHOLD,
             "universe_size": len(universe) if universe else "not loaded",
-            "freshness_penalised": sum(1 for t in candidates if t["freshness_penalty"] < 0),
-            "momentum_decay_applied": sum(1 for t in candidates if t.get("momentum_decay_penalty", 0) < 0),
-            "recency_bonus_applied": sum(1 for t in candidates if t.get("recency_bonus", 0) > 0),
+            "freshness_penalised": sum(1 for t in candidates if (t.get("freshness_penalty") or 0) < 0),
+            "momentum_decay_applied": sum(1 for t in candidates if (t.get("momentum_decay_penalty") or 0) < 0),
+            "recency_bonus_applied": sum(1 for t in candidates if (t.get("recency_bonus") or 0) > 0),
             "new_tickers_pct": variety_pct,
         },
         "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),

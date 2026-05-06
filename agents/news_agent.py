@@ -544,7 +544,7 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
         response_format={"type": "json_object"},
     )
 
-    result = json.loads(response.choices[0].message.content)
+    result = json.loads(response.choices[0].message.content or "{}")
     logger.info(
         "News Agent: identified %d fresh catalysts, %d upcoming events, %d stale",
         len(result.get("fresh_catalysts", [])),

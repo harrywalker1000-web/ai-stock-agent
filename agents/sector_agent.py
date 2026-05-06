@@ -494,7 +494,7 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
         response_format={"type": "json_object"},
     )
 
-    result = json.loads(response.choices[0].message.content)
+    result = json.loads(response.choices[0].message.content or "{}")
     logger.info(
         "Sector Agent: top sectors %s | avoid %s",
         result.get("top_sectors"),

@@ -26,7 +26,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-import requests
+import requests  # type: ignore[import-untyped]
 import yfinance as yf
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -658,6 +658,7 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
 
     # --- FMP cross-checks and supplements ---
     if fmp_ok:
+        assert fmp is not None  # fmp_ok guards fmp is not None
         # Revenue: FMP as a third corroboration (after yf/AV reconcile, before EDGAR override)
         fmp_rev = fmp.get("revenue_ttm")
         current_rev = reconciled.get("revenue") or reconciled.get("revenue_ttm") or yf.get("revenue_ttm")
@@ -739,7 +740,7 @@ def _suggest_peers_llm(ticker: str, company_name: str, sector: str, industry: st
             max_tokens=60,
             response_format={"type": "json_object"},
         )
-        data = json.loads(resp.choices[0].message.content)
+        data = json.loads(resp.choices[0].message.content or "{}")
         raw = data.get("peers") or data.get("tickers") or data.get("competitors") or []
         # Normalise: strip exchanges (e.g. "NVO:US" → "NVO")
         result = [str(t).split(":")[0].split(".")[0].upper().strip() for t in raw if t]
@@ -886,8 +887,8 @@ def _score_with_llm(
 
     # Build live peer comparison block (all from yfinance — verified data)
     peer_lines = []
-    pe_vals = [v.get("pe_trailing") for v in peers_snapshot.values() if v.get("pe_trailing")]
-    ps_vals = [v.get("price_to_sales") for v in peers_snapshot.values() if v.get("price_to_sales")]
+    pe_vals = [float(v["pe_trailing"]) for v in peers_snapshot.values() if v.get("pe_trailing")]
+    ps_vals = [float(v["price_to_sales"]) for v in peers_snapshot.values() if v.get("price_to_sales")]
     peer_avg_pe = round(sum(pe_vals) / len(pe_vals), 1) if pe_vals else None
     peer_avg_ps = round(sum(ps_vals) / len(ps_vals), 1) if ps_vals else None
     for p, v in peers_snapshot.items():
@@ -967,7 +968,7 @@ def _score_with_llm(
         _scripts_pm = str(_Path_pm(__file__).resolve().parent.parent / "scripts")
         if _scripts_pm not in _sys_pm.path:
             _sys_pm.path.insert(0, _scripts_pm)
-        import postmortem_engine as _pm_fa
+        import postmortem_engine as _pm_fa  # type: ignore[import]
         _brief_fa = _pm_fa.get_learning_brief_for_prompt()
         if _brief_fa:
             learning_brief_str = f"\nLEARNING BRIEF (lessons from recent closed trades):\n{_brief_fa}\n"
@@ -1058,7 +1059,7 @@ Return ONLY valid JSON:
             max_tokens=800,
             response_format={"type": "json_object"},
         )
-        result = json.loads(resp.choices[0].message.content)
+        result = json.loads(resp.choices[0].message.content or "{}")
     except Exception as exc:
         logger.error("LLM scoring failed for %s: %s", ticker, exc)
         result = {
@@ -1280,7 +1281,7 @@ Return ONLY valid JSON:
             max_tokens=3000,
             response_format={"type": "json_object"},
         )
-        return json.loads(resp.choices[0].message.content)
+        return json.loads(resp.choices[0].message.content or "{}")
     except Exception as exc:
         logger.warning("Framework LLM call failed for %s: %s — display fields will be empty", ticker, exc)
         return {}

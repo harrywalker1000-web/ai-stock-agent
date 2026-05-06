@@ -184,6 +184,14 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
                 floor = pv * 0.05
                 free = max(0.0, pv - total_exp - floor)
                 cash_pct = round(free / pv * 100, 1)
+                # Sync open_positions with LIVE Alpaca weights so Portfolio Construction
+                # sees accurate allocations, not stale entry weights from positions_log.
+                live_pos_data = ps.get("positions", {})
+                for tkr, pd in live_pos_data.items():
+                    if tkr in open_positions:
+                        mv = abs(float(pd.get("market_value", 0)))
+                        open_positions[tkr]["size_pct"] = round(mv / pv * 100, 1)
+                        logger.debug("Live weight sync: %s → %.1f%%", tkr, open_positions[tkr]["size_pct"])
         except Exception:
             pass
 
@@ -216,13 +224,22 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
     for d in phase_b_decisions:
         ticker = d.get("ticker", "")
         if ticker in target_weights:
-            d["size_pct"] = target_weights[ticker]
-            patched += 1
+            tw = target_weights[ticker]
+            if tw == 0 and d.get("action", "").startswith("enter"):
+                # Construction explicitly set weight to 0 — it decided not to fund this entry.
+                # Convert to skip so the executor doesn't try (and fail) to buy 0 shares.
+                d["action"] = "skip"
+                d["skip_reason"] = "Portfolio construction: insufficient cash to fund without trimming a position worth keeping"
+                logger.info("%s: construction set target=0 — converting enter to skip", ticker)
+            else:
+                d["size_pct"] = tw
+                patched += 1
         elif d.get("action", "").startswith("enter"):
-            # Construction didn't include this new entry — committee said enter but
-            # construction didn't see it. Default to a cautious 5%.
-            d["size_pct"] = 5.0
-            logger.warning("%s: not in construction output — defaulting to 5%%", ticker)
+            # Construction omitted this new entry entirely — treat same as target=0.
+            # The model didn't explicitly allocate capital for it, so don't default-enter.
+            d["action"] = "skip"
+            d["skip_reason"] = "Portfolio construction: entry not allocated capital (not in target_weights)"
+            logger.warning("%s: not in construction output — converting enter to skip (no capital allocated)", ticker)
 
     # Handle capital swap exits: positions construction decided to exit to fund better opportunities
     capital_swap_exits = construction.get("capital_swap_exits", [])
@@ -245,6 +262,34 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
         })
         existing_tickers.add(ticker)
         logger.info("Portfolio construction: capital swap — adding exit for %s (%s)", ticker, reason[:80])
+
+    # Log funding status so the pipeline report shows whether construction left entries unfunded.
+    _entries_pct = sum(
+        d.get("size_pct", 0.0) for d in phase_b_decisions
+        if "enter" in d.get("action", "") and d.get("size_pct")
+    )
+    _exits_freed = sum(
+        open_positions.get(d["ticker"], {}).get("size_pct", 0.0)
+        for d in phase_b_decisions if d.get("action") == "exit"
+        and d["ticker"] in open_positions
+    )
+    _decreases_freed = sum(
+        max(0.0, (open_positions.get(d["ticker"], {}).get("size_pct", 0.0) - d.get("size_pct", 0.0)))
+        for d in phase_b_decisions if d.get("action") == "decrease"
+        and d["ticker"] in open_positions
+    )
+    _net_available = cash_pct + _exits_freed + _decreases_freed
+    _shortfall = round(_entries_pct - _net_available, 1)
+    if _shortfall > 0.5:
+        # New entries exceed available cash. Portfolio Construction chose not to trim anything
+        # to fund them — that is a valid decision (maybe the existing book is worth holding).
+        # Log it clearly so the outcome is visible, but do NOT auto-trim. The model decided.
+        logger.warning(
+            "Portfolio construction: new entries need %.1f%% but only %.1f%% available "
+            "(shortfall %.1f%%) — construction chose not to trim existing positions; "
+            "underfunded entries will be skipped at execution",
+            _entries_pct, _net_available, _shortfall,
+        )
 
     # Also handle rebalancing of held positions: add increase/decrease entries to decisions
     rebalancing = construction.get("rebalancing", {})
@@ -615,7 +660,7 @@ def run() -> dict:
     daily_pnl_date = None  # the trading day whose P&L this represents
     try:
         import alpaca_trade_api as _tradeapi
-        import requests as _requests
+        import requests as _requests  # type: ignore[import-untyped]
         _key    = os.environ.get("ALPACA_API_KEY")
         _secret = os.environ.get("ALPACA_SECRET_KEY")
         _base   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
@@ -630,10 +675,14 @@ def run() -> dict:
                 _hist = _resp.json()
                 _ts   = _hist.get("timestamp", [])
                 _eq   = _hist.get("equity", [])
-                # Keep only entries with a valid positive equity (completed trading days)
+                _today_str = datetime.utcnow().strftime("%Y-%m-%d")
+                # Keep only completed trading days: positive equity AND not today
+                # (Alpaca includes today's partial intraday snapshot as the last point;
+                # at 9:45am that equals ~yesterday's close, giving a false +$0)
                 _days = [
                     (datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"), e)
-                    for t, e in zip(_ts, _eq) if e and e > 0
+                    for t, e in zip(_ts, _eq)
+                    if e and e > 0 and datetime.utcfromtimestamp(t).strftime("%Y-%m-%d") != _today_str
                 ]
                 if len(_days) >= 2:
                     _prev_date, _prev_eq = _days[-2]

@@ -520,7 +520,7 @@ Return ONLY valid JSON:
             max_tokens=500,
             response_format={"type": "json_object"},
         )
-        return json.loads(resp.choices[0].message.content)
+        return json.loads(resp.choices[0].message.content or "{}")
     except Exception as exc:
         logger.error("LLM sentiment failed for %s: %s", ticker, exc)
         return {

@@ -13,6 +13,7 @@ is used for financial figures.
 import json
 import os
 from datetime import datetime
+from typing import Any
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -39,7 +40,7 @@ logger = get_logger(__name__)
 def _collect_macro_data() -> dict:
     """Fetch all raw macro data. Returns a dict of named data points."""
     logger.info("Macro Agent: collecting live macro data")
-    data = {}
+    data: dict[str, Any] = {}
 
     # Interest rates
     data["fed_funds_rate"] = fetch_fred_latest("FEDFUNDS")
@@ -372,7 +373,7 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
         response_format={"type": "json_object"},
     )
 
-    raw_json = response.choices[0].message.content
+    raw_json = response.choices[0].message.content or "{}"
     result = json.loads(raw_json)
     logger.info("Macro Agent: regime classified as %s (confidence: %s)", result.get("regime"), result.get("confidence"))
     return result
