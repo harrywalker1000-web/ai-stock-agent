@@ -184,6 +184,13 @@ export default function AdhocTickerPage() {
 
   const toggle = (k: string) => setOpen((prev) => ({ ...prev, [k]: !prev[k] }));
 
+  const handlePrint = () => {
+    const all: Record<string, boolean> = {};
+    SECTIONS.forEach((s) => { all[s.key] = true; });
+    setOpen(all);
+    setTimeout(() => window.print(), 150);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#080C10] flex items-center justify-center">
@@ -235,7 +242,7 @@ export default function AdhocTickerPage() {
       <div className="max-w-6xl mx-auto px-6 pt-8 flex gap-8">
 
         {/* Sticky sidebar nav */}
-        <aside className="hidden lg:block w-44 shrink-0">
+        <aside className="hidden lg:block w-44 shrink-0 print:hidden">
           <div className="sticky top-8">
             <Link href="/reports/adhoc" className="text-[10px] text-[#4B5563] hover:text-[#6B7280] block mb-4">← Research</Link>
             <nav className="space-y-0.5">
@@ -246,7 +253,7 @@ export default function AdhocTickerPage() {
                 </a>
               ))}
             </nav>
-            <button onClick={() => window.print()}
+            <button onClick={handlePrint}
               className="mt-6 w-full flex items-center justify-center gap-1.5 text-[11px] font-medium text-[#6B7280] hover:text-[#E8EDF2] py-2 px-3 rounded-lg bg-white/04 hover:bg-white/08 border border-white/06 hover:border-white/12 transition-all">
               <svg viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 shrink-0">
                 <path d="M5 1a1 1 0 0 0-1 1v2H3a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v1a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1h1a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1V2a1 1 0 0 0-1-1H5zm6 3V2H5v2h6zm1 5H4a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1zm0 2H4a.5.5 0 0 0 0 1h8a.5.5 0 0 0 0-1z"/>

@@ -38,7 +38,7 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} ${syne.variable} ${firaCode.variable}`}
     >
       <body className="antialiased bg-[#030005] text-[#E8EDF2]">
-        <Navbar />
+        <div className="print:hidden"><Navbar /></div>
         {children}
       </body>
     </html>
