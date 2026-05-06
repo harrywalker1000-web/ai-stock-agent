@@ -1,86 +1,91 @@
 {
-  "regime": "NEUTRAL",
+  "regime": "RISK-OFF",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "AI technology investments",
-    "defensive equities",
-    "high-yield bonds"
+    "defensive stocks",
+    "commodities",
+    "high-quality bonds"
   ],
   "avoid_themes": [
-    "emerging market equities",
-    "commodities",
-    "crypto investments"
+    "high-yield bonds",
+    "emerging markets",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
     "Iran conflict affecting oil prices",
     "Russia-Ukraine tensions impacting global trade"
   ],
-  "macro_summary": "The current macro environment shows rising inflation with CPI increasing to 330.29, while the yield curve indicates potential recession risks with a 0.51% spread. There is a conflict between sources, with yfinance_market indicating a NEUTRAL stance and newsapi_finnhub signaling RISK-OFF, leading to a medium confidence level in the overall assessment.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to Iran and Russia. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, leading to a conflict in signals. This divergence contributes to a low confidence level in the overall assessment.",
   "signal_confidence": {
-    "level": "medium",
-    "sources_count": 2,
+    "level": "low",
+    "sources_count": 3,
     "sources": [
+      "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
     "agreements": [],
     "conflicts": [
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from the sources contribute to a medium confidence level."
+    "confidence_note": "The conflicting signals from different sources lead to a low confidence level for downstream agents."
   },
-  "confidence": 65,
+  "confidence": 50,
   "raw_data": {
-    "fed_funds_rate": null,
-    "us_10y_yield": 4.39,
-    "us_2y_yield": 3.88,
-    "yield_curve_spread": 0.51,
+    "fed_funds_rate": 3.64,
+    "us_10y_yield": 4.45,
+    "us_2y_yield": 3.95,
+    "yield_curve_spread": 0.5,
     "cpi_latest": 330.29,
     "cpi_prev": 327.46,
     "cpi_trend": "rising",
     "pce_latest": 130.344,
-    "gdp_latest": null,
-    "gdp_prev": null,
-    "gdp_growth": null,
-    "dxy_current": 98.37,
+    "gdp_latest": 31856.3,
+    "gdp_prev": 31422.5,
+    "gdp_growth": 1.38,
+    "dxy_current": 97.98,
     "dxy_1m_ago": 99.98,
     "dxy_trend": "weakening",
-    "vix": 17.5,
-    "tlt_1m_change_pct": -1.16,
-    "hyg_1m_change_pct": 0.86,
+    "vix": 17.31,
+    "tlt_1m_change_pct": -0.3,
+    "hyg_1m_change_pct": 1.1,
     "macro_headlines": [
-      "US says Iran ceasefire holds despite exchange of fire over Strait of Hormuz - Reuters",
-      "Ceasefire with Iran is not over, Pentagon's Hegseth says - Reuters",
-      "'Almost every Fortune 500 is tracking overall AI usage': What that means for employees",
-      "We're buying the post-earnings dip in an AI industrial stock with a bright future",
-      "Rubio expects 'frank' meeting with pope as Trump takes fresh potshots at Leo - Reuters",
-      "Hegseth says 'the ceasefire is not over' after U.S., Iran exchange fire",
-      "Executives are burning out, just like their employees\u2014and they don't know how to handle it, management experts say",
-      "Jim Cramer's top 10 things to watch in the stock market Tuesday",
-      "Most prediction market traders don't make a profit\u2014Gen Z and millennials are turning to them anyway",
-      "Psychotherapist: Couples who practice this one habit \u2018tend to relieve a lot of stress\u2019\u2014here\u2019s why"
+      "Yankees legend Mariano Rivera says he supports an MLB salary cap",
+      "Commerce Sec. Howard Lutnick to answer Epstein questions from House panel Wednesday",
+      "Berkshire-owned distribution giant to deploy driverless big rigs across U.S. Sun Belt",
+      "Iran says it is reviewing new US proposal after sources say sides closing in on deal - Reuters",
+      "Stocks gain and oil slides after Iran peace deal report - Reuters",
+      "CMA CGM vessel attacked in Strait of Hormuz as shipping halted by US-Iran war - Reuters",
+      "Iran war pauses global easing push by central banks in April - Reuters",
+      "Exclusive: Iran conflict may have motivated Trump dinner shooting suspect, US intelligence report finds - Reuters",
+      "Stocks and bonds rally after Axios reports US Iran closing in on deal - Reuters",
+      "Iran's 'Trump' card - Reuters"
     ],
     "geopolitical_headlines": [
+      "Bank of Dave star spots Warburtons fire from helicopter",
       "UAE says Iran has resumed attacks as the US moves to reopen the Strait of Hormuz",
+      "Watch NASA\u2019s Supersonic Jet Pull Off Some Sweet Maneuvers in Recent Test",
       "Russia intensifies drone attacks on ports, Ukraine says",
       "Treasury Secretary Bessent warns Americans about AI-driven bank account hacks as threats rapidly evolve",
+      "Bank Of America Analyst Says GTA 6 Should Be $80 So It Doesn\u2019t Make Everyone Else\u2019s $70 Games Look Bad",
       "The Geopolitical Battle Over Monetary Infrastructure",
-      "Republicans see GOP dysfunction as major liability ahead of midterms",
-      "April Was the Worst Ever Month on Record for Crypto Hacks",
-      "Meta\u2019s historic loss in court could cost a lot more than $375 million",
-      "AI is opening doors for philosophy majors",
-      "The Southern Poverty Law Center Indictment",
-      "Brazil Bans Stablecoins For Cross-Border Payments"
+      "Can central banks curb inflation as energy costs rise?",
+      "Trump Reportedly Considering Executive Order Aimed at Vetting New AI Models",
+      "Republicans see GOP dysfunction as major liability ahead of midterms"
     ],
     "central_bank_headlines": [
-      "Bank of England holds rates, signals future hikes amid Iran war",
       "Northern Trust Pension Universe Data: Flat Returns for Canadian Pension Plans in Q1 as Geopolitical Tensions Intensified",
       "Gold edges lower on rate fears, Iran tensions cap downside",
+      "Central banks risk a recession by raising rates to tackle Iran oil shock, strategist warns",
+      "Surveillance on California dairy farms reveals multiple possible sources of H5N1 influenza virus transmission",
+      "Trading Day: The oil, bonds tango",
+      "Unitil Reports 2026 First Quarter Earnings",
       "Gold futures slide to \u20b91.50 lakh/10g as oil surge, dollar weigh on bullion",
       "Oil shock: Iran crisis sends markets into turmoil as central banks hold rates steady"
     ],
-    "as_of": "2026-05-05 15:44 UTC"
+    "as_of": "2026-05-06 15:54 UTC"
   },
-  "generated_at": "2026-05-05T15:44:31.135488"
+  "generated_at": "2026-05-06T15:54:17.468858"
 }
