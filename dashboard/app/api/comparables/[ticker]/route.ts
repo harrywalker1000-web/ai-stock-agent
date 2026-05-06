@@ -25,6 +25,7 @@ const PEER_MAP: Record<string, { tickers: string[]; note: string }> = {
   HD:   { tickers: ["LOW", "SHW", "WSM", "RH", "TSCO"],       note: "Home Improvement Retail" },
   LEN:  { tickers: ["DHI", "PHM", "TOL", "NVR", "KBH"],       note: "Homebuilders" },
   // Healthcare
+  NVO:  { tickers: ["LLY", "PFE", "MRK", "ABBV", "AZN"],     note: "Large Cap Pharma / GLP-1" },
   LLY:  { tickers: ["NVO", "PFE", "MRK", "ABBV", "BMY"],     note: "Large Cap Pharma / GLP-1" },
   MRK:  { tickers: ["LLY", "PFE", "ABBV", "BMY", "AZN"],     note: "Large Cap Pharma" },
   JNJ:  { tickers: ["ABT", "MDT", "SYK", "BSX", "ZBH"],      note: "Diversified Healthcare" },
