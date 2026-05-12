@@ -23,10 +23,11 @@ export async function GET(
     return NextResponse.json({ error: "FMP_API_KEY not configured" }, { status: 500 });
   }
 
-  const [fmpIncome, fmpMetricsHistory, fmpEstimates] = await Promise.all([
+  const [fmpIncome, fmpMetricsHistory, fmpEstimates, fmpProfile] = await Promise.all([
     safe(`${FMP}/v3/income-statement/${ticker}?limit=5&period=annual&apikey=${fmpKey}`),
     safe(`${FMP}/v3/key-metrics/${ticker}?limit=5&period=annual&apikey=${fmpKey}`),
     safe(`${FMP}/v3/analyst-estimates/${ticker}?limit=4&period=quarterly&apikey=${fmpKey}`),
+    safe(`${FMP}/v3/profile/${ticker}?apikey=${fmpKey}`),
   ]);
 
   const income_statement = Array.isArray(fmpIncome)
@@ -72,8 +73,24 @@ export async function GET(
       }))
     : [];
 
+  const profileRaw = Array.isArray(fmpProfile) && fmpProfile.length > 0 ? fmpProfile[0] : null;
+  const company_profile = profileRaw ? {
+    name: profileRaw.companyName ?? null,
+    description: profileRaw.description ?? null,
+    ceo: profileRaw.ceo ?? null,
+    sector: profileRaw.sector ?? null,
+    industry: profileRaw.industry ?? null,
+    country: profileRaw.country ?? null,
+    employees: profileRaw.fullTimeEmployees ?? null,
+    website: profileRaw.website ?? null,
+    exchange: profileRaw.exchangeShortName ?? null,
+    ipo_date: profileRaw.ipoDate ?? null,
+    image: profileRaw.image ?? null,
+  } : null;
+
   return NextResponse.json({
     ticker,
+    company_profile,
     income_statement,
     key_metrics_history,
     analyst_estimates,

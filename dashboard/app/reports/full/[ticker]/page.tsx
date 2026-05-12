@@ -21,7 +21,14 @@ interface PitchData {
   revenue_geo: SegmentData | null;
   sources: Record<string, string | null>;
 }
+interface CompanyProfile {
+  name: string | null; description: string | null; ceo: string | null;
+  sector: string | null; industry: string | null; country: string | null;
+  employees: string | null; website: string | null; exchange: string | null;
+  ipo_date: string | null; image: string | null;
+}
 interface FullFinancials {
+  company_profile: CompanyProfile | null;
   income_statement: { date: string; year: string; revenue: number | null; gross_profit: number | null; ebitda: number | null; net_income: number | null; eps: number | null; gross_margin: number | null; ebitda_margin: number | null; net_margin: number | null }[];
   key_metrics_history: { date: string; year: string; ev_ebitda: number | null; roic: number | null; pb_ratio: number | null; pe_ratio: number | null; fcf_yield: number | null }[];
   analyst_estimates: { date: string; estimated_revenue_avg: number | null; estimated_eps_avg: number | null; number_analyst_estimated_revenue: number | null }[];
@@ -567,22 +574,68 @@ export default function FullReportPage() {
           {/* ── S4: BUSINESS OVERVIEW ── */}
           <Slide id="s4">
             <SlideHeader title="Business Overview" n={4} />
-            <div className="p-7 grid grid-cols-5 gap-8">
+            <div className="p-7">
+
+              {/* Company description — FMP profile */}
+              {(() => {
+                const prof = full?.company_profile;
+                if (!prof?.description) return null;
+                return (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      {prof.image && <img src={prof.image} alt={prof.name ?? ticker} className="h-8 w-8 object-contain rounded" />}
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">About {prof.name ?? ticker}</p>
+                      <SourceBadge src="Financial Modeling Prep" href={fmpHref} />
+                    </div>
+                    <p className="text-sm text-slate-700 leading-relaxed">{prof.description}</p>
+                  </div>
+                );
+              })()}
+
+              {/* Key company facts — FMP */}
+              {(() => {
+                const prof = full?.company_profile;
+                const facts = [
+                  { l: "Sector", v: prof?.sector ?? adhoc.sector ?? null },
+                  { l: "Industry", v: prof?.industry ?? null },
+                  { l: "CEO", v: prof?.ceo ?? mgmt.ceo ?? null },
+                  { l: "Employees", v: prof?.employees ? Number(prof.employees).toLocaleString() : null },
+                  { l: "Exchange", v: prof?.exchange ?? null },
+                  { l: "IPO Date", v: prof?.ipo_date ?? null },
+                  { l: "HQ", v: bg.hq ?? prof?.country ?? null },
+                  { l: "Website", v: prof?.website ?? null },
+                ].filter(f => f.v);
+                if (!facts.length) return null;
+                const isApi = !!prof;
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    {facts.map(f => (
+                      <div key={f.l} className="p-3 border border-slate-100 rounded-xl bg-slate-50">
+                        <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">{f.l} {isApi ? <SourceBadge src="Financial Modeling Prep" href={fmpHref} /> : <AiTag />}</p>
+                        {f.l === "Website" && f.v
+                          ? <a href={f.v} target="_blank" rel="noreferrer" className="font-semibold text-xs text-sky-600 hover:underline truncate block">{f.v.replace(/^https?:\/\//, "")}</a>
+                          : <p className="font-semibold text-sm">{f.v}</p>}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              <div className="grid grid-cols-5 gap-8">
               <div className="col-span-3">
-                {bg.overview && <p className="text-sm text-slate-700 leading-relaxed mb-4">{bg.overview}<AiTag title="Company overview from LLM training knowledge" /></p>}
+                {!full?.company_profile?.description && bg.overview && <p className="text-sm text-slate-700 leading-relaxed mb-4">{bg.overview}<AiTag title="Company overview from LLM training knowledge" /></p>}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  {[{ l: "Headquarters", v: bg.hq || "—" }, { l: "Moat Width", v: moat.moat || "—" }, { l: "Setup Type", v: s3s.setup_type || "—" }, { l: "Competition", v: mkt.competition_intensity || "—" }].map(m => (
+                  {[{ l: "Moat Width", v: moat.moat || "—" }, { l: "Setup Type", v: s3s.setup_type || "—" }, { l: "Competition", v: mkt.competition_intensity || "—" }].filter(m => m.v && m.v !== "—").map(m => (
                     <div key={m.l} className="p-3 border border-slate-100 rounded-xl bg-slate-50">
                       <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-0.5">{m.l} <AiTag /></p>
                       <p className="font-semibold text-sm">{m.v}</p>
                     </div>
                   ))}
                 </div>
-                {mgmt.ceo && (
+                {mgmt.track_record && (
                   <div className="p-4 bg-[#EEF2F8] rounded-xl mb-4">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-[#1B2951] mb-2">Management <AiTag /></p>
-                    <p className="text-xs text-slate-700 mb-1"><span className="font-semibold">CEO: </span>{mgmt.ceo}</p>
-                    {mgmt.track_record && <p className="text-xs text-slate-500">{mgmt.track_record}</p>}
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-[#1B2951] mb-2">Management Assessment <AiTag /></p>
+                    <p className="text-xs text-slate-500">{mgmt.track_record}</p>
                     {mgmt.red_flags && <p className="text-xs text-red-600 mt-1">⚠ {mgmt.red_flags}</p>}
                   </div>
                 )}
@@ -671,7 +724,8 @@ export default function FullReportPage() {
                   </div>
                 )}
               </div>
-            </div>
+              </div>{/* end grid grid-cols-5 */}
+            </div>{/* end p-7 */}
           </Slide>
 
           {/* ── S5: HISTORICAL FINANCIALS ── */}
