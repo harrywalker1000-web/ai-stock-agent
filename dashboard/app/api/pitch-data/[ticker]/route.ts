@@ -73,9 +73,9 @@ export async function GET(
     };
   })() : null;
 
-  // Recent news headlines (Finnhub) — top 5
+  // Recent news headlines (Finnhub) — top 12
   const news = Array.isArray(fhNews)
-    ? fhNews.slice(0, 5).map((n: any) => ({
+    ? fhNews.slice(0, 12).map((n: any) => ({
         headline: n.headline,
         source: n.source,
         url: n.url,

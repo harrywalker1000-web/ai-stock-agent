@@ -197,6 +197,7 @@ const SECTIONS = [
   { key: "s2",     label: "Investment Arguments" },
   { key: "s3",     label: "Where We Differ" },
   { key: "s4",     label: "Business Overview" },
+  { key: "snews",  label: "Latest News" },
   { key: "s5",     label: "Historical Financials" },
   { key: "s6",     label: "Valuation Metrics" },
   { key: "s7",     label: "Competitive Landscape" },
@@ -728,6 +729,38 @@ export default function FullReportPage() {
             </div>{/* end p-7 */}
           </Slide>
 
+          {/* ── SNEWS: LATEST NEWS ── */}
+          {(pitch?.news?.length ?? 0) > 0 && (
+          <Slide id="snews">
+            <SlideHeader title="Latest News & Developments" n="news" />
+            <div className="p-7">
+              <div className="flex items-center gap-2 mb-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Past 30 days · {pitch!.news.length} articles</p>
+                <SourceBadge src="Finnhub" />
+              </div>
+              <div className="space-y-5">
+                {pitch!.news.map((n, i) => {
+                  const date = new Date(n.datetime * 1000);
+                  const dateStr = date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+                  return (
+                    <div key={i} className="border-b border-slate-100 pb-5 last:border-0 last:pb-0">
+                      <div className="flex items-start justify-between gap-4 mb-1.5">
+                        <a href={n.url} target="_blank" rel="noreferrer"
+                          className="text-sm font-semibold text-[#1B2951] hover:underline leading-snug flex-1">
+                          {n.headline}
+                        </a>
+                        <span className="text-[10px] text-slate-400 whitespace-nowrap shrink-0">{dateStr}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mb-2">{n.source}</p>
+                      {n.summary && <p className="text-xs text-slate-600 leading-relaxed">{n.summary}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Slide>
+          )}
+
           {/* ── S5: HISTORICAL FINANCIALS ── */}
           <Slide id="s5">
             <SlideHeader title="Historical Financials" n={5} />
@@ -1153,18 +1186,8 @@ export default function FullReportPage() {
                 )}
                 {(pitch?.news?.length ?? 0) > 0 && (
                   <div>
-                    <div className="flex items-center gap-2 mb-2"><p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Recent Headlines (30 days)</p><SourceBadge src="Finnhub" href={fhHref} /></div>
-                    <div className="space-y-2">
-                      {pitch!.news.slice(0, 4).map((n, i) => (
-                        <a key={i} href={n.url} target="_blank" rel="noreferrer" className="block p-3 border border-slate-100 rounded-xl hover:border-blue-200 hover:bg-blue-50 transition-colors">
-                          <p className="text-[10px] font-semibold text-slate-700 leading-snug mb-0.5 line-clamp-2">{n.headline}</p>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[9px] text-slate-400">{n.source}</span>
-                            <span className="text-[9px] text-slate-400">{n.datetime ? new Date(n.datetime * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span>
-                          </div>
-                        </a>
-                      ))}
-                    </div>
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-1">Recent Headlines</p>
+                    <p className="text-xs text-slate-500">See <a href="#snews" className="text-sky-600 hover:underline">Latest News section</a> for full articles with summaries.</p>
                   </div>
                 )}
               </div>
