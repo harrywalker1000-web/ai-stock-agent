@@ -584,6 +584,7 @@ export default function FullReportPage() {
                 return (
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       {prof.image && <img src={prof.image} alt={prof.name ?? ticker} className="h-8 w-8 object-contain rounded" />}
                       <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">About {prof.name ?? ticker}</p>
                       <SourceBadge src="Financial Modeling Prep" href={fmpHref} />

@@ -76,16 +76,6 @@ function StepDot({ status, label, num }: { status: StepStatus; label: string; nu
   );
 }
 
-function PhaseDivider({ done }: { done: boolean }) {
-  return (
-    <div className="flex items-center self-start mt-2.5">
-      <div className={`w-4 h-px ${done ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
-      <span className={`text-[10px] px-1 ${done ? "text-[#10B981]/40" : "text-[#374151]"}`}>›</span>
-      <div className={`w-4 h-px ${done ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
-    </div>
-  );
-}
-
 function StepRow({ label, stepList, steps, startNum }: { label: string; stepList: { key: string; label: string }[]; steps: Record<string, StepStatus>; startNum: number }) {
   const get = (k: string): StepStatus => steps[k] ?? "pending";
   return (
