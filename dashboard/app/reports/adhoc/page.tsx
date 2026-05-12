@@ -86,46 +86,31 @@ function PhaseDivider({ done }: { done: boolean }) {
   );
 }
 
-function PipelineSteps({ steps }: { steps: Record<string, StepStatus> }) {
+function StepRow({ label, stepList, steps, startNum }: { label: string; stepList: { key: string; label: string }[]; steps: Record<string, StepStatus>; startNum: number }) {
   const get = (k: string): StepStatus => steps[k] ?? "pending";
-  const setupDone = SETUP_STEPS.every(s => get(s.key) === "done");
-  const agentsDone = STEPS.every(s => get(s.key) === "done");
   return (
-    <div className="mb-4 space-y-3">
-      {/* Row 1: Setup */}
-      <div>
-        <p className="text-[9px] font-bold text-[#374151] uppercase tracking-widest mb-2">Setup</p>
-        <div className="flex items-start gap-1">
-          {SETUP_STEPS.map((s, i) => (
-            <div key={s.key} className="flex items-start">
-              <StepDot status={get(s.key)} label={s.label} num={i + 1} />
-              {i < SETUP_STEPS.length - 1 && (
-                <div className={`self-start mt-2.5 w-5 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
-              )}
-            </div>
-          ))}
-          <PhaseDivider done={setupDone} />
-          {/* Agents inline after setup */}
-          {STEPS.map((s, i) => (
-            <div key={s.key} className="flex items-start">
-              <StepDot status={get(s.key)} label={s.label} num={i + 4} />
-              {i < STEPS.length - 1 && (
-                <div className={`self-start mt-2.5 w-3 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
-              )}
-            </div>
-          ))}
-          <PhaseDivider done={agentsDone} />
-          {/* Finalize */}
-          {FINALIZE_STEPS.map((s, i) => (
-            <div key={s.key} className="flex items-start">
-              <StepDot status={get(s.key)} label={s.label} num={i + 10} />
-              {i < FINALIZE_STEPS.length - 1 && (
-                <div className={`self-start mt-2.5 w-3 h-px mx-0.5 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
-              )}
-            </div>
-          ))}
-        </div>
+    <div>
+      <p className="text-[9px] font-bold text-[#374151] uppercase tracking-widest mb-2">{label}</p>
+      <div className="flex items-start flex-wrap gap-y-2">
+        {stepList.map((s, i) => (
+          <div key={s.key} className="flex items-start">
+            <StepDot status={get(s.key)} label={s.label} num={startNum + i} />
+            {i < stepList.length - 1 && (
+              <div className={`self-start mt-2.5 w-4 h-px mx-0.5 shrink-0 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+            )}
+          </div>
+        ))}
       </div>
+    </div>
+  );
+}
+
+function PipelineSteps({ steps }: { steps: Record<string, StepStatus> }) {
+  return (
+    <div className="mb-4 space-y-4">
+      <StepRow label="Setup" stepList={SETUP_STEPS} steps={steps} startNum={1} />
+      <StepRow label="Agents" stepList={STEPS} steps={steps} startNum={4} />
+      <StepRow label="Finalise" stepList={FINALIZE_STEPS} steps={steps} startNum={10} />
     </div>
   );
 }
@@ -426,14 +411,16 @@ export default function AdhocInputPage() {
               queuedAt={queuedAt}
               active={progress?.status === "in_progress" || progress?.status === "queued" || !progress}
             />
-            <div className="pt-3 border-t border-white/05">
-              <Link
-                href={`/reports/full/${queued}`}
-                className="text-xs text-[#0EA5E9] hover:underline"
-              >
-                Check report page for {queued} →
-              </Link>
-            </div>
+            {(progress?.steps?.commit === "done" || progress?.status === "completed") && (
+              <div className="pt-3 border-t border-white/05">
+                <Link
+                  href={`/reports/full/${queued}`}
+                  className="text-xs text-[#0EA5E9] hover:underline"
+                >
+                  View full report for {queued} →
+                </Link>
+              </div>
+            )}
           </div>
         )}
 
