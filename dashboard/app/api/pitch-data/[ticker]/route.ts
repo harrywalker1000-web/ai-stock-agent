@@ -25,13 +25,15 @@ export async function GET(
   const today = new Date().toISOString().split("T")[0];
   const month = new Date(Date.now() - 30 * 864e5).toISOString().split("T")[0];
 
-  const [fhEarnings, fhPT, fhRec, fhNews, fmpMetrics, fmpInsider] = await Promise.all([
+  const [fhEarnings, fhPT, fhRec, fhNews, fmpMetrics, fmpInsider, fmpSegProduct, fmpSegGeo] = await Promise.all([
     fhKey ? safe(`${FH}/stock/earnings?symbol=${ticker}&limit=8&token=${fhKey}`) : null,
     fhKey ? safe(`${FH}/stock/price-target?symbol=${ticker}&token=${fhKey}`) : null,
     fhKey ? safe(`${FH}/stock/recommendation?symbol=${ticker}&token=${fhKey}`) : null,
     fhKey ? safe(`${FH}/company-news?symbol=${ticker}&from=${month}&to=${today}&token=${fhKey}`) : null,
     fmpKey ? safe(`${FMP}/v3/key-metrics/${ticker}?limit=1&period=annual&apikey=${fmpKey}`) : null,
     fmpKey ? safe(`${FMP}/v4/insider-trading?symbol=${ticker}&limit=10&apikey=${fmpKey}`) : null,
+    fmpKey ? safe(`${FMP}/v4/revenue-product-segmentation?symbol=${ticker}&period=annual&apikey=${fmpKey}`) : null,
+    fmpKey ? safe(`${FMP}/v4/revenue-geographic-segmentation?symbol=${ticker}&period=annual&apikey=${fmpKey}`) : null,
   ]);
 
   // Earnings surprises (Finnhub)
@@ -95,6 +97,49 @@ export async function GET(
     date: metricsArr[0].date ?? null,
   } : null;
 
+  // Revenue segments — product (FMP)
+  // Response: array of { date: string, [segmentName]: number, ... }
+  const revenue_segments = (() => {
+    const arr = Array.isArray(fmpSegProduct) ? fmpSegProduct : [];
+    if (arr.length === 0) return null;
+    const latest = arr[0];
+    const { date, ...values } = latest;
+    const entries = Object.entries(values as Record<string, number>)
+      .filter(([, v]) => typeof v === "number" && v > 0)
+      .sort(([, a], [, b]) => b - a);
+    const total = entries.reduce((s, [, v]) => s + v, 0);
+    if (total === 0) return null;
+    return {
+      date,
+      segments: entries.map(([name, value]) => ({
+        name,
+        value,
+        pct: Math.round((value / total) * 1000) / 10,
+      })),
+    };
+  })();
+
+  // Revenue segments — geographic (FMP)
+  const revenue_geo = (() => {
+    const arr = Array.isArray(fmpSegGeo) ? fmpSegGeo : [];
+    if (arr.length === 0) return null;
+    const latest = arr[0];
+    const { date, ...values } = latest;
+    const entries = Object.entries(values as Record<string, number>)
+      .filter(([, v]) => typeof v === "number" && v > 0)
+      .sort(([, a], [, b]) => b - a);
+    const total = entries.reduce((s, [, v]) => s + v, 0);
+    if (total === 0) return null;
+    return {
+      date,
+      segments: entries.map(([name, value]) => ({
+        name,
+        value,
+        pct: Math.round((value / total) * 1000) / 10,
+      })),
+    };
+  })();
+
   // Insider trading (FMP)
   const insiderRaw = Array.isArray(fmpInsider) ? fmpInsider : (fmpInsider?.data ?? []);
   const insider_trades = insiderRaw.slice(0, 8).map((t: any) => ({
@@ -115,6 +160,8 @@ export async function GET(
     news,
     key_metrics,
     insider_trades,
+    revenue_segments,
+    revenue_geo,
     sources: {
       earnings_surprises: fhKey ? "Finnhub" : null,
       price_target: fhKey ? "Finnhub" : null,
@@ -122,6 +169,8 @@ export async function GET(
       news: fhKey ? "Finnhub" : null,
       key_metrics: fmpKey ? "Financial Modeling Prep" : null,
       insider_trades: fmpKey ? "Financial Modeling Prep" : null,
+      revenue_segments: fmpKey ? "Financial Modeling Prep" : null,
+      revenue_geo: fmpKey ? "Financial Modeling Prep" : null,
     },
   });
 }

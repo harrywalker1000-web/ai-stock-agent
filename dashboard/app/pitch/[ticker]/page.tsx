@@ -20,6 +20,10 @@ interface Comp {
   gross_margin_pct?: number | null; ebitda_margin_pct: number | null;
   net_margin_pct: number | null; de_ratio: number | null;
 }
+interface SegmentData {
+  date: string;
+  segments: { name: string; value: number; pct: number }[];
+}
 interface PitchData {
   earnings_surprises: { period: string; year: number; quarter: number; actual: number | null; estimate: number | null; surprise_pct: number | null }[];
   price_target: { high: number; low: number; mean: number; median: number; updated: string } | null;
@@ -27,6 +31,8 @@ interface PitchData {
   news: { headline: string; source: string; url: string; datetime: number; summary: string }[];
   key_metrics: { ev_ebitda: number | null; ev_revenue: number | null; fcf_yield: number | null; roic: number | null; pb_ratio: number | null; enterprise_value: number | null; net_debt_ebitda: number | null; date: string | null } | null;
   insider_trades: { name: string; role: string; transaction_type: string; shares: number | null; price: number | null; date: string; disposition: string }[];
+  revenue_segments: SegmentData | null;
+  revenue_geo: SegmentData | null;
   sources: Record<string, string | null>;
 }
 
@@ -405,40 +411,100 @@ export default function PitchDetail() {
               )}
             </div>
             <div className="col-span-2">
-              {bg.revenue_segments?.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-3">Revenue by Segment <SourceBadge src="AI" /></p>
-                  <div className="space-y-3">
-                    {bg.revenue_segments.map((seg: any) => (
-                      <div key={seg.segment}>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="font-semibold text-slate-700">{seg.segment}</span>
-                          <span className="font-mono text-slate-500">{seg.weight_pct}%</span>
+              {/* Revenue by Segment — prefer FMP API, fall back to AI */}
+              {(() => {
+                const apiSegs = pitchData?.revenue_segments;
+                const aiSegs  = bg.revenue_segments;
+                if (apiSegs?.segments?.length) return (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-1 mb-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Revenue by Segment</p>
+                      <SourceBadge src="Financial Modeling Prep" href={fmpHref} />
+                    </div>
+                    <div className="space-y-3">
+                      {apiSegs.segments.slice(0, 6).map(seg => (
+                        <div key={seg.name}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="font-semibold text-slate-700">{seg.name}</span>
+                            <span className="font-mono text-slate-500">{seg.pct.toFixed(1)}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full">
+                            <div className="h-2 bg-[#1B2951] rounded-full" style={{ width: `${seg.pct}%` }} />
+                          </div>
                         </div>
-                        <div className="h-2 bg-slate-100 rounded-full">
-                          <div className="h-2 bg-[#1B2951] rounded-full" style={{ width: `${seg.weight_pct}%` }} />
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    {apiSegs.date && <p className="text-[9px] text-slate-400 mt-1">FY ending {apiSegs.date}</p>}
                   </div>
-                </div>
-              )}
-              {bg.geography_breakdown?.length > 0 && (
-                <div className="mb-5">
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-3">Geographic Exposure <SourceBadge src="AI" /></p>
-                  <div className="space-y-2">
-                    {bg.geography_breakdown.map((g: any) => (
-                      <div key={g.region} className="flex items-center gap-2 text-xs">
-                        <span className="text-slate-600 w-24 shrink-0">{g.region}</span>
-                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full">
-                          <div className="h-1.5 bg-amber-400 rounded-full" style={{ width: `${g.pct}%` }} />
+                );
+                if (aiSegs?.length) return (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-1 mb-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Revenue by Segment</p>
+                      <SourceBadge src="AI" />
+                    </div>
+                    <div className="space-y-3">
+                      {aiSegs.map((seg: any) => (
+                        <div key={seg.segment}>
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="font-semibold text-slate-700">{seg.segment}</span>
+                            <span className="font-mono text-slate-500">{seg.weight_pct}%</span>
+                          </div>
+                          <div className="h-2 bg-slate-100 rounded-full">
+                            <div className="h-2 bg-[#1B2951] rounded-full" style={{ width: `${seg.weight_pct}%` }} />
+                          </div>
                         </div>
-                        <span className="font-mono w-8 text-right">{g.pct}%</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+                return null;
+              })()}
+              {/* Geographic Exposure — prefer FMP API, fall back to AI */}
+              {(() => {
+                const apiGeo = pitchData?.revenue_geo;
+                const aiGeo  = bg.geography_breakdown;
+                if (apiGeo?.segments?.length) return (
+                  <div className="mb-5">
+                    <div className="flex items-center gap-1 mb-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Geographic Exposure</p>
+                      <SourceBadge src="Financial Modeling Prep" href={fmpHref} />
+                    </div>
+                    <div className="space-y-2">
+                      {apiGeo.segments.slice(0, 6).map(g => (
+                        <div key={g.name} className="flex items-center gap-2 text-xs">
+                          <span className="text-slate-600 w-28 shrink-0 truncate">{g.name}</span>
+                          <div className="flex-1 h-1.5 bg-slate-100 rounded-full">
+                            <div className="h-1.5 bg-amber-400 rounded-full" style={{ width: `${g.pct}%` }} />
+                          </div>
+                          <span className="font-mono w-10 text-right">{g.pct.toFixed(1)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                    {apiGeo.date && <p className="text-[9px] text-slate-400 mt-1">FY ending {apiGeo.date}</p>}
+                  </div>
+                );
+                if (aiGeo?.length) return (
+                  <div className="mb-5">
+                    <div className="flex items-center gap-1 mb-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Geographic Exposure</p>
+                      <SourceBadge src="AI" />
+                    </div>
+                    <div className="space-y-2">
+                      {aiGeo.map((g: any) => (
+                        <div key={g.region} className="flex items-center gap-2 text-xs">
+                          <span className="text-slate-600 w-24 shrink-0">{g.region}</span>
+                          <div className="flex-1 h-1.5 bg-slate-100 rounded-full">
+                            <div className="h-1.5 bg-amber-400 rounded-full" style={{ width: `${g.pct}%` }} />
+                          </div>
+                          <span className="font-mono w-8 text-right">{g.pct}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+                return null;
+              })()}
               {moat.barriers_to_entry && (
                 <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
                   <p className="text-[9px] font-bold uppercase tracking-widest text-blue-800 mb-1">Barriers to Entry <SourceBadge src="AI" /></p>
@@ -1236,7 +1302,7 @@ export default function PitchDetail() {
             {[
               { label: "yfinance — Price, technicals, financials", isAI: false },
               { label: "Finnhub — EPS surprises, analyst targets, news", isAI: false },
-              { label: "Financial Modeling Prep — EV/EBITDA, ROIC, insider trades", isAI: false },
+              { label: "Financial Modeling Prep — EV/EBITDA, ROIC, segments, insider trades", isAI: false },
               { label: "AI (GPT-4o) — Narratives, segments, thesis, scenarios", isAI: true },
             ].map(s => (
               <span key={s.label} className={`text-[9px] px-2 py-0.5 rounded border ${s.isAI ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-sky-50 text-sky-600 border-sky-200"}`}>
