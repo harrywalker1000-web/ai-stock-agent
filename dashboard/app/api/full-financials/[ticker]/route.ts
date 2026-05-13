@@ -23,11 +23,12 @@ export async function GET(
     return NextResponse.json({ error: "FMP_API_KEY not configured" }, { status: 500 });
   }
 
-  const [fmpIncome, fmpMetricsHistory, fmpEstimates, fmpProfile] = await Promise.all([
+  const [fmpIncome, fmpMetricsHistory, fmpEstimates, fmpProfile, fmpPTC] = await Promise.all([
     safe(`${FMP}/v3/income-statement/${ticker}?limit=5&period=annual&apikey=${fmpKey}`),
     safe(`${FMP}/v3/key-metrics/${ticker}?limit=5&period=annual&apikey=${fmpKey}`),
     safe(`${FMP}/v3/analyst-estimates/${ticker}?limit=4&period=quarterly&apikey=${fmpKey}`),
     safe(`${FMP}/v3/profile/${ticker}?apikey=${fmpKey}`),
+    safe(`${FMP}/v3/price-target-consensus?symbol=${ticker}&apikey=${fmpKey}`),
   ]);
 
   const income_statement = Array.isArray(fmpIncome)
@@ -88,12 +89,21 @@ export async function GET(
     image: profileRaw.image ?? null,
   } : null;
 
+  // FMP price target consensus
+  const pt_consensus = fmpPTC && typeof fmpPTC === "object" && !Array.isArray(fmpPTC) && fmpPTC.targetConsensus != null ? {
+    high:   fmpPTC.targetHigh     ?? null,
+    low:    fmpPTC.targetLow      ?? null,
+    mean:   fmpPTC.targetConsensus ?? null,
+    median: fmpPTC.targetMedian   ?? null,
+  } : null;
+
   return NextResponse.json({
     ticker,
     company_profile,
     income_statement,
     key_metrics_history,
     analyst_estimates,
+    pt_consensus,
     source: "Financial Modeling Prep",
   });
 }

@@ -32,6 +32,7 @@ interface FullFinancials {
   income_statement: { date: string; year: string; revenue: number | null; gross_profit: number | null; ebitda: number | null; net_income: number | null; eps: number | null; gross_margin: number | null; ebitda_margin: number | null; net_margin: number | null }[];
   key_metrics_history: { date: string; year: string; ev_ebitda: number | null; roic: number | null; pb_ratio: number | null; pe_ratio: number | null; fcf_yield: number | null }[];
   analyst_estimates: { date: string; estimated_revenue_avg: number | null; estimated_eps_avg: number | null; number_analyst_estimated_revenue: number | null }[];
+  pt_consensus: { high: number | null; low: number | null; mean: number | null; median: number | null } | null;
 }
 interface Comp {
   ticker: string; company: string; is_subject?: boolean;
@@ -219,13 +220,15 @@ export default function FullReportPage() {
   const params = useParams();
   const ticker = String(params.ticker).toUpperCase();
 
-  const [adhoc,    setAdhoc]    = useState<Record<string, any> | null>(null);
-  const [pitch,    setPitch]    = useState<PitchData | null>(null);
-  const [full,     setFull]     = useState<FullFinancials | null>(null);
-  const [comps,    setComps]    = useState<Comp[]>([]);
-  const [candles,  setCandles]  = useState<any[]>([]);
-  const [err,      setErr]      = useState<string | null>(null);
-  const [loading,  setLoading]  = useState(true);
+  const [adhoc,          setAdhoc]          = useState<Record<string, any> | null>(null);
+  const [pitch,          setPitch]          = useState<PitchData | null>(null);
+  const [full,           setFull]           = useState<FullFinancials | null>(null);
+  const [comps,          setComps]          = useState<Comp[]>([]);
+  const [candles,        setCandles]        = useState<any[]>([]);
+  const [newsSynthesis,  setNewsSynthesis]  = useState<string | null>(null);
+  const [newsLoading,    setNewsLoading]    = useState(false);
+  const [err,            setErr]            = useState<string | null>(null);
+  const [loading,        setLoading]        = useState(true);
 
   useEffect(() => {
     Promise.all([
@@ -242,6 +245,14 @@ export default function FullReportPage() {
       setComps(compsData?.comparables || []);
       setCandles(chartData?.candles || []);
       setLoading(false);
+    }).then(() => {
+      // Lazy-load LLM news synthesis after main data
+      setNewsLoading(true);
+      fetch(`/api/news-analysis/${ticker}`)
+        .then(r => r.json())
+        .then(d => { if (d.synthesis) setNewsSynthesis(d.synthesis); })
+        .catch(() => {})
+        .finally(() => setNewsLoading(false));
     }).catch(e => { setErr(String(e)); setLoading(false); });
   }, [ticker]);
 
@@ -299,15 +310,17 @@ export default function FullReportPage() {
   const fhHref   = `https://finnhub.io/`;
   const fmpHref  = `https://financialmodelingprep.com/financial-summary/${ticker}`;
 
-  // Three investment arguments — top passing checklist items with meaningful detail
+  // Three investment arguments — skip generic catalyst/risk items, clean list strings
+  const SKIP_ITEMS = new Set(["upcoming_catalysts", "key_risks", "near_term_catalyst", "setup_type", "above_20pct_threshold", "eps_growth_consistent", "fcf_positive", "leverage_vs_peers", "default_risk"]);
+  const isPyList = (s: string) => /^\s*\[/.test(s);
   const investmentArgs = (() => {
     const passing = (s3s.checklist || [])
-      .filter((c: any) => c.pass && String(c.detail ?? "").length > 30)
+      .filter((c: any) => c.pass && !SKIP_ITEMS.has(c.item) && String(c.detail ?? "").length > 35 && !isPyList(String(c.detail ?? "")))
       .slice(0, 3);
     if (passing.length >= 2) return passing;
-    // Fallback: split thesis narrative into paragraphs
+    // Fallback: split thesis narrative into sentences
     if (s6.narrative) {
-      const sentences = s6.narrative.split(/\.\s+/).filter((s: string) => s.length > 40).slice(0, 3);
+      const sentences = s6.narrative.split(/\.\s+/).filter((s: string) => s.length > 50 && !s.toLowerCase().includes("however") && !s.toLowerCase().includes("suggest caution")).slice(0, 3);
       return sentences.map((s: string, i: number) => ({ item: `Argument ${i + 1}`, detail: s + ".", pass: true }));
     }
     return passing;
@@ -337,6 +350,22 @@ export default function FullReportPage() {
   // Insider buys/sells
   const buyInsiders  = (pitch?.insider_trades || []).filter(t => t.disposition === "A" || /buy|acquire/i.test(t.transaction_type));
   const sellInsiders = (pitch?.insider_trades || []).filter(t => t.disposition === "D" || /sale|sell/i.test(t.transaction_type));
+
+  // Peer P/E average (from live comparables)
+  const peerPEs = comps.filter(c => !c.is_subject && (c as any).pe_ratio != null && (c as any).pe_ratio > 0 && (c as any).pe_ratio < 200).map(c => (c as any).pe_ratio as number);
+  const peerAvgPE = peerPEs.length > 0 ? peerPEs.reduce((a: number, b: number) => a + b, 0) / peerPEs.length : null;
+  const subjectPE  = comps.find(c => c.is_subject) ? ((comps.find(c => c.is_subject) as any).pe_ratio as number | null) : null;
+
+  // Best available analyst price target (Finnhub > FMP consensus)
+  const bestPT = pitch?.price_target ?? full?.pt_consensus ?? null;
+
+  // Expected return from analyst PT median vs current price
+  const ptExpectedReturn = bestPT?.median && adhoc.current_price
+    ? (((bestPT.median - adhoc.current_price) / adhoc.current_price) * 100).toFixed(1)
+    : null;
+
+  // Resistance fallback: use 52w high when pipeline didn't compute it
+  const resistanceLevel = s8t.resistance ?? s11.high_52w ?? null;
 
   // Near-term catalysts
   const catalystItem = (s3s.checklist || []).find((c: any) => c.item === "upcoming_catalysts");
@@ -410,20 +439,22 @@ export default function FullReportPage() {
               <div className="flex items-start justify-between gap-6 flex-wrap">
                 <div>
                   <h1 className="text-[5rem] font-bold tracking-tight text-[#1B2951] leading-none">{ticker}</h1>
-                  {adhoc.company_name !== ticker && <p className="text-2xl text-slate-400 font-light mt-1">{adhoc.company_name}</p>}
-                  {adhoc.sector && <p className="text-sm text-slate-400 mt-0.5">{adhoc.sector}</p>}
+                  {adhoc.company_name && adhoc.company_name !== ticker && adhoc.company_name !== "NA" && adhoc.company_name !== "N/A" && (
+                    <p className="text-2xl text-slate-400 font-light mt-1">{full?.company_profile?.name ?? adhoc.company_name}</p>
+                  )}
+                  {(() => { const sec = full?.company_profile?.sector ?? adhoc.sector; return sec && sec !== "N/A" && sec !== "NA" && <p className="text-sm text-slate-400 mt-0.5">{sec}</p>; })()}
                 </div>
                 <div className="border-2 border-[#1B2951] rounded-2xl p-5 text-center min-w-[190px]">
                   <p className="text-[10px] text-slate-400 uppercase tracking-widest mb-3">Analyst Price Target Range</p>
-                  {pitch?.price_target ? (
+                  {bestPT ? (
                     <>
                       <div className="flex justify-between text-sm font-mono font-bold mb-2">
-                        <span className="text-red-600">{fmtPrice(pitch.price_target.low)}</span>
-                        <span className="text-amber-600">{fmtPrice(pitch.price_target.median)}</span>
-                        <span className="text-green-600">{fmtPrice(pitch.price_target.high)}</span>
+                        <span className="text-red-600">{fmtPrice(bestPT.low)}</span>
+                        <span className="text-amber-600">{fmtPrice(bestPT.median)}</span>
+                        <span className="text-green-600">{fmtPrice(bestPT.high)}</span>
                       </div>
                       <div className="flex justify-between text-[10px] text-slate-400 mb-1"><span>Low</span><span>Median</span><span>High</span></div>
-                      <SourceBadge src="Finnhub" href={fhHref} />
+                      <SourceBadge src={pitch?.price_target ? "Finnhub" : "FMP"} href={pitch?.price_target ? fhHref : fmpHref} />
                     </>
                   ) : s13.bear && s13.bull ? (
                     <>
@@ -443,7 +474,7 @@ export default function FullReportPage() {
               {[
                 { l: "Current Price",    v: fmtPrice(adhoc.current_price),       src: "yfinance", href: yhooHref },
                 { l: "Market Cap",       v: fmtBn(adhoc.market_cap),             src: "yfinance", href: yhooHref },
-                { l: "PT Median",        v: pitch?.price_target ? fmtPrice(pitch.price_target.median) : "—", src: "Finnhub", href: fhHref },
+                { l: "PT Median",        v: bestPT?.median ? fmtPrice(bestPT.median) : "—", src: bestPT === pitch?.price_target ? "Finnhub" : "FMP", href: bestPT === pitch?.price_target ? fhHref : fmpHref },
                 { l: "vs 52w High",      v: s11.pct_from_high != null ? `${s11.pct_from_high}%` : "—", src: "yfinance", href: yhooHref },
                 { l: "Analyst Rating",   v: (analystConsensus || "—") as string, src: "Yahoo Finance", href: yhooHref },
                 { l: "Short Interest",   v: s9.short_interest_pct != null ? `${s9.short_interest_pct}%` : "—", src: "yfinance", href: yhooHref },
@@ -483,30 +514,80 @@ export default function FullReportPage() {
           <Slide id="s2">
             <SlideHeader title="Three Investment Arguments" n={2} />
             <div className="p-7">
-              {investmentArgs.length > 0 ? (
-                <div className="space-y-4">
-                  {investmentArgs.map((arg: any, i: number) => {
-                    const cagr = i === 0 ? (s3s.checklist || []).find((c: any) => c.item === "revenue_cagr_3yr") : null;
-                    return (
+              {investmentArgs.length > 0 ? (() => {
+                const cagr   = (s3s.checklist || []).find((c: any) => c.item === "revenue_cagr_3yr");
+                const moat   = (s3s.checklist || []).find((c: any) => c.item === "moat_strength");
+                const incStmt = full?.income_statement ?? [];
+                // Supporting stats to inject per argument slot
+                const statsBySlot: Record<number, React.ReactNode> = {
+                  0: cagr?.detail ? (
+                    <div className="mt-2 flex items-center gap-3 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-xs bg-green-50 border border-green-200 rounded-lg px-2 py-1">
+                        <span className="text-slate-500">Revenue CAGR 3yr:</span>
+                        <span className="font-mono font-bold text-green-700">{cagr.detail}%</span>
+                        <SourceBadge src="yfinance" href={yhooHref} />
+                      </span>
+                      {pitch?.key_metrics?.roic != null && (
+                        <span className="inline-flex items-center gap-1 text-xs bg-sky-50 border border-sky-200 rounded-lg px-2 py-1">
+                          <span className="text-slate-500">ROIC:</span>
+                          <span className="font-mono font-bold text-sky-700">{fmtPct(pitch.key_metrics.roic)}</span>
+                          <SourceBadge src="FMP" href={fmpHref} />
+                        </span>
+                      )}
+                    </div>
+                  ) : null,
+                  1: incStmt.length >= 2 ? (() => {
+                    const yoyRev = yoy(incStmt[0].revenue, incStmt[1].revenue);
+                    return yoyRev != null ? (
+                      <div className="mt-2 flex items-center gap-3 flex-wrap">
+                        <span className="inline-flex items-center gap-1 text-xs bg-sky-50 border border-sky-200 rounded-lg px-2 py-1">
+                          <span className="text-slate-500">Latest Revenue YoY:</span>
+                          <span className={`font-mono font-bold ${yoyRev >= 0 ? "text-green-700" : "text-red-600"}`}>{yoyRev >= 0 ? "+" : ""}{yoyRev.toFixed(1)}%</span>
+                          <SourceBadge src="FMP" href={fmpHref} />
+                        </span>
+                        {incStmt[0].ebitda_margin != null && (
+                          <span className="inline-flex items-center gap-1 text-xs bg-sky-50 border border-sky-200 rounded-lg px-2 py-1">
+                            <span className="text-slate-500">EBITDA Margin:</span>
+                            <span className="font-mono font-bold text-sky-700">{fmtPct(incStmt[0].ebitda_margin)}</span>
+                            <SourceBadge src="FMP" href={fmpHref} />
+                          </span>
+                        )}
+                      </div>
+                    ) : null;
+                  })() : null,
+                  2: moat?.detail ? (
+                    <div className="mt-2 flex items-center gap-3 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-xs bg-indigo-50 border border-indigo-200 rounded-lg px-2 py-1">
+                        <span className="text-slate-500">Moat:</span>
+                        <span className="font-mono font-bold text-indigo-700">{moat.detail}</span>
+                        <AiTag />
+                      </span>
+                      {subjectPE != null && peerAvgPE != null && (
+                        <span className={`inline-flex items-center gap-1 text-xs rounded-lg px-2 py-1 border ${subjectPE < peerAvgPE ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}`}>
+                          <span className="text-slate-500">P/E vs peers:</span>
+                          <span className={`font-mono font-bold ${subjectPE < peerAvgPE ? "text-green-700" : "text-amber-700"}`}>{subjectPE.toFixed(1)}x vs {peerAvgPE.toFixed(1)}x avg</span>
+                          <SourceBadge src="yfinance" href={yhooHref} />
+                        </span>
+                      )}
+                    </div>
+                  ) : null,
+                };
+                return (
+                  <div className="space-y-4">
+                    {investmentArgs.map((arg: any, i: number) => (
                       <div key={i} className="flex gap-4 p-5 border border-slate-200 rounded-xl bg-slate-50">
                         <span className="w-8 h-8 rounded-full bg-[#1B2951] text-white text-sm font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
                         <div className="flex-1">
                           <p className="text-sm font-bold text-[#1B2951] mb-1">{prettify(String(arg.item ?? `Argument ${i+1}`))}</p>
                           <p className="text-sm text-slate-700 leading-relaxed">{String(arg.detail ?? "")}</p>
-                          {cagr?.detail && (
-                            <div className="mt-2 inline-flex items-center gap-1 text-xs">
-                              <span className="text-slate-500">Revenue CAGR (3yr):</span>
-                              <span className="font-mono font-bold text-green-700">{cagr.detail}%</span>
-                              <SourceBadge src="yfinance" href={yhooHref} />
-                            </div>
-                          )}
-                          <div className="mt-1"><AiTag title="Investment argument from pipeline analysis" /></div>
+                          {statsBySlot[i]}
+                          <div className="mt-2"><AiTag title="Investment argument from pipeline analysis" /></div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
+                    ))}
+                  </div>
+                );
+              })() : (
                 <p className="text-sm text-slate-400">Investment arguments require an adhoc pipeline report. Run the analysis to populate this section.</p>
               )}
             </div>
@@ -598,7 +679,7 @@ export default function FullReportPage() {
               {(() => {
                 const prof = full?.company_profile;
                 const facts = [
-                  { l: "Sector", v: prof?.sector ?? adhoc.sector ?? null },
+                  { l: "Sector", v: (() => { const s = prof?.sector ?? adhoc.sector; return s && s !== "N/A" && s !== "NA" ? s : null; })() },
                   { l: "Industry", v: prof?.industry ?? null },
                   { l: "CEO", v: prof?.ceo ?? mgmt.ceo ?? null },
                   { l: "Employees", v: prof?.employees ? Number(prof.employees).toLocaleString() : null },
@@ -735,6 +816,22 @@ export default function FullReportPage() {
           <Slide id="snews">
             <SlideHeader title="Latest News & Developments" n="news" />
             <div className="p-7">
+
+              {/* LLM news synthesis */}
+              {(newsSynthesis || newsLoading) && (
+                <div className="mb-6 p-5 bg-[#EEF2F8] rounded-2xl border border-[#D1D9EC]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-[#1B2951]">Analyst Intelligence Synthesis</p>
+                    <SourceBadge src="Finnhub" />
+                    <AiTag title="LLM synthesis of recent headlines — qualitative interpretation only" />
+                  </div>
+                  {newsLoading && !newsSynthesis
+                    ? <p className="text-xs text-slate-400 animate-pulse">Analysing {pitch!.news.length} articles…</p>
+                    : <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{newsSynthesis}</p>
+                  }
+                </div>
+              )}
+
               <div className="flex items-center gap-2 mb-4">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Past 30 days · {pitch!.news.length} articles</p>
                 <SourceBadge src="Finnhub" />
@@ -814,7 +911,8 @@ export default function FullReportPage() {
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-2 gap-6">
+              {((pitch?.earnings_surprises?.length ?? 0) > 0 || (full?.analyst_estimates?.length ?? 0) > 0) && (
+              <div className={`grid gap-6 ${(pitch?.earnings_surprises?.length ?? 0) > 0 && (full?.analyst_estimates?.length ?? 0) > 0 ? "grid-cols-2" : "grid-cols-1"}`}>
                 {/* Earnings surprises */}
                 {(pitch?.earnings_surprises?.length ?? 0) > 0 && (
                   <div>
@@ -837,6 +935,7 @@ export default function FullReportPage() {
                   </div>
                 )}
               </div>
+              )}
             </div>
           </Slide>
 
@@ -900,8 +999,8 @@ export default function FullReportPage() {
                   </div>
                 )}
 
-                {/* PEG analysis */}
-                {pegData && (
+                {/* PEG analysis or secondary metrics */}
+                {pegData ? (
                   <div className="p-4 border border-slate-200 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
                       <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">PEG Ratio Analysis</p>
@@ -917,6 +1016,31 @@ export default function FullReportPage() {
                       </div>
                     </div>
                     <p className="text-[9px] text-slate-400 mt-2">{pegData.peg < 1 ? "PEG < 1 suggests undervalued relative to growth" : pegData.peg < 2 ? "PEG 1–2 is within fair value range" : "PEG > 2 suggests premium to growth rate"}</p>
+                  </div>
+                ) : (
+                  /* Fill space with P/E vs peers + Net Debt/EBITDA when no PEG */
+                  <div className="p-4 border border-slate-200 rounded-xl">
+                    <div className="flex items-center gap-2 mb-3">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Valuation vs Peers</p>
+                      <SourceBadge src="yfinance" href={yhooHref} />
+                      <SourceBadge src="Financial Modeling Prep" href={fmpHref} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {subjectPE != null && <div className="text-center p-3 bg-slate-50 rounded-xl"><p className="text-[9px] text-slate-400 mb-1">P/E (Subject)</p><p className="font-bold text-sm">{subjectPE.toFixed(1)}x</p></div>}
+                      {peerAvgPE != null && (
+                        <div className={`text-center p-3 rounded-xl ${subjectPE != null && subjectPE < peerAvgPE ? "bg-green-50" : "bg-amber-50"}`}>
+                          <p className="text-[9px] text-slate-400 mb-1">Peer Avg P/E</p>
+                          <p className={`font-bold text-sm ${subjectPE != null && subjectPE < peerAvgPE ? "text-green-700" : "text-amber-700"}`}>{peerAvgPE.toFixed(1)}x</p>
+                        </div>
+                      )}
+                      {pitch?.key_metrics?.net_debt_ebitda != null && <div className="text-center p-3 bg-slate-50 rounded-xl"><p className="text-[9px] text-slate-400 mb-1">Net Debt/EBITDA</p><p className="font-bold text-sm">{fmtN(pitch.key_metrics.net_debt_ebitda)}x</p></div>}
+                      {pitch?.key_metrics?.pb_ratio != null && <div className="text-center p-3 bg-slate-50 rounded-xl"><p className="text-[9px] text-slate-400 mb-1">P/Book</p><p className="font-bold text-sm">{fmtN(pitch.key_metrics.pb_ratio)}x</p></div>}
+                    </div>
+                    {subjectPE != null && peerAvgPE != null && (
+                      <p className="text-[9px] text-slate-400 mt-3">
+                        {ticker} P/E ({subjectPE.toFixed(1)}x) is {subjectPE < peerAvgPE ? "below" : "above"} peer average ({peerAvgPE.toFixed(1)}x) — trading at a {subjectPE < peerAvgPE ? "discount" : "premium"} to the peer group.
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -981,24 +1105,37 @@ export default function FullReportPage() {
               <div>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="border border-slate-200 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2"><p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Analyst Targets</p><SourceBadge src="Finnhub" href={fhHref} /></div>
-                    {pitch?.price_target ? (
-                      <div className="grid grid-cols-3 gap-2 text-center">
-                        {[{l:"Low",v:fmtPrice(pitch.price_target.low),cls:"text-red-600"},{l:"Median",v:fmtPrice(pitch.price_target.median),cls:"text-amber-600"},{l:"High",v:fmtPrice(pitch.price_target.high),cls:"text-green-600"}].map(m=>(
-                          <div key={m.l} className="p-2 bg-slate-50 rounded-lg"><p className="text-[9px] text-slate-400 mb-1">{m.l}</p><p className={`text-sm font-bold font-mono ${m.cls}`}>{m.v}</p></div>
-                        ))}
-                      </div>
-                    ) : <p className="text-xs text-slate-400">Not available</p>}
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Analyst Price Targets</p>
+                      <SourceBadge src={pitch?.price_target ? "Finnhub" : "FMP"} href={pitch?.price_target ? fhHref : fmpHref} />
+                    </div>
+                    {bestPT ? (
+                      <>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          {[{l:"Low",v:fmtPrice(bestPT.low),cls:"text-red-600"},{l:"Median",v:fmtPrice(bestPT.median),cls:"text-amber-600"},{l:"High",v:fmtPrice(bestPT.high),cls:"text-green-600"}].map(m=>(
+                            <div key={m.l} className="p-2 bg-slate-50 rounded-lg"><p className="text-[9px] text-slate-400 mb-1">{m.l}</p><p className={`text-sm font-bold font-mono ${m.cls}`}>{m.v}</p></div>
+                          ))}
+                        </div>
+                        {bestPT.median && adhoc.current_price && (
+                          <p className="text-[9px] text-slate-400 mt-2">Implied upside to median: <span className={`font-bold ${Number(ptExpectedReturn) >= 0 ? "text-green-600" : "text-red-600"}`}>{Number(ptExpectedReturn) >= 0 ? "+" : ""}{ptExpectedReturn}%</span></p>
+                        )}
+                      </>
+                    ) : <p className="text-xs text-slate-400">Not available from Finnhub or FMP</p>}
                   </div>
                   <div className="border border-slate-200 rounded-xl p-4">
-                    <div className="flex items-center gap-2 mb-2"><p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Our Scenarios</p><AiTag /></div>
-                    {s13.bear && s13.bull && (
-                      <div className="grid grid-cols-3 gap-1 text-center">
-                        {[{l:"Bear",v:fmtPrice(s13.bear?.price_target),cls:"text-red-600"},{l:"Base",v:fmtPrice(s13.base?.price_target),cls:"text-amber-600"},{l:"Bull",v:fmtPrice(s13.bull?.price_target),cls:"text-green-600"}].map(m=>(
-                          <div key={m.l}><p className="text-[9px] text-slate-400 mb-0.5">{m.l}</p><p className={`text-sm font-bold font-mono ${m.cls}`}>{m.v}</p></div>
-                        ))}
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">P/E vs Peers</p>
+                      <SourceBadge src="yfinance" href={yhooHref} />
+                    </div>
+                    {subjectPE != null && peerAvgPE != null ? (
+                      <div>
+                        <div className="grid grid-cols-2 gap-2 text-center mb-2">
+                          <div className="p-2 bg-amber-50 rounded-lg border border-amber-100"><p className="text-[9px] text-amber-600 mb-1">{ticker} P/E</p><p className="text-lg font-bold font-mono text-amber-700">{subjectPE.toFixed(1)}x</p></div>
+                          <div className="p-2 bg-slate-50 rounded-lg"><p className="text-[9px] text-slate-400 mb-1">Peer Avg</p><p className="text-lg font-bold font-mono">{peerAvgPE.toFixed(1)}x</p></div>
+                        </div>
+                        <p className="text-[9px] text-slate-400">{ticker} trades at a <span className={`font-bold ${subjectPE < peerAvgPE ? "text-green-600" : "text-amber-600"}`}>{subjectPE < peerAvgPE ? "discount" : "premium"}</span> to the {peerPEs.length}-stock peer group ({((subjectPE - peerAvgPE) / peerAvgPE * 100).toFixed(1)}%).</p>
                       </div>
-                    )}
+                    ) : <p className="text-xs text-slate-400">Run analysis with comparables to see peer comparison.</p>}
                   </div>
                 </div>
                 {pitch?.recommendation_trend && (
@@ -1053,14 +1190,27 @@ export default function FullReportPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div>
                   <div className="flex items-center gap-2 mb-2"><p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Risk Metrics</p><SourceBadge src="yfinance" href={yhooHref} /></div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[["Beta", fmtN(s12.beta)], ["Debt/Equity", fmtN(s12.debt_to_equity)], ["Current Ratio", fmtN(s12.current_ratio)], ["Liquidity Risk", s12.liquidity_risk || "—"]].map(([l,v])=>(
-                      <div key={l as string} className="p-3 border border-slate-200 rounded-xl bg-slate-50">
-                        <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-0.5">{l}</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      ["Beta", fmtN(s12.beta)],
+                      ["Debt/Equity", fmtN(s12.debt_to_equity)],
+                      ["Current Ratio", fmtN(s12.current_ratio)],
+                      ["Liquidity Risk", s12.liquidity_risk || "—"],
+                    ].map(([l,v])=>(
+                      <div key={l as string} className="p-3 border border-slate-200 rounded-xl bg-slate-50 text-center">
+                        <p className="text-[9px] text-slate-400 uppercase tracking-wider mb-1">{l}</p>
                         <p className="font-bold text-sm capitalize">{v}</p>
                       </div>
                     ))}
                   </div>
+                  {s12.data_conflicts && Array.isArray(s12.data_conflicts) && s12.data_conflicts.length > 0 && (
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                      <p className="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-1">Data Conflict Alert</p>
+                      {s12.data_conflicts.slice(0, 2).map((c: any, i: number) => (
+                        <p key={i} className="text-[10px] text-amber-700 leading-relaxed">{c.metric}: yfinance {fmtBn(c.yfinance_value)} vs SEC EDGAR {fmtBn(c.sec_edgar_value)} ({c.diff_pct?.toFixed(1)}% diff)</p>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {(pitch?.insider_trades?.length ?? 0) > 0 && (
                   <div>
@@ -1093,12 +1243,17 @@ export default function FullReportPage() {
               <div className="mb-5"><CandlestickChart ticker={ticker} /></div>
               <div className="flex items-start gap-6 mb-4 flex-wrap">
                 <RSIGauge value={s8t.rsi_14} />
-                {(s8t.support != null || s8t.resistance != null) && (
+                {(s8t.support != null || resistanceLevel != null) && (
                   <div className="flex-1 min-w-[160px] bg-slate-50 rounded-xl p-4 border border-slate-200">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Support / Resistance</p>
                     <div className="space-y-2">
-                      {s8t.resistance != null && <div className="flex justify-between"><span className="text-[10px] text-red-500">Resistance</span><span className="text-xs font-mono text-red-500">{fmtPrice(s8t.resistance)}</span></div>}
-                      {s8t.support != null && s8t.resistance != null && <div className="w-full h-px bg-slate-200" />}
+                      {resistanceLevel != null && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] text-red-500">Resistance{s8t.resistance == null ? " (52w High)" : ""}</span>
+                          <span className="text-xs font-mono text-red-500">{fmtPrice(resistanceLevel)}</span>
+                        </div>
+                      )}
+                      {s8t.support != null && resistanceLevel != null && <div className="w-full h-px bg-slate-200" />}
                       {s8t.support != null && <div className="flex justify-between"><span className="text-[10px] text-green-600">Support</span><span className="text-xs font-mono text-green-600">{fmtPrice(s8t.support)}</span></div>}
                     </div>
                   </div>
@@ -1155,7 +1310,14 @@ export default function FullReportPage() {
               <div>
                 <div className="flex items-center gap-2 mb-4"><p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Technical Setup</p><SourceBadge src="yfinance OHLCV" href={yhooHref} /></div>
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                  {[{ l: "RSI (14)", v: fmtN(s8t.rsi_14) }, { l: "MACD Signal", v: s8t.macd_signal || "—" }, { l: "Trend", v: s8t.trend || "—" }, { l: "Entry Verdict", v: s5.entry_verdict || "—" }, { l: "Support", v: fmtPrice(s8t.support) }, { l: "Resistance", v: fmtPrice(s8t.resistance) }].map(m => (
+                  {[
+                    { l: "RSI (14)", v: fmtN(s8t.rsi_14) },
+                    { l: "MACD Signal", v: s8t.macd_signal || "—" },
+                    { l: "Trend", v: s8t.trend || "—" },
+                    { l: "Entry Verdict", v: s5.entry_verdict || "—" },
+                    { l: "Support", v: fmtPrice(s8t.support) },
+                    { l: resistanceLevel && s8t.resistance == null ? "Resistance (52w H)" : "Resistance", v: fmtPrice(resistanceLevel) },
+                  ].map(m => (
                     <div key={m.l} className="p-3 border border-slate-100 rounded-xl bg-slate-50"><p className="text-[9px] text-slate-400 uppercase tracking-wider mb-0.5">{m.l}</p><p className="font-bold text-sm capitalize">{m.v}</p></div>
                   ))}
                 </div>
@@ -1236,8 +1398,57 @@ export default function FullReportPage() {
           <Slide id="s14">
             <SlideHeader title="Scenario Analysis" n={14} />
             <div className="p-7">
-              <p className="mb-4 text-[10px] text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 inline-block">Bull/Base/Bear scenarios and price targets are AI-synthesised — not analyst forecasts <AiTag /></p>
-              {(s13.bull?.price_target || s13.base?.price_target || s13.bear?.price_target) && (() => {
+              {/* Analyst consensus scenarios — real data from Finnhub/FMP */}
+              {bestPT && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Analyst Consensus Scenarios</p>
+                    <SourceBadge src={pitch?.price_target ? "Finnhub" : "FMP"} href={pitch?.price_target ? fhHref : fmpHref} />
+                  </div>
+                  {(() => {
+                    const bearPT = bestPT.low ?? 0;
+                    const basePT = bestPT.median ?? 0;
+                    const bullPT = bestPT.high ?? 0;
+                    const price  = adhoc.current_price ?? 0;
+                    const chartData = [
+                      { name: "Bear (PT Low)",    price: bearPT, color: "#EF4444" },
+                      { name: "Base (PT Median)", price: basePT, color: "#F59E0B" },
+                      { name: "Bull (PT High)",   price: bullPT, color: "#10B981" },
+                    ];
+                    const minVal = Math.min(price * 0.93, bearPT * 0.95);
+                    return (
+                      <>
+                        <ResponsiveContainer width="100%" height={100}>
+                          <BarChart data={chartData} layout="vertical" margin={{ left: 80, right: 80, top: 4, bottom: 4 }}>
+                            <XAxis type="number" domain={[minVal, "auto"]} tick={{ fill: "#94a3b8", fontSize: 10 }} tickFormatter={v => `$${v.toFixed(0)}`} />
+                            <YAxis type="category" dataKey="name" tick={{ fill: "#6b7280", fontSize: 10 }} width={76} />
+                            <Tooltip formatter={(v: any) => [`$${Number(v).toFixed(2)}`, "Price Target"]} contentStyle={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 11 }} />
+                            <Bar dataKey="price" radius={[0, 4, 4, 0]} label={{ position: "right", formatter: (v: any) => `$${Number(v).toFixed(0)}`, fill: "#6b7280", fontSize: 11 }}>
+                              {chartData.map((entry, i) => <Cell key={i} fill={entry.color} fillOpacity={0.8} />)}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                        <div className="grid grid-cols-3 gap-3 mt-3">
+                          {[{l:"Bear (PT Low)",v:bearPT,cls:"text-red-600",bg:"bg-red-50 border-red-200"},{l:"Base (PT Median)",v:basePT,cls:"text-amber-600",bg:"bg-amber-50 border-amber-200"},{l:"Bull (PT High)",v:bullPT,cls:"text-green-600",bg:"bg-green-50 border-green-200"}].map(m=>(
+                            <div key={m.l} className={`p-4 rounded-xl border text-center ${m.bg}`}>
+                              <p className="text-[9px] text-slate-500 mb-1">{m.l}</p>
+                              <p className={`text-xl font-bold font-mono ${m.cls}`}>${m.v.toFixed(0)}</p>
+                              {price > 0 && <p className={`text-[10px] mt-1 font-semibold ${m.v >= price ? "text-green-600" : "text-red-600"}`}>{m.v >= price ? "+" : ""}{(((m.v - price) / price) * 100).toFixed(1)}%</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* AI agent model scenarios */}
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Agent Model Scenarios</p>
+                <AiTag title="AI-synthesised — not analyst forecasts" />
+              </div>
+              {(s13.bull?.price_target || s13.base?.price_target || s13.bear?.price_target) && !bestPT && (() => {
                 const chartData = [
                   { name: "Bear", price: s13.bear?.price_target ?? 0, color: "#EF4444" },
                   { name: "Base", price: s13.base?.price_target ?? 0, color: "#F59E0B" },
@@ -1344,17 +1555,31 @@ export default function FullReportPage() {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-3 divide-x divide-slate-100">
-                {[
-                  { l: "Expected Return (12m)", v: adhoc.expected_return_12m ?? s7.expected_return_12m ?? s7.expected_return_2_3yr ?? "—" },
-                  { l: "Suggested Position Size", v: `${s7.suggested_size_pct ?? "—"}%` },
-                  { l: "Stop Loss Threshold", v: `−${s7.stop_loss_pct ?? "—"}%` },
-                ].map(m => (
-                  <div key={m.l} className="px-8 py-7">
-                    <div className="flex items-center gap-1 mb-2"><p className="text-[9px] text-slate-400 uppercase tracking-widest">{m.l}</p><AiTag /></div>
-                    <p className="text-3xl font-bold text-[#1B2951]">{m.v}</p>
+              <div className="grid grid-cols-2 divide-x divide-slate-100">
+                <div className="px-8 py-7">
+                  <div className="flex items-center gap-1 mb-2">
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest">Expected Return (12m)</p>
+                    {ptExpectedReturn ? <SourceBadge src={pitch?.price_target ? "Finnhub" : "FMP"} href={pitch?.price_target ? fhHref : fmpHref} /> : <AiTag />}
                   </div>
-                ))}
+                  <p className={`text-3xl font-bold ${ptExpectedReturn ? (Number(ptExpectedReturn) >= 0 ? "text-green-700" : "text-red-600") : "text-[#1B2951]"}`}>
+                    {ptExpectedReturn ? `${Number(ptExpectedReturn) >= 0 ? "+" : ""}${ptExpectedReturn}%` : (adhoc.expected_return_12m ?? s7.expected_return_12m ?? "—")}
+                  </p>
+                  {ptExpectedReturn && bestPT?.median && (
+                    <p className="text-[10px] text-slate-400 mt-1">vs analyst median PT of {fmtPrice(bestPT.median)} · current {fmtPrice(adhoc.current_price)}</p>
+                  )}
+                </div>
+                <div className="px-8 py-7">
+                  <div className="flex items-center gap-1 mb-2">
+                    <p className="text-[9px] text-slate-400 uppercase tracking-widest">Stop Loss Reference</p>
+                    <SourceBadge src="yfinance" href={yhooHref} />
+                  </div>
+                  <p className="text-3xl font-bold text-[#1B2951]">
+                    {s8t.support ? fmtPrice(s8t.support) : `−${s7.stop_loss_pct ?? "—"}%`}
+                  </p>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    {s8t.support ? `Technical support level — loss vs current: ${adhoc.current_price ? ((s8t.support - adhoc.current_price) / adhoc.current_price * 100).toFixed(1) : "—"}%` : "Pipeline estimate"}
+                  </p>
+                </div>
               </div>
             </div>
           </Slide>
