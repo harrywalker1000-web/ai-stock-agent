@@ -602,7 +602,12 @@ SECTION 7 — RECOMMENDATION
   - expected_return_12m: expected return over the next 12 months, e.g. "12-18%". REQUIRED — provide even for PASS (use negative or low number like "-5 to 5%")
   - suggested_size_pct: Kelly-adjusted, max 15
   - stop_loss_pct: % below current price (e.g. 12.0)
-  - key_risks: list of 3-5 specific risks
+  - key_risks: list of 4-6 SPECIFIC named risks grounded in the agent data above. Each risk must:
+    (a) name the specific threat — NOT generic terms like "macro risk-off" or "overbought indicators" on their own
+    (b) tie to a concrete mechanism or data point from the agent data (e.g. "Net debt/EBITDA at {_f(fundamental.get('net_debt_ebitda'))}x — covenant risk if EBITDA falls 10%", or use the sector/company context to name a real risk)
+    (c) categorize: [Regulatory] | [Competitive] | [Financial] | [Operational] | [Macro]
+    Examples of GOOD risks: "[Regulatory] DOJ antitrust scrutiny of recent acquisition", "[Financial] MLR expansion — operating margin at {_f(fundamental.get('operating_margin'))}% leaves limited buffer", "[Competitive] New entrant pricing pressure in core segment"
+    Examples of BAD risks (never use): "Macro risk-off environment", "Overbought technical indicators", "Lack of recent catalysts"
 
 SECTION 13 — SCENARIO ANALYSIS
   Three scenarios with price targets from current ${_f(current_price)}:

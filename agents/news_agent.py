@@ -269,25 +269,122 @@ def _fetch_company_catalysts(tickers: list[str]) -> list[dict]:
 def _classify_catalyst(headline: str) -> str | None:
     """Return catalyst type if headline contains a relevant keyword, else None."""
     h = headline.lower()
-    if any(w in h for w in ["fda", "approval", "approved", "drug", "trial", "phase"]):
+    if any(w in h for w in ["fda", "approval", "approved", "drug", "trial", "phase", "nda", "bla",
+                             "pdufa", "clearance", "clinical", "ema", "who ", "therapy", "treatment",
+                             "pipeline", "indication", "label", "warning letter", "recall", "safety"]):
         return "FDA/regulatory"
-    if any(w in h for w in ["earnings", "beat", "miss", "revenue", "eps", "guidance"]):
+    if any(w in h for w in ["earnings", "beat", "miss", "revenue", "eps", "guidance", "results",
+                             "quarterly", "annual report", "q1", "q2", "q3", "q4", "fiscal",
+                             "profit", "loss", "margin", "ebitda", "cash flow", "outlook",
+                             "raised guidance", "lowered guidance", "in-line"]):
         return "earnings"
-    if any(w in h for w in ["merger", "acquisition", "takeover", "buyout", "deal"]):
+    if any(w in h for w in ["merger", "acquisition", "takeover", "buyout", "deal", "acquires",
+                             "acquired", "bid", "offer", "divest", "spin-off", "spinoff", "carve",
+                             "strategic review", "joint venture", "jv agreement"]):
         return "M&A"
-    if any(w in h for w in ["contract", "partnership", "agreement", "awarded"]):
+    if any(w in h for w in ["contract", "partnership", "agreement", "awarded", "wins deal",
+                             "selected", "chosen", "collaboration", "licensing", "license"]):
         return "contract/partnership"
-    if any(w in h for w in ["ceo", "cfo", "executive", "resign", "appoint", "depart"]):
+    if any(w in h for w in ["ceo", "cfo", "coo", "cto", "executive", "resign", "appoint", "depart",
+                             "step down", "steps down", "named", "hire", "hired", "fired", "ousted",
+                             "interim", "succession", "board", "director"]):
         return "management_change"
-    if any(w in h for w in ["upgrade", "downgrade", "price target", "initiated", "outperform"]):
+    if any(w in h for w in ["upgrade", "downgrade", "price target", "initiated", "outperform",
+                             "overweight", "underweight", "neutral", "buy rating", "sell rating",
+                             "raised target", "cut target", "analyst", "coverage"]):
         return "analyst_action"
-    if any(w in h for w in ["short", "squeeze", "short interest", "short seller"]):
+    if any(w in h for w in ["short", "squeeze", "short interest", "short seller", "short position",
+                             "borrow", "put options", "bearish bet"]):
         return "short_interest"
-    if any(w in h for w in ["tariff", "sanction", "ban", "regulation", "lawsuit", "sec"]):
+    if any(w in h for w in ["tariff", "sanction", "ban", "regulation", "lawsuit", "sec ", "doj",
+                             "ftc", "antitrust", "probe", "investigation", "subpoena", "fine",
+                             "penalty", "settlement", "class action", "litigation", "charged",
+                             "cms", "medicare", "medicaid", "mlr", "medical loss", "reimbursement",
+                             "rate cut", "rate change", "premium", "coverage denial", "oig",
+                             "congressional", "senate", "house hearing", "ftc challenge"]):
         return "regulatory_risk"
-    if any(w in h for w in ["buyback", "dividend", "split", "offering", "dilut"]):
+    if any(w in h for w in ["buyback", "repurchase", "dividend", "split", "offering", "dilut",
+                             "secondary", "capital raise", "rights issue", "debt offering",
+                             "bond", "share issuance"]):
         return "corporate_action"
+    if any(w in h for w in ["layoffs", "restructuring", "cuts jobs", "headcount", "plant closure",
+                             "facility", "supply chain", "shortage", "disruption", "outage",
+                             "cyberattack", "hack", "data breach", "strike", "union"]):
+        return "operational_event"
     return None
+
+
+def _llm_extract_catalysts(ticker: str, articles: list[dict]) -> list[dict]:
+    """Use GPT to extract catalysts from raw headlines when keyword matching yields nothing."""
+    if not articles:
+        return []
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    if not api_key:
+        return []
+
+    headlines_text = "\n".join(
+        f"[{i+1}] {a.get('headline', a.get('title', ''))}"
+        for i, a in enumerate(articles[:10])
+    )
+    prompt = f"""You are a financial news analyst. Below are recent headlines about {ticker}.
+
+{headlines_text}
+
+For each headline that contains a SPECIFIC catalyst that could move {ticker}'s stock price,
+extract it. A catalyst is: earnings, regulatory action, legal proceedings, analyst rating change,
+M&A, management change, government contract, or any material company-specific event.
+
+Return JSON only:
+{{
+  "catalysts": [
+    {{
+      "headline_index": <1-based integer>,
+      "catalyst_type": "<FDA/regulatory|earnings|M&A|regulatory_risk|analyst_action|management_change|contract/partnership|corporate_action|operational_event>",
+      "catalyst": "<short description of the specific event>",
+      "direction": "<BULLISH|BEARISH|NEUTRAL>",
+      "reasoning": "<why this matters for {ticker} — 1 sentence>"
+    }}
+  ]
+}}
+
+Only include headlines with real, specific catalysts. Return empty list if none qualify."""
+
+    try:
+        llm_client = OpenAI(api_key=api_key)
+        resp = llm_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=600,
+            response_format={"type": "json_object"},
+        )
+        parsed = json.loads(resp.choices[0].message.content or "{}")
+        results = []
+        for c in parsed.get("catalysts", []):
+            idx = c.get("headline_index", 1) - 1
+            if 0 <= idx < len(articles):
+                art = articles[idx]
+                pub_str = datetime.utcfromtimestamp(art.get("datetime", 0)).strftime("%Y-%m-%dT%H:%M:%S") if "datetime" in art else art.get("publishedAt", "")[:19]
+                freshness_label, freshness_score = _score_freshness(pub_str)
+                results.append({
+                    "ticker": ticker,
+                    "headline": art.get("headline", art.get("title", "")),
+                    "catalyst_type": c.get("catalyst_type", "general"),
+                    "catalyst": c.get("catalyst", ""),
+                    "direction": c.get("direction", "NEUTRAL"),
+                    "reasoning": c.get("reasoning", ""),
+                    "source": "finnhub_llm",
+                    "published": pub_str,
+                    "freshness": freshness_label,
+                    "freshness_score": freshness_score,
+                    "confirmed_by_sources": ["finnhub_llm"],
+                    "source_count": 1,
+                    "signal_confidence": {"level": "low_fresh", "sources_count": 1, "sources": ["finnhub_llm"], "note": "LLM-extracted from headlines"},
+                })
+        return results
+    except Exception as exc:
+        logger.warning("LLM catalyst extraction failed for %s: %s", ticker, exc)
+        return []
 
 
 # ---------------------------------------------------------------------------
@@ -346,6 +443,18 @@ def _collect_news_data() -> dict:
         tickers = [adhoc_ticker] + tickers
 
     company_catalysts = _fetch_company_catalysts(tickers)
+
+    # If adhoc ticker got 0 catalysts from keyword matching, try LLM extraction
+    if adhoc_ticker:
+        adhoc_catalyst_count = sum(1 for c in company_catalysts if c.get("ticker") == adhoc_ticker)
+        if adhoc_catalyst_count == 0:
+            logger.info("News Agent: 0 keyword catalysts for adhoc ticker %s — attempting LLM extraction", adhoc_ticker)
+            raw_articles = fetch_finnhub_company_news(adhoc_ticker, days_back=14)
+            llm_catalysts = _llm_extract_catalysts(adhoc_ticker, raw_articles[:12])
+            if llm_catalysts:
+                logger.info("News Agent: LLM extracted %d catalysts for %s", len(llm_catalysts), adhoc_ticker)
+                company_catalysts = llm_catalysts + company_catalysts
+
     market_catalysts = _fetch_market_catalysts()
     upcoming_earnings = _fetch_upcoming_earnings()
     reddit_mentions = _fetch_reddit_mentions(tickers)

@@ -311,7 +311,7 @@ export default function FullReportPage() {
   const fmpHref  = `https://financialmodelingprep.com/financial-summary/${ticker}`;
 
   // Three investment arguments — skip generic catalyst/risk items, clean list strings
-  const SKIP_ITEMS = new Set(["upcoming_catalysts", "key_risks", "near_term_catalyst", "setup_type", "above_20pct_threshold", "eps_growth_consistent", "fcf_positive", "leverage_vs_peers", "default_risk"]);
+  const SKIP_ITEMS = new Set(["upcoming_catalysts", "key_risks", "near_term_catalyst", "setup_type", "above_20pct_threshold", "eps_growth_consistent", "fcf_positive", "leverage_vs_peers", "default_risk", "sustainability_assessment", "tam_room_to_grow"]);
   const isPyList = (s: string) => /^\s*\[/.test(s);
   const investmentArgs = (() => {
     const passing = (s3s.checklist || [])
@@ -627,12 +627,19 @@ export default function FullReportPage() {
                   <span className={`text-lg font-bold px-4 py-1.5 rounded-xl ${dirBadge(direction)}`}>{direction.replace(/_/g, " ")}</span>
                   {conviction != null && <div className="flex items-center gap-1"><ConvictionGauge value={conviction} color={cvColor} /></div>}
                 </div>
-                {(s4.own_view || s4.narrative) && (
-                  <p className="text-xs text-slate-700 leading-relaxed mb-3">
-                    {s4.own_view ?? s4.narrative}
-                    <AiTag title="Our view from pipeline committee analysis" />
-                  </p>
-                )}
+                {(() => {
+                  // Show the investment thesis instead of stale AI valuation text
+                  const viewText = s6.narrative
+                    ? s6.narrative.split(/\.\s+/).filter((t: string) => t.length > 40 && !t.toLowerCase().includes("however") && !t.toLowerCase().includes("caution")).slice(0, 2).join(". ").replace(/\.$/, "") + "."
+                    : (s4.own_view ?? null);
+                  if (!viewText) return null;
+                  return (
+                    <p className="text-xs text-slate-700 leading-relaxed mb-3">
+                      {viewText}
+                      <AiTag title="Investment thesis from pipeline committee analysis" />
+                    </p>
+                  );
+                })()}
                 {(adhoc.expected_return_12m ?? s7.expected_return_12m ?? s7.expected_return_2_3yr) && (
                   <div className="flex items-center gap-2 mt-2">
                     <span className="text-[9px] text-slate-400 uppercase tracking-wider">Expected 12m return</span>
@@ -1100,7 +1107,8 @@ export default function FullReportPage() {
                 <div className="flex items-center gap-1 mb-1"><p className="text-[9px] text-slate-400 uppercase tracking-wider">Near-term Upside</p><AiTag /></div>
                 <p className="text-3xl font-bold text-green-600 mb-1">{s4.near_term_upside_pct || "—"}</p>
                 <p className="text-xs text-slate-400">vs. peers: <span className="font-semibold text-slate-700 capitalize">{s4.cheap_vs_peers || "—"}</span></p>
-                {(s4.implied_multiples || s4.narrative) && <p className="text-xs text-slate-600 leading-relaxed mt-4">{s4.implied_multiples || s4.narrative}<AiTag /></p>}
+                {/* Only show AI valuation text when we lack live peer P/E comparison */}
+                {!subjectPE && (s4.implied_multiples || s4.narrative) && <p className="text-xs text-slate-600 leading-relaxed mt-4">{s4.implied_multiples || s4.narrative}<AiTag /></p>}
               </div>
               <div>
                 <div className="grid grid-cols-2 gap-4 mb-4">

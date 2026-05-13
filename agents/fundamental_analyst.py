@@ -1251,16 +1251,16 @@ Return ONLY valid JSON:
     "revenue_cagr_3yr": null,
     "above_20pct_threshold": null,
     "margin_trend": "{score_result.get('margin_trend', 'N/A')}",
-    "sustainability_assessment": "<from training knowledge>",
-    "tam_room_to_grow": "<from training knowledge>",
+    "sustainability_assessment": "<REQUIRED: cite specific metrics from the VERIFIED LIVE DATA above — revenue trend, operating margin direction, FCF yield, ROIC. State whether each is improving/stable/declining with the actual number. Example: 'Revenue grew X% YoY; operating margin compressed from Y% to Z%; FCF positive at $Xbn.' If a metric is unavailable, say so explicitly rather than leaving it vague.>",
+    "tam_room_to_grow": "<REQUIRED: estimate market size with competitive context for {ticker}'s sector — cite approximate TAM, note whether the company is gaining or losing share vs peers, and state the growth rate of the addressable market. Use sector-appropriate framing. If genuinely uncertain, give a qualitative range (e.g. '$200-400bn market, {ticker} holds ~X% share') rather than a generic statement.>",
     "eps_growth_consistent": null,
     "fcf_positive": {str(score_result.get('fcf_positive')).lower() if score_result.get('fcf_positive') is not None else "null"},
     "leverage_vs_peers": "{score_result.get('leverage_vs_peers', 'N/A')}",
     "default_risk": "{score_result.get('default_risk', 'N/A')}",
-    "upcoming_catalysts": ["<catalyst — training knowledge>"],
-    "key_risks": ["<risk — training knowledge>"],
+    "upcoming_catalysts": ["<REQUIRED: list 3-5 SPECIFIC dated events within the next 90 days. Format each as: '[EVENT TYPE] — [specific description] (~[month/quarter])'. Examples: 'Earnings — Q2 FY2026 results (~July 2026), consensus EPS $X', 'FDA PDUFA date — [drug name] decision (~[month])', 'Regulatory hearing — [specific proceeding] (~[month])'. MANDATORY: if earnings are within 30 days, include the date and analyst consensus EPS. NEVER use generic entries like 'quarterly earnings report' without a date and consensus figure.>"],
+    "key_risks": ["<REQUIRED: list 4-6 SPECIFIC named risks grounded in this company's actual situation. Each risk must: (1) name the specific threat (NOT 'macro risk' or 'overbought indicators' — those are generic), (2) cite a sector-specific mechanism (e.g. 'CMS Medicare Advantage rate compression reducing MLR spread', 'DOJ antitrust review of X acquisition', 'Patent cliff on [drug] expiring [year]', 'Rising input costs — [commodity] up X% YoY'), (3) assign a category: Regulatory | Competitive | Financial | Operational | Macro. Use the verified financial data above (revenue growth, margins, sector) to anchor risks to real numbers where possible.>"],
     "moat_strength": "<Narrow|Wide|None>",
-    "near_term_catalyst": "<specific event within 1-30 days that could move price>"
+    "near_term_catalyst": "<REQUIRED: the single most specific and imminent event within 1-30 days that could move the price. Include the approximate date if known. Example: 'Q1 earnings on May 15 — consensus EPS $X vs prior $Y' or 'FDA decision on [drug] expected mid-May'. If no near-term catalyst exists within 30 days, state: 'No scheduled catalyst within 30 days — next event: [what and when]'.>"
   }},
   "valuation": {{
     "methodology": "<P/S|Comps+multiples|EV/EBITDA>",
