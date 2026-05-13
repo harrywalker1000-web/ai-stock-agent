@@ -23,70 +23,51 @@ const DIRECTION_STYLE: Record<string, string> = {
   PASS: "text-[#6B7280] bg-white/05",
 };
 
-const STEPS = [
-  { key: "macro",       label: "Macro Agent" },
-  { key: "news",        label: "News & Catalyst Agent" },
-  { key: "fundamental", label: "Fundamental Analyst" },
-  { key: "quant",       label: "Quant Agent" },
-  { key: "sentiment",   label: "Sentiment Agent" },
-  { key: "committee",   label: "Investment Committee" },
-];
+// 7 real workflow steps — matches adhoc_report.yml exactly
+const SETUP_STEPS    = [{ key: "checkout", label: "Checkout" }, { key: "python", label: "Python" }, { key: "install", label: "Dependencies" }];
+const ANALYSIS_STEPS = [{ key: "analysis", label: "Run Analysis\n(6 agents)" }];
+const FINALIZE_STEPS = [{ key: "sync", label: "Sync" }, { key: "commit", label: "Commit" }, { key: "deploy", label: "Deploy" }];
 
 type StepStatus = "pending" | "running" | "done" | "failed";
 interface Progress {
   status: string;
   steps: Record<string, StepStatus>;
-  agents: Record<string, StepStatus>; // legacy compat
   pct: number;
   done: number;
   total: number;
 }
 
-const SETUP_STEPS    = [
-  { key: "checkout",    label: "Checkout" },
-  { key: "python",      label: "Python" },
-  { key: "install",     label: "Dependencies" },
-];
-const FINALIZE_STEPS = [
-  { key: "sync",    label: "Sync" },
-  { key: "commit",  label: "Commit" },
-  { key: "deploy",  label: "Deploy" },
-];
-
-function StepDot({ status, label, num }: { status: StepStatus; label: string; num: number }) {
-  const isDone    = status === "done";
-  const isRunning = status === "running";
-  const isFailed  = status === "failed";
-  const dot = isDone    ? "bg-[#10B981] border-[#10B981] text-white"
-            : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] text-white animate-pulse"
-            : isFailed  ? "bg-[#EF4444] border-[#EF4444] text-white"
-            :             "bg-transparent border-[#374151] text-[#374151]";
+function StepDot({ status, label }: { status: StepStatus; label: string }) {
+  const isDone = status === "done", isRunning = status === "running", isFailed = status === "failed";
+  const dot = isDone ? "bg-[#10B981] border-[#10B981] text-white"
+    : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] text-white animate-pulse"
+    : isFailed  ? "bg-[#EF4444] border-[#EF4444] text-white"
+    : "bg-transparent border-[#374151] text-[#374151]";
   const lbl = isDone ? "text-[#10B981]" : isRunning ? "text-[#0EA5E9]" : isFailed ? "text-[#EF4444]" : "text-[#4B5563]";
   return (
     <div className="flex flex-col items-center gap-1 min-w-0">
-      <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold shrink-0 transition-all ${dot}`}>
-        {isDone ? (
-          <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        ) : isFailed ? "✕" : num}
+      <span className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${dot}`}>
+        {isDone ? <svg className="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          : isFailed ? <span className="text-xs">✕</span>
+          : isRunning ? <span className="text-[10px] font-bold">•••</span>
+          : <span className="w-2 h-2 rounded-full bg-[#374151]/40 block" />}
       </span>
-      <span className={`text-[9px] text-center leading-tight transition-colors ${lbl}`}>{label}</span>
+      <span className={`text-[9px] text-center leading-tight whitespace-pre-line transition-colors ${lbl}`}>{label}</span>
     </div>
   );
 }
 
-function StepRow({ label, stepList, steps, startNum }: { label: string; stepList: { key: string; label: string }[]; steps: Record<string, StepStatus>; startNum: number }) {
+function PhaseRow({ label, stepList, steps }: { label: string; stepList: { key: string; label: string }[]; steps: Record<string, StepStatus> }) {
   const get = (k: string): StepStatus => steps[k] ?? "pending";
   return (
     <div>
       <p className="text-[9px] font-bold text-[#374151] uppercase tracking-widest mb-2">{label}</p>
-      <div className="flex items-start flex-wrap gap-y-2">
+      <div className="flex items-start gap-1">
         {stepList.map((s, i) => (
           <div key={s.key} className="flex items-start">
-            <StepDot status={get(s.key)} label={s.label} num={startNum + i} />
+            <StepDot status={get(s.key)} label={s.label} />
             {i < stepList.length - 1 && (
-              <div className={`self-start mt-2.5 w-4 h-px mx-0.5 shrink-0 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+              <div className={`self-start mt-3 w-5 h-px mx-1 shrink-0 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
             )}
           </div>
         ))}
@@ -97,72 +78,55 @@ function StepRow({ label, stepList, steps, startNum }: { label: string; stepList
 
 function PipelineSteps({ steps }: { steps: Record<string, StepStatus> }) {
   return (
-    <div className="mb-4 space-y-4">
-      <StepRow label="Setup" stepList={SETUP_STEPS} steps={steps} startNum={1} />
-      <StepRow label="Agents" stepList={STEPS} steps={steps} startNum={4} />
-      <StepRow label="Finalise" stepList={FINALIZE_STEPS} steps={steps} startNum={10} />
+    <div className="mb-5 grid grid-cols-3 gap-4">
+      <PhaseRow label="Setup" stepList={SETUP_STEPS} steps={steps} />
+      <PhaseRow label="Analysis" stepList={ANALYSIS_STEPS} steps={steps} />
+      <PhaseRow label="Finalise" stepList={FINALIZE_STEPS} steps={steps} />
     </div>
   );
 }
 
-// Workflow takes ~10-12 min total. We creep the bar slowly toward the next real milestone
-// so it's always visually moving, then snaps to real values when agents complete.
+// Pro-rata smooth progress: purely time-based, snaps only when pipeline completes
+// Total ~11 min. Ease curve: fast early, slow toward 95% cap.
 const TOTAL_MS = 11 * 60 * 1000;
 
-function ProgressBar({ pct, done, total, queuedAt, active }: {
-  pct: number; done: number; total: number; queuedAt: number | null; active: boolean;
-}) {
-  const [displayPct, setDisplayPct] = useState(pct);
+function ProgressBar({ pct, queuedAt, active }: { pct: number; queuedAt: number | null; active: boolean }) {
+  const [display, setDisplay] = useState(pct);
 
   useEffect(() => {
-    if (!active || !queuedAt) { setDisplayPct(pct); return; }
-
+    if (!active || !queuedAt) { setDisplay(pct); return; }
     const tick = () => {
       const elapsed = Date.now() - queuedAt;
-      // Time-based estimate: creep linearly over TOTAL_MS, but cap just below next real milestone
-      const timePct = Math.min((elapsed / TOTAL_MS) * 100, 99);
-      // Never go backwards from real progress; also cap below the next whole step boundary
-      const nextMilestone = ((done + 1) / total) * 100 - 1; // 1% below next real step
-      const creep = Math.min(timePct, nextMilestone);
-      setDisplayPct(Math.max(pct, creep));
+      // Ease-out curve: fast to 50% in first third, slow crawl to 95% cap
+      const raw = Math.min(elapsed / TOTAL_MS, 1);
+      const eased = 1 - Math.pow(1 - raw, 2.2); // ease-out power curve
+      const timePct = Math.min(eased * 100, 95);
+      setDisplay(d => Math.max(d, timePct, pct)); // never go backwards
     };
-
     tick();
-    const id = setInterval(tick, 500);
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [pct, done, total, queuedAt, active]);
+  }, [pct, queuedAt, active]);
 
-  // Snap immediately to real value when agents complete
-  useEffect(() => { if (!active) setDisplayPct(pct); }, [pct, active]);
+  useEffect(() => { if (!active) setDisplay(pct); }, [pct, active]);
 
-  const shown = Math.round(displayPct);
+  const shown = Math.min(Math.round(display), 100);
 
   return (
     <div className="mb-4">
-      <div className="flex justify-between text-[10px] text-[#6B7280] mb-1">
-        <span>{done} of {total} agents complete</span>
-        <span>{shown}%</span>
+      <div className="flex justify-between text-[10px] text-[#6B7280] mb-1.5">
+        <span>{active ? "Analysis running…" : pct >= 100 ? "Complete" : "Waiting"}</span>
+        <span className="font-mono">{shown}%</span>
       </div>
-      <div className="h-1.5 bg-white/05 rounded-full overflow-hidden relative">
-        {/* Real progress fill */}
+      <div className="h-2 bg-white/05 rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#0EA5E9] rounded-full transition-all duration-300"
-          style={{ width: `${displayPct}%` }}
+          className="h-full rounded-full transition-all duration-1000 ease-out"
+          style={{
+            width: `${shown}%`,
+            background: shown >= 100 ? "#10B981" : "linear-gradient(90deg, #0EA5E9, #38BDF8)",
+          }}
         />
-        {/* Shimmer sweep on top while active */}
-        {active && (
-          <div
-            className="absolute inset-y-0 w-16 rounded-full opacity-40"
-            style={{
-              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
-              animation: "shimmer 1.8s infinite",
-              left: `${displayPct}%`,
-              transform: "translateX(-50%)",
-            }}
-          />
-        )}
       </div>
-      <style>{`@keyframes shimmer { 0%,100% { opacity: 0.2; } 50% { opacity: 0.5; } }`}</style>
     </div>
   );
 }
@@ -383,7 +347,7 @@ export default function AdhocInputPage() {
                 ? "Workflow failed. Check GitHub Actions for details."
                 : progress?.status === "in_progress"
                 ? (() => {
-                    const allSteps = [...SETUP_STEPS, ...STEPS, ...FINALIZE_STEPS];
+                    const allSteps = [...SETUP_STEPS, ...ANALYSIS_STEPS, ...FINALIZE_STEPS];
                     const running = allSteps.find(s => progress?.steps?.[s.key] === "running");
                     return running
                       ? `${running.label} running…`
@@ -396,8 +360,6 @@ export default function AdhocInputPage() {
             {/* Progress bar */}
             <ProgressBar
               pct={progress?.pct ?? 0}
-              done={progress?.done ?? 0}
-              total={progress?.total ?? 6}
               queuedAt={queuedAt}
               active={progress?.status === "in_progress" || progress?.status === "queued" || !progress}
             />
