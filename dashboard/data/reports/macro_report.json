@@ -1,25 +1,23 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
-  "inflation_trend": "rising",
+  "inflation_trend": "stable",
   "favoured_themes": [
     "defensive stocks",
-    "commodities",
-    "healthcare",
-    "energy",
-    "infrastructure"
+    "energy sector",
+    "high-quality bonds"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "growth stocks",
-    "emerging markets"
+    "emerging markets",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Iran war escalating",
-    "Russian debt defaults",
-    "Middle East tensions affecting global markets"
+    "Iran war impacting oil supply",
+    "escalation of conflict in Gaza",
+    "potential disruptions in global trade routes"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to the Iran conflict. FRED and newsapi_finnhub both signal RISK-OFF, while yfinance_market remains NEUTRAL, leading to a conflict in signals. This divergence contributes to a low confidence level in the overall assessment.",
+  "macro_summary": "The current macro environment is characterized by a neutral market regime, with conflicting signals from different sources. While FRED and yfinance_market indicate a neutral stance, newsapi_finnhub suggests a risk-off sentiment due to geopolitical tensions, particularly related to the Iran war. This divergence in signals contributes to a low confidence level in the overall assessment.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -30,59 +28,45 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
+      "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from different sources lead to a low confidence level for downstream agents."
+    "confidence_note": "The conflicting signals from multiple sources result in a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.38,
+    "us_10y_yield": null,
     "us_2y_yield": null,
     "yield_curve_spread": null,
-    "cpi_latest": 332.41,
-    "cpi_prev": 330.29,
-    "cpi_trend": "rising",
-    "pce_latest": null,
+    "cpi_latest": null,
+    "cpi_prev": null,
+    "cpi_trend": "unknown",
+    "pce_latest": 130.344,
     "gdp_latest": 31856.3,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.38,
-    "dxy_current": 98.36,
+    "dxy_current": 98.49,
     "dxy_1m_ago": 98.37,
-    "dxy_trend": "weakening",
-    "vix": 18.87,
-    "tlt_1m_change_pct": -1.52,
-    "hyg_1m_change_pct": -0.06,
+    "dxy_trend": "strengthening",
+    "vix": 18.1,
+    "tlt_1m_change_pct": -1.98,
+    "hyg_1m_change_pct": 0.02,
     "macro_headlines": [
-      "The summer box office is off to a hot start as weekend ticket sales top $160 million",
-      "Wall St falls as hot CPI, Iran tensions weigh on sentiment - Reuters",
-      "Stanford professor teaches his classes \u2018tech-free\u2019\u2014here\u2019s the skill he wants his students to build",
-      "Evolving drone war in southern Lebanon clouds Iran peace prospects - Reuters",
-      "US war in Iran has cost $29 billion so far, Pentagon says - Reuters",
-      "Most Gulf markets retreat on dwindling hopes for quick end to Iran war - Reuters",
-      "Analysis: Iran war hangs over Trump's China trip \u2014 and his presidency",
-      "Jim Cramer's top 10 things to watch in the stock market Tuesday",
-      "China's US ethane imports hit record as Iran war cut rival feedstock supply - Reuters",
-      "Morning Bid: Ceasefire on life support - Reuters"
+      "Why this unheralded AI stock can go higher despite its recent massive rally",
+      "India's Tata Motors warns of costs from Iran war after profit surge - Reuters",
+      "Global oil supply to plunge below demand this year due to Iran war, IEA says - Reuters",
+      "Trump says no need for China's help on Iran as shippers seek way through Hormuz - Reuters",
+      "Nissan predicts profit above $1 billion this fiscal year, modest Iran war hit - Reuters",
+      "Israel steps up attacks on Gaza since Iran truce, as military says Hamas rearming - Reuters",
+      "Iran war brings Turkey-PKK peace process to near standstill - Reuters",
+      "How to answer this tricky interview question, says career expert: It shows you have skills that 'cannot be replaced' by AI",
+      "Whipsaw market actions leaves traders looking for direction. The 'fear gauge' might offer a clue",
+      "The Club's top 10 things to watch in the stock market Wednesday"
     ],
-    "geopolitical_headlines": [
-      "Japan bets on Washington, BOJ for extra punch in yen battle",
-      "New laws expected to be in the King's Speech",
-      "His father had just been buried. Then West Bank settlers forced him to dig up the body",
-      "Israeli settlers force Palestinian family to exhume and rebury their father",
-      "Russian debt defaults are surging, with a quarter of the bond market at risk, while Putin hides in bunkers fixated on his war instead of the economy",
-      "Amazon prepares its first Swiss franc bond in six-part AI-capex push",
-      "How a Chicago bank teller once hung up on Pope Leo, who reportedly called from the Vatican to adjust number",
-      "Can central banks curb inflation as energy costs rise?",
-      "\u7d4c\u6e08\u5d29\u58ca\u306e\u4e2d\u56fd\u306b\u3066\u3001\u9810\u91d1\u306e\u5f15\u304d\u51fa\u3057\u3092\u62d2\u5426\u3059\u308b\u201c\u6ce5\u68d2\u9280\u884c\u201d\u304c\u5927\u91cf\u5897\u6b96",
-      "'Changing of the Guard'? AMD, Intel, and Micron Soar While Nvidia Lags"
-    ],
-    "central_bank_headlines": [
-      "From The People\u2019s Bank to the Banker\u2019s Bank",
-      "(8) Data center land use issues are fake - Andy Masley"
-    ],
-    "as_of": "2026-05-12 16:07 UTC"
+    "geopolitical_headlines": [],
+    "central_bank_headlines": [],
+    "as_of": "2026-05-13 16:10 UTC"
   },
-  "generated_at": "2026-05-12T16:08:11.527301"
+  "generated_at": "2026-05-13T16:10:11.723770"
 }
