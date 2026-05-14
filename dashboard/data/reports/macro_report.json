@@ -1,23 +1,23 @@
 {
-  "regime": "NEUTRAL",
+  "regime": "RISK-OFF",
   "interest_rate_direction": "stable",
-  "inflation_trend": "stable",
+  "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "energy sector",
+    "commodities",
     "high-quality bonds"
   ],
   "avoid_themes": [
     "high-yield bonds",
     "emerging markets",
-    "cyclical stocks"
+    "tech stocks"
   ],
   "geopolitical_risks": [
-    "Iran war impacting oil supply",
-    "escalation of conflict in Gaza",
-    "potential disruptions in global trade routes"
+    "Iran war escalation affecting oil prices",
+    "EU sanctions impacting trade",
+    "US-China tensions affecting market stability"
   ],
-  "macro_summary": "The current macro environment is characterized by a neutral market regime, with conflicting signals from different sources. While FRED and yfinance_market indicate a neutral stance, newsapi_finnhub suggests a risk-off sentiment due to geopolitical tensions, particularly related to the Iran war. This divergence in signals contributes to a low confidence level in the overall assessment.",
+  "macro_summary": "The current macro environment is characterized by rising inflation, with CPI increasing from 330.29 to 332.41, indicating inflationary pressures. The yield curve remains inverted, suggesting recession risks, while conflicting signals from sources indicate a lack of consensus on market sentiment, with FRED and newsapi_finnhub both signaling RISK-OFF, but yfinance_market indicating NEUTRAL. This conflict contributes to a low confidence level.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,45 +28,59 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources result in a low confidence level for downstream agents."
+    "confidence_note": "The conflicting signals from multiple sources lead to a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": null,
-    "us_2y_yield": null,
-    "yield_curve_spread": null,
-    "cpi_latest": null,
-    "cpi_prev": null,
-    "cpi_trend": "unknown",
+    "us_10y_yield": 4.46,
+    "us_2y_yield": 4.0,
+    "yield_curve_spread": 0.46,
+    "cpi_latest": 332.41,
+    "cpi_prev": 330.29,
+    "cpi_trend": "rising",
     "pce_latest": 130.344,
     "gdp_latest": 31856.3,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.38,
-    "dxy_current": 98.49,
-    "dxy_1m_ago": 98.37,
+    "dxy_current": 98.75,
+    "dxy_1m_ago": 98.12,
     "dxy_trend": "strengthening",
-    "vix": 18.1,
-    "tlt_1m_change_pct": -1.98,
-    "hyg_1m_change_pct": 0.02,
+    "vix": 17.84,
+    "tlt_1m_change_pct": -1.79,
+    "hyg_1m_change_pct": -0.05,
     "macro_headlines": [
-      "Why this unheralded AI stock can go higher despite its recent massive rally",
-      "India's Tata Motors warns of costs from Iran war after profit surge - Reuters",
-      "Global oil supply to plunge below demand this year due to Iran war, IEA says - Reuters",
-      "Trump says no need for China's help on Iran as shippers seek way through Hormuz - Reuters",
-      "Nissan predicts profit above $1 billion this fiscal year, modest Iran war hit - Reuters",
-      "Israel steps up attacks on Gaza since Iran truce, as military says Hamas rearming - Reuters",
-      "Iran war brings Turkey-PKK peace process to near standstill - Reuters",
-      "How to answer this tricky interview question, says career expert: It shows you have skills that 'cannot be replaced' by AI",
-      "Whipsaw market actions leaves traders looking for direction. The 'fear gauge' might offer a clue",
-      "The Club's top 10 things to watch in the stock market Wednesday"
+      "Cisco CEO says tech is entering a 'networking supercycle' as stock pops 14% on strong AI demand",
+      "Bessent sees 'substantial disinflation' ahead as Warsh takes over the Fed",
+      "65% of workers have avoided using AI for moral, environmental, privacy or other reasons: CNBC survey",
+      "Jim Cramer's top 10 things to watch in the stock market Thursday",
+      "White House scrambles for gas-price relief as Iran war drags on - Reuters",
+      "Vessel seized off UAE's Fujairah and heading toward Iranian waters, UKMTO says - Reuters",
+      "Xi tells Musk, Tim Cook and other CEOs on Trump's trip: China will 'open wider'",
+      "Should you ever resign by text? Trump's FDA shake-up raises the question",
+      "Wealthy donors stand to win double tax benefit if 'Trump Accounts' allow stock donations",
+      "Latvian Prime Minister resigns over handling of Ukrainian drone incidents - Reuters"
     ],
-    "geopolitical_headlines": [],
-    "central_bank_headlines": [],
-    "as_of": "2026-05-13 16:10 UTC"
+    "geopolitical_headlines": [
+      "EU agrees sanctions on Israeli settlers over West Bank violence",
+      "It\u2019s not just Canadian tourists snubbing U.S. cities. Business leaders are cancelling more trips to America as geopolitical tensions continue",
+      "EU diplomats agree to sanction Hamas leaders and Israeli settlers",
+      "The 25 countries with the oldest populations in the world",
+      "First wave of tariff refunds will hit some businesses tomorrow",
+      "Can Chinese AI solve inequality? + How dementia comes for your bank account",
+      "Journalists Mourn as Venmo Finally Fixes Its Most Glaring Privacy Issue",
+      "EU agrees sanctions on Israeli West Bank settlers, Hamas leaders",
+      "5 huge Android 17 upgrades are coming this year \u2014 Here are the best new features announced at The Android Show",
+      "Your Android security and privacy got huge upgrades\u2014The Android Show reveals all"
+    ],
+    "central_bank_headlines": [
+      "Why Kevin Warsh might still prove to be an independent Federal Reserve chair",
+      "Is It Even Real? On the Conflation of Money and Things"
+    ],
+    "as_of": "2026-05-14 15:59 UTC"
   },
-  "generated_at": "2026-05-13T16:10:11.723770"
+  "generated_at": "2026-05-14T15:59:43.700957"
 }
