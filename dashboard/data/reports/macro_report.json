@@ -1,23 +1,24 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "stable",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "inflation-hedged assets",
-    "energy stocks",
-    "defensive sectors",
-    "commodities"
+    "inflation-protected securities",
+    "defensive stocks",
+    "commodities",
+    "high-quality bonds"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "growth stocks",
-    "emerging markets"
+    "emerging market equities",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Iran-US tensions affecting oil prices",
-    "geopolitical instability impacting market confidence"
+    "Iran conflict escalating inflation risks",
+    "US job market uncertainty affecting consumer spending",
+    "Russia's asset seizure impacting global markets"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF regime, supported by rising inflation and geopolitical tensions, particularly related to Iran. Conflicts exist between sources, with FRED and newsapi_finnhub indicating RISK-OFF while yfinance_market remains NEUTRAL, leading to a low confidence level overall.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to the Iran conflict. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, leading to a conflict in signals. The Fed Funds Rate is at 3.64% with a rising trend in CPI, suggesting tightening monetary conditions.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -31,14 +32,14 @@
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
+    "confidence_note": "The low confidence level reflects conflicting signals from multiple sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.46,
-    "us_2y_yield": 3.98,
-    "yield_curve_spread": 0.48,
+    "us_10y_yield": 4.47,
+    "us_2y_yield": 4.0,
+    "yield_curve_spread": 0.47,
     "cpi_latest": 332.41,
     "cpi_prev": 330.29,
     "cpi_trend": "rising",
@@ -46,41 +47,40 @@
     "gdp_latest": 31856.3,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.38,
-    "dxy_current": 99.27,
-    "dxy_1m_ago": 98.06,
+    "dxy_current": 99.04,
+    "dxy_1m_ago": 98.05,
     "dxy_trend": "strengthening",
-    "vix": 18.07,
-    "tlt_1m_change_pct": -3.24,
-    "hyg_1m_change_pct": -0.63,
+    "vix": 18.54,
+    "tlt_1m_change_pct": -3.52,
+    "hyg_1m_change_pct": -0.76,
     "macro_headlines": [
-      "Iran has 'no trust' in US, will negotiate only if it is serious, Araqchi says - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Friday",
-      "Oil prices up 2% as Trump and Iran's comments dent peace hopes - Reuters",
-      "30-year Treasury yield tops 5.1%, highest in nearly a year",
-      "BRICS talks end without joint statement, exposing divisions over war in Iran - Reuters",
-      "Trump: spoke with Xi about lifting sanctions on Chinese companies that buy Iranian oil - Reuters",
-      "Trump says he will soon make decision about sanctions on Chinese companies buying Iranian oil",
-      "Family investors turn to old-economy businesses like dealerships and fisheries to avoid AI disruption",
-      "European shares tumble on Iran war-linked inflation woes - Reuters",
-      "German economy to take hit from Iran war during Q2, ministry says - Reuters"
+      "Pakistan sends new Iranian peace proposal to US - Reuters",
+      "The last century was great for U.S. stocks, but the next decade might be challenging, says investing chief",
+      "Global bond rout deepens as prolonged Iran war heightens inflation risk - Reuters",
+      "Exclusive: Pakistan deploys jet squadron, thousands of troops to Saudi Arabia during Iran war - Reuters",
+      "Bank of England does not need to hike interest rates, says IMF \u2014 it may even need to cut",
+      "We're trimming an AI rocket ship of a stock and one that's now back in favor",
+      "Revised Iranian proposal to end war shared with US, Pakistani source says - Reuters",
+      "Ominous bond trades point to much higher rates",
+      "Iranian Nobel laureate discharged from hospital and sent home, family say - Reuters",
+      "Berkshire has revamped its portfolio \u2014 here's how the new stocks are trading"
     ],
     "geopolitical_headlines": [
-      "Warsh wins confirmation as Fed chair, with inflation on the march",
-      "It\u2019s not just Canadian tourists snubbing U.S. cities. Business leaders are cancelling more trips to America as geopolitical tensions continue",
-      "French central bank succession fight tests Macron's sway ahead of 2027 election",
-      "The 25 countries with the oldest populations in the world",
-      "The crypto Clarity Act returns to the Senate this week. The banks are already trying to kill it.",
-      "Inside 14 of the most unique bookstores around the world, from boats to bank vaults",
-      "Senate confirms Fed chair nominee Kevin Warsh, ending standoff over Powell probe",
-      "Journalists Mourn as Venmo Finally Fixes Its Most Glaring Privacy Issue",
-      "What bank execs are saying AI is doing to their workforces, from 'human assembly lines' to redeployment plans",
-      "5 huge Android 17 upgrades are coming this year \u2014 Here are the best new features announced at The Android Show"
+      "Moscow court orders Euroclear to pay compensation to Russia's central bank over seized assets",
+      "OpenAI Now Wants ChatGPT To Access Your Bank Accounts",
+      "ChatGPT Can Now Connect to Your Bank Account and See All Your Transactions",
+      "US college graduates face harsh job market amid economic uncertainty",
+      "Why Is the US Job Market So Tough, Especially for Recent College Grads?",
+      "ChatGPT Can Now Connect to Your Financial Accounts for Budgeting Advice",
+      "Opinion - After the Trump-Xi summit, China, not America, is on the back foot",
+      "Son of Palestinian President Mahmoud Abbas elected to top Fatah body",
+      "Lithuania Pitches Pirate Site Blocking as Defense Against \u201cHybrid Warfare,\u201d Including Russian Disinformation",
+      "Your 401(k) is the new identity theft target"
     ],
     "central_bank_headlines": [
-      "Is It Even Real? On the Conflation of Money and Things",
-      "Empires of Flow Control"
+      "Forget Sydney: The top five Aussie cities where you can still buy a home with a backyard for less than $700,000"
     ],
-    "as_of": "2026-05-15 15:51 UTC"
+    "as_of": "2026-05-18 16:41 UTC"
   },
-  "generated_at": "2026-05-15T15:51:51.108303"
+  "generated_at": "2026-05-18T16:41:34.871847"
 }
