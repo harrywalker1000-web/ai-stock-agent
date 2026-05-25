@@ -239,19 +239,34 @@ export default function SettingsPage() {
               )}
             </div>
           </div>
-          <p className="text-xs text-[#6B7280] mb-5">
-            Controls how many stocks are deeply analysed and debated by the committee each day in Phase B, per mode.
-            Analyze = stocks fundamental analysis runs on. Debate = stocks the committee actually votes on.
-          </p>
+          {/* Phase B flow explanation */}
+          <div className="flex items-start gap-3 mb-5 p-4 rounded-xl bg-white/03 border border-white/06">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-[#6B7280] leading-relaxed mb-2">Phase B runs in three stages. Only configurable columns affect cost — <span className="text-[#E8EDF2]">Max Contested</span> is fixed at 10 in code.</p>
+              <div className="flex items-center gap-2 flex-wrap text-xs">
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-[#06B6D4] font-medium">① Analyse</span>
+                <span className="text-[#4B5563]">→</span>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F5A623]/10 border border-[#F5A623]/20 text-[#F5A623] font-medium">② Committee Vote</span>
+                <span className="text-[#4B5563]">→</span>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444] font-medium">③ Contested Debate</span>
+              </div>
+              <div className="mt-3 space-y-1 text-[10px] text-[#6B7280]">
+                <p><span className="text-[#06B6D4]">① Analyse:</span> Candidate Generator selects stocks → Fundamental, Quant, Sentiment (not Lite) agents all run on each one.</p>
+                <p><span className="text-[#F5A623]">② Committee Vote:</span> Top N by composite score go to the Investment Committee. Each gets an initial verdict (Buy / Skip). A stock can be added to the portfolio here without proceeding further.</p>
+                <p><span className="text-[#EF4444]">③ Contested Debate:</span> Stocks where agents disagreed significantly (spread ≥ 20 pts) get up to 10 rounds of back-and-forth challenge. Max 10 stocks enter this stage. A stock can be added <em>without</em> reaching this stage if agents agreed from the start.</p>
+              </div>
+            </div>
+          </div>
 
           <div className="overflow-hidden rounded-xl border border-white/08">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/08 bg-white/02">
                   <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Mode</th>
-                  <th className="text-center px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Analyze</th>
-                  <th className="text-center px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Debate</th>
-                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">Notes</th>
+                  <th className="text-center px-4 py-3 text-[#06B6D4] text-xs font-semibold uppercase tracking-wider">① Analyse</th>
+                  <th className="text-center px-4 py-3 text-[#F5A623] text-xs font-semibold uppercase tracking-wider">② Committee</th>
+                  <th className="text-center px-4 py-3 text-[#EF4444] text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">③ Max Contested</th>
+                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider hidden md:table-cell">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -277,10 +292,10 @@ export default function SettingsPage() {
                             max={200}
                             value={draftLimits[m].analyze}
                             onChange={(e) => updateDraft(m, "analyze", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#F5A623]/60"
+                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#06B6D4]/60"
                           />
                         ) : (
-                          <span className="text-[#E8EDF2] font-mono">{row.analyze}</span>
+                          <span className="text-[#06B6D4] font-mono font-semibold">{row.analyze}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -294,10 +309,14 @@ export default function SettingsPage() {
                             className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#F5A623]/60"
                           />
                         ) : (
-                          <span className="text-[#E8EDF2] font-mono">{row.debate}</span>
+                          <span className="text-[#F5A623] font-mono font-semibold">{row.debate}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[#6B7280] text-xs hidden sm:table-cell">
+                      <td className="px-4 py-3 text-center hidden sm:table-cell">
+                        <span className="text-[#EF4444]/60 font-mono text-sm">10</span>
+                        <span className="text-[#4B5563] text-[10px] ml-1">(fixed)</span>
+                      </td>
+                      <td className="px-4 py-3 text-[#6B7280] text-xs hidden md:table-cell">
                         {m === "Full" ? "Max coverage — good for weekend catch-up runs" :
                          m === "Auto" ? "Slightly above Standard for smarter days" :
                          m === "Standard" ? "Balanced — recommended for daily use" :
@@ -310,7 +329,7 @@ export default function SettingsPage() {
             </table>
           </div>
           <p className="text-[10px] text-[#4B5563] mt-3">
-            Debate must be ≤ Analyze. Max 200. Defaults: Lite 15/10 · Standard 25/20 · Auto 30/25 · Full 50/40.
+            ② Committee must be ≤ ① Analyse. Max 200. Defaults: Lite 15/10 · Standard 25/20 · Auto 30/25 · Full 50/40. ③ Contested debate cap (10) is hardcoded.
           </p>
         </div>
 
