@@ -45,7 +45,7 @@ function RegimeBadge({ regime }: { regime: string }) {
   return <span className="badge-neutral">{regime}</span>;
 }
 
-function ScoreBar({ score, label }: { score: number | null; label: string }) {
+function ScoreBar({ score }: { score: number | null }) {
   if (score == null) return <span className="text-[#3D4655] text-[10px]">—</span>;
   const color = score >= 70 ? "#10B981" : score >= 50 ? "#F5A623" : "#EF4444";
   return (
@@ -114,13 +114,13 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                     </span>
                   </td>
                   <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.fundamental_score} label="F" />
+                    <ScoreBar score={row.fundamental_score} />
                   </td>
                   <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.quant_score} label="Q" />
+                    <ScoreBar score={row.quant_score} />
                   </td>
                   <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.sentiment_score} label="S" />
+                    <ScoreBar score={row.sentiment_score} />
                   </td>
                   <td className="text-center py-2.5 px-2 hidden md:table-cell">
                     <span className={`font-mono text-[10px] ${(row.agent_spread ?? 0) >= 20 ? "text-[#F59E0B]" : "text-[#3D4655]"}`}>
