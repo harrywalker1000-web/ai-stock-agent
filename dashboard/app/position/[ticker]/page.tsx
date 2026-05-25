@@ -135,8 +135,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   const isProfit = (position.pct_change ?? 0) >= 0;
   const pnlColor = isProfit ? "#10B981" : "#EF4444";
   const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
-  const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 70).map((a: {agent:string}) => a.agent);
+  const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 65).map((a: {agent:string}) => a.agent);
   const bearishAgents = allAgentScores.filter((a: {score:number}) => a.score < 50).map((a: {agent:string}) => a.agent);
+  const neutralAgents = allAgentScores.filter((a: {score:number}) => a.score >= 50 && a.score < 65).map((a: {agent:string}) => a.agent);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wasDebated: boolean = (position as any).was_debated ?? false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const debateReason: string | null = (position as any).debate_reason ?? null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const agentSpread: number | null = (position as any).agent_spread ?? null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fm: any = position.fund_mandate ?? null;
@@ -179,6 +186,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   const thesisBullets: string[] = position.investment_thesis_bullets ?? [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mandateChecklist: any[] = position.mandate_checklist ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const committeeRisks: string[] = (position as any).key_risks ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const committeeCatalysts: string[] = (position as any).key_catalysts ?? [];
 
   // Comparables colour helper
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -739,17 +750,40 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
         {/* ── Agent scores ── */}
         <div className="card p-6 mb-6">
-          <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Agent Scores at Entry</h2>
-          {bullishAgents.length > 0 && bearishAgents.length > 0 && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20">
-              <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider mb-1">Signal Conflict Detected</p>
-              <p className="text-xs text-[#6B7280]">
-                <span className="text-[#10B981]">{bullishAgents.join(", ")}: BULLISH</span>
-                {" "}←→{" "}
-                <span className="text-[#EF4444]">{bearishAgents.join(", ")}: BEARISH</span>
-              </p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Scores at Entry</h2>
+            <div className="flex items-center gap-2">
+              {agentSpread != null && (
+                <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${agentSpread >= 20 ? "bg-[#F59E0B]/15 text-[#F59E0B]" : "bg-white/05 text-[#6B7280]"}`}>
+                  Spread {agentSpread}pts
+                </span>
+              )}
+              {wasDebated && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#F59E0B]/15 text-[#F59E0B]">
+                  {debateReason === "likely_entry" ? "Mandatory debate" : "Contested debate"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Bulls vs Bears summary */}
+          {allAgentScores.length > 0 && (
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className={`rounded-xl p-3 border ${bullishAgents.length > 0 ? "border-[#10B981]/25 bg-[#10B981]/06" : "border-white/05 bg-white/02"}`}>
+                <p className="text-[10px] text-[#10B981] font-bold uppercase tracking-wider mb-1">Bulls ({bullishAgents.length})</p>
+                <p className="text-xs text-[#6B7280]">{bullishAgents.length > 0 ? bullishAgents.join(", ") : "—"}</p>
+              </div>
+              <div className={`rounded-xl p-3 border ${neutralAgents.length > 0 ? "border-[#F5A623]/20 bg-[#F5A623]/05" : "border-white/05 bg-white/02"}`}>
+                <p className="text-[10px] text-[#F5A623] font-bold uppercase tracking-wider mb-1">Neutral ({neutralAgents.length})</p>
+                <p className="text-xs text-[#6B7280]">{neutralAgents.length > 0 ? neutralAgents.join(", ") : "—"}</p>
+              </div>
+              <div className={`rounded-xl p-3 border ${bearishAgents.length > 0 ? "border-[#EF4444]/25 bg-[#EF4444]/06" : "border-white/05 bg-white/02"}`}>
+                <p className="text-[10px] text-[#EF4444] font-bold uppercase tracking-wider mb-1">Bears ({bearishAgents.length})</p>
+                <p className="text-xs text-[#6B7280]">{bearishAgents.length > 0 ? bearishAgents.join(", ") : "—"}</p>
+              </div>
             </div>
           )}
+
           {allAgentScores.map((a) => (
             <AgentScoreBar key={a.agent} agent={a.agent} score={a.score} view={a.view} />
           ))}
@@ -846,6 +880,41 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Committee Risk & Catalyst Assessment ── */}
+        {(committeeRisks.length > 0 || committeeCatalysts.length > 0) && (
+          <div className="card p-6 mb-6">
+            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Committee Risk &amp; Catalyst Assessment</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {committeeCatalysts.length > 0 && (
+                <div>
+                  <p className="text-[10px] text-[#10B981] font-bold uppercase tracking-wider mb-2">Key Catalysts</p>
+                  <ul className="space-y-1.5">
+                    {committeeCatalysts.map((c, i) => (
+                      <li key={i} className="flex gap-2 text-xs text-[#9CA3AF]">
+                        <span className="text-[#10B981] flex-shrink-0 mt-0.5">→</span>
+                        <span>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {committeeRisks.length > 0 && (
+                <div>
+                  <p className="text-[10px] text-[#EF4444] font-bold uppercase tracking-wider mb-2">Key Risks</p>
+                  <ul className="space-y-1.5">
+                    {committeeRisks.map((r, i) => (
+                      <li key={i} className="flex gap-2 text-xs text-[#9CA3AF]">
+                        <span className="text-[#EF4444] flex-shrink-0 mt-0.5">⚠</span>
+                        <span>{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )}

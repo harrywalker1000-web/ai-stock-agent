@@ -704,6 +704,9 @@ export async function GET(
 
     // Real agent data
     agent_scores:            agentScores,
+    agent_spread:            scorecard?.agent_spread ?? null,
+    was_debated:             scorecard?.was_debated ?? null,
+    debate_reason:           scorecard?.debate_reason ?? null,
     investment_thesis_bullets: thesisBullets,
     recommendation,
     financial_snapshot:      financialSnapshot,

@@ -1224,12 +1224,29 @@ def _run_debate_round(
     # Entries first (mandatory), then contested fill remaining slots, capped at max_debates
     to_debate = (likely_entries + contested_only)[:max_debates]
 
+    # Mark every scorecard with debate metadata before returning
+    entry_tickers_set = {sc["ticker"] for sc in likely_entries}
+    contested_tickers_set = {sc["ticker"] for sc in contested_only}
+    for sc in scorecards:
+        if sc["ticker"] in entry_tickers_set:
+            sc["was_debated"] = True
+            sc["debate_reason"] = "likely_entry"
+        elif sc["ticker"] in contested_tickers_set:
+            sc["was_debated"] = True
+            sc["debate_reason"] = "high_spread"
+        else:
+            sc["was_debated"] = False
+            sc["debate_reason"] = None
+
     if not to_debate:
+        logger.info("Debate selection: 0 stocks met debate criteria (0 likely-entry, 0 contested)")
         return scorecards
 
+    entry_labels = [f"{sc['ticker']}({sc['composite_score']})" for sc in likely_entries[:5]]
+    spread_labels = [f"{sc['ticker']}(spread={sc['agent_spread']})" for sc in contested_only[:5]]
     logger.info(
-        "Debate selection: %d likely-entry (score≥%d) + %d contested-only → %d debated (cap=%d)",
-        len(likely_entries), ENTRY_SCORE_THRESHOLD, len(contested_only), len(to_debate), max_debates,
+        "Debate selection: %d likely-entry %s + %d contested %s → %d debated (cap=%d)",
+        len(likely_entries), entry_labels, len(contested_only), spread_labels, len(to_debate), max_debates,
     )
 
     contested = to_debate

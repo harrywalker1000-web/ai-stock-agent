@@ -167,6 +167,44 @@ try:
         # Merge Phase A + Phase B — Phase A owns held tickers, Phase B owns new entries only
         decisions = _merge_decisions(phase_a_decisions, phase_b_decisions)
 
+        # Build pipeline funnel and per-stock scorecard summary
+        raw_scorecards = cr.get("scorecards", [])
+        pb_decision_map = {d["ticker"]: d for d in phase_b_decisions}
+        scorecards_summary = []
+        for sc in raw_scorecards:
+            ticker = sc.get("ticker", "")
+            dec = pb_decision_map.get(ticker, {})
+            action = dec.get("action", "skip")
+            scorecards_summary.append({
+                "ticker": ticker,
+                "composite_score": sc.get("composite_score"),
+                "fundamental_score": sc.get("fundamental_score"),
+                "quant_score": sc.get("quant_score"),
+                "sentiment_score": sc.get("sentiment_score"),
+                "agent_spread": sc.get("agent_spread"),
+                "conflict_flag": sc.get("conflict_flag", False),
+                "direction": sc.get("direction"),
+                "was_debated": sc.get("was_debated", False),
+                "debate_reason": sc.get("debate_reason"),
+                "action": action,
+                "investment_thesis": dec.get("investment_thesis") or dec.get("thesis"),
+                "key_risks": (dec.get("key_risks") or [])[:3],
+                "key_catalysts": (dec.get("key_catalysts") or [])[:3],
+                "conviction": dec.get("conviction"),
+                "fundamental_summary": (sc.get("fundamental_summary") or "")[:250] or None,
+                "quant_summary": (sc.get("quant_summary") or "")[:250] or None,
+                "sentiment_summary": (sc.get("sentiment_summary") or "")[:250] or None,
+                "upside_pct": sc.get("upside_pct"),
+                "debate_detail": sc.get("agent_debate") or None,
+            })
+        # Sort: entered first, then by composite score desc
+        scorecards_summary.sort(key=lambda x: (0 if "enter" in (x["action"] or "") else 1, -(x["composite_score"] or 0)))
+        pipeline_funnel = {
+            "analyzed": cr.get("candidates_evaluated") or len(raw_scorecards),
+            "debated": cr.get("candidates_debated") or sum(1 for s in scorecards_summary if s["was_debated"]),
+            "entered": action_counts.get("new_positions", 0),
+        }
+
         action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
         for d in decisions:
             a = d.get("action", "")
@@ -345,6 +383,8 @@ try:
             "open_positions_after": ps.get("open_positions_after", 0),
             "benchmark_summary": benchmark_summary,
             "benchmark_alpha_1w": benchmark_alpha_1w,
+            "pipeline_funnel": pipeline_funnel,
+            "scorecards_summary": scorecards_summary,
         }
 
         out_file = DST / f"daily_report_{date}.json"
