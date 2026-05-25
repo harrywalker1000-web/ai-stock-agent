@@ -18,11 +18,11 @@ export async function GET(
   const ticker = params.ticker.toUpperCase().replace(/[^A-Z.]/g, "");
   if (!ticker) return NextResponse.json({ error: "Invalid ticker" }, { status: 400 });
 
-  const fhKey      = process.env.FINNHUB_API_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
+  const fhKey    = process.env.FINNHUB_API_KEY;
+  const openaiKey = process.env.OPENAI_API_KEY;
 
-  if (!anthropicKey) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 503 });
+  if (!openaiKey) {
+    return NextResponse.json({ error: "OPENAI_API_KEY not configured" }, { status: 503 });
   }
 
   const today = new Date().toISOString().split("T")[0];
@@ -54,26 +54,25 @@ Provide a concise investment-focused synthesis in 3 short paragraphs:
 Be specific — name drugs, deals, executives, numbers where mentioned. Max 280 words. No bullet points.`;
 
   try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": anthropicKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        "Authorization": `Bearer ${openaiKey}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
+        model: "gpt-4o-mini",
         max_tokens: 512,
         messages: [{ role: "user", content: prompt }],
       }),
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Anthropic API error", synthesis: null }, { status: 502 });
+      return NextResponse.json({ error: "OpenAI API error", synthesis: null }, { status: 502 });
     }
 
     const data = await res.json();
-    const synthesis = data?.content?.[0]?.text ?? null;
+    const synthesis = data?.choices?.[0]?.message?.content ?? null;
     return NextResponse.json({ synthesis, article_count: articles.length });
   } catch (err) {
     return NextResponse.json({ error: String(err), synthesis: null }, { status: 500 });
