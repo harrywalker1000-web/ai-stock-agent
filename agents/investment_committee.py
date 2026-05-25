@@ -1194,7 +1194,10 @@ def _run_debate_round(
     - Analyst response is grounded in its own raw data, not a summary of another agent's view
     """
     DEBATE_THRESHOLD = 20
-    MAX_DEBATES = 10  # raised from 5 — at ~3 calls each, still <$0.02 total at gpt-4o-mini rates
+    # Max contested debates scales with mode via env var set by portfolio_manager
+    max_debates = int(os.environ.get("MAX_CONTESTED", "10"))
+    # Stocks scoring above this are "likely entries" — always debated regardless of spread
+    ENTRY_SCORE_THRESHOLD = 65
 
     if weights is None:
         weights = DEFAULT_WEIGHTS
@@ -1203,15 +1206,33 @@ def _run_debate_round(
     quant_map = {a["ticker"]: a for a in quant.get("quant_analyses", [])}
     sent_map = {a["ticker"]: a for a in sentiment.get("sentiment_analyses", [])}
 
-    # Sort by spread descending — debate the most contested tickers first
-    contested = sorted(
-        [sc for sc in scorecards if sc["agent_spread"] >= DEBATE_THRESHOLD],
+    # Priority 1: high-scoring stocks likely to be entered — mandatory debate even if agents agreed
+    likely_entries = sorted(
+        [sc for sc in scorecards if sc["composite_score"] >= ENTRY_SCORE_THRESHOLD],
+        key=lambda x: x["composite_score"],
+        reverse=True,
+    )
+    entry_tickers = {sc["ticker"] for sc in likely_entries}
+
+    # Priority 2: contested stocks (spread >= 20) not already captured above
+    contested_only = sorted(
+        [sc for sc in scorecards if sc["agent_spread"] >= DEBATE_THRESHOLD and sc["ticker"] not in entry_tickers],
         key=lambda x: x["agent_spread"],
         reverse=True,
-    )[:MAX_DEBATES]
+    )
 
-    if not contested:
+    # Entries first (mandatory), then contested fill remaining slots, capped at max_debates
+    to_debate = (likely_entries + contested_only)[:max_debates]
+
+    if not to_debate:
         return scorecards
+
+    logger.info(
+        "Debate selection: %d likely-entry (score≥%d) + %d contested-only → %d debated (cap=%d)",
+        len(likely_entries), ENTRY_SCORE_THRESHOLD, len(contested_only), len(to_debate), max_debates,
+    )
+
+    contested = to_debate
 
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     sc_index = {sc["ticker"]: sc for sc in scorecards}

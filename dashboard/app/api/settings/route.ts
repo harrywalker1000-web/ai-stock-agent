@@ -19,10 +19,14 @@ export async function GET() {
       return NextResponse.json({ mode: "Auto", candidate_limits: DEFAULT_LIMITS });
     }
     const raw = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8"));
-    // Reconstruct candidate_limits from flat keys for convenience
-    const candidate_limits: Record<string, { analyze: number; debate: number }> = {};
+    const candidate_limits: Record<string, { analyze: number; debate: number; contested: number }> = {};
     for (const m of ["Lite", "Standard", "Full", "Auto"]) {
-      candidate_limits[m] = (raw[`limits_${m}`] as { analyze: number; debate: number }) ?? DEFAULT_LIMITS[m];
+      const saved = raw[`limits_${m}`] as { analyze: number; debate: number; contested?: number } | undefined;
+      candidate_limits[m] = {
+        analyze:   saved?.analyze   ?? DEFAULT_LIMITS[m].analyze,
+        debate:    saved?.debate    ?? DEFAULT_LIMITS[m].debate,
+        contested: saved?.contested ?? DEFAULT_LIMITS[m].contested,
+      };
     }
     return NextResponse.json({ ...raw, candidate_limits });
   } catch {
@@ -30,11 +34,11 @@ export async function GET() {
   }
 }
 
-const DEFAULT_LIMITS: Record<string, { analyze: number; debate: number }> = {
-  Lite:     { analyze: 15, debate: 10 },
-  Standard: { analyze: 25, debate: 20 },
-  Full:     { analyze: 50, debate: 40 },
-  Auto:     { analyze: 30, debate: 25 },
+const DEFAULT_LIMITS: Record<string, { analyze: number; debate: number; contested: number }> = {
+  Lite:     { analyze: 15, debate: 10, contested: 5  },
+  Standard: { analyze: 25, debate: 20, contested: 8  },
+  Full:     { analyze: 50, debate: 40, contested: 15 },
+  Auto:     { analyze: 30, debate: 25, contested: 10 },
 };
 
 export async function POST(req: NextRequest) {
@@ -42,7 +46,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     ensureDir();
-    // Read existing config so we only overwrite what's provided
     let existing: Record<string, unknown> = {};
     if (fs.existsSync(CONFIG_PATH)) {
       try { existing = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf-8")); } catch { /* ignore */ }
@@ -57,12 +60,13 @@ export async function POST(req: NextRequest) {
     }
 
     if (body.candidate_limits !== undefined) {
-      const cl = body.candidate_limits as Record<string, { analyze: number; debate: number }>;
+      const cl = body.candidate_limits as Record<string, { analyze: number; debate: number; contested: number }>;
       for (const [m, v] of Object.entries(cl)) {
         if (!["Lite", "Standard", "Full", "Auto"].includes(m)) continue;
-        const analyze = Math.max(1, Math.min(200, Math.round(Number(v.analyze))));
-        const debate = Math.max(1, Math.min(analyze, Math.round(Number(v.debate))));
-        (existing as Record<string, unknown>)[`limits_${m}`] = { analyze, debate };
+        const analyze   = Math.max(1, Math.min(200, Math.round(Number(v.analyze))));
+        const debate    = Math.max(1, Math.min(analyze, Math.round(Number(v.debate))));
+        const contested = Math.max(1, Math.min(debate, Math.round(Number(v.contested))));
+        (existing as Record<string, unknown>)[`limits_${m}`] = { analyze, debate, contested };
       }
     }
 

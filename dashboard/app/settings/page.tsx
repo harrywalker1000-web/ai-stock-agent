@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 
 type AnalysisMode = "Lite" | "Standard" | "Full" | "Auto";
 
-type CandidateLimits = Record<AnalysisMode, { analyze: number; debate: number }>;
+type CandidateLimits = Record<AnalysisMode, { analyze: number; debate: number; contested: number }>;
 
 const DEFAULT_LIMITS: CandidateLimits = {
-  Lite:     { analyze: 15, debate: 10 },
-  Standard: { analyze: 25, debate: 20 },
-  Full:     { analyze: 50, debate: 40 },
-  Auto:     { analyze: 30, debate: 25 },
+  Lite:     { analyze: 15, debate: 10, contested: 5  },
+  Standard: { analyze: 25, debate: 20, contested: 8  },
+  Full:     { analyze: 50, debate: 40, contested: 15 },
+  Auto:     { analyze: 30, debate: 25, contested: 10 },
 };
 
 const MODE_INFO: Record<AnalysisMode, { description: string; phaseA: string; phaseB: string; time: string; cost: string }> = {
@@ -109,16 +109,22 @@ export default function SettingsPage() {
     }
   };
 
-  const updateDraft = (m: AnalysisMode, field: "analyze" | "debate", raw: string) => {
+  const updateDraft = (m: AnalysisMode, field: "analyze" | "debate" | "contested", raw: string) => {
     const val = Math.max(1, Math.min(200, parseInt(raw, 10) || 1));
-    setDraftLimits((prev) => ({
-      ...prev,
-      [m]: {
-        ...prev[m],
-        [field]: field === "debate" ? Math.min(val, prev[m].analyze) : val,
-        ...(field === "analyze" && val < prev[m].debate ? { debate: val } : {}),
-      },
-    }));
+    setDraftLimits((prev) => {
+      const next = { ...prev[m], [field]: val };
+      // Cascade constraints: contested ≤ debate ≤ analyze
+      if (field === "analyze") {
+        if (next.debate > val) next.debate = val;
+        if (next.contested > next.debate) next.contested = next.debate;
+      } else if (field === "debate") {
+        next.debate = Math.min(val, prev[m].analyze);
+        if (next.contested > next.debate) next.contested = next.debate;
+      } else {
+        next.contested = Math.min(val, prev[m].debate);
+      }
+      return { ...prev, [m]: next };
+    });
   };
 
   return (
@@ -274,7 +280,7 @@ export default function SettingsPage() {
                   const isActive = mode === m;
                   const row = editingLimits ? draftLimits[m] : limits[m];
                   const def = DEFAULT_LIMITS[m];
-                  const changed = limits[m].analyze !== def.analyze || limits[m].debate !== def.debate;
+                  const changed = limits[m].analyze !== def.analyze || limits[m].debate !== def.debate || limits[m].contested !== def.contested;
                   return (
                     <tr key={m} className={`border-b border-white/05 last:border-0 ${i % 2 === 0 ? "bg-white/01" : ""} ${isActive ? "bg-[#F5A623]/04" : ""}`}>
                       <td className="px-4 py-3">
@@ -313,8 +319,18 @@ export default function SettingsPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-center hidden sm:table-cell">
-                        <span className="text-[#EF4444]/60 font-mono text-sm">10</span>
-                        <span className="text-[#4B5563] text-[10px] ml-1">(fixed)</span>
+                        {editingLimits ? (
+                          <input
+                            type="number"
+                            min={1}
+                            max={draftLimits[m].debate}
+                            value={draftLimits[m].contested}
+                            onChange={(e) => updateDraft(m, "contested", e.target.value)}
+                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#EF4444]/60"
+                          />
+                        ) : (
+                          <span className="text-[#EF4444] font-mono font-semibold">{row.contested}</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-[#6B7280] text-xs hidden md:table-cell">
                         {m === "Full" ? "Max coverage — good for weekend catch-up runs" :
@@ -329,7 +345,7 @@ export default function SettingsPage() {
             </table>
           </div>
           <p className="text-[10px] text-[#4B5563] mt-3">
-            ② Committee must be ≤ ① Analyse. Max 200. Defaults: Lite 15/10 · Standard 25/20 · Auto 30/25 · Full 50/40. ③ Contested debate cap (10) is hardcoded.
+            Constraints: ③ Contested ≤ ② Committee ≤ ① Analyse ≤ 200. Defaults: Lite 15/10/5 · Standard 25/20/8 · Auto 30/25/10 · Full 50/40/15.
           </p>
         </div>
 

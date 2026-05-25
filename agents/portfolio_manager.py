@@ -446,10 +446,10 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
 
     # Scale candidate pool and debate cap by mode — read custom limits from dashboard config if present
     _default_scales = {
-        "Lite":     {"MAX_CANDIDATES": 15,  "MAX_CANDIDATES_TO_DEBATE": 10},
-        "Standard": {"MAX_CANDIDATES": 25,  "MAX_CANDIDATES_TO_DEBATE": 20},
-        "Full":     {"MAX_CANDIDATES": 50,  "MAX_CANDIDATES_TO_DEBATE": 40},
-        "Auto":     {"MAX_CANDIDATES": 30,  "MAX_CANDIDATES_TO_DEBATE": 25},
+        "Lite":     {"MAX_CANDIDATES": 15,  "MAX_CANDIDATES_TO_DEBATE": 10, "MAX_CONTESTED": 5},
+        "Standard": {"MAX_CANDIDATES": 25,  "MAX_CANDIDATES_TO_DEBATE": 20, "MAX_CONTESTED": 8},
+        "Full":     {"MAX_CANDIDATES": 50,  "MAX_CANDIDATES_TO_DEBATE": 40, "MAX_CONTESTED": 15},
+        "Auto":     {"MAX_CANDIDATES": 30,  "MAX_CANDIDATES_TO_DEBATE": 25, "MAX_CONTESTED": 10},
     }
     _scale = dict(_default_scales.get(PHASE_A_MODE, _default_scales["Standard"]))
     # Try to load custom limits saved from the dashboard settings page
@@ -461,12 +461,14 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
             if _custom:
                 _scale["MAX_CANDIDATES"] = int(_custom.get("analyze", _scale["MAX_CANDIDATES"]))
                 _scale["MAX_CANDIDATES_TO_DEBATE"] = int(_custom.get("debate", _scale["MAX_CANDIDATES_TO_DEBATE"]))
+                _scale["MAX_CONTESTED"] = int(_custom.get("contested", _scale["MAX_CONTESTED"]))
     except Exception:
         pass
     os.environ["MAX_CANDIDATES"] = str(_scale["MAX_CANDIDATES"])
     os.environ["MAX_CANDIDATES_TO_DEBATE"] = str(_scale["MAX_CANDIDATES_TO_DEBATE"])
-    logger.info("Phase B: mode=%s → analysing up to %d candidates, debating top %d",
-                PHASE_A_MODE, _scale["MAX_CANDIDATES"], _scale["MAX_CANDIDATES_TO_DEBATE"])
+    os.environ["MAX_CONTESTED"] = str(_scale["MAX_CONTESTED"])
+    logger.info("Phase B: mode=%s → analysing up to %d candidates, committee top %d, max contested debate %d",
+                PHASE_A_MODE, _scale["MAX_CANDIDATES"], _scale["MAX_CANDIDATES_TO_DEBATE"], _scale["MAX_CONTESTED"])
 
     # --- Phase 1: Market Intelligence (run in sequence, results saved to disk) ---
     if not macro_already_ran:
