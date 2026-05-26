@@ -2,33 +2,34 @@
   "sentiment_analyses": [
     {
       "ticker": "NVDA",
-      "sentiment_score": 78,
+      "sentiment_score": 83,
       "direction": "LONG",
       "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 37.2,
-      "news_sentiment": "neutral",
+      "price_target_upside_pct": 38.1,
+      "news_sentiment": "positive",
       "short_interest_pct": 1.2,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
       "analyst_targets_stale": false,
-      "contrarian_signal": true,
+      "contrarian_signal": false,
       "sentiment_type": "leading",
       "data_conflicts": [],
       "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "analyst_consensus"
+          "analyst_consensus",
+          "news_catalysts"
         ],
         "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
+        "confidence_note": "2/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, indicating potential value in a long position.",
+      "sentiment_summary": "The sentiment around NVDA is strongly bullish, supported by a positive analyst consensus and favorable news catalysts. With a significant upside potential in price targets and low short interest, the sentiment appears to be leading, indicating confidence in future performance.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": 313.2,
         "target_count": 25,
-        "last_quarter_avg_target": 305.09,
+        "last_quarter_avg_target": 309.68,
         "last_year_avg_target": 269.73,
         "upgrades_recent": 0,
         "downgrades_recent": 0,
@@ -46,206 +47,66 @@
         "fh_period": "2026-05-01"
       },
       "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
+        "found": true,
+        "long_weight": 1.0,
         "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "Alpha Compute: $21 Million NTM Sales Outlook Shows Scale-Up Potential \u2013 Quarterly Update Report"
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 215.33,
+        "current": 213.875,
         "mean": 295.34482,
         "high": 500.0,
         "low": 180.0,
-        "upside_pct": 37.2
+        "upside_pct": 38.1
       },
       "short_interest": {
         "ratio": 1.84,
         "pct_float": 0.012200001
       },
-      "candidate_score": 6.0,
+      "candidate_score": 7.25,
       "candidate_signals": [
         "institutional_signal",
         "analyst_upgrade",
-        "unusual_calls(43.7x_vol_oi)",
+        "fresh_catalyst",
+        "unusual_calls(30.6x_vol_oi)",
         "sector_momentum"
       ]
     },
     {
-      "ticker": "META",
-      "sentiment_score": 78,
+      "ticker": "TSLA",
+      "sentiment_score": 55,
       "direction": "LONG",
-      "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 35.5,
+      "analyst_consensus": "Mixed",
+      "price_target_upside_pct": -4.7,
       "news_sentiment": "neutral",
-      "short_interest_pct": 1.3,
+      "short_interest_pct": 2.3,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
+      "analyst_targets_stale": true,
       "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
+      "sentiment_type": "lagging",
+      "data_conflicts": [
+        "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      ],
       "signal_confidence": {
         "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
+        "sources_count": 0,
+        "sources": [],
+        "conflicts": [
+          "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
         ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
+        "confidence_note": "0/3 sources confirming; conflicts: yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, META shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in a long position.",
+      "sentiment_summary": "Current sentiment towards TSLA is mixed, with analysts showing a bullish bias despite a neutral outlook from some sources. The lack of recent news catalysts and the slight downside in price targets suggest that sentiment is lagging behind recent price movements, indicating potential value for contrarian investors.",
       "fmp_analyst_signals": {
         "available": true,
-        "avg_target_price": 800.0,
-        "target_count": 1,
-        "last_quarter_avg_target": 800,
-        "last_year_avg_target": 850.26,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Strong Buy",
-        "yf_num_analysts": 58,
-        "fh_strong_buy": 24,
-        "fh_buy": 40,
-        "fh_hold": 9,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-05-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 610.26,
-        "mean": 826.60486,
-        "high": 1015.0,
-        "low": 614.0,
-        "upside_pct": 35.5
-      },
-      "short_interest": {
-        "ratio": 1.69,
-        "pct_float": 0.013200001
-      },
-      "candidate_score": 4.5,
-      "candidate_signals": [
-        "institutional_signal",
-        "analyst_upgrade",
-        "unusual_calls(18.6x_vol_oi)"
-      ]
-    },
-    {
-      "ticker": "MSFT",
-      "sentiment_score": 82,
-      "direction": "LONG",
-      "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 33.9,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 1.1,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": false,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, Microsoft (MSFT) shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. However, the lack of recent news catalysts and low signal confidence suggests that the current sentiment may be leading rather than lagging.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 554.67,
-        "target_count": 12,
-        "last_quarter_avg_target": 545.44,
-        "last_year_avg_target": 592.37,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Strong Buy",
-        "yf_num_analysts": 54,
-        "fh_strong_buy": 24,
-        "fh_buy": 36,
-        "fh_hold": 6,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-05-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 418.57,
-        "mean": 560.6302,
-        "high": 870.0,
-        "low": 400.0,
-        "upside_pct": 33.9
-      },
-      "short_interest": {
-        "ratio": 2.26,
-        "pct_float": 0.0107
-      },
-      "candidate_score": 3.5,
-      "candidate_signals": [
-        "unusual_calls(4.5x_vol_oi)",
-        "sector_momentum"
-      ]
-    },
-    {
-      "ticker": "ZTS",
-      "sentiment_score": 72,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 53.2,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 4.0,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, ZTS shows a positive sentiment driven by a strong analyst consensus and significant upside potential in price targets. The lack of recent news catalysts and low short interest suggest that current sentiment is leading, indicating potential value overlooked by the market.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
+        "avg_target_price": 429.0,
+        "target_count": 6,
+        "last_quarter_avg_target": 429,
+        "last_year_avg_target": 437.79,
         "upgrades_recent": 0,
         "downgrades_recent": 0,
         "initiations_recent": 0,
@@ -253,12 +114,12 @@
       },
       "analyst_detail": {
         "yf_label": "Buy",
-        "yf_num_analysts": 17,
-        "fh_strong_buy": 7,
-        "fh_buy": 9,
-        "fh_hold": 9,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
+        "yf_num_analysts": 41,
+        "fh_strong_buy": 9,
+        "fh_buy": 20,
+        "fh_hold": 24,
+        "fh_sell": 7,
+        "fh_strong_sell": 1,
         "fh_period": "2026-05-01"
       },
       "news_detail": {
@@ -271,21 +132,21 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 81.32,
-        "mean": 124.58824,
-        "high": 160.0,
-        "low": 90.0,
-        "upside_pct": 53.2
+        "current": 432.0932,
+        "mean": 411.8878,
+        "high": 600.0,
+        "low": 123.0,
+        "upside_pct": -4.7
       },
       "short_interest": {
-        "ratio": 4.54,
-        "pct_float": 0.0398
+        "ratio": 1.13,
+        "pct_float": 0.023
       },
-      "candidate_score": 3.5,
+      "candidate_score": 4.75,
       "candidate_signals": [
-        "dislocation_screen(-30%_1m)",
-        "sector_momentum",
-        "macro_tailwind"
+        "institutional_signal",
+        "analyst_upgrade",
+        "unusual_calls(42.9x_vol_oi)"
       ]
     },
     {
@@ -293,7 +154,7 @@
       "sentiment_score": 82,
       "direction": "LONG",
       "analyst_consensus": "Buy",
-      "price_target_upside_pct": 13.7,
+      "price_target_upside_pct": 12.3,
       "news_sentiment": "positive",
       "short_interest_pct": 0.9,
       "short_squeeze_risk": "low",
@@ -312,7 +173,7 @@
         "conflicts": [],
         "confidence_note": "2/3 sources confirming"
       },
-      "sentiment_summary": "The sentiment around LLY is currently positive, bolstered by strong analyst consensus and a significant upside in price targets. With low short interest and a positive news catalyst, the sentiment appears to be leading, indicating potential value in a long position.",
+      "sentiment_summary": "The overall market sentiment for LLY is strongly bullish, supported by a positive analyst consensus and a favorable news catalyst. With a significant upside potential and low short interest, the sentiment appears to be leading, indicating that the market may be pricing in future growth opportunities.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": null,
@@ -340,30 +201,102 @@
         "short_weight": 0.0,
         "net_score": 1.0,
         "total_catalysts": 1,
-        "top_catalyst": "A single dose of Lilly's PCSK9 base editor, VERVE-102, reduced PCSK9 by up to 88% and LDL-C by up to"
+        "top_catalyst": "Can EU Label Expansions of NVO's GLP-1 Drugs Spur Sales Growth?"
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 1065.0,
+        "current": 1078.3,
         "mean": 1211.0344,
         "high": 1500.0,
         "low": 850.0,
-        "upside_pct": 13.7
+        "upside_pct": 12.3
       },
       "short_interest": {
         "ratio": 2.45,
         "pct_float": 0.0088
       },
-      "candidate_score": 3.5,
+      "candidate_score": 3.25,
       "candidate_signals": [
         "fresh_catalyst",
         "sector_momentum",
         "macro_tailwind"
       ]
+    },
+    {
+      "ticker": "CVX",
+      "sentiment_score": 82,
+      "direction": "LONG",
+      "analyst_consensus": "Buy",
+      "price_target_upside_pct": 15.5,
+      "news_sentiment": "positive",
+      "short_interest_pct": 0.9,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "analyst_consensus",
+          "news_catalysts"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 sources confirming"
+      },
+      "sentiment_summary": "The sentiment around Chevron (CVX) is currently positive, supported by analyst upgrades and a recent price target increase from Morgan Stanley. With a significant upside potential and low short interest, the sentiment appears to be leading, indicating a favorable outlook for investors.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 209.83,
+        "target_count": 6,
+        "last_quarter_avg_target": 207.44,
+        "last_year_avg_target": 189.75,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 23,
+        "fh_strong_buy": 7,
+        "fh_buy": 16,
+        "fh_hold": 7,
+        "fh_sell": 1,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-05-01"
+      },
+      "news_detail": {
+        "found": true,
+        "long_weight": 1.0,
+        "short_weight": 0.0,
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "Chevron (CVX) Price Target Raised by $2 at Morgan Stanley"
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 186.15,
+        "mean": 214.95651,
+        "high": 236.0,
+        "low": 170.0,
+        "upside_pct": 15.5
+      },
+      "short_interest": {
+        "ratio": 1.61,
+        "pct_float": 0.0094
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
     }
   ],
-  "total_analysed": 5,
+  "total_analysed": 4,
   "macro_regime": "RISK-OFF",
   "reddit_enabled": false,
-  "generated_at": "2026-05-25 16:49 UTC"
+  "generated_at": "2026-05-26 17:13 UTC"
 }
