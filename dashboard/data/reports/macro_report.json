@@ -1,23 +1,24 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "stable",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
     "commodities",
-    "inflation-protected securities"
+    "healthcare",
+    "energy",
+    "infrastructure"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "growth stocks",
-    "emerging markets"
+    "cyber stocks",
+    "growth stocks"
   ],
   "geopolitical_risks": [
     "Iran conflict impacting oil prices",
-    "US-China tensions affecting trade",
-    "Middle East instability influencing global markets"
+    "Mideast developments affecting global markets"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly in the Middle East. While FRED and newsapi_finnhub both signal a RISK-OFF stance, yfinance_market remains NEUTRAL, leading to a conflict in signals. The Fed Funds Rate is stable at 3.64% with a rising CPI trend, suggesting ongoing inflationary pressures.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly related to the Iran conflict. Conflicts in the source signals, with FRED and newsapi_finnhub indicating RISK-OFF while yfinance_market remains NEUTRAL, contribute to a low confidence level. The rising Fed Funds Rate and an inverted yield curve suggest increasing recession risks.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -31,14 +32,14 @@
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The low confidence level reflects conflicting signals from multiple sources."
+    "confidence_note": "The conflicting signals from the sources lead to a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.64,
-    "us_10y_yield": 4.57,
-    "us_2y_yield": 4.08,
-    "yield_curve_spread": 0.49,
+    "us_10y_yield": 4.56,
+    "us_2y_yield": 4.13,
+    "yield_curve_spread": 0.43,
     "cpi_latest": 332.41,
     "cpi_prev": 330.29,
     "cpi_trend": "rising",
@@ -46,41 +47,41 @@
     "gdp_latest": 31856.3,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.38,
-    "dxy_current": 99.2,
+    "dxy_current": 99.18,
     "dxy_1m_ago": 98.48,
     "dxy_trend": "strengthening",
-    "vix": 17.03,
-    "tlt_1m_change_pct": -1.06,
-    "hyg_1m_change_pct": -0.01,
+    "vix": 16.77,
+    "tlt_1m_change_pct": -0.76,
+    "hyg_1m_change_pct": 0.09,
     "macro_headlines": [
-      "We're booking profits in a stock that has rallied almost 10% since our last buy",
-      "Exclusive: Pentagon spars with SpaceX over Starlink price hike during Iran war - Reuters",
-      "S&P 500, Nasdaq rise as AI optimism outweighs Middle East risks - Reuters",
-      "Nvidia stock faces a key level that could make or break where it goes next",
-      "ECB 'will do what is necessary' to tame inflation, Bank of France governor tells CNBC",
-      "Trump claims 2020 election 'rigged' at least 107 times in six months as midterms loom - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Tuesday",
-      "Iranian hackers responsible for Los Angeles transit system breach, Israeli researchers say - Reuters",
-      "UK gilt yields retreat from multi-decade highs as political drama mellows, rate hike expectations ease",
-      "Eli Lilly stock edges higher as company plans nearly $4 billion in vaccine deals"
+      "Healthy Returns: Eli Lilly makes a new push into vaccines \u2013 here\u2019s what to know",
+      "Abercrombie shares jump 13% on earnings beat even as Iran conflict hits sales",
+      "Boeing CEO says company met requirements to increase 737 Max production to 47 jets per month",
+      "Iran war splits global markets into clear winners and losers - Reuters",
+      "Our cyber stocks are falling on a rival's earnings blowup. Why it's not a cause for concern",
+      "Iran state TV says draft deal with US would reopen Hormuz shipping, end naval blockade - Reuters",
+      "'Greetings after 88 days': Iranians reconnect after long internet shutdown - Reuters",
+      "These 5 skills are AI-proof and likely to become more valuable 'over the next 5 years,' says Oxford-trained career expert",
+      "Amazon starts selling its AI shopping technology to other retailers",
+      "U.S. oil falls below $89 on report Iran agreement would restore Hormuz traffic in one month"
     ],
     "geopolitical_headlines": [
-      "Heatwave likely to be confirmed as record-breaking temperatures forecast",
+      "BOJ's Himino says Mideast developments will factor into rate decision",
+      "Almost 1,000 migrants cross Channel over bank holiday",
+      "Woman shot outside Sheffield bar was innocent bystander",
+      "The Supreme Court handed Trump a Golden Chariot on tariffs \u2014 now he just has to take it",
       "Tether says it will\u00a0launch 'official' stablecoin in Georgia, with government support",
+      "Rogue states are putting AI agents to work on sanctions evasion",
+      "Predictions, prescriptions and systems change",
       "Forza Horizon 6 Drivatar Bowie Knife99 Has Become So Infamous That Even The Official Xbox Account Is Smack-Talking It",
       "UGREEN\u2019s 45W Power Bank is Giving Peak 2000s \u2018Blobject\u2019 Energy",
-      "Your Prototype Is Not Being Honest With Your Users (And Here\u2019s How To Fix It)",
-      "France bans Ben-Gvir: Which other Israeli leaders have been penalised?",
-      "I moved from Europe to New York last year. I wish I'd known a few things before making the leap.",
-      "Nirmala Sitharaman urges focus on fuel, fertiliser, forex amid West Asia crisis",
-      "Anker 3-in-1 Prime Wireless Charging Station Drops to $104.99 on Amazon",
-      "Solid-State Battery Power Banks Are Here \u2013 And They Could Change Everything About Safety"
+      "Your Prototype Is Not Being Honest With Your Users (And Here\u2019s How To Fix It)"
     ],
     "central_bank_headlines": [
-      "More War-Driven Inflation Seen in Fed\u2019s Favored Gauge",
+      "Philip R. Lane: Interview with Nikkei",
       "Debt, War and the Unseen Fate of Nation States"
     ],
-    "as_of": "2026-05-26 17:02 UTC"
+    "as_of": "2026-05-27 16:51 UTC"
   },
-  "generated_at": "2026-05-26T17:02:11.681947"
+  "generated_at": "2026-05-27T16:51:59.402312"
 }
