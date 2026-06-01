@@ -199,11 +199,6 @@ try:
             })
         # Sort: entered first, then by composite score desc
         scorecards_summary.sort(key=lambda x: (0 if "enter" in (x["action"] or "") else 1, -(x["composite_score"] or 0)))
-        pipeline_funnel = {
-            "analyzed": cr.get("candidates_evaluated") or len(raw_scorecards),
-            "debated": cr.get("candidates_debated") or sum(1 for s in scorecards_summary if s["was_debated"]),
-            "entered": action_counts.get("new_positions", 0),
-        }
 
         action_counts = {"new_positions": 0, "exits": 0, "holds": 0, "increases": 0, "decreases": 0}
         for d in decisions:
@@ -218,6 +213,12 @@ try:
                 action_counts["increases"] += 1
             elif "decrease" in a:
                 action_counts["decreases"] += 1
+
+        pipeline_funnel = {
+            "analyzed": cr.get("candidates_evaluated") or len(raw_scorecards),
+            "debated": cr.get("candidates_debated") or sum(1 for s in scorecards_summary if s["was_debated"]),
+            "entered": action_counts.get("new_positions", 0),
+        }
 
         # Detect market closure from executor output
         pb_executor = pr.get("phase_b", {}).get("executor") or {}
