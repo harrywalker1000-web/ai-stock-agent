@@ -132,6 +132,7 @@ export async function GET() {
             expected_return_12m: data.expected_return_12m ?? data.expected_return_2_3yr,
             macro_regime: data.macro_regime,
             cached: data.cached,
+            source: data.source ?? "manual",
           });
         } catch {
           // skip malformed

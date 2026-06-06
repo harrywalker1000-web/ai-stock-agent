@@ -14,6 +14,7 @@ interface ReportPreview {
   mandate_pass: boolean;
   expected_return_12m: string | null;
   macro_regime: string;
+  source?: string;
 }
 
 const DIRECTION_STYLE: Record<string, string> = {
@@ -389,84 +390,112 @@ export default function AdhocInputPage() {
           </div>
         )}
 
-        {/* Recent reports */}
-        {recent.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">
-                Cached Reports ({recent.length})
-              </h2>
-              <button
-                onClick={deleteAll}
-                disabled={deleting === "all"}
-                className="text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
-              >
-                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
-                </svg>
-                {deleting === "all" ? "Deleting…" : "Clear all"}
-              </button>
-            </div>
-            <div className="space-y-2">
-              {recent.map((r) => {
-                const dir = r.direction ?? "PASS";
-                const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
-                const cv = r.conviction;
-                const cvColor = cv == null ? "#6B7280"
-                  : cv >= 70 ? "#10B981"
-                  : cv >= 40 ? "#F59E0B"
-                  : "#EF4444";
-                const rowKey = `${r.ticker}_${r.date}`;
-                const isDeleting = deleting === rowKey;
-                return (
-                  <div key={rowKey} className="relative group">
-                    <Link href={`/reports/full/${r.ticker}`}>
-                      <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
-                        <div className="flex items-center gap-3">
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
-                          <div>
-                            <span className="font-mono text-sm font-bold text-[#E8EDF2]">{r.ticker}</span>
-                            <span className="text-xs text-[#6B7280] ml-2">{r.company_name}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 text-right">
-                          {cv != null && (
-                            <div>
-                              <p className="text-[10px] text-[#6B7280]">Conviction</p>
-                              <p className="text-sm font-bold font-mono" style={{ color: cvColor }}>{cv}</p>
-                            </div>
-                          )}
-                          {r.expected_return_12m && (
-                            <div>
-                              <p className="text-[10px] text-[#6B7280]">12M Return</p>
-                              <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_12m}</p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-[10px] text-[#4B5563]">{r.date}</p>
-                          </div>
-                          {/* Spacer so delete button doesn't overlap text */}
-                          <div className="w-6" />
-                        </div>
+        {/* Recent reports — split by source */}
+        {recent.length > 0 && (() => {
+          const manualReports   = recent.filter((r) => !r.source || r.source === "manual");
+          const pipelineReports = recent.filter((r) => r.source === "pipeline_auto");
+
+          const TrashIcon = () => (
+            <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
+            </svg>
+          );
+
+          const ReportRow = ({ r }: { r: ReportPreview }) => {
+            const dir = r.direction ?? "PASS";
+            const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
+            const cv = r.conviction;
+            const cvColor = cv == null ? "#6B7280" : cv >= 70 ? "#10B981" : cv >= 40 ? "#F59E0B" : "#EF4444";
+            const rowKey = `${r.ticker}_${r.date}`;
+            const isDeleting = deleting === rowKey;
+            return (
+              <div className="relative group">
+                <Link href={`/reports/full/${r.ticker}`}>
+                  <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
+                      <div>
+                        <span className="font-mono text-sm font-bold text-[#E8EDF2]">{r.ticker}</span>
+                        <span className="text-xs text-[#6B7280] ml-2">{r.company_name}</span>
                       </div>
-                    </Link>
-                    {/* Delete button — shown on hover, sits over the right edge */}
+                    </div>
+                    <div className="flex items-center gap-4 text-right">
+                      {cv != null && (
+                        <div>
+                          <p className="text-[10px] text-[#6B7280]">Conviction</p>
+                          <p className="text-sm font-bold font-mono" style={{ color: cvColor }}>{cv}</p>
+                        </div>
+                      )}
+                      {r.expected_return_12m && (
+                        <div>
+                          <p className="text-[10px] text-[#6B7280]">12M Return</p>
+                          <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_12m}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-[10px] text-[#4B5563]">{r.date}</p>
+                      </div>
+                      <div className="w-6" />
+                    </div>
+                  </div>
+                </Link>
+                <button
+                  onClick={(e) => { e.preventDefault(); deleteReport(r.ticker, r.date); }}
+                  disabled={!!deleting}
+                  title={`Delete ${r.ticker} cache`}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[#EF4444]/50 hover:text-[#EF4444] disabled:opacity-20 p-1.5 rounded-lg hover:bg-[#EF4444]/08"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
+                  </svg>
+                </button>
+              </div>
+            );
+          };
+
+          return (
+            <div className="space-y-6">
+              {/* Manual section */}
+              {manualReports.length > 0 && (
+                <div>
+                  <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">
+                    My Research ({manualReports.length})
+                  </h2>
+                  <div className="space-y-2">
+                    {manualReports.map((r) => <ReportRow key={`${r.ticker}_${r.date}`} r={r} />)}
+                  </div>
+                </div>
+              )}
+
+              {/* Pipeline auto section */}
+              {pipelineReports.length > 0 && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">
+                        Pipeline Research ({pipelineReports.length})
+                      </h2>
+                      <p className="text-[10px] text-[#3D4655] mt-0.5">
+                        Auto-generated for debated &amp; entered stocks during daily pipeline runs
+                      </p>
+                    </div>
                     <button
-                      onClick={(e) => { e.preventDefault(); deleteReport(r.ticker, r.date); }}
-                      disabled={!!deleting}
-                      title={`Delete ${r.ticker} cache`}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[#EF4444]/50 hover:text-[#EF4444] disabled:opacity-20 p-1.5 rounded-lg hover:bg-[#EF4444]/08"
+                      onClick={deleteAll}
+                      disabled={deleting === "all"}
+                      className="text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
                     >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
-                      </svg>
+                      <TrashIcon />
+                      {deleting === "all" ? "Deleting…" : "Clear all"}
                     </button>
                   </div>
-                );
-              })}
+                  <div className="space-y-2">
+                    {pipelineReports.map((r) => <ReportRow key={`${r.ticker}_${r.date}`} r={r} />)}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {recent.length === 0 && status === "idle" && (
           <p className="text-xs text-[#4B5563] text-center mt-8">No cached reports yet. Run your first analysis above.</p>
