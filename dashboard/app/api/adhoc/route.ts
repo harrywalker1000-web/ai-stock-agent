@@ -120,16 +120,27 @@ export async function GET() {
       for (const file of files) {
         try {
           const data = JSON.parse(fs.readFileSync(path.join(adhocDir, file), "utf-8"));
+          // Support both new pipeline format (sections.*) and old format (flat fields)
+          const secs = data.sections ?? {};
+          const s1   = secs.s1_cover ?? secs.s1_mandate ?? {};
+          const s16  = secs.s16_recommendation ?? {};
+          const mandate = data.mandate ?? {};
+          const direction = s16.direction?.value ?? s16.direction ?? data.direction;
+          const conviction = s16.conviction?.value ?? s16.conviction ?? data.conviction;
+          const sector = s1.sector?.value ?? s1.sector ?? data.sector;
+          const currentPrice = s1.current_price?.value ?? s1.current_price ?? data.current_price;
+          const mandatePass = mandate.passed ?? s1.mandate_status?.value ?? data.mandate_pass;
+          const expectedReturn = s16.expected_return_12m?.value ?? s16.expected_return_12m ?? data.expected_return_12m ?? data.expected_return_2_3yr;
           reports.push({
             ticker: data.ticker,
             company_name: data.company_name,
-            sector: data.sector,
-            current_price: data.current_price,
-            date: data.date,
-            direction: data.direction,
-            conviction: data.conviction,
-            mandate_pass: data.mandate_pass,
-            expected_return_12m: data.expected_return_12m ?? data.expected_return_2_3yr,
+            sector,
+            current_price: currentPrice,
+            date: data.date ?? (data.generated_at ?? "").slice(0, 10),
+            direction,
+            conviction,
+            mandate_pass: mandatePass,
+            expected_return_12m: expectedReturn,
             macro_regime: data.macro_regime,
             cached: data.cached,
             source: data.source ?? "manual",

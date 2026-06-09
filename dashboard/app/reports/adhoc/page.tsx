@@ -367,7 +367,7 @@ export default function AdhocInputPage() {
             {(progress?.steps?.commit === "done" || progress?.status === "completed") && (
               <div className="pt-3 border-t border-white/05">
                 <Link
-                  href={`/reports/full/${queued}`}
+                  href={`/reports/adhoc/${queued}`}
                   className="text-xs text-[#0EA5E9] hover:underline"
                 >
                   View full report for {queued} →
@@ -410,7 +410,7 @@ export default function AdhocInputPage() {
             const isDeleting = deleting === rowKey;
             return (
               <div className="relative group">
-                <Link href={`/reports/full/${r.ticker}`}>
+                <Link href={`/reports/adhoc/${r.ticker}`}>
                   <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
