@@ -11,8 +11,11 @@ function sanitizeTicker(raw: string): string {
 }
 
 function getAdhocDir(): string {
-  const local = path.join(process.cwd(), "data", "adhoc_reports");
-  return fs.existsSync(local) ? local : path.join(process.cwd(), "..", "data", "adhoc_reports");
+  // Check dashboard/data/adhoc_reports (Vercel + local dashboard-root)
+  const inDashboard = path.join(process.cwd(), "data", "adhoc_reports");
+  if (fs.existsSync(inDashboard)) return inDashboard;
+  // Fallback: repo-root/data/adhoc_reports (local dev from repo root)
+  return path.join(process.cwd(), "..", "data", "adhoc_reports");
 }
 
 function readLatestReport(ticker: string): Record<string, unknown> | null {

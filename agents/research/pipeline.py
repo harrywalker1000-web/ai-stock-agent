@@ -25,11 +25,9 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-OUTPUT_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-    "data",
-    "adhoc_reports",
-)
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+# Write to dashboard/data/adhoc_reports so the Next.js GET route finds it directly
+OUTPUT_DIR = os.path.join(_REPO_ROOT, "dashboard", "data", "adhoc_reports")
 
 
 def run_pipeline(ticker: str) -> dict:
