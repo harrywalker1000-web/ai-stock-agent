@@ -195,13 +195,19 @@ export default function AdhocInputPage() {
         const data: Progress & { status: string } = await res.json();
         if (!stopped) {
           setProgress(data);
-          // If completed, refresh the reports list after a short delay
           if (data.status === "completed") {
             setTimeout(() => {
               fetch("/api/adhoc").then(r => r.json()).then(d => {
                 if (Array.isArray(d)) setRecent(d);
               }).catch(() => {});
             }, 3000);
+          }
+          // Auto-unblock on failure so user can retry immediately
+          if (data.status === "failed") {
+            localStorage.removeItem("adhocQueued");
+            setStatus("error");
+            setErrorMsg("Workflow failed — check GitHub Actions for logs.");
+            setQueued(null);
           }
         }
       } catch { /* ignore */ }
