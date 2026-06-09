@@ -7,7 +7,10 @@ import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
 
 // ─── Helper functions ────────────────────────────────────────────────────────
-function fv(f: any): any { return f?.value ?? f; }
+function fv(f: any): any {
+  if (f !== null && typeof f === "object" && "value" in f) return f.value;
+  return f;
+}
 function fs(f: any): string { return f?.source ?? ""; }
 function fmt$(n: any): string { return n == null ? "—" : `$${Number(fv(n)).toFixed(2)}`; }
 function fmtPct(n: any): string { const v = fv(n); return v == null ? "—" : `${Number(v).toFixed(1)}%`; }
@@ -1081,13 +1084,14 @@ export default function AdhocTickerPage() {
                 const insiderPct = fv(s10.insider_pct ?? s10.insider_ownership);
                 const holders    = s10.top_holders ?? s10.major_holders ?? [];
                 const insiderTrades = s10.insider_trades ?? s10.sec_trades ?? [];
-                const consensus  = s10.analyst_consensus ?? {};
-                const ptMean     = fv(s10.price_target_mean ?? consensus.mean_target);
-                const ptHigh     = fv(s10.price_target_high ?? consensus.high_target);
-                const ptLow      = fv(s10.price_target_low  ?? consensus.low_target);
-                const buyCnt     = Number(fv(s10.analyst_buy_count   ?? consensus.buy_count  ?? 0));
-                const holdCnt    = Number(fv(s10.analyst_hold_count  ?? consensus.hold_count ?? 0));
-                const sellCnt    = Number(fv(s10.analyst_sell_count  ?? consensus.sell_count ?? 0));
+                const consensus  = s10.analyst_ratings ?? s10.analyst_consensus ?? {};
+                const pts        = s10.analyst_price_targets ?? {};
+                const ptMean     = fv(s10.price_target_mean ?? pts.mean ?? consensus.mean_target);
+                const ptHigh     = fv(s10.price_target_high ?? pts.high ?? consensus.high_target);
+                const ptLow      = fv(s10.price_target_low  ?? pts.low  ?? consensus.low_target);
+                const buyCnt     = Number(fv(consensus.buy_count  ?? s10.analyst_buy_count  ?? 0));
+                const holdCnt    = Number(fv(consensus.hold_count ?? s10.analyst_hold_count ?? 0));
+                const sellCnt    = Number(fv(consensus.sell_count ?? s10.analyst_sell_count ?? 0));
                 const totalAnal  = buyCnt + holdCnt + sellCnt;
                 return (
                   <>
@@ -1111,12 +1115,12 @@ export default function AdhocTickerPage() {
                           <tbody>
                             {(holders as any[]).slice(0, 8).map((h: any, i: number) => (
                               <tr key={i} className="border-b border-[#1E2D4A]/50">
-                                <td className="py-2 px-2 text-[#94A3B8]">{h.name ?? h.institution ?? h}</td>
+                                <td className="py-2 px-2 text-[#94A3B8]">{fv(h.holder) ?? fv(h.name) ?? fv(h.institution) ?? "—"}</td>
                                 <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">
-                                  {h.shares != null ? Number(h.shares).toLocaleString() : ""}
-                                  {h.pct != null ? ` (${Number(h.pct).toFixed(1)}%)` : ""}
+                                  {fv(h.shares) != null ? Number(fv(h.shares)).toLocaleString() : ""}
+                                  {fv(h.pct_held ?? h.pct) != null ? ` (${Number(fv(h.pct_held ?? h.pct)).toFixed(1)}%)` : ""}
                                 </td>
-                                <td className="py-2 px-2 text-right">{h.source && <TagBadge source={h.source} />}</td>
+                                <td className="py-2 px-2 text-right">{h.source && <TagBadge source={typeof h.source === "string" ? h.source : fv(h.holder) ? "yfinance" : ""} />}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -1139,18 +1143,21 @@ export default function AdhocTickerPage() {
                           </thead>
                           <tbody>
                             {(insiderTrades as any[]).slice(0, 6).map((t: any, i: number) => {
-                              const isBuy = /buy|purchase/i.test(t.transaction ?? t.type ?? "");
+                              const txn = String(fv(t.transaction ?? t.transaction_type ?? t.type) ?? "");
+                              const isBuy = /buy|purchase/i.test(txn);
+                              const sharesVal = fv(t.shares);
+                              const priceVal  = fv(t.price);
                               return (
                                 <tr key={i} className="border-b border-[#1E2D4A]/50">
-                                  <td className="py-2 px-2 font-mono text-[#475569]">{t.date}</td>
-                                  <td className="py-2 px-2 text-[#94A3B8]">{t.name ?? t.insider}</td>
+                                  <td className="py-2 px-2 font-mono text-[#475569]">{fv(t.date) ?? "—"}</td>
+                                  <td className="py-2 px-2 text-[#94A3B8]">{fv(t.name ?? t.insider) ?? "—"}</td>
                                   <td className={`py-2 px-2 font-mono text-right font-bold ${isBuy ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {t.transaction ?? t.type}
+                                    {txn || "—"}
                                   </td>
                                   <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">
-                                    {t.shares != null ? Number(t.shares).toLocaleString() : "—"}
+                                    {sharesVal != null ? Number(sharesVal).toLocaleString() : "—"}
                                   </td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(t.price)}</td>
+                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{priceVal != null ? fmt$(priceVal) : "—"}</td>
                                 </tr>
                               );
                             })}
@@ -1303,7 +1310,7 @@ export default function AdhocTickerPage() {
           <div id="s13" data-section>
             <Section n={13} id="s13" title="Sentiment" color="#2D6BFF">
               {(() => {
-                const summary   = fv(s13.summary ?? s13.sentiment_summary);
+                const summary   = fv(s13.summary ?? s13.sentiment_summary ?? s13.ai_sentiment);
                 const newsTone  = fv(s13.news_tone);
                 const shortPct  = fv(s13.short_interest_pct ?? s13.short_interest);
                 const consensus = fv(s13.analyst_consensus);
@@ -1379,7 +1386,7 @@ export default function AdhocTickerPage() {
           <div id="s15" data-section>
             <Section n={15} id="s15" title="Setup Checklist" color="#10B981">
               {(() => {
-                const items  = s15.items ?? s15.checklist ?? [];
+                const items  = s15.items ?? s15.checklist ?? s15.checks ?? [];
                 const passed = items.filter((c: any) => c.pass ?? c.passed).length;
                 const total  = items.length;
                 const rate   = total > 0 ? passed / total : 0;
