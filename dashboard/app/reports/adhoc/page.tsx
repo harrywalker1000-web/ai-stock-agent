@@ -145,6 +145,7 @@ export default function AdhocInputPage() {
   const [deleting, setDeleting]   = useState<string | null>(null);
   const [seenReports, setSeenReports] = useState<Set<string>>(new Set());
   const [tab, setTab]             = useState<"manual" | "pipeline">("manual");
+  const [deletedFiles, setDeletedFiles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     // Restore queued state — only expire if >20 min old; let progress poller handle completion
@@ -165,6 +166,18 @@ export default function AdhocInputPage() {
       .then((data) => {
         if (Array.isArray(data)) {
           setRecent(data);
+          // Load deleted files list; intersect with server response to prune stale entries
+          // This hides files that were deleted from GitHub but Vercel hasn't redeployed yet
+          try {
+            const rawDel = localStorage.getItem("deletedReports");
+            if (rawDel) {
+              const serverKeys = new Set(data.map((r: ReportPreview) => r.filename ?? `${r.ticker}_${r.date}`));
+              const stored: string[] = JSON.parse(rawDel);
+              const stillRelevant = stored.filter(f => serverKeys.has(f));
+              localStorage.setItem("deletedReports", JSON.stringify(stillRelevant));
+              setDeletedFiles(new Set(stillRelevant));
+            }
+          } catch { /* ignore */ }
           // Load seen reports; seed with all current reports on first visit so none show as NEW
           try {
             const rawSeen = localStorage.getItem("seenReports");
@@ -234,6 +247,12 @@ export default function AdhocInputPage() {
           if (filename) return r.filename !== filename;
           return !(r.ticker === ticker && r.date === date);
         }));
+        setDeletedFiles((prev) => {
+          const next = new Set(prev);
+          next.add(key);
+          try { localStorage.setItem("deletedReports", JSON.stringify(Array.from(next))); } catch { /* ignore */ }
+          return next;
+        });
       } else {
         const body = await res.json().catch(() => ({}));
         alert(`Delete failed: ${body.error ?? res.status}`);
@@ -251,6 +270,9 @@ export default function AdhocInputPage() {
     try {
       const res = await fetch("/api/adhoc?all=1", { method: "DELETE" });
       if (res.ok) {
+        const allKeys = recent.map(r => r.filename ?? `${r.ticker}_${r.date}`);
+        setDeletedFiles(new Set(allKeys));
+        try { localStorage.setItem("deletedReports", JSON.stringify(allKeys)); } catch { /* ignore */ }
         setRecent([]);
       } else {
         const body = await res.json().catch(() => ({}));
@@ -407,9 +429,11 @@ export default function AdhocInputPage() {
         )}
 
         {/* Recent reports — tab toggle */}
-        {recent.length > 0 && (() => {
-          const manualReports   = recent.filter((r) => !r.source || r.source === "manual");
-          const pipelineReports = recent.filter((r) => r.source === "pipeline_auto");
+        {(() => {
+          const visibleRecent   = recent.filter(r => !deletedFiles.has(r.filename ?? `${r.ticker}_${r.date}`));
+          if (visibleRecent.length === 0) return null;
+          const manualReports   = visibleRecent.filter((r) => !r.source || r.source === "manual");
+          const pipelineReports = visibleRecent.filter((r) => r.source === "pipeline_auto");
           const activeReports   = tab === "manual" ? manualReports : pipelineReports;
 
           const markSeen = (key: string) => {
@@ -532,7 +556,7 @@ export default function AdhocInputPage() {
           );
         })()}
 
-        {recent.length === 0 && status === "idle" && (
+        {recent.filter(r => !deletedFiles.has(r.filename ?? `${r.ticker}_${r.date}`)).length === 0 && status === "idle" && (
           <p className="text-xs text-[#4B5563] text-center mt-8">No cached reports yet. Run your first analysis above.</p>
         )}
       </div>
