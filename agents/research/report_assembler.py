@@ -397,10 +397,103 @@ def _yoy(current: Any, prior: Any) -> Any:
         return None
 
 
+def _yf_financial_rows(data: dict) -> list[dict]:
+    """
+    Build income-statement-like rows from yfinance when FMP is unavailable.
+    Returns list of annual rows, most-recent first, each matching FMP row schema.
+    """
+    yf_data = data.get("yfinance") or {}
+    ticker = (data.get("_meta") or {}).get("ticker", "")
+    if not ticker:
+        return []
+    try:
+        import yfinance as yf
+        t = yf.Ticker(ticker)
+        is_  = t.income_stmt    # annual, cols = dates newest→oldest
+        bs_  = t.balance_sheet
+        cf_  = t.cashflow
+
+        def _get(df, *row_names):
+            for name in row_names:
+                if df is not None and not df.empty and name in df.index:
+                    return df.loc[name]
+            return None
+
+        rev_s  = _get(is_, "Total Revenue")
+        gp_s   = _get(is_, "Gross Profit")
+        ebd_s  = _get(is_, "EBITDA")
+        ni_s   = _get(is_, "Net Income")
+        eps_s  = _get(is_, "Diluted EPS")
+        fcf_s  = _get(cf_, "Free Cash Flow")
+        ocf_s  = _get(cf_, "Operating Cash Flow")
+        cap_s  = _get(cf_, "Capital Expenditure")
+        debt_s = _get(bs_, "Total Debt")
+        eq_s   = _get(bs_, "Stockholders Equity", "Common Stock Equity")
+        ca_s   = _get(bs_, "Current Assets", "Total Current Assets")
+        cl_s   = _get(bs_, "Current Liabilities", "Total Current Liabilities")
+        cash_s = _get(bs_, "Cash And Cash Equivalents", "Cash Cash Equivalents And Short Term Investments")
+
+        if rev_s is None:
+            return []
+
+        cols = rev_s.index[:4]  # up to 4 years, newest first
+        rows = []
+        for j, col in enumerate(cols):
+            def _v(s): return float(s[col]) if s is not None and col in s.index and str(s[col]) != "nan" else None
+            rev   = _v(rev_s)
+            gross = _v(gp_s)
+            ebit  = _v(ebd_s)
+            ni    = _v(ni_s)
+            eps   = _v(eps_s)
+            fcf   = _v(fcf_s)
+            op_cf = _v(ocf_s)
+            capex = _v(cap_s)
+            debt  = _v(debt_s)
+            eq    = _v(eq_s)
+            curr_a = _v(ca_s)
+            curr_l = _v(cl_s)
+            cash  = _v(cash_s)
+
+            year_label = str(col.year) if hasattr(col, "year") else str(col)[:4]
+            prior_rev = _v(rev_s) if j == 0 else None
+            if j < len(cols) - 1:
+                prior_rev = float(rev_s[cols[j + 1]]) if str(rev_s[cols[j + 1]]) != "nan" else None
+
+            rows.append({
+                "label":          year_label,
+                "date":           _tag(str(col)[:10], "yfinance"),
+                "revenue":        _tag(rev, "yfinance"),
+                "revenue_yoy":    _tag(round((rev - prior_rev) / abs(prior_rev) * 100, 1) if (rev and prior_rev and prior_rev != 0) else None, "yfinance [CALCULATED]"),
+                "gross_profit":   _tag(gross, "yfinance"),
+                "gross_margin":   _tag(round(gross / rev * 100, 1) if (gross and rev) else None, "yfinance [CALCULATED]"),
+                "ebitda":         _tag(ebit, "yfinance"),
+                "ebitda_margin":  _tag(round(ebit / rev * 100, 1) if (ebit and rev) else None, "yfinance [CALCULATED]"),
+                "op_income":      _tag(None, "yfinance"),
+                "op_margin":      _tag(None, "yfinance"),
+                "net_income":     _tag(ni, "yfinance"),
+                "net_margin":     _tag(round(ni / rev * 100, 1) if (ni and rev) else None, "yfinance [CALCULATED]"),
+                "eps_diluted":    _tag(eps, "yfinance"),
+                "fcf":            _tag(fcf, "yfinance"),
+                "operating_cf":   _tag(op_cf, "yfinance"),
+                "capex":          _tag(capex, "yfinance"),
+                "da":             _tag(None, "yfinance"),
+                "total_debt":     _tag(debt, "yfinance"),
+                "equity":         _tag(eq, "yfinance"),
+                "cash":           _tag(cash, "yfinance"),
+                "de_ratio":       _tag(round(debt / eq, 2) if (debt and eq and eq != 0) else None, "yfinance [CALCULATED]"),
+                "current_ratio":  _tag(round(curr_a / curr_l, 2) if (curr_a and curr_l and curr_l != 0) else None, "yfinance [CALCULATED]"),
+                "interest_coverage": _tag(None, "yfinance"),
+            })
+        return rows
+    except Exception as exc:
+        logger.warning("yfinance financial rows fallback failed for %s: %s", ticker, exc)
+        return []
+
+
 def build_historical_financials(data: dict) -> dict:
     """
     Section 4: 4-year annual income statement + balance sheet + cash flow.
-    All values from FMP. Zero AI involvement.
+    Primary source: FMP. Fallback: yfinance (used when FMP is unavailable, e.g. 402 free-plan limit).
     Margins and ratios computed and tagged [CALCULATED].
     """
     income   = data.get("fmp_income") or []
@@ -477,6 +570,10 @@ def build_historical_financials(data: dict) -> dict:
             "current_ratio":  _tag(current_ratio, "FMP [CALCULATED]"),
             "interest_coverage": _tag(interest_cov, "FMP [CALCULATED]"),
         })
+
+    # Fallback to yfinance when FMP returned no data (e.g. 402 free-plan limit)
+    if not years:
+        years = _yf_financial_rows(data)
 
     return {
         "section":      "historical_financials",
