@@ -619,8 +619,21 @@ def fetch_all_data(ticker: str) -> dict:
         "tavily_competitive": f"{company_name} competitive advantages moat competitors 2025",
     }
 
+    # Analyst-curated peer overrides — supersede FMP auto-peers when defined
+    PEER_OVERRIDES: dict[str, list[str]] = {
+        "ASTS": ["GSAT", "IRDM", "VSAT", "SATS", "TSAT"],
+        "GSAT": ["ASTS", "IRDM", "VSAT", "SATS", "TSAT"],
+        "IRDM": ["ASTS", "GSAT", "VSAT", "SATS"],
+        "VSAT": ["ASTS", "GSAT", "IRDM", "SATS", "TSAT"],
+        "SATS": ["ASTS", "GSAT", "IRDM", "VSAT", "TSAT"],
+        "TSAT": ["ASTS", "GSAT", "IRDM", "VSAT", "SATS"],
+    }
+
     # Also fetch peer yfinance metrics in this phase
-    peer_symbols = [p["symbol"] for p in (results.get("fmp_peers") or []) if p.get("symbol")]
+    if ticker in PEER_OVERRIDES:
+        peer_symbols = PEER_OVERRIDES[ticker]
+    else:
+        peer_symbols = [p["symbol"] for p in (results.get("fmp_peers") or []) if p.get("symbol")]
 
     phase2_tasks: dict[str, Any] = {k: (fetch_tavily_search, (q, 5)) for k, q in tavily_queries.items()}
     if peer_symbols:

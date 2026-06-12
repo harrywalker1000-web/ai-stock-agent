@@ -8,6 +8,13 @@ const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
 // Analyst-defined peer groups — selection is based on sector/subsector overlap
 const PEER_MAP: Record<string, { tickers: string[]; note: string }> = {
+  // Satellite / Space Communications
+  ASTS: { tickers: ["GSAT", "IRDM", "VSAT", "SATS", "TSAT"],  note: "Satellite Communications / Space Broadband" },
+  GSAT: { tickers: ["ASTS", "IRDM", "VSAT", "SATS", "TSAT"],  note: "Satellite Communications" },
+  IRDM: { tickers: ["ASTS", "GSAT", "VSAT", "SATS"],           note: "Satellite IoT / L-Band" },
+  VSAT: { tickers: ["ASTS", "GSAT", "IRDM", "SATS", "TSAT"],  note: "Satellite Broadband" },
+  SATS: { tickers: ["ASTS", "GSAT", "IRDM", "VSAT", "TSAT"],  note: "EchoStar / Satellite" },
+  TSAT: { tickers: ["ASTS", "GSAT", "IRDM", "VSAT", "SATS"],  note: "Telesat / LEO Broadband" },
   // Technology — Semiconductors
   NVDA: { tickers: ["AMD", "INTC", "AVGO", "QCOM", "TXN"],   note: "Semiconductors / AI Chips" },
   AMD:  { tickers: ["NVDA", "INTC", "AVGO", "QCOM"],          note: "Semiconductors" },
@@ -69,6 +76,9 @@ type CompRow = {
   is_subject?: boolean;
   revenue_bn: number | null;
   pe_ratio: number | null;
+  pe_fwd: number | null;
+  pb_ratio: number | null;
+  ev_ebitda: number | null;
   ps_ratio: number | null;
   ebitda_margin_pct: number | null;
   net_margin_pct: number | null;
@@ -91,18 +101,21 @@ async function fetchMetrics(ticker: string, isSubject = false): Promise<CompRow>
       company: pr.shortName ?? pr.longName ?? ticker,
       is_subject: isSubject || undefined,
       revenue_bn: fd.totalRevenue != null ? Number(fd.totalRevenue) / 1e9 : null,
-      pe_ratio: sd.trailingPE ?? ks.forwardPE ?? null,
-      ps_ratio: sd.priceToSalesTrailing12Months ?? null,
+      pe_ratio: sd.trailingPE != null ? Number(sd.trailingPE) : null,
+      pe_fwd: ks.forwardPE != null ? Number(ks.forwardPE) : null,
+      pb_ratio: ks.priceToBook != null ? Number(ks.priceToBook) : null,
+      ev_ebitda: ks.enterpriseToEbitda != null ? Number(ks.enterpriseToEbitda) : null,
+      ps_ratio: sd.priceToSalesTrailing12Months != null ? Number(sd.priceToSalesTrailing12Months) : null,
       ebitda_margin_pct: fd.ebitdaMargins != null ? Number(fd.ebitdaMargins) * 100 : null,
       net_margin_pct: fd.profitMargins != null ? Number(fd.profitMargins) * 100 : null,
-      // Yahoo returns debtToEquity as a ratio already (e.g. 1.86 means 186% D/E)
       de_ratio: fd.debtToEquity != null ? Number(fd.debtToEquity) / 100 : null,
     };
   } catch {
     return {
       ticker, company: ticker, is_subject: isSubject || undefined,
-      revenue_bn: null, pe_ratio: null, ps_ratio: null,
-      ebitda_margin_pct: null, net_margin_pct: null, de_ratio: null,
+      revenue_bn: null, pe_ratio: null, pe_fwd: null, pb_ratio: null,
+      ev_ebitda: null, ps_ratio: null, ebitda_margin_pct: null,
+      net_margin_pct: null, de_ratio: null,
     };
   }
 }

@@ -1140,6 +1140,7 @@ export default function AdhocTickerPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("s1");
+  const [livePeers, setLivePeers] = useState<any[]>([]);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Trigger pipeline on mount
@@ -1174,6 +1175,19 @@ export default function AdhocTickerPage() {
       });
 
     return () => { cancelled = true; };
+  }, [ticker]);
+
+  // Fetch live comparables (always up-to-date peer list, overrides stale JSON peers)
+  useEffect(() => {
+    if (!ticker) return;
+    fetch(`/api/comparables/${ticker}`)
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data.comparables) && data.comparables.length > 1) {
+          setLivePeers(data.comparables);
+        }
+      })
+      .catch(() => {});
   }, [ticker]);
 
   // IntersectionObserver for active section highlight
@@ -1808,8 +1822,49 @@ export default function AdhocTickerPage() {
                   ["52W Low",   s6["52w_low"],         "$"],
                   ["% from 52W High", s6.pct_from_52w_high, "%"],
                 ] as [string, any, string?][]).filter(([, v]) => fv(v) != null);
-                const peers = (s6.peer_table ?? s6.peer_comparison ?? s6.peers ?? []) as any[];
-                const PEER_COLS = ["symbol", "pe", "pe_fwd", "ev_ebitda", "ps", "pb", "ebitda_margin", "net_margin", "debt_to_equity"];
+                // Prefer live comparables (always correct peers) over stale JSON peers
+                const jsonPeers = (s6.peer_table ?? s6.peer_comparison ?? s6.peers ?? []) as any[];
+                // Normalize live comparables to the same shape as jsonPeers
+                const peerData: any[] = livePeers.length > 0
+                  ? livePeers.map(p => ({
+                      symbol: p.ticker,
+                      company_name: p.company,
+                      pe: p.pe_ratio,
+                      pe_fwd: p.pe_fwd,
+                      ev_ebitda: p.ev_ebitda,
+                      ps: p.ps_ratio,
+                      pb: p.pb_ratio,
+                      ebitda_margin: p.ebitda_margin_pct,
+                      net_margin: p.net_margin_pct,
+                      debt_to_equity: p.de_ratio,
+                      _is_subject: p.is_subject,
+                    }))
+                  : jsonPeers;
+
+                // Find subject row and determine primary valuation metric
+                const subjectRow = peerData.find(r =>
+                  (fv(r.symbol) ?? r.symbol ?? "").toUpperCase() === ticker.toUpperCase() || r._is_subject
+                );
+                const getRaw = (row: any, key: string): number | null => {
+                  const val = fv(row[key]) ?? row[key];
+                  if (val == null) return null;
+                  const n = Number(val);
+                  return isNaN(n) ? null : n;
+                };
+                const sPE = subjectRow ? getRaw(subjectRow, "pe") : null;
+                const sPS = subjectRow ? getRaw(subjectRow, "ps") : null;
+                // Use P/E as primary for profitable companies; P/S for pre-profit (no valid P/E)
+                const primaryKey = (sPE != null && sPE > 0 && sPE < 1000) ? "pe" : "ps";
+                const primaryLabel = primaryKey === "pe" ? "P/E" : "P/S";
+                const subjectPrimary = primaryKey === "pe" ? sPE : sPS;
+
+                const PEER_COLS = ["pe", "pe_fwd", "ev_ebitda", "ps", "pb", "ebitda_margin", "net_margin", "debt_to_equity"];
+                const COL_LABELS: Record<string, string> = {
+                  pe: "P/E", pe_fwd: "Fwd P/E", ev_ebitda: "EV/EBITDA",
+                  ps: "P/S", pb: "P/B", ebitda_margin: "EBITDA Mgn",
+                  net_margin: "Net Mgn", debt_to_equity: "D/E",
+                };
+
                 return (
                   <>
                     {metricFields.length > 0 && (
@@ -1826,45 +1881,81 @@ export default function AdhocTickerPage() {
                         })}
                       </div>
                     )}
-                    {peers.length > 0 && (
+                    {peerData.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Peer Comparison</p>
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Peer Comparison</p>
+                          <span className="text-[9px] text-[#334155] px-2 py-0.5 rounded bg-[#1E2D4A]/60">
+                            Primary: <span className="text-[#60A5FA] font-bold">{primaryLabel}</span> · vs ASTS = cheap/pricey on {primaryLabel}
+                          </span>
+                        </div>
                         <div className="overflow-x-auto rounded-xl border border-[#1E2D4A]">
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-[#1E2D4A] bg-[#080C14]">
-                                <th className="text-[10px] font-medium text-[#475569] text-left py-2.5 px-3">Ticker</th>
-                                {PEER_COLS.filter(c => c !== "symbol").map((c) => (
-                                  <th key={c} className="text-[10px] font-medium text-[#475569] text-right py-2.5 px-3">
-                                    {c.replace(/_/g, " ")}
+                                <th className="text-[10px] font-medium text-[#475569] text-left py-2.5 px-3 sticky left-0 bg-[#080C14]">Ticker</th>
+                                {PEER_COLS.map((c) => (
+                                  <th key={c} className={`text-[10px] font-medium text-right py-2.5 px-3 ${c === primaryKey ? "text-[#60A5FA]" : "text-[#475569]"}`}>
+                                    {COL_LABELS[c]}{c === primaryKey ? " ★" : ""}
                                   </th>
                                 ))}
+                                <th className="text-[10px] font-medium text-[#60A5FA] text-right py-2.5 px-3 whitespace-nowrap">
+                                  vs {ticker.toUpperCase()}
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
-                              {peers.map((row: any, i: number) => {
-                                const sym = fv(row.symbol) ?? row.ticker ?? "—";
-                                const isSubject = sym === ticker;
+                              {peerData.map((row: any, i: number) => {
+                                const sym = (fv(row.symbol) ?? row.symbol ?? "—").toString().toUpperCase();
+                                const isSubject = sym === ticker.toUpperCase() || row._is_subject;
+                                const peerPrimary = getRaw(row, primaryKey);
+                                const delta = (!isSubject && peerPrimary != null && subjectPrimary != null && subjectPrimary !== 0)
+                                  ? ((peerPrimary - subjectPrimary) / Math.abs(subjectPrimary)) * 100
+                                  : null;
+                                // delta > 0 → peer more expensive → ASTS cheap (green)
+                                // delta < 0 → peer cheaper → ASTS pricey (red)
+                                const vsLabel = delta == null ? (isSubject ? "Subject" : "—")
+                                  : delta > 10 ? `Cheap +${delta.toFixed(0)}%`
+                                  : delta < -10 ? `Pricey ${delta.toFixed(0)}%`
+                                  : "~At par";
+                                const vsColor = delta == null ? (isSubject ? "#60A5FA" : "#475569")
+                                  : delta > 10 ? "#10B981"
+                                  : delta < -10 ? "#EF4444"
+                                  : "#94A3B8";
                                 return (
                                   <tr key={i} className={`border-b border-[#1E2D4A]/40 last:border-0 transition-colors ${isSubject ? "bg-[#2D6BFF]/8" : "hover:bg-[#1E2D4A]/30"}`}>
-                                    <td className={`py-2.5 px-3 font-mono font-bold ${isSubject ? "text-[#60A5FA]" : "text-[#94A3B8]"}`}>{sym}</td>
-                                    {PEER_COLS.filter(c => c !== "symbol").map((c) => {
-                                      const v = row[c];
-                                      const raw = fv(v);
-                                      const txt = raw == null ? "—" : /margin|ebitda/i.test(c) ? fmtPct(raw) : fmtN(raw, 1);
-                                      const neg = raw != null && /margin|ebitda/i.test(c) && Number(raw) < 0;
-                                      return <td key={c} className={`py-2.5 px-3 font-mono text-right ${neg ? "text-[#EF4444]" : "text-[#94A3B8]"}`}>{txt}</td>;
+                                    <td className={`py-2.5 px-3 font-mono font-bold sticky left-0 ${isSubject ? "text-[#60A5FA] bg-[#0A1628]" : "text-[#94A3B8]"}`}>{sym}</td>
+                                    {PEER_COLS.map((c) => {
+                                      const raw = getRaw(row, c);
+                                      const txt = raw == null ? "—" : /margin|ebitda/i.test(c) ? `${raw.toFixed(1)}%` : raw.toFixed(1);
+                                      const isPrimary = c === primaryKey;
+                                      const neg = raw != null && (/margin|ebitda/i.test(c) || c === "ev_ebitda") && raw < 0;
+                                      return (
+                                        <td key={c} className={`py-2.5 px-3 font-mono text-right ${
+                                          isPrimary
+                                            ? `font-bold ${neg ? "text-[#EF4444]" : isSubject ? "text-[#60A5FA]" : "text-white"}`
+                                            : neg ? "text-[#EF4444]" : "text-[#94A3B8]"
+                                        }`}>
+                                          {txt}
+                                        </td>
+                                      );
                                     })}
+                                    <td className="py-2.5 px-3 font-mono text-right">
+                                      <span className="text-[10px] font-bold" style={{ color: vsColor }}>{vsLabel}</span>
+                                    </td>
                                   </tr>
                                 );
                               })}
                             </tbody>
                           </table>
                         </div>
+                        <p className="text-[9px] text-[#334155] mt-2">
+                          ★ Primary metric · Cheap = ASTS trades at a discount to this peer on {primaryLabel} · Pricey = ASTS trades at a premium · Source: {livePeers.length > 0 ? "Yahoo Finance (live)" : "yfinance/FMP (report)"}
+                        </p>
                       </div>
                     )}
-                    <PeerBarChart peers={peers} subjectTicker={ticker} metric="ev_ebitda" label="EV/EBITDA" />
-                    {metricFields.length === 0 && peers.length === 0 && (
+                    <PeerBarChart peers={peerData} subjectTicker={ticker} metric="ev_ebitda" label="EV/EBITDA" />
+                    {metricFields.length === 0 && peerData.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
