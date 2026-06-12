@@ -907,7 +907,7 @@ export default function AdhocTickerPage() {
           <div id="s4" data-section>
             <Section n={4} id="s4" title="Historical Financials" color="#2D6BFF">
               {(() => {
-                const historical = s4.historical ?? s4.income_statement ?? [];
+                const historical = s4.years ?? s4.historical ?? s4.income_statement ?? [];
                 const earnings   = s4.earnings_surprises ?? s4.earnings_history ?? [];
                 return (
                   <>
@@ -922,16 +922,14 @@ export default function AdhocTickerPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {(historical as any[]).map((row: any, i: number, arr: any[]) => {
-                              const prevRev = i > 0 ? Number(fv(arr[i - 1].revenue)) : null;
-                              const curRev  = Number(fv(row.revenue));
-                              const yoy     = prevRev && prevRev > 0 ? ((curRev - prevRev) / prevRev * 100) : null;
+                            {(historical as any[]).map((row: any, i: number) => {
+                              const yoy = fv(row.revenue_yoy);
                               return (
                                 <tr key={i} className="border-b border-[#1E2D4A]/50">
-                                  <td className="py-2 px-2 font-mono text-white">{fv(row.year)}</td>
+                                  <td className="py-2 px-2 font-mono text-white">{row.label ?? fv(row.year)}</td>
                                   <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right ${yoy == null ? "text-[#475569]" : yoy >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {yoy == null ? "—" : `${yoy >= 0 ? "+" : ""}${yoy.toFixed(1)}%`}
+                                  <td className={`py-2 px-2 font-mono text-right ${yoy == null ? "text-[#475569]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                                    {yoy == null ? "—" : `${Number(yoy) >= 0 ? "+" : ""}${Number(yoy).toFixed(1)}%`}
                                     {fs(row.revenue) && <TagBadge source={fs(row.revenue)} />}
                                   </td>
                                   <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.gross_margin)) > 0 ? "text-[#94A3B8]" : "text-[#475569]"}`}>
@@ -940,7 +938,7 @@ export default function AdhocTickerPage() {
                                     {fmtPct(row.ebitda_margin)}</td>
                                   <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.net_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                                     {fmtPct(row.net_margin)}</td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps)}</td>
+                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
                                   <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                                     {fmtBn(row.fcf)}</td>
                                 </tr>
@@ -992,11 +990,15 @@ export default function AdhocTickerPage() {
             <Section n={5} id="s5" title="Forward Estimates & DCF" color="#10B981">
               {(() => {
                 const estimates = s5.analyst_estimates ?? s5.estimates ?? {};
-                const dcf       = s5.dcf ?? s5.dcf_model ?? {};
-                const wacc      = s5.wacc ?? dcf.wacc_breakdown ?? {};
-                const sensitivity = s5.sensitivity_table ?? s5.sensitivity ?? [];
-                const implied   = fv(s5.implied_price ?? dcf.implied_price);
-                const impliedUpside = fv(s5.implied_upside ?? dcf.implied_upside);
+                // DCF fields are flat on s5 (not nested under s5.dcf)
+                const hasDcf    = !!(s5.implied_price || s5.pv_fcfs || s5.enterprise_value);
+                const dcf       = hasDcf ? s5 : (s5.dcf ?? s5.dcf_model ?? {});
+                const wacc      = s5.wacc_inputs ?? s5.wacc ?? (dcf as any).wacc_breakdown ?? {};
+                const sensitivity: any[] = (s5.sensitivity_table && Array.isArray(s5.sensitivity_table))
+                  ? s5.sensitivity_table
+                  : s5.sensitivity ?? [];
+                const implied   = fv(s5.implied_price ?? (dcf as any).implied_price);
+                const impliedUpside = fv(s5.upside_pct ?? s5.implied_upside ?? (dcf as any).implied_upside);
                 return (
                   <>
                     {Object.keys(estimates).length > 0 && (() => {
@@ -1029,10 +1031,10 @@ export default function AdhocTickerPage() {
                         </div>
                       );
                     })()}
-                    {Object.keys(dcf).length > 0 && (() => {
-                      const wacc_pct   = fv(dcf.wacc ?? wacc.wacc);
-                      const tgr        = fv(dcf.terminal_growth_rate ?? dcf.terminal_growth);
-                      const horizon    = fv(dcf.projection_years ?? dcf.horizon_years ?? dcf.years);
+                    {(Object.keys(dcf).length > 0 || hasDcf) && (() => {
+                      const wacc_pct   = fv((wacc as any).wacc ?? (dcf as any).wacc);
+                      const tgr        = fv((dcf as any).terminal_growth ?? (dcf as any).terminal_growth_rate);
+                      const horizon    = fv((dcf as any).projection_years ?? (dcf as any).horizon_years ?? (dcf as any).years);
                       const curP       = Number(fv(report.current_price ?? s1.current_price) ?? 0);
                       const implP      = Number(implied ?? 0);
                       const upPct      = impliedUpside != null ? Number(impliedUpside) : (curP > 0 && implP > 0 ? ((implP - curP) / curP * 100) : null);
@@ -1104,9 +1106,18 @@ export default function AdhocTickerPage() {
                           )}
                           {/* KV fallback for other DCF fields */}
                           <div className="grid grid-cols-2 gap-x-8">
-                            {Object.entries(dcf).filter(([k]) => !["wacc_breakdown", "sensitivity", "implied_price", "implied_upside"].includes(k)).map(([k, v]: [string, any]) => (
-                              <KV key={k} label={k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                                value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
+                            {([
+                              ["FCF Margin Avg", (dcf as any).fcf_margin_avg],
+                              ["Terminal Growth", (dcf as any).terminal_growth],
+                              ["Terminal Multiple", (dcf as any).terminal_multiple],
+                              ["Peer EV/EBITDA Used", (dcf as any).peer_ev_ebitda_used],
+                              ["PV of FCFs", (dcf as any).pv_fcfs],
+                              ["PV Terminal", (dcf as any).pv_terminal],
+                              ["Enterprise Value", (dcf as any).enterprise_value],
+                              ["Net Debt", (dcf as any).net_debt],
+                            ] as [string, any][]).filter(([, v]) => fv(v) != null).map(([label, v]) => (
+                              <KV key={label} label={label}
+                                value={<>{typeof fv(v) === "number" && label.includes("Value") ? fmtBn(fv(v)) : typeof fv(v) === "number" && label.includes("Growth") ? `${fv(v)}%` : fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
                             ))}
                           </div>
                         </div>
@@ -1147,7 +1158,7 @@ export default function AdhocTickerPage() {
                         </div>
                       );
                     })()}
-                    {Object.keys(estimates).length === 0 && Object.keys(dcf).length === 0 && (
+                    {Object.keys(estimates).length === 0 && !hasDcf && Object.keys(dcf).length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
