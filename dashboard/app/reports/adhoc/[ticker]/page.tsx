@@ -215,17 +215,19 @@ function SemiGauge({ value, max = 100, color, size = 96 }: {
 }
 
 function ConvictionBar({ score }: { score: number }) {
-  const color = score >= 8 ? "#10B981" : score >= 5 ? "#2D6BFF" : score >= 3 ? "#F59E0B" : "#EF4444";
+  // score is 0-100; render 10 segments each representing 10 points
+  const filled = Math.round(score / 10);
+  const color = score >= 80 ? "#10B981" : score >= 50 ? "#2D6BFF" : score >= 30 ? "#F59E0B" : "#EF4444";
   return (
     <div className="flex gap-1 items-center">
       {Array.from({ length: 10 }).map((_, i) => (
         <div
           key={i}
           className="h-3 w-5 rounded-sm"
-          style={{ background: i < score ? color : "rgba(255,255,255,0.07)" }}
+          style={{ background: i < filled ? color : "rgba(255,255,255,0.07)" }}
         />
       ))}
-      <span className="ml-2 text-sm font-bold font-mono" style={{ color }}>{score}/10</span>
+      <span className="ml-2 text-sm font-bold font-mono" style={{ color }}>{score}/100</span>
     </div>
   );
 }
@@ -431,7 +433,7 @@ export default function AdhocTickerPage() {
   const rec     = s16.direction          != null ? s16 : (report.s7_recommendation ?? {});
   const direction = fv(rec.direction)    ?? fv(s16.action) ?? "—";
   const conviction = Number(fv(rec.conviction_score ?? rec.conviction) ?? 0);
-  const cvColor = conviction >= 8 ? "#10B981" : conviction >= 5 ? "#2D6BFF" : conviction >= 3 ? "#F59E0B" : "#EF4444";
+  const cvColor = conviction >= 80 ? "#10B981" : conviction >= 50 ? "#2D6BFF" : conviction >= 30 ? "#F59E0B" : "#EF4444";
 
   const dirColor = direction === "BUY" || direction === "STRONG BUY" ? "#10B981"
     : direction === "SELL" || direction === "AVOID" ? "#EF4444"
@@ -477,7 +479,7 @@ export default function AdhocTickerPage() {
               <div className="flex gap-0.5 items-center">
                 {Array.from({ length: 10 }).map((_, i) => (
                   <div key={i} className="h-2 w-3 rounded-sm"
-                    style={{ background: i < conviction ? cvColor : "rgba(255,255,255,0.07)" }} />
+                    style={{ background: i < Math.round(conviction / 10) ? cvColor : "rgba(255,255,255,0.07)" }} />
                 ))}
               </div>
             )}
@@ -822,16 +824,36 @@ export default function AdhocTickerPage() {
                 const impliedUpside = fv(s5.implied_upside ?? dcf.implied_upside);
                 return (
                   <>
-                    {Object.keys(estimates).length > 0 && (
-                      <div className="mb-6">
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Analyst Estimates</p>
-                        <div className="grid grid-cols-3 gap-3">
-                          {Object.entries(estimates).slice(0, 6).map(([k, v]: [string, any]) => (
-                            <StatCard key={k} label={k.replace(/_/g, " ")} value={fv(v)} source={fs(v)} />
-                          ))}
+                    {Object.keys(estimates).length > 0 && (() => {
+                      const EST_LABEL: Record<string, string> = {
+                        eps_current_fy: "EPS Current FY",
+                        eps_next_fy: "EPS Next FY",
+                        eps_growth_cur: "EPS Growth (Cur %)",
+                        eps_growth_next: "EPS Growth (Next %)",
+                        rev_current_fy: "Revenue Current FY",
+                        rev_next_fy: "Revenue Next FY",
+                      };
+                      const fmtEst = (k: string, v: any): string => {
+                        const raw = fv(v);
+                        if (raw == null) return "—";
+                        if (k.startsWith("rev")) return fmtBn(raw);
+                        if (k.includes("growth")) return `${Number(raw).toFixed(1)}%`;
+                        if (k.startsWith("eps")) return `$${Number(raw).toFixed(2)}`;
+                        return String(raw);
+                      };
+                      return (
+                        <div className="mb-6">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Analyst Estimates</p>
+                          <div className="grid grid-cols-3 gap-3">
+                            {Object.entries(estimates).slice(0, 6).map(([k, v]: [string, any]) => (
+                              <StatCard key={k}
+                                label={EST_LABEL[k] ?? k.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                                value={fmtEst(k, v)} source={fs(v)} />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
                     {Object.keys(dcf).length > 0 && (
                       <div className="mb-6">
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">DCF Model</p>
@@ -1492,7 +1514,7 @@ export default function AdhocTickerPage() {
 
                 const ourParts: string[] = [];
                 if (ourDir) ourParts.push(`Direction: ${ourDir}`);
-                if (ourConv != null) ourParts.push(`Conviction: ${ourConv}/10`);
+                if (ourConv != null) ourParts.push(`Conviction: ${ourConv}/100`);
                 if (ourDcf != null) ourParts.push(`Our DCF: ${fmt$(ourDcf)}`);
                 if (fmpDcf != null) ourParts.push(`FMP DCF: ${fmt$(fmpDcf)}`);
 

@@ -15,6 +15,45 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+def _extract_json_object(raw: str) -> dict:
+    """
+    Robustly extract the first complete JSON object from raw text.
+    Handles code fences, trailing garbage strings, and partial responses.
+    """
+    text = _strip_code_fences(raw)
+    # First try direct parse
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Bracket-count scan to find the first complete { ... }
+    start = text.find("{")
+    if start == -1:
+        raise ValueError("No JSON object found in response")
+    depth = 0
+    in_string = False
+    escaped = False
+    for i, ch in enumerate(text[start:], start):
+        if escaped:
+            escaped = False
+            continue
+        if ch == "\\" and in_string:
+            escaped = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return json.loads(text[start : i + 1])
+    raise ValueError("Incomplete JSON object in response")
+
+
 def synthesize_investment_committee(data: dict, all_sections: dict) -> dict:
     """
     Sonnet 4.6 Investment Committee recommendation.
@@ -103,7 +142,7 @@ def synthesize_investment_committee(data: dict, all_sections: dict) -> dict:
     if pct_52w and pct_52w < -25:
         conviction -= 1
 
-    conviction = max(1, min(10, conviction))
+    conviction = max(1, min(10, conviction)) * 10  # Convert to 0-100 scale
 
     # --- Summary context for Sonnet ---
     s1  = all_sections.get("s1")  or {}
@@ -165,18 +204,20 @@ Here is our structured analysis summary:
 
 {json.dumps(structured_summary, indent=2)}
 
-The conviction score has already been computed as {conviction}/10 using our sub-component model.
+The conviction score has already been computed as {conviction}/100 using our sub-component model.
 You MUST use exactly {conviction} as the conviction value — do not change it.
 
 Provide the Investment Committee recommendation as a JSON object with EXACTLY these keys:
 - "direction": one of BUY, HOLD, SELL, AVOID
-- "conviction": {conviction}  (use exactly this number)
+- "conviction": {conviction}  (use exactly this number — it is on a 0-100 scale)
 - "expected_return_12m": a string like "+18%" or "-5%" — base this on the scenario analysis above
 - "position_size_pct": a float (e.g. 3.0) — higher conviction = larger size, max 5.0%, min 0.5%
 - "stop_loss_pct": a float (e.g. 12.0) — distance from current price to stop loss in percent
 - "three_arguments": a list of exactly 3 strings — concise investment thesis arguments
 - "key_risks": a list of exactly 3 strings — top 3 risks that could invalidate the thesis
-- "committee_narrative": 3 paragraphs of professional investment committee prose
+- "committee_narrative": a SINGLE string containing exactly 3 paragraphs separated by \\n\\n
+
+CRITICAL for committee_narrative: all three paragraphs MUST be inside ONE string value. Do NOT add extra JSON keys or bare strings after the JSON object closes.
 
 Rules:
 - Do NOT fabricate any numbers not present in the data above.
@@ -189,8 +230,8 @@ Rules:
     raw = _sonnet(prompt, max_tokens=2000)
 
     try:
-        result = json.loads(_strip_code_fences(raw))
-    except (json.JSONDecodeError, Exception) as exc:
+        result = _extract_json_object(raw)
+    except (json.JSONDecodeError, ValueError, Exception) as exc:
         logger.error("Investment Committee JSON parse failed: %s\nRaw: %s", exc, raw[:500])
         result = {
             "direction":           "HOLD",
