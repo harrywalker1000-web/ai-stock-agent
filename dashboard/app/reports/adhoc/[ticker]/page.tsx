@@ -101,14 +101,15 @@ function StatCard({ label, value, source, color, large }: {
 
 function SectionHeader({ n, title, color = "#2D6BFF" }: { n: number; title: string; color?: string }) {
   return (
-    <div
-      className="bg-[#0D1626] border border-[#1E2D4A] rounded-t-xl px-5 py-3.5 flex items-center gap-3"
-      style={{ borderLeft: `3px solid ${color}` }}
-    >
-      <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#1E2D4A] text-[#475569]">
-        {String(n).padStart(2, "0")}
-      </span>
-      <h2 className="text-sm font-bold text-white tracking-wide">{title}</h2>
+    <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-t-xl overflow-hidden">
+      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, transparent 60%)` }} />
+      <div className="px-5 py-3.5 flex items-center gap-3">
+        <span className="flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-mono font-bold shrink-0"
+          style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
+          {String(n).padStart(2, "0")}
+        </span>
+        <h2 className="text-sm font-bold text-white tracking-wide">{title}</h2>
+      </div>
     </div>
   );
 }
@@ -117,10 +118,124 @@ function Section({ id, n, title, color, children }: {
   id: string; n: number; title: string; color?: string; children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="mb-6 rounded-xl overflow-hidden">
+    <div id={id} className="mb-7 rounded-xl overflow-hidden shadow-lg shadow-black/20">
       <SectionHeader n={n} title={title} color={color} />
-      <div className="bg-[#131929] border border-t-0 border-[#1E2D4A] px-5 py-5">
+      <div className="bg-[#0F1623] border border-t-0 border-[#1E2D4A] px-5 py-5">
         {children}
+      </div>
+    </div>
+  );
+}
+
+function MandateRing({ passed, total }: { passed: number; total: number }) {
+  const pct = total > 0 ? passed / total : 0;
+  const R = 26, cx = 32, cy = 32;
+  const circ = 2 * Math.PI * R;
+  const offset = circ * (1 - pct);
+  const color = pct >= 0.75 ? "#10B981" : pct >= 0.55 ? "#F59E0B" : "#EF4444";
+  return (
+    <div className="flex items-center gap-3">
+      <svg width={64} height={64} viewBox="0 0 64 64">
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={6} />
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke={color} strokeWidth={6}
+          strokeDasharray={circ} strokeDashoffset={offset}
+          strokeLinecap="round" transform={`rotate(-90 ${cx} ${cy})`} />
+        <text x={cx} y={cy + 5} textAnchor="middle" fill={color} fontSize="14" fontWeight="bold" fontFamily="monospace">{passed}</text>
+      </svg>
+      <div>
+        <p className="text-xl font-bold font-mono" style={{ color }}>{passed}/{total}</p>
+        <p className="text-[10px] text-[#475569] uppercase tracking-wider">criteria passed</p>
+      </div>
+    </div>
+  );
+}
+
+function PriceRangeChart({ bearPrice, basePrice, bullPrice, currentPrice, bearUpside, baseUpside, bullUpside, bearProb, baseProb, bullProb, pwReturn }: {
+  bearPrice: number; basePrice: number; bullPrice: number; currentPrice: number;
+  bearUpside?: number | null; baseUpside?: number | null; bullUpside?: number | null;
+  bearProb?: number | null; baseProb?: number | null; bullProb?: number | null;
+  pwReturn?: number | null;
+}) {
+  const allPrices = [bearPrice, basePrice, bullPrice, currentPrice].filter(Boolean);
+  const lo = Math.min(...allPrices) * 0.93;
+  const hi = Math.max(...allPrices) * 1.07;
+  const span = hi - lo || 1;
+  const pct = (v: number) => Math.max(0, Math.min(100, ((v - lo) / span) * 100));
+  const bearPct = pct(bearPrice), basePct = pct(basePrice);
+  const bullPct = pct(bullPrice), curPct  = pct(currentPrice);
+  return (
+    <div className="bg-[#080C14] border border-[#1E2D4A] rounded-2xl p-6">
+      {/* Scenario probability badges */}
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
+        {[
+          { label: "Bear", prob: bearProb, color: "#EF4444" },
+          { label: "Base", prob: baseProb, color: "#2D6BFF" },
+          { label: "Bull", prob: bullProb, color: "#10B981" },
+        ].map(({ label, prob, color }) => prob != null && (
+          <span key={label} className="text-[10px] font-bold px-3 py-1 rounded-full"
+            style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}>
+            {label} {prob}%
+          </span>
+        ))}
+        {pwReturn != null && (
+          <div className="ml-auto flex items-center gap-2">
+            <span className="text-[10px] text-[#475569]">PW Return</span>
+            <span className={`text-lg font-bold font-mono ${Number(pwReturn) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+              {Number(pwReturn) >= 0 ? "+" : ""}{Number(pwReturn).toFixed(1)}%
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Price labels */}
+      <div className="relative h-14 mb-2">
+        {[
+          { p: bearPct, price: bearPrice, upside: bearUpside, color: "#EF4444", label: "Bear" },
+          { p: basePct, price: basePrice, upside: baseUpside, color: "#2D6BFF", label: "Base" },
+          { p: bullPct, price: bullPrice, upside: bullUpside, color: "#10B981", label: "Bull" },
+        ].map(({ p, price, upside, color, label }) => (
+          <div key={label} className="absolute text-center" style={{ left: `${p}%`, transform: "translateX(-50%)" }}>
+            <p className="text-xs font-bold font-mono" style={{ color }}>{fmt$(price)}</p>
+            {upside != null && (
+              <p className="text-[9px] font-mono" style={{ color }}>
+                {Number(upside) >= 0 ? "+" : ""}{Number(upside).toFixed(1)}%
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Range bar */}
+      <div className="relative h-5 mb-2">
+        {/* Track */}
+        <div className="absolute inset-0 rounded-full bg-[#1E2D4A]" />
+        {/* Coloured fill: bear → bull */}
+        <div className="absolute top-0 bottom-0 rounded-full"
+          style={{
+            left: `${bearPct}%`,
+            width: `${bullPct - bearPct}%`,
+            background: "linear-gradient(90deg, #EF444450, #2D6BFF60, #10B98150)",
+          }} />
+        {/* Current price tick */}
+        <div className="absolute top-0 bottom-0 w-1 rounded-full bg-white shadow-lg shadow-white/20"
+          style={{ left: `${curPct}%`, transform: "translateX(-50%)" }} />
+        {/* Dot markers */}
+        {[
+          { p: bearPct, color: "#EF4444" },
+          { p: basePct, color: "#2D6BFF" },
+          { p: bullPct, color: "#10B981" },
+        ].map(({ p, color }, i) => (
+          <div key={i} className="absolute top-1/2 w-2.5 h-2.5 rounded-full border-2 border-[#080C14]"
+            style={{ left: `${p}%`, transform: "translate(-50%, -50%)", background: color }} />
+        ))}
+      </div>
+
+      {/* Current price label */}
+      <div className="relative h-8">
+        <div className="absolute text-center" style={{ left: `${curPct}%`, transform: "translateX(-50%)" }}>
+          <p className="text-[11px] font-bold font-mono text-white">{fmt$(currentPrice)}</p>
+          <p className="text-[9px] text-[#475569]">current</p>
+        </div>
       </div>
     </div>
   );
@@ -540,28 +655,88 @@ export default function AdhocTickerPage() {
         {/* ── Report body ────────────────────────────────────────────────── */}
         <main className="flex-1 min-w-0">
 
-          {/* Generated timestamp */}
-          <p className="text-[10px] text-[#1E2D4A] mb-5 text-right">
-            Generated {report.generated_at ?? "just now"}
-          </p>
+          {/* ── Report Hero Cover ─────────────────────────────────────────── */}
+          {(() => {
+            const expRet  = fv(rec.expected_return_12m);
+            const posSz   = fv(rec.position_size_pct);
+            const stopLs  = fv(rec.stop_loss_pct);
+            const heroStats = [
+              { label: "Price",        val: currentPrice ? fmt$(currentPrice) : null, color: "#E2E8F0" },
+              { label: "Market Cap",   val: fmtBn(s1.market_cap) !== "—" ? fmtBn(s1.market_cap) : null, color: "#94A3B8" },
+              { label: "Exp. Return",  val: expRet,   color: expRet && String(expRet).startsWith("-") ? "#EF4444" : "#10B981" },
+              { label: "Position",     val: posSz != null ? `${posSz}%` : null, color: "#94A3B8" },
+              { label: "Stop Loss",    val: stopLs != null ? `-${stopLs}%` : null, color: "#EF4444" },
+            ].filter(s => s.val != null);
+            return (
+              <div className="mb-8 rounded-2xl overflow-hidden border border-[#1E2D4A] shadow-2xl shadow-black/40 print:mb-4">
+                <div className="h-1" style={{ background: `linear-gradient(90deg, ${dirColor} 0%, ${dirColor}60 50%, transparent 100%)` }} />
+                <div className="px-6 py-6" style={{ background: "linear-gradient(135deg, #0A0E1A 0%, #0D1626 60%, #0A0E1A 100%)" }}>
+                  {/* Top row */}
+                  <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
+                        <span className="text-4xl font-bold font-mono text-white tracking-tight">{ticker}</span>
+                        <span className="text-lg font-bold px-4 py-1.5 rounded-xl"
+                          style={{ background: `${dirColor}20`, color: dirColor, border: `1px solid ${dirColor}50` }}>
+                          {direction}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg border ${mandatePassed ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30" : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30"}`}>
+                          MANDATE {mandatePassed ? "PASS" : "FAIL"}
+                        </span>
+                      </div>
+                      {report.company_name && (
+                        <p className="text-[#60A5FA] text-sm font-medium">{report.company_name}</p>
+                      )}
+                      {report.generated_at && (
+                        <p className="text-[#1E3A5F] text-[10px] mt-1">Generated {String(report.generated_at).slice(0, 19).replace("T", " ")} UTC</p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-2">Conviction Score</p>
+                      <ConvictionBar score={conviction} />
+                    </div>
+                  </div>
+
+                  {/* Stat cards row */}
+                  {heroStats.length > 0 && (
+                    <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(heroStats.length, 5)}, 1fr)` }}>
+                      {heroStats.map(({ label, val, color }) => (
+                        <div key={label} className="rounded-xl px-4 py-3 border" style={{ background: "#080C14", borderColor: "#1E2D4A" }}>
+                          <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-1.5">{label}</p>
+                          <p className="text-xl font-bold font-mono" style={{ color }}>{val}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* S1 — Fund Mandate */}
           <div id="s1" data-section>
             <Section n={1} id="s1" title="Fund Mandate Checklist" color="#2D6BFF">
               {(() => {
-                const checks = mandate.checks ?? s1.checks ?? s1.checklist ?? [];
+                const checks   = mandate.checks ?? s1.checks ?? s1.checklist ?? [];
                 const setupType = mandate.setup_type ?? fv(s1.setup_type);
+                const passedCnt = checks.filter((c: any) => c.pass ?? c.passed).length;
                 return (
                   <>
-                    {setupType && (
-                      <div className="mb-4">
-                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#2D6BFF]/10 text-[#60A5FA] border border-[#2D6BFF]/30">
-                          Setup: {setupType}
+                    <div className="flex items-center justify-between gap-6 mb-5 flex-wrap">
+                      <MandateRing passed={passedCnt} total={checks.length || 17} />
+                      <div className="flex gap-2 flex-wrap">
+                        {setupType && (
+                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#2D6BFF]/10 text-[#60A5FA] border border-[#2D6BFF]/30">
+                            Setup: {setupType}
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${passedCnt === checks.length ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30" : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30"}`}>
+                          {checks.length - passedCnt} criteria failing
                         </span>
                       </div>
-                    )}
+                    </div>
                     {checks.length > 0 ? (
-                      <div>
+                      <div className="border-t border-[#1E2D4A] pt-2">
                         {checks.map((c: any, i: number) => (
                           <CheckItem
                             key={i}
@@ -854,32 +1029,89 @@ export default function AdhocTickerPage() {
                         </div>
                       );
                     })()}
-                    {Object.keys(dcf).length > 0 && (
-                      <div className="mb-6">
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">DCF Model</p>
-                        <div className="grid grid-cols-2 gap-x-8">
-                          {Object.entries(dcf).filter(([k]) => !["wacc_breakdown", "sensitivity"].includes(k)).map(([k, v]: [string, any]) => (
-                            <KV key={k} label={k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                              value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
-                          ))}
-                        </div>
-                        {implied != null && (
-                          <div className="mt-4 flex items-center gap-4">
-                            <div className="bg-[#131929] border border-[#1E2D4A] rounded-xl px-5 py-3 flex items-center gap-4">
-                              <div>
-                                <p className="text-[10px] text-[#475569] uppercase tracking-wider">Implied Price</p>
-                                <p className="text-2xl font-bold font-mono text-[#10B981]">{fmt$(implied)}</p>
+                    {Object.keys(dcf).length > 0 && (() => {
+                      const wacc_pct   = fv(dcf.wacc ?? wacc.wacc);
+                      const tgr        = fv(dcf.terminal_growth_rate ?? dcf.terminal_growth);
+                      const horizon    = fv(dcf.projection_years ?? dcf.horizon_years ?? dcf.years);
+                      const curP       = Number(fv(report.current_price ?? s1.current_price) ?? 0);
+                      const implP      = Number(implied ?? 0);
+                      const upPct      = impliedUpside != null ? Number(impliedUpside) : (curP > 0 && implP > 0 ? ((implP - curP) / curP * 100) : null);
+                      const upColor    = upPct != null && upPct >= 0 ? "#10B981" : "#EF4444";
+                      const barFill    = (curP > 0 && implP > 0)
+                        ? Math.max(5, Math.min(95, (Math.min(curP, implP) / Math.max(curP, implP)) * 100))
+                        : 50;
+                      const curIsLow   = implP > curP;
+                      return (
+                        <div className="mb-6">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">DCF Valuation</p>
+                          {/* Visual bridge */}
+                          {implP > 0 && curP > 0 && (
+                            <div className="bg-[#080C14] border border-[#1E2D4A] rounded-2xl p-5 mb-4">
+                              {/* Inputs row */}
+                              <div className="flex items-center gap-4 mb-5 flex-wrap">
+                                {wacc_pct != null && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">WACC</span>
+                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{Number(wacc_pct).toFixed(1)}%</span>
+                                  </div>
+                                )}
+                                {tgr != null && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">Terminal Growth</span>
+                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{Number(tgr).toFixed(1)}%</span>
+                                  </div>
+                                )}
+                                {horizon != null && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">Horizon</span>
+                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{horizon}Y</span>
+                                  </div>
+                                )}
+                                <span className="ml-auto text-[9px] text-[#1E3A5F] px-2 py-0.5 rounded border border-[#1E2D4A]">Discounted Cash Flow Model</span>
                               </div>
-                              {impliedUpside != null && (
-                                <div className={`text-lg font-bold font-mono ${Number(impliedUpside) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                  {Number(impliedUpside) >= 0 ? "+" : ""}{fmtN(impliedUpside, 1)}%
+                              {/* Price comparison */}
+                              <div className="flex items-end justify-between gap-6 mb-4">
+                                <div>
+                                  <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Current Price</p>
+                                  <p className={`text-2xl font-bold font-mono ${curIsLow ? "text-[#94A3B8]" : "text-white"}`}>{fmt$(curP)}</p>
                                 </div>
-                              )}
+                                <div className="flex-1 flex items-center gap-2 pb-3">
+                                  <div className="flex-1 h-2 rounded-full bg-[#1E2D4A] overflow-hidden">
+                                    <div className="h-full rounded-full" style={{
+                                      width: `${curIsLow ? barFill : 100}%`,
+                                      background: curIsLow ? "#94A3B840" : `${upColor}60`,
+                                    }} />
+                                  </div>
+                                  <span className={`text-lg font-bold font-mono ${upPct != null && upPct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                                    {upPct != null ? `${upPct >= 0 ? "+" : ""}${upPct.toFixed(1)}%` : "→"}
+                                  </span>
+                                  <div className="flex-1 h-2 rounded-full bg-[#1E2D4A] overflow-hidden">
+                                    <div className="h-full rounded-full" style={{
+                                      width: `${curIsLow ? 100 : barFill}%`,
+                                      background: curIsLow ? `${upColor}60` : "#94A3B840",
+                                    }} />
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">DCF Implied</p>
+                                  <p className={`text-2xl font-bold font-mono ${curIsLow ? "text-white" : "text-[#94A3B8]"}`} style={{ color: curIsLow ? upColor : undefined }}>{fmt$(implP)}</p>
+                                </div>
+                              </div>
+                              <p className="text-[10px] text-[#475569] text-center">
+                                {curIsLow ? `Stock is trading ${Math.abs(upPct ?? 0).toFixed(1)}% below DCF fair value` : `Stock is trading ${Math.abs(upPct ?? 0).toFixed(1)}% above DCF fair value`}
+                              </p>
                             </div>
+                          )}
+                          {/* KV fallback for other DCF fields */}
+                          <div className="grid grid-cols-2 gap-x-8">
+                            {Object.entries(dcf).filter(([k]) => !["wacc_breakdown", "sensitivity", "implied_price", "implied_upside"].includes(k)).map(([k, v]: [string, any]) => (
+                              <KV key={k} label={k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                                value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
+                            ))}
                           </div>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      );
+                    })()}
                     {Object.keys(wacc).length > 0 && (
                       <div className="mb-6">
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">WACC Inputs</p>
@@ -950,22 +1182,27 @@ export default function AdhocTickerPage() {
                     {metricFields.length > 0 && (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-6">
                         {metricFields.map(([label, v, unit]) => {
-                          const raw = fv(v);
-                          const display = unit === "$" ? fmt$(raw) : unit === "%" ? fmtPct(raw) : fmtN(raw, 2);
-                          return <StatCard key={label as string} label={label as string} value={display} source={fs(v)} />;
+                          const raw = Number(fv(v));
+                          const display = unit === "$" ? fmt$(fv(v)) : unit === "%" ? fmtPct(fv(v)) : fmtN(fv(v), 2);
+                          const color = label === "Beta" ? (raw > 2 ? "#EF4444" : raw < 0.8 ? "#10B981" : "#94A3B8")
+                            : label === "% from 52W High" ? (raw < -30 ? "#EF4444" : raw > -10 ? "#10B981" : "#F59E0B")
+                            : label === "ROIC" || label === "ROE" ? (raw > 15 ? "#10B981" : raw > 5 ? "#F59E0B" : "#EF4444")
+                            : label === "FCF Yield" ? (raw > 5 ? "#10B981" : raw > 0 ? "#F59E0B" : "#EF4444")
+                            : undefined;
+                          return <StatCard key={label as string} label={label as string} value={display} source={fs(v)} color={color} />;
                         })}
                       </div>
                     )}
                     {peers.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Peer Comparison</p>
-                        <div className="overflow-x-auto">
+                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Peer Comparison</p>
+                        <div className="overflow-x-auto rounded-xl border border-[#1E2D4A]">
                           <table className="w-full text-xs">
                             <thead>
-                              <tr className="border-b border-[#1E2D4A]">
-                                <th className="text-[10px] font-medium text-[#475569] text-left pb-2 px-2">Ticker</th>
+                              <tr className="border-b border-[#1E2D4A] bg-[#080C14]">
+                                <th className="text-[10px] font-medium text-[#475569] text-left py-2.5 px-3">Ticker</th>
                                 {PEER_COLS.filter(c => c !== "symbol").map((c) => (
-                                  <th key={c} className="text-[10px] font-medium text-[#475569] text-right pb-2 px-2">
+                                  <th key={c} className="text-[10px] font-medium text-[#475569] text-right py-2.5 px-3">
                                     {c.replace(/_/g, " ")}
                                   </th>
                                 ))}
@@ -976,13 +1213,14 @@ export default function AdhocTickerPage() {
                                 const sym = fv(row.symbol) ?? row.ticker ?? "—";
                                 const isSubject = sym === ticker;
                                 return (
-                                  <tr key={i} className={`border-b border-[#1E2D4A]/50 ${isSubject ? "bg-[#2D6BFF]/5" : ""}`}>
-                                    <td className={`py-2 px-2 font-mono ${isSubject ? "text-white font-bold" : "text-[#94A3B8]"}`}>{sym}</td>
+                                  <tr key={i} className={`border-b border-[#1E2D4A]/40 last:border-0 transition-colors ${isSubject ? "bg-[#2D6BFF]/8" : "hover:bg-[#1E2D4A]/30"}`}>
+                                    <td className={`py-2.5 px-3 font-mono font-bold ${isSubject ? "text-[#60A5FA]" : "text-[#94A3B8]"}`}>{sym}</td>
                                     {PEER_COLS.filter(c => c !== "symbol").map((c) => {
                                       const v = row[c];
                                       const raw = fv(v);
                                       const txt = raw == null ? "—" : /margin|ebitda/i.test(c) ? fmtPct(raw) : fmtN(raw, 1);
-                                      return <td key={c} className="py-2 px-2 font-mono text-right text-[#94A3B8]">{txt}</td>;
+                                      const neg = raw != null && /margin|ebitda/i.test(c) && Number(raw) < 0;
+                                      return <td key={c} className={`py-2.5 px-3 font-mono text-right ${neg ? "text-[#EF4444]" : "text-[#94A3B8]"}`}>{txt}</td>;
                                     })}
                                   </tr>
                                 );
@@ -1422,26 +1660,37 @@ export default function AdhocTickerPage() {
                 const anyData = Object.keys(bull).length || Object.keys(base).length || Object.keys(bear).length;
                 return (
                   <>
-                    {anyData ? (
-                      <>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-                          <ScenarioCard type="bull" price={bull.price_target} upside={bull.upside_pct} probability={bull.probability} source={bull.source} trigger={bull.trigger ?? bull.assumptions ?? bull.catalyst} />
-                          <ScenarioCard type="base" price={base.price_target} upside={base.upside_pct} probability={base.probability} source={base.source} trigger={base.trigger ?? base.assumptions} />
-                          <ScenarioCard type="bear" price={bear.price_target} upside={bear.downside_pct != null ? -bear.downside_pct : bear.upside_pct} probability={bear.probability} source={bear.source} trigger={bear.trigger ?? bear.assumptions ?? bear.catalyst} />
-                        </div>
-                        {pwReturn != null && (
-                          <div className="bg-[#131929] border border-[#1E2D4A] rounded-xl px-5 py-3 flex items-center gap-3 mb-4">
-                            <span className="text-xs text-[#475569]">Probability-Weighted Expected Return:</span>
-                            <span className={`text-lg font-bold font-mono ${Number(pwReturn) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                              {Number(pwReturn) >= 0 ? "+" : ""}{fmtN(pwReturn, 1)}%
-                            </span>
+                    {anyData ? (() => {
+                      const bearP   = Number(fv(bear.price_target));
+                      const baseP   = Number(fv(base.price_target));
+                      const bullP   = Number(fv(bull.price_target));
+                      const curP    = Number(fv(report.current_price ?? s1.current_price) ?? 0);
+                      const hasRange = bearP > 0 && baseP > 0 && bullP > 0 && curP > 0;
+                      return (
+                        <>
+                          {hasRange && (
+                            <div className="mb-5">
+                              <PriceRangeChart
+                                bearPrice={bearP} basePrice={baseP} bullPrice={bullP} currentPrice={curP}
+                                bearUpside={fv(bear.upside_pct) ?? (bear.downside_pct != null ? -Number(fv(bear.downside_pct)) : null)}
+                                baseUpside={fv(base.upside_pct)}
+                                bullUpside={fv(bull.upside_pct)}
+                                bearProb={fv(bear.probability)} baseProb={fv(base.probability)} bullProb={fv(bull.probability)}
+                                pwReturn={pwReturn != null ? Number(pwReturn) : null}
+                              />
+                            </div>
+                          )}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <ScenarioCard type="bear" price={bear.price_target} upside={bear.downside_pct != null ? -Number(fv(bear.downside_pct)) : bear.upside_pct} probability={bear.probability} source={bear.source} trigger={bear.trigger ?? bear.assumptions ?? bear.catalyst} />
+                            <ScenarioCard type="base" price={base.price_target} upside={base.upside_pct} probability={base.probability} source={base.source} trigger={base.trigger ?? base.assumptions} />
+                            <ScenarioCard type="bull" price={bull.price_target} upside={bull.upside_pct} probability={bull.probability} source={bull.source} trigger={bull.trigger ?? bull.assumptions ?? bull.catalyst} />
                           </div>
-                        )}
-                        <p className="text-[10px] text-[#1E2D4A]">
-                          Base = DCF model | Bull = analyst PT high | Bear = FMP crosscheck / stress
-                        </p>
-                      </>
-                    ) : (
+                          <p className="text-[10px] text-[#1E3A5F]">
+                            Base = DCF model · Bull = analyst PT high · Bear = FMP stress / crosscheck
+                          </p>
+                        </>
+                      );
+                    })() : (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
@@ -1606,34 +1855,38 @@ export default function AdhocTickerPage() {
             </Section>
           </div>
 
-          {/* S16 — Investment Committee Recommendation (hero) */}
+          {/* S16 — Investment Committee Recommendation */}
           <div id="s16" data-section>
-            <div className="mb-6 rounded-xl overflow-hidden">
-              <div
-                className="bg-[#0D1626] px-5 py-4 flex items-center gap-3"
-                style={{ borderLeft: `3px solid ${dirColor}`, border: `1px solid ${dirColor}30`, borderLeftWidth: 3, borderLeftColor: dirColor }}
-              >
-                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#1E2D4A] text-[#475569]">16</span>
+            <div className="mb-7 rounded-2xl overflow-hidden shadow-2xl shadow-black/40">
+              {/* Gradient accent */}
+              <div className="h-1" style={{ background: `linear-gradient(90deg, ${dirColor} 0%, ${dirColor}80 40%, transparent 100%)` }} />
+              {/* Header */}
+              <div className="px-6 py-4 flex items-center gap-3"
+                style={{ background: "#080C14", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <span className="flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-mono font-bold shrink-0"
+                  style={{ background: `${dirColor}18`, color: dirColor, border: `1px solid ${dirColor}40` }}>16</span>
                 <h2 className="text-sm font-bold text-white tracking-wide">Investment Committee Recommendation</h2>
+                <span className="ml-auto text-[9px] font-bold px-2 py-0.5 rounded border bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30">Sonnet 4.6</span>
               </div>
-              <div className="bg-[#131929] border border-t-0 px-5 py-6" style={{ borderColor: `${dirColor}30` }}>
-                {/* Direction hero */}
-                <div className="flex items-start justify-between gap-6 mb-6 flex-wrap">
+
+              <div className="px-6 py-6" style={{ background: "linear-gradient(180deg, #0A0E1A 0%, #0D1626 100%)", border: `1px solid ${dirColor}20`, borderTop: "none" }}>
+                {/* Direction + Conviction + Key stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-7 items-center">
                   <div>
-                    <div className="flex items-center gap-4 mb-3">
-                      <span className="text-4xl font-bold font-mono" style={{ color: dirColor }}>{direction}</span>
-                      <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg"
-                        style={{ background: `${dirColor}15`, color: dirColor, border: `1px solid ${dirColor}40` }}>
-                        {report.company_name ?? ticker}
-                      </span>
+                    <div className="flex items-baseline gap-4 mb-4">
+                      <span className="text-5xl font-bold font-mono" style={{ color: dirColor }}>{direction}</span>
+                      <div>
+                        <p className="text-[10px] text-[#475569] uppercase tracking-wider">{report.company_name ?? ticker}</p>
+                        <p className="text-[10px] text-[#475569]">Sub-component scored conviction</p>
+                      </div>
                     </div>
                     <ConvictionBar score={conviction} />
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Expected Return 12M", value: fv(s16.expected_return_12m ?? rec.expected_return_12m), color: "#10B981" },
-                      { label: "Position Size",       value: fv(s16.position_size_pct ?? rec.suggested_size_pct) != null ? `${fv(s16.position_size_pct ?? rec.suggested_size_pct)}%` : null },
-                      { label: "Stop Loss",           value: fv(s16.stop_loss_pct ?? rec.stop_loss_pct) != null ? `${fv(s16.stop_loss_pct ?? rec.stop_loss_pct)}%` : null, color: "#EF4444" },
+                      { label: "Exp. Return 12M", value: fv(s16.expected_return_12m ?? rec.expected_return_12m), color: (() => { const v = fv(s16.expected_return_12m ?? rec.expected_return_12m); return v && String(v).startsWith("-") ? "#EF4444" : "#10B981"; })() },
+                      { label: "Position Size",   value: fv(s16.position_size_pct ?? rec.suggested_size_pct) != null ? `${fv(s16.position_size_pct ?? rec.suggested_size_pct)}%` : null, color: "#94A3B8" },
+                      { label: "Stop Loss",       value: fv(s16.stop_loss_pct ?? rec.stop_loss_pct) != null ? `-${fv(s16.stop_loss_pct ?? rec.stop_loss_pct)}%` : null, color: "#EF4444" },
                     ].filter(({ value }) => value != null).map(({ label, value, color }) => (
                       <StatCard key={label} label={label} value={value} color={color} />
                     ))}
@@ -1644,12 +1897,17 @@ export default function AdhocTickerPage() {
                 {(() => {
                   const args = s16.three_arguments ?? s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
                   return args.length > 0 ? (
-                    <div className="mb-5">
-                      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Investment Arguments</p>
+                    <div className="mb-6">
+                      <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-3">Investment Arguments</p>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {(args as any[]).slice(0, 3).map((arg: any, i: number) => (
-                          <div key={i} className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
-                            <p className="text-[10px] font-bold text-[#2D6BFF] mb-2">{i + 1}</p>
+                          <div key={i} className="rounded-xl p-4 border"
+                            style={{ background: "#080C14", borderColor: "#1E2D4A" }}>
+                            <div className="flex items-center gap-2 mb-2.5">
+                              <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono shrink-0"
+                                style={{ background: "#2D6BFF20", color: "#60A5FA", border: "1px solid #2D6BFF30" }}>{i + 1}</span>
+                              <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, #2D6BFF30, transparent)" }} />
+                            </div>
                             <p className="text-xs text-[#94A3B8] leading-relaxed">
                               {typeof arg === "string" ? arg : (arg.argument ?? arg.thesis ?? arg.text ?? JSON.stringify(arg))}
                             </p>
@@ -1664,13 +1922,14 @@ export default function AdhocTickerPage() {
                 {(() => {
                   const risks = s16.key_risks ?? rec.key_risks ?? [];
                   return risks.length > 0 ? (
-                    <div className="mb-5">
-                      <p className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wider mb-2">Key Risks</p>
-                      <ul className="space-y-1.5">
-                        {(risks as any[]).slice(0, 5).map((r: any, i: number) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-[#94A3B8]">
-                            <span className="text-[#EF4444] shrink-0">!</span>
-                            {typeof r === "string" ? r : (r.risk ?? r.text ?? JSON.stringify(r))}
+                    <div className="mb-6 rounded-xl border border-[#EF4444]/20 p-4" style={{ background: "#0A0205" }}>
+                      <p className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wider mb-3">Key Risks</p>
+                      <ul className="space-y-2">
+                        {(risks as any[]).slice(0, 3).map((r: any, i: number) => (
+                          <li key={i} className="flex items-start gap-2.5 text-xs text-[#94A3B8] border-b border-[#1E2D4A]/50 pb-2 last:border-0 last:pb-0">
+                            <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5"
+                              style={{ background: "#EF444420", color: "#EF4444", border: "1px solid #EF444430" }}>!</span>
+                            <span>{typeof r === "string" ? r : (r.risk ?? r.text ?? JSON.stringify(r))}</span>
                           </li>
                         ))}
                       </ul>
@@ -1681,15 +1940,21 @@ export default function AdhocTickerPage() {
                 {/* Committee narrative */}
                 {(() => {
                   const narrative = fv(s16.narrative ?? s16.committee_narrative ?? rec.narrative);
-                  return narrative ? (
-                    <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-5">
-                      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3 flex items-center gap-2">
-                        Committee Narrative
-                        <span className="text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">Sonnet</span>
-                      </p>
-                      <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">{narrative}</p>
+                  if (!narrative) return null;
+                  const paras = String(narrative).split(/\n\n+/);
+                  return (
+                    <div className="rounded-xl border border-[#1E2D4A] overflow-hidden">
+                      <div className="px-5 py-3 flex items-center gap-2" style={{ background: "#080C14", borderBottom: "1px solid #1E2D4A" }}>
+                        <span className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Committee Narrative</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">Sonnet</span>
+                      </div>
+                      <div className="px-5 py-4 space-y-4" style={{ background: "#0A0E1A" }}>
+                        {paras.map((p, i) => (
+                          <p key={i} className="text-xs text-[#94A3B8] leading-relaxed">{p}</p>
+                        ))}
+                      </div>
                     </div>
-                  ) : null;
+                  );
                 })()}
               </div>
             </div>
