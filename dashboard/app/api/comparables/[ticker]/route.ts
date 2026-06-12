@@ -6,15 +6,10 @@ import YahooFinanceClass from "yahoo-finance2";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
-// Analyst-defined peer groups — selection is based on sector/subsector overlap
+// Analyst-curated overrides — only for cases where you have strong conviction
+// the algorithm gets it wrong (e.g. conglomerates, unusual business models).
+// Do NOT add tickers here just to fix a bad auto-result — improve the algorithm instead.
 const PEER_MAP: Record<string, { tickers: string[]; note: string }> = {
-  // Satellite / Space Communications
-  ASTS: { tickers: ["GSAT", "IRDM", "VSAT", "SATS", "TSAT"],  note: "Satellite Communications / Space Broadband" },
-  GSAT: { tickers: ["ASTS", "IRDM", "VSAT", "SATS", "TSAT"],  note: "Satellite Communications" },
-  IRDM: { tickers: ["ASTS", "GSAT", "VSAT", "SATS"],           note: "Satellite IoT / L-Band" },
-  VSAT: { tickers: ["ASTS", "GSAT", "IRDM", "SATS", "TSAT"],  note: "Satellite Broadband" },
-  SATS: { tickers: ["ASTS", "GSAT", "IRDM", "VSAT", "TSAT"],  note: "EchoStar / Satellite" },
-  TSAT: { tickers: ["ASTS", "GSAT", "IRDM", "VSAT", "SATS"],  note: "Telesat / LEO Broadband" },
   // Technology — Semiconductors
   NVDA: { tickers: ["AMD", "INTC", "AVGO", "QCOM", "TXN"],   note: "Semiconductors / AI Chips" },
   AMD:  { tickers: ["NVDA", "INTC", "AVGO", "QCOM"],          note: "Semiconductors" },
@@ -51,6 +46,27 @@ const PEER_MAP: Record<string, { tickers: string[]; note: string }> = {
   COIN: { tickers: ["HOOD", "ICE", "CME", "MSTR"],            note: "Crypto / Financial Exchanges" },
   UNH:  { tickers: ["CVS", "HUM", "CI", "ELV", "MOH"],       note: "US Managed Care / Health Insurance" },
 };
+
+/** Ask Yahoo Finance which stocks investors compare this one to. */
+async function getYahooPeers(ticker: string): Promise<{ tickers: string[]; note: string } | null> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recs: any = await (yf as any).recommendationsBySymbol(ticker);
+    const peers: string[] = (recs?.recommendedSymbols ?? [])
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .sort((a: any, b: any) => b.score - a.score)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((r: any) => (r.symbol as string).toUpperCase())
+      .filter((s: string) => s !== ticker)
+      .slice(0, 6);
+    if (peers.length >= 2) {
+      return { tickers: peers, note: "Yahoo Finance — investors also watch" };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 function readFundamentalPeers(ticker: string): string[] | null {
   const candidates = [
@@ -125,9 +141,16 @@ export async function GET(
   context: { params: { ticker: string } }
 ) {
   const ticker = context.params.ticker.toUpperCase();
-  let group = PEER_MAP[ticker];
 
-  // Fallback: if ticker not in PEER_MAP, use peers_used from fundamental_report.json
+  // Priority 1: analyst-curated override (reserved for genuinely tricky cases)
+  let group: { tickers: string[]; note: string } | null = PEER_MAP[ticker] ?? null;
+
+  // Priority 2: Yahoo Finance "investors also watch" — dynamic, industry-aware
+  if (!group) {
+    group = await getYahooPeers(ticker);
+  }
+
+  // Priority 3: pipeline-identified peers from fundamental_report.json
   if (!group) {
     const fundamentalPeers = readFundamentalPeers(ticker);
     if (fundamentalPeers && fundamentalPeers.length > 0) {
@@ -136,11 +159,10 @@ export async function GET(
   }
 
   if (!group) {
-    // Ticker not in peer map — return subject-only
     const subject = await fetchMetrics(ticker, true);
     return NextResponse.json({
       comparables: [subject],
-      note: "Peer group not defined for this ticker.",
+      note: "No peers found — showing subject only.",
       source: "yahoo-finance2",
     });
   }
