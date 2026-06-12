@@ -63,10 +63,10 @@ async function listFromGitHub(token: string): Promise<string[]> {
 }
 
 export async function DELETE(req: NextRequest) {
-  const ticker = req.nextUrl.searchParams.get("ticker")?.toUpperCase().replace(/[^A-Z]/g, "");
-  const date   = req.nextUrl.searchParams.get("date");
-  const all    = req.nextUrl.searchParams.get("all") === "1";
-  const token  = process.env.GITHUB_DISPATCH_TOKEN;
+  const ticker   = req.nextUrl.searchParams.get("ticker")?.toUpperCase().replace(/[^A-Z]/g, "");
+  const filename = req.nextUrl.searchParams.get("filename");  // exact filename preferred
+  const all      = req.nextUrl.searchParams.get("all") === "1";
+  const token    = process.env.GITHUB_DISPATCH_TOKEN;
 
   if (!ticker && !all) {
     return NextResponse.json({ error: "ticker or all=1 required" }, { status: 400 });
@@ -79,10 +79,11 @@ export async function DELETE(req: NextRequest) {
   let filenames: string[] = [];
   if (all) {
     filenames = await listFromGitHub(token);
-  } else if (date) {
-    filenames = [`${ticker}_${date}.json`];
-  } else {
-    // Delete all reports for this ticker (any date)
+  } else if (filename) {
+    // Exact filename passed — use it directly (avoids format mismatch bugs)
+    filenames = [filename];
+  } else if (ticker) {
+    // Fallback: delete all reports for this ticker (any date/timestamp format)
     const all_files = await listFromGitHub(token);
     filenames = all_files.filter((f) => f.startsWith(`${ticker}_`));
   }
@@ -136,6 +137,7 @@ export async function GET() {
           // TICKER_YYYYMMDD_HHMMSS.json = manual adhoc run
           const inferredSource = /^\w+_\d{8}_\d{6}\.json$/.test(file) ? "manual" : "pipeline_auto";
           reports.push({
+            filename: file,
             ticker: data.ticker,
             company_name: data.company_name,
             sector,

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface ReportPreview {
+  filename?: string;
   ticker: string;
   company_name: string;
   sector: string;
@@ -143,6 +144,7 @@ export default function AdhocInputPage() {
   const [progress, setProgress]   = useState<Progress | null>(null);
   const [deleting, setDeleting]   = useState<string | null>(null);
   const [seenReports, setSeenReports] = useState<Set<string>>(new Set());
+  const [tab, setTab]             = useState<"manual" | "pipeline">("manual");
 
   useEffect(() => {
     // Restore queued state — only expire if >20 min old; let progress poller handle completion
@@ -219,13 +221,19 @@ export default function AdhocInputPage() {
     return () => { stopped = true; clearInterval(iv); };
   }, [status, queued, queuedAt]);
 
-  const deleteReport = async (ticker: string, date: string) => {
-    const key = `${ticker}_${date}`;
+  const deleteReport = async (ticker: string, date: string, filename?: string) => {
+    const key = filename ?? `${ticker}_${date}`;
     setDeleting(key);
     try {
-      const res = await fetch(`/api/adhoc?ticker=${ticker}&date=${date}`, { method: "DELETE" });
+      const url = filename
+        ? `/api/adhoc?ticker=${ticker}&filename=${encodeURIComponent(filename)}`
+        : `/api/adhoc?ticker=${ticker}`;
+      const res = await fetch(url, { method: "DELETE" });
       if (res.ok) {
-        setRecent((prev) => prev.filter((r) => !(r.ticker === ticker && r.date === date)));
+        setRecent((prev) => prev.filter((r) => {
+          if (filename) return r.filename !== filename;
+          return !(r.ticker === ticker && r.date === date);
+        }));
       } else {
         const body = await res.json().catch(() => ({}));
         alert(`Delete failed: ${body.error ?? res.status}`);
@@ -398,16 +406,11 @@ export default function AdhocInputPage() {
           </div>
         )}
 
-        {/* Recent reports — split by source */}
+        {/* Recent reports — tab toggle */}
         {recent.length > 0 && (() => {
           const manualReports   = recent.filter((r) => !r.source || r.source === "manual");
           const pipelineReports = recent.filter((r) => r.source === "pipeline_auto");
-
-          const TrashIcon = () => (
-            <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
-            </svg>
-          );
+          const activeReports   = tab === "manual" ? manualReports : pipelineReports;
 
           const markSeen = (key: string) => {
             setSeenReports(prev => {
@@ -423,12 +426,13 @@ export default function AdhocInputPage() {
             const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
             const cv = r.conviction;
             const cvColor = cv == null ? "#6B7280" : cv >= 70 ? "#10B981" : cv >= 40 ? "#F59E0B" : "#EF4444";
-            const rowKey = `${r.ticker}_${r.date}`;
+            const rowKey = r.filename ?? `${r.ticker}_${r.date}`;
             const isDeleting = deleting === rowKey;
-            const isNew = !seenReports.has(rowKey);
+            const seenKey = `${r.ticker}_${r.date}`;
+            const isNew = !seenReports.has(seenKey);
             return (
               <div className="relative group">
-                <Link href={`/reports/adhoc/${r.ticker}`} onClick={() => markSeen(rowKey)}>
+                <Link href={`/reports/adhoc/${r.ticker}`} onClick={() => markSeen(seenKey)}>
                   <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
@@ -461,7 +465,7 @@ export default function AdhocInputPage() {
                   </div>
                 </Link>
                 <button
-                  onClick={(e) => { e.preventDefault(); deleteReport(r.ticker, r.date); }}
+                  onClick={(e) => { e.preventDefault(); deleteReport(r.ticker, r.date, r.filename); }}
                   disabled={!!deleting}
                   title={`Delete ${r.ticker} cache`}
                   className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[#EF4444]/50 hover:text-[#EF4444] disabled:opacity-20 p-1.5 rounded-lg hover:bg-[#EF4444]/08"
@@ -475,44 +479,54 @@ export default function AdhocInputPage() {
           };
 
           return (
-            <div className="space-y-6">
-              {/* Manual section */}
-              {manualReports.length > 0 && (
-                <div>
-                  <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider mb-3">
-                    My Research ({manualReports.length})
-                  </h2>
-                  <div className="space-y-2">
-                    {manualReports.map((r) => <ReportRow key={`${r.ticker}_${r.date}`} r={r} />)}
-                  </div>
-                </div>
-              )}
+            <div>
+              {/* Tab toggle */}
+              <div className="flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setTab("manual")}
+                  className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
+                    tab === "manual"
+                      ? "border-[#0EA5E9]/50 text-[#0EA5E9] bg-[#0EA5E9]/10"
+                      : "border-white/10 text-[#6B7280] bg-white/03 hover:border-white/20 hover:text-[#9CA3AF]"
+                  }`}
+                >
+                  My Research{manualReports.length > 0 ? ` (${manualReports.length})` : ""}
+                </button>
+                <button
+                  onClick={() => setTab("pipeline")}
+                  className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
+                    tab === "pipeline"
+                      ? "border-[#8B5CF6]/50 text-[#8B5CF6] bg-[#8B5CF6]/10"
+                      : "border-white/10 text-[#6B7280] bg-white/03 hover:border-white/20 hover:text-[#9CA3AF]"
+                  }`}
+                >
+                  Pipeline Research{pipelineReports.length > 0 ? ` (${pipelineReports.length})` : ""}
+                </button>
+                {tab === "pipeline" && pipelineReports.length > 0 && (
+                  <button
+                    onClick={deleteAll}
+                    disabled={deleting === "all"}
+                    className="ml-auto text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
+                  >
+                    <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
+                    </svg>
+                    {deleting === "all" ? "Deleting…" : "Clear all"}
+                  </button>
+                )}
+              </div>
 
-              {/* Pipeline auto section */}
-              {pipelineReports.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <h2 className="text-xs font-bold text-[#6B7280] uppercase tracking-wider">
-                        Pipeline Research ({pipelineReports.length})
-                      </h2>
-                      <p className="text-[10px] text-[#3D4655] mt-0.5">
-                        Auto-generated for debated &amp; entered stocks during daily pipeline runs
-                      </p>
-                    </div>
-                    <button
-                      onClick={deleteAll}
-                      disabled={deleting === "all"}
-                      className="text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
-                    >
-                      <TrashIcon />
-                      {deleting === "all" ? "Deleting…" : "Clear all"}
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {pipelineReports.map((r) => <ReportRow key={`${r.ticker}_${r.date}`} r={r} />)}
-                  </div>
+              {/* Active tab content */}
+              {activeReports.length > 0 ? (
+                <div className="space-y-2">
+                  {activeReports.map((r) => <ReportRow key={r.filename ?? `${r.ticker}_${r.date}`} r={r} />)}
                 </div>
+              ) : (
+                <p className="text-xs text-[#4B5563] text-center py-8">
+                  {tab === "manual"
+                    ? "No manual research yet — run an analysis above."
+                    : "No pipeline reports yet — auto-generated for debated & entered stocks."}
+                </p>
               )}
             </div>
           );
