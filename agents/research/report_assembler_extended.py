@@ -4,6 +4,7 @@ Imports helpers from report_assembler. Zero AI in any section.
 """
 
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
@@ -304,14 +305,27 @@ def build_institutional_activity(data: dict) -> dict:
             ),
         })
 
+    def _parse_form4_name(title: str) -> str | None:
+        """Extract insider name from SEC Form 4 RSS title: '4 - JOHN DOE (0001234567)'"""
+        if not title:
+            return None
+        m = re.search(r"4\s*-\s*(.+?)(?:\s*\(|\s*$)", title, re.IGNORECASE)
+        if m:
+            return m.group(1).strip().title()
+        return title.strip() or None
+
     insider_trades = []
     for f in form4[:8]:
+        # SEC RSS feed returns title/date/url; FMP returns reportingName/transactionType/etc.
+        title = f.get("title", "")
+        parsed_name = _parse_form4_name(title) if title else None
         insider_trades.append({
             "date":             _tag(f.get("date") or f.get("filingDate"), "SEC EDGAR"),
-            "name":             _tag(f.get("reportingName") or f.get("name"), "SEC EDGAR"),
+            "name":             _tag(f.get("reportingName") or f.get("name") or parsed_name, "SEC EDGAR"),
             "transaction_type": _tag(f.get("transactionType") or f.get("transaction_type"), "SEC EDGAR"),
             "shares":           _tag(_safe_float(f.get("securitiesTransacted") or f.get("shares")), "SEC EDGAR"),
             "price":            _tag(_safe_float(f.get("price")), "SEC EDGAR"),
+            "filing_url":       f.get("url"),
         })
 
     buy_cnt = hold_cnt = sell_cnt = 0

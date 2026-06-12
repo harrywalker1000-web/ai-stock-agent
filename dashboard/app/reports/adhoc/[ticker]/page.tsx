@@ -1256,16 +1256,22 @@ export default function AdhocTickerPage() {
                           </thead>
                           <tbody>
                             {(insiderTrades as any[]).slice(0, 6).map((t: any, i: number) => {
-                              const txn = String(fv(t.transaction ?? t.transaction_type ?? t.type) ?? "");
-                              const isBuy = /buy|purchase/i.test(txn);
+                              const txn = String(fv(t.transaction_type ?? t.transaction ?? t.type) ?? "");
+                              const isBuy = /buy|purchase|acqui/i.test(txn);
                               const sharesVal = fv(t.shares);
                               const priceVal  = fv(t.price);
+                              const nameVal   = fv(t.name ?? t.insider ?? t.reportingName);
+                              const url       = t.filing_url as string | undefined;
                               return (
                                 <tr key={i} className="border-b border-[#1E2D4A]/50">
                                   <td className="py-2 px-2 font-mono text-[#475569]">{fv(t.date) ?? "—"}</td>
-                                  <td className="py-2 px-2 text-[#94A3B8]">{fv(t.name ?? t.insider) ?? "—"}</td>
-                                  <td className={`py-2 px-2 font-mono text-right font-bold ${isBuy ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {txn || "—"}
+                                  <td className="py-2 px-2 text-[#94A3B8]">
+                                    {url && nameVal
+                                      ? <a href={url} target="_blank" rel="noreferrer" className="hover:text-white underline underline-offset-2">{nameVal}</a>
+                                      : (nameVal ?? "—")}
+                                  </td>
+                                  <td className={`py-2 px-2 font-mono text-right font-bold ${isBuy ? "text-[#10B981]" : txn ? "text-[#EF4444]" : "text-[#475569]"}`}>
+                                    {txn || "Form 4"}
                                   </td>
                                   <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">
                                     {sharesVal != null ? Number(sharesVal).toLocaleString() : "—"}
@@ -1504,8 +1510,9 @@ export default function AdhocTickerPage() {
                 const analystRating = fv(s14.analyst_rating);
                 const ourDcf        = fv(s14.our_dcf_implied);
                 const fmpDcf        = fv(s14.fmp_dcf_crosscheck);
-                const ourDir        = fv(s14.direction);
-                const ourConv       = fv(s14.conviction);
+                // Use committee direction (from S16) — s14.direction can be "BLOCK" from mandate
+                const ourDir  = direction !== "—" ? direction : fv(s14.direction);
+                const ourConv = Number(fv(rec.conviction_score ?? rec.conviction) ?? 0) || null;
 
                 const streetParts: string[] = [];
                 if (analystPT != null) streetParts.push(`Consensus PT: ${fmt$(analystPT)}`);
@@ -1514,7 +1521,7 @@ export default function AdhocTickerPage() {
 
                 const ourParts: string[] = [];
                 if (ourDir) ourParts.push(`Direction: ${ourDir}`);
-                if (ourConv != null) ourParts.push(`Conviction: ${ourConv}/100`);
+                if (ourConv) ourParts.push(`Conviction: ${ourConv}/100`);
                 if (ourDcf != null) ourParts.push(`Our DCF: ${fmt$(ourDcf)}`);
                 if (fmpDcf != null) ourParts.push(`FMP DCF: ${fmt$(fmpDcf)}`);
 
@@ -1541,7 +1548,7 @@ export default function AdhocTickerPage() {
                               return <KV key={i} label={lbl} value={val} />;
                             })}
                           </div>
-                          <TagBadge source={fs(s14.direction) || "mandate_checker"} />
+                          <TagBadge source="Haz Capital" />
                         </div>
                       </div>
                     )}
