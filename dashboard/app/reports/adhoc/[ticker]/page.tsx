@@ -1427,12 +1427,9 @@ export default function AdhocTickerPage() {
             <Section n={13} id="s13" title="Sentiment" color="#2D6BFF">
               {(() => {
                 const summary   = fv(s13.ai_sentiment);
-                const newsTone  = fv(s13.news_tone);
                 const shortPct  = fv(s13.short_interest_pct ?? s13.short_interest);
                 const consensus = fv(s13.analyst_consensus);
                 const newsItems = (s13.news_items ?? []) as any[];
-                const toneColor = /positive|bullish/i.test(newsTone ?? "") ? "#10B981"
-                  : /negative|bearish/i.test(newsTone ?? "") ? "#EF4444" : "#F59E0B";
                 const hasStats = shortPct != null || consensus;
                 return (
                   <>
