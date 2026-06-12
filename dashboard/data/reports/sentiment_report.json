@@ -1,11 +1,88 @@
 {
   "sentiment_analyses": [
     {
+      "ticker": "TSLA",
+      "sentiment_score": 72,
+      "direction": "LONG",
+      "analyst_consensus": "Buy",
+      "price_target_upside_pct": 3.3,
+      "news_sentiment": "positive",
+      "short_interest_pct": 2.3,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [
+        "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "news_catalysts"
+        ],
+        "conflicts": [
+          "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+        ],
+        "confidence_note": "1/3 sources confirming; conflicts: yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      },
+      "sentiment_summary": "Despite a risk-off macro regime, TSLA shows a positive sentiment driven by bullish analyst ratings and a favorable news catalyst regarding a potential merger with SpaceX. The sentiment appears to be leading, indicating that analysts may see value in the stock despite mixed signals from different sources.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 429.0,
+        "target_count": 6,
+        "last_quarter_avg_target": 429,
+        "last_year_avg_target": 436.27,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 41,
+        "fh_strong_buy": 9,
+        "fh_buy": 20,
+        "fh_hold": 23,
+        "fh_sell": 7,
+        "fh_strong_sell": 1,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": true,
+        "long_weight": 1.0,
+        "short_weight": 0.0,
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "SpaceX president hints at a Tesla merger"
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 406.43,
+        "mean": 419.93658,
+        "high": 600.0,
+        "low": 123.0,
+        "upside_pct": 3.3
+      },
+      "short_interest": {
+        "ratio": 1.48,
+        "pct_float": 0.023
+      },
+      "candidate_score": 6.5,
+      "candidate_signals": [
+        "institutional_signal",
+        "fresh_catalyst",
+        "activist_13g",
+        "unusual_calls(29.4x_vol_oi)"
+      ]
+    },
+    {
       "ticker": "NVDA",
       "sentiment_score": 78,
       "direction": "LONG",
       "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 46.1,
+      "price_target_upside_pct": 45.7,
       "news_sentiment": "neutral",
       "short_interest_pct": 1.2,
       "short_squeeze_risk": "low",
@@ -23,7 +100,7 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, indicating potential value in a long position.",
+      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts with significant upside potential. The lack of recent news catalysts and low short interest suggests that the current market sentiment may be overly cautious, indicating a potential contrarian long opportunity.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": 312.16,
@@ -55,11 +132,11 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 204.59,
+        "current": 205.19,
         "mean": 298.9322,
         "high": 500.0,
         "low": 180.0,
-        "upside_pct": 46.1
+        "upside_pct": 45.7
       },
       "short_interest": {
         "ratio": 1.71,
@@ -69,89 +146,16 @@
       "candidate_signals": [
         "institutional_signal",
         "analyst_upgrade",
-        "unusual_calls(8.3x_vol_oi)",
-        "sector_momentum"
-      ]
-    },
-    {
-      "ticker": "AAPL",
-      "sentiment_score": 72,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 7.5,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 1.1,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": true,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, AAPL shows potential for a long position based on analyst consensus and price targets indicating upside. However, the lack of recent news catalysts and low signal confidence suggests that current sentiment may be leading, reflecting future value rather than reacting to past price movements.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 355.0,
-        "target_count": 5,
-        "last_quarter_avg_target": 327.77,
-        "last_year_avg_target": 295.96,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 43,
-        "fh_strong_buy": 14,
-        "fh_buy": 24,
-        "fh_hold": 15,
-        "fh_sell": 2,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 290.975,
-        "mean": 312.71628,
-        "high": 400.0,
-        "low": 215.0,
-        "upside_pct": 7.5
-      },
-      "short_interest": {
-        "ratio": 3.12,
-        "pct_float": 0.0106
-      },
-      "candidate_score": 5.75,
-      "candidate_signals": [
-        "institutional_signal",
-        "analyst_upgrade",
-        "unusual_calls(4.9x_vol_oi)",
-        "sector_momentum"
+        "activist_13g",
+        "unusual_calls(13.4x_vol_oi)"
       ]
     },
     {
       "ticker": "AMZN",
-      "sentiment_score": 78,
+      "sentiment_score": 75,
       "direction": "LONG",
       "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 32.4,
+      "price_target_upside_pct": 31.0,
       "news_sentiment": "neutral",
       "short_interest_pct": 0.9,
       "short_squeeze_risk": "low",
@@ -169,7 +173,7 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, Amazon (AMZN) shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, indicating potential value in a long position.",
+      "sentiment_summary": "Despite a risk-off macro regime, Amazon (AMZN) shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in a long position.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": 319.25,
@@ -201,30 +205,30 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 235.98,
+        "current": 238.55,
         "mean": 312.51096,
         "high": 370.0,
         "low": 207.0,
-        "upside_pct": 32.4
+        "upside_pct": 31.0
       },
       "short_interest": {
         "ratio": 2.12,
         "pct_float": 0.0094
       },
-      "candidate_score": 4.25,
+      "candidate_score": 5.5,
       "candidate_signals": [
         "institutional_signal",
-        "analyst_upgrade",
-        "unusual_calls(9.0x_vol_oi)"
+        "activist_13g",
+        "unusual_calls(13.4x_vol_oi)"
       ]
     },
     {
-      "ticker": "LLY",
-      "sentiment_score": 80,
+      "ticker": "AAPL",
+      "sentiment_score": 72,
       "direction": "LONG",
       "analyst_consensus": "Buy",
-      "price_target_upside_pct": 6.3,
-      "news_sentiment": "positive",
+      "price_target_upside_pct": 7.4,
+      "news_sentiment": "neutral",
       "short_interest_pct": 1.1,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
@@ -233,22 +237,21 @@
       "sentiment_type": "leading",
       "data_conflicts": [],
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "low",
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
-          "news_catalysts"
+          "analyst_consensus"
         ],
         "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
+        "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "The sentiment around Eli Lilly is currently bullish, supported by a positive analyst consensus and favorable news regarding its obesity treatment pipeline. With a solid upside potential and low short interest, the sentiment appears to be leading, indicating that the market may be underestimating the stock's value.",
+      "sentiment_summary": "Despite a risk-off macro regime, AAPL shows a bullish sentiment from analysts, with a mean price target suggesting a 7.4% upside. The lack of recent news catalysts and low short interest indicate that the current sentiment is leading, reflecting potential value in the stock amidst market fears.",
       "fmp_analyst_signals": {
         "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
+        "avg_target_price": 355.0,
+        "target_count": 5,
+        "last_quarter_avg_target": 327.77,
+        "last_year_avg_target": 295.96,
         "upgrades_recent": 0,
         "downgrades_recent": 0,
         "initiations_recent": 0,
@@ -256,184 +259,39 @@
       },
       "analyst_detail": {
         "yf_label": "Buy",
-        "yf_num_analysts": 29,
-        "fh_strong_buy": 11,
-        "fh_buy": 20,
-        "fh_hold": 7,
-        "fh_sell": 1,
+        "yf_num_analysts": 43,
+        "fh_strong_buy": 14,
+        "fh_buy": 24,
+        "fh_hold": 15,
+        "fh_sell": 2,
         "fh_strong_sell": 0,
         "fh_period": "2026-06-01"
       },
       "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
+        "found": false,
+        "long_weight": 0.0,
         "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "Goldman Sachs Maintains a Buy Rating on Eli Lilly, Cites Encouraging Obesity Treatment Pipeline"
+        "net_score": 0.0,
+        "total_catalysts": 0,
+        "top_catalyst": null
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 1143.85,
-        "mean": 1215.7931,
-        "high": 1500.0,
-        "low": 850.0,
-        "upside_pct": 6.3
+        "current": 291.13,
+        "mean": 312.71628,
+        "high": 400.0,
+        "low": 215.0,
+        "upside_pct": 7.4
       },
       "short_interest": {
-        "ratio": 2.75,
-        "pct_float": 0.011
+        "ratio": 3.12,
+        "pct_float": 0.0106
       },
-      "candidate_score": 3.5,
+      "candidate_score": 5.0,
       "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "JNJ",
-      "sentiment_score": 78,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 5.6,
-      "news_sentiment": "positive",
-      "short_interest_pct": 1.1,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "The sentiment around Johnson & Johnson is currently positive, driven by bullish analyst ratings and favorable news catalysts. With a solid upside potential and low short interest, the sentiment appears to be leading, indicating a potential contrarian long opportunity.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 265.0,
-        "target_count": 1,
-        "last_quarter_avg_target": 263,
-        "last_year_avg_target": 228.57,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 23,
-        "fh_strong_buy": 7,
-        "fh_buy": 14,
-        "fh_hold": 10,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
-        "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "Jim Cramer Says He Likes Drug Stocks Here As He Discusses Johnson & Johnson"
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 239.48,
-        "mean": 252.86957,
-        "high": 285.0,
-        "low": 155.0,
-        "upside_pct": 5.6
-      },
-      "short_interest": {
-        "ratio": 3.06,
-        "pct_float": 0.0108
-      },
-      "candidate_score": 3.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "CRM",
-      "sentiment_score": 82,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 54.5,
-      "news_sentiment": "mixed",
-      "short_interest_pct": 8.6,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "The current sentiment around CRM is leading, driven by a strong analyst consensus and significant upside potential in price targets. Despite some mixed news catalysts, the overall market sentiment remains bullish, indicating a potential contrarian long opportunity.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 53,
-        "fh_strong_buy": 12,
-        "fh_buy": 31,
-        "fh_hold": 13,
-        "fh_sell": 1,
-        "fh_strong_sell": 1,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
-        "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "Adobe Tumbles 9% on CFO Exit, Downgrades: Is the AI Threat Now Salesforce\u2019s Problem Too?"
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 165.05,
-        "mean": 254.98906,
-        "high": 475.0,
-        "low": 160.0,
-        "upside_pct": 54.5
-      },
-      "short_interest": {
-        "ratio": 4.45,
-        "pct_float": 0.0861
-      },
-      "candidate_score": 3.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum"
+        "institutional_signal",
+        "activist_13g",
+        "unusual_calls(16.5x_vol_oi)"
       ]
     },
     {
@@ -441,7 +299,7 @@
       "sentiment_score": 72,
       "direction": "LONG",
       "analyst_consensus": "Buy",
-      "price_target_upside_pct": 43.0,
+      "price_target_upside_pct": 43.8,
       "news_sentiment": "neutral",
       "short_interest_pct": 11.1,
       "short_squeeze_risk": "low",
@@ -459,7 +317,7 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, analyst sentiment towards COIN remains bullish, with a significant upside potential reflected in the price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value for contrarian investors.",
+      "sentiment_summary": "Despite a risk-off macro regime, analysts maintain a bullish outlook on COIN with a significant upside potential. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value amidst market fears.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": 172.5,
@@ -491,25 +349,243 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 160.69,
+        "current": 159.78,
         "mean": 229.73567,
         "high": 400.0,
         "low": 107.0,
-        "upside_pct": 43.0
+        "upside_pct": 43.8
       },
       "short_interest": {
         "ratio": 2.5,
         "pct_float": 0.111
       },
-      "candidate_score": 3.0,
+      "candidate_score": 5.0,
       "candidate_signals": [
-        "dislocation_screen(-23%_1m)",
+        "institutional_signal",
+        "analyst_upgrade",
+        "dislocation_screen(-21%_1m)",
         "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "MA",
+      "sentiment_score": 75,
+      "direction": "LONG",
+      "analyst_consensus": "Strong Buy",
+      "price_target_upside_pct": 32.0,
+      "news_sentiment": "neutral",
+      "short_interest_pct": 0.7,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
+        "conflicts": [],
+        "confidence_note": "1/3 sources confirming"
+      },
+      "sentiment_summary": "Despite a risk-off macro regime, analyst sentiment towards MA is bullish, with a strong buy consensus and significant upside potential. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in a long position.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": null,
+        "target_count": 0,
+        "last_quarter_avg_target": null,
+        "last_year_avg_target": null,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Strong Buy",
+        "yf_num_analysts": 36,
+        "fh_strong_buy": 13,
+        "fh_buy": 33,
+        "fh_hold": 5,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": false,
+        "long_weight": 0.0,
+        "short_weight": 0.0,
+        "net_score": 0.0,
+        "total_catalysts": 0,
+        "top_catalyst": null
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 489.98,
+        "mean": 646.9722,
+        "high": 735.0,
+        "low": 550.0,
+        "upside_pct": 32.0
+      },
+      "short_interest": {
+        "ratio": 1.68,
+        "pct_float": 0.0074
+      },
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "V",
+      "sentiment_score": 85,
+      "direction": "LONG",
+      "analyst_consensus": "Strong Buy",
+      "price_target_upside_pct": 23.7,
+      "news_sentiment": "positive",
+      "short_interest_pct": 1.3,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "analyst_consensus",
+          "news_catalysts"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 sources confirming"
+      },
+      "sentiment_summary": "The current market sentiment for Visa (V) is strongly bullish, driven by a positive analyst consensus and a significant upside in price targets. The sentiment is leading, indicating that analysts see value despite the risk-off macro regime.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 450.0,
+        "target_count": 1,
+        "last_quarter_avg_target": 388,
+        "last_year_avg_target": 385.72,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Strong Buy",
+        "yf_num_analysts": 36,
+        "fh_strong_buy": 11,
+        "fh_buy": 33,
+        "fh_hold": 4,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": true,
+        "long_weight": 1.0,
+        "short_weight": 0.0,
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "Preliminary judicial approval of $38 billion swipe-fee settlement"
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 322.39,
+        "mean": 398.83362,
+        "high": 450.0,
+        "low": 330.0,
+        "upside_pct": 23.7
+      },
+      "short_interest": {
+        "ratio": 2.58,
+        "pct_float": 0.0128999995
+      },
+      "candidate_score": 2.25,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "JNJ",
+      "sentiment_score": 82,
+      "direction": "LONG",
+      "analyst_consensus": "Buy",
+      "price_target_upside_pct": 5.0,
+      "news_sentiment": "positive",
+      "short_interest_pct": 1.1,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": false,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "analyst_consensus",
+          "news_catalysts"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 sources confirming"
+      },
+      "sentiment_summary": "The sentiment around Johnson & Johnson is currently positive, driven by a bullish analyst consensus and a significant news catalyst regarding a cancer treatment acquisition. This sentiment appears to be leading, as analysts project a solid upside potential from the current price.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 265.0,
+        "target_count": 1,
+        "last_quarter_avg_target": 263,
+        "last_year_avg_target": 228.57,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 23,
+        "fh_strong_buy": 7,
+        "fh_buy": 14,
+        "fh_hold": 10,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": true,
+        "long_weight": 1.0,
+        "short_weight": 0.0,
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "Johnson & Johnson acquires technology for cancer treatment"
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 240.87,
+        "mean": 252.86957,
+        "high": 285.0,
+        "low": 155.0,
+        "upside_pct": 5.0
+      },
+      "short_interest": {
+        "ratio": 3.06,
+        "pct_float": 0.0108
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
       ]
     }
   ],
-  "total_analysed": 7,
+  "total_analysed": 8,
   "macro_regime": "RISK-OFF",
   "reddit_enabled": false,
-  "generated_at": "2026-06-12 16:45 UTC"
+  "generated_at": "2026-06-12 20:30 UTC"
 }
