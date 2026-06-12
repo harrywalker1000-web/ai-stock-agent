@@ -358,62 +358,92 @@ function KV({ label, value, color }: { label: string; value: React.ReactNode; co
 
 // ─── Chart components (inline SVG — no external deps) ────────────────────────
 
-function RevenueBarChart({ years }: { years: any[] }) {
+function RevenueBarChart({ years, viewLabel = "Annual" }: { years: any[], viewLabel?: string }) {
   if (!years || years.length === 0) return null;
-  const vals = years.map((y: any) => Math.abs(Number(fv(y.revenue) ?? 0)));
+  // Reverse so oldest year is on the left
+  const ordered = [...years].reverse();
+  const vals = ordered.map((y: any) => Math.abs(Number(fv(y.revenue) ?? 0)));
   const maxV = Math.max(...vals, 1);
-  const W = 480, H = 140, pad = { top: 28, right: 16, bottom: 32, left: 16 };
+  const n = ordered.length;
+
+  const W = 520, H = 170;
+  const pad = { top: 40, right: 20, bottom: 48, left: 20 };
   const innerW = W - pad.left - pad.right;
   const innerH = H - pad.top - pad.bottom;
-  const barW = Math.floor(innerW / years.length) - 8;
-  const slotW = innerW / years.length;
+  const slotW = innerW / n;
+  const barW = Math.min(Math.floor(slotW * 0.55), 60);
+
+  const fmtRev = (v: number) => {
+    if (v >= 1e12) return `$${(v/1e12).toFixed(1)}T`;
+    if (v >= 1e9)  return `$${(v/1e9).toFixed(1)}B`;
+    if (v >= 1e6)  return `$${(v/1e6).toFixed(v >= 100e6 ? 0 : 1)}M`;
+    return `$${(v/1e3).toFixed(0)}K`;
+  };
+  const fmtNm = (nm: number) => {
+    const abs = Math.abs(nm);
+    return `${nm < 0 ? "−" : ""}${abs >= 100 ? abs.toFixed(0) : abs.toFixed(1)}%`;
+  };
+
+  const source = fv(years[0]?.revenue?.source) || "yfinance/FMP";
+
   return (
     <div className="mb-6">
-      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Revenue Trend</p>
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">
+        Revenue Trend <span className="text-[#334155] normal-case font-normal">({viewLabel})</span>
+      </p>
       <div className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-4 overflow-x-auto">
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 160 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full min-w-[260px]" style={{ maxHeight: 190 }}>
           {/* Grid lines */}
           {[0.25, 0.5, 0.75, 1].map((t) => (
             <line key={t} x1={pad.left} x2={W - pad.right}
               y1={pad.top + innerH * (1 - t)} y2={pad.top + innerH * (1 - t)}
-              stroke="#1E2D4A" strokeWidth={1} strokeDasharray="3 3" />
+              stroke="#1E2D4A" strokeWidth={0.5} strokeDasharray="4 3" />
           ))}
-          {years.map((yr: any, i: number) => {
+          {ordered.map((yr: any, i: number) => {
             const rev = Math.abs(Number(fv(yr.revenue) ?? 0));
-            const nm = Number(fv(yr.net_margin) ?? 0);
-            const h = Math.max((rev / maxV) * innerH, 2);
-            const x = pad.left + i * slotW + (slotW - barW) / 2;
-            const y = pad.top + innerH - h;
-            const isNeg = Number(fv(yr.revenue) ?? 0) < 0;
-            const barColor = isNeg ? "#EF4444" : "#2D6BFF";
-            const nmColor = nm >= 10 ? "#10B981" : nm >= 0 ? "#F59E0B" : "#EF4444";
-            const revStr = (() => {
-              const v = Math.abs(rev);
-              if (v >= 1e12) return `$${(v/1e12).toFixed(1)}T`;
-              if (v >= 1e9)  return `$${(v/1e9).toFixed(1)}B`;
-              return `$${(v/1e6).toFixed(0)}M`;
-            })();
+            const nm = Number(fv(yr.net_margin) ?? NaN);
+            const yoyRaw = fv(yr.revenue_yoy);
+            const h = Math.max((rev / maxV) * innerH, 3);
+            const cx = pad.left + i * slotW + slotW / 2;
+            const bx = cx - barW / 2;
+            const by = pad.top + innerH - h;
+            const nmColor = isNaN(nm) ? "#475569" : nm >= 10 ? "#10B981" : nm >= 0 ? "#F59E0B" : "#EF4444";
+            const hasYoy = yoyRaw != null && !isNaN(Number(yoyRaw));
+            const yoyVal = hasYoy ? Number(yoyRaw) : 0;
+
             return (
               <g key={i}>
-                {/* Bar */}
-                <rect x={x} y={y} width={barW} height={h} rx={3} fill={`${barColor}55`} stroke={barColor} strokeWidth={1} />
-                {/* Revenue label top */}
-                <text x={x + barW / 2} y={y - 6} textAnchor="middle" fill="#94A3B8" fontSize={9} fontFamily="monospace">{revStr}</text>
-                {/* Net margin badge */}
-                {nm !== 0 && (
-                  <text x={x + barW / 2} y={y + h / 2 + 4} textAnchor="middle" fill={nmColor} fontSize={8} fontFamily="monospace" fontWeight="bold">
-                    {nm.toFixed(1)}%
+                {/* Bar fill + border */}
+                <rect x={bx} y={by} width={barW} height={h} rx={4}
+                  fill="#2D6BFF22" stroke="#2D6BFF" strokeWidth={1.5} />
+                {/* YoY/QoQ badge — top row */}
+                {hasYoy && (
+                  <text x={cx} y={by - 22} textAnchor="middle"
+                    fill={yoyVal >= 0 ? "#10B981" : "#EF4444"} fontSize={8} fontFamily="monospace" fontWeight="bold">
+                    {yoyVal >= 0 ? "▲" : "▼"} {yoyVal >= 0 ? "+" : ""}{Math.abs(yoyVal) >= 100 ? yoyVal.toFixed(0) : yoyVal.toFixed(1)}%
                   </text>
                 )}
+                {/* Revenue label */}
+                <text x={cx} y={by - 8} textAnchor="middle" fill="#CBD5E1" fontSize={9} fontFamily="monospace">
+                  {fmtRev(rev)}
+                </text>
                 {/* Year label */}
-                <text x={x + barW / 2} y={H - 4} textAnchor="middle" fill="#475569" fontSize={9} fontFamily="monospace">
+                <text x={cx} y={pad.top + innerH + 16} textAnchor="middle" fill="#94A3B8" fontSize={9.5} fontFamily="monospace" fontWeight="bold">
                   {yr.label ?? fv(yr.year)}
                 </text>
+                {/* Net margin below year */}
+                {!isNaN(nm) && nm !== 0 && (
+                  <text x={cx} y={pad.top + innerH + 30} textAnchor="middle" fill={nmColor} fontSize={7.5} fontFamily="monospace">
+                    NM {fmtNm(nm)}
+                  </text>
+                )}
               </g>
             );
           })}
         </svg>
-        <p className="text-[9px] text-[#1E3A5F] mt-1 text-right">Bars = Revenue · % inside bar = Net Margin · Source: {fv(years[0]?.revenue?.source ?? "yfinance/FMP")}</p>
+        <p className="text-[9px] text-[#334155] mt-1 text-right">
+          Bars = Revenue · ▲▼ = Growth · NM = Net Margin below year · Source: {source}
+        </p>
       </div>
     </div>
   );
@@ -423,38 +453,77 @@ function MarginChart({ years }: { years: any[] }) {
   if (!years || years.length === 0) return null;
   const metrics = [
     { key: "gross_margin",  label: "Gross",  color: "#10B981" },
-    { key: "ebitda_margin", label: "EBITDA", color: "#2D6BFF" },
+    { key: "ebitda_margin", label: "EBITDA", color: "#818CF8" },
     { key: "net_margin",    label: "Net",    color: "#F59E0B" },
   ];
   const hasAny = metrics.some(m => years.some((y: any) => fv(y[m.key]) != null));
   if (!hasAny) return null;
+  const ordered = [...years].reverse(); // oldest first
+  const latest = years[0];
+
   return (
     <div className="mb-6">
-      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Margin Profile (most recent year)</p>
-      <div className="space-y-2">
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Margin Profile</p>
+      <div className="grid grid-cols-1 gap-3">
         {metrics.map(({ key, label, color }) => {
-          const latest = years[0];
-          const val = Number(fv(latest?.[key]) ?? 0);
-          if (isNaN(val)) return null;
-          const clamped = Math.max(-100, Math.min(100, val));
-          const pct = Math.abs(clamped);
-          const neg = val < 0;
+          const latestVal = Number(fv(latest?.[key]) ?? NaN);
+          if (isNaN(latestVal)) return null;
+          const neg = latestVal < 0;
+          const clampedLatest = Math.max(-100, Math.min(100, latestVal));
           return (
-            <div key={key} className="flex items-center gap-3">
-              <span className="text-[10px] text-[#475569] w-14 shrink-0">{label}</span>
-              <div className="flex-1 bg-[#1E2D4A] rounded-full h-2 overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{
-                  width: `${pct}%`,
-                  background: neg ? "#EF4444" : color,
-                  opacity: neg ? 0.7 : 1,
-                }} />
+            <div key={key}>
+              {/* Current bar + value */}
+              <div className="flex items-center gap-3 mb-1">
+                <span className="text-[10px] text-[#64748B] w-14 shrink-0">{label}</span>
+                <div className="flex-1 relative bg-[#0F1929] rounded h-5 overflow-hidden">
+                  <div className="h-full rounded transition-all" style={{
+                    width: `${Math.abs(clampedLatest)}%`,
+                    background: neg ? `#EF444455` : `${color}44`,
+                    borderRight: `2px solid ${neg ? "#EF4444" : color}`,
+                  }} />
+                  {/* Mini year sparkline dots */}
+                  <div className="absolute inset-0 flex items-center justify-end gap-1 pr-2">
+                    {ordered.map((yr: any, idx: number) => {
+                      const v = Number(fv(yr[key]) ?? NaN);
+                      if (isNaN(v)) return null;
+                      const dotColor = v < 0 ? "#EF4444" : color;
+                      return (
+                        <div key={idx} title={`${yr.label ?? fv(yr.year)}: ${v.toFixed(1)}%`}
+                          className="rounded-full shrink-0"
+                          style={{ width: 5, height: 5, background: dotColor, opacity: 0.6 + 0.4 * (idx / ordered.length) }} />
+                      );
+                    })}
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono font-bold w-16 text-right shrink-0"
+                  style={{ color: neg ? "#EF4444" : color }}>
+                  {latestVal >= 0 ? "" : "−"}{Math.abs(latestVal) >= 100 ? Math.abs(latestVal).toFixed(0) : Math.abs(latestVal).toFixed(1)}%
+                </span>
               </div>
-              <span className="text-[10px] font-mono font-bold w-14 text-right shrink-0" style={{ color: neg ? "#EF4444" : color }}>
-                {val.toFixed(1)}%
-              </span>
+              {/* Trend micro-values */}
+              <div className="flex gap-0 pl-[72px]">
+                {ordered.map((yr: any, idx: number) => {
+                  const v = Number(fv(yr[key]) ?? NaN);
+                  return (
+                    <div key={idx} className="flex-1 text-center">
+                      <span className="text-[7px] font-mono" style={{ color: isNaN(v) ? "#1E2D4A" : v < 0 ? "#EF444488" : `${color}99` }}>
+                        {isNaN(v) ? "—" : (v >= 0 ? "" : "−") + (Math.abs(v) >= 100 ? Math.abs(v).toFixed(0) : Math.abs(v).toFixed(1))}%
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
+        {/* Year axis labels */}
+        <div className="flex gap-0 pl-[72px]">
+          {ordered.map((yr: any, idx: number) => (
+            <div key={idx} className="flex-1 text-center">
+              <span className="text-[7px] font-mono text-[#334155]">{yr.label ?? fv(yr.year)}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -597,6 +666,390 @@ function AnalystBar({ buyCnt, holdCnt, sellCnt }: { buyCnt: number; holdCnt: num
         })}
       </div>
     </div>
+  );
+}
+
+// ─── Research Chatbot ─────────────────────────────────────────────────────────
+function buildReportContext(ticker: string, report: Record<string, any>): string {
+  const v = (f: any): any => (f !== null && typeof f === "object" && "value" in f ? f.value : f);
+  const pct = (n: any) => { const x = v(n); return x == null ? "N/A" : `${Number(x).toFixed(1)}%`; };
+  const money = (n: any) => {
+    const x = Number(v(n) ?? 0); if (!x) return "N/A";
+    if (Math.abs(x) >= 1e12) return `$${(x/1e12).toFixed(2)}T`;
+    if (Math.abs(x) >= 1e9)  return `$${(x/1e9).toFixed(1)}B`;
+    if (Math.abs(x) >= 1e6)  return `$${(x/1e6).toFixed(0)}M`;
+    return `$${x.toFixed(2)}`;
+  };
+  const num  = (n: any, dp = 1) => { const x = v(n); return x == null ? "N/A" : Number(x).toFixed(dp); };
+  const str  = (n: any) => String(v(n) ?? "N/A");
+  const list = (arr: any[], key = "") => Array.isArray(arr)
+    ? arr.slice(0, 5).map((x: any, i: number) => `  ${i+1}. ${typeof x === "string" ? x : (v(x?.[key]) ?? JSON.stringify(x))}`).join("\n")
+    : "  N/A";
+
+  const sections = report.sections ?? {};
+  const s1  = sections.s1_cover ?? sections.s1_mandate ?? {};
+  const s4  = sections.s4_financials ?? sections.s4_financial ?? {};
+  const s5  = sections.s5_dcf ?? sections.s5_forward ?? {};
+  const s6  = sections.s6_valuation ?? {};
+  const s7  = sections.s7_technicals ?? sections.s7_technical ?? {};
+  const s10 = sections.s10_institutional ?? {};
+  const s11 = sections.s11_risks ?? {};
+  const s12 = sections.s12_scenarios ?? {};
+  const s13 = sections.s13_sentiment ?? {};
+  const s14 = sections.s14_differ ?? {};
+  const s15 = sections.s15_checklist ?? {};
+  const s16 = sections.s16_recommendation ?? {};
+  const s3  = sections.s3_news ?? {};
+  const s2  = sections.s2_overview ?? sections.s2_company ?? {};
+
+  const rec = s16.direction != null ? s16 : (report.s7_recommendation ?? {});
+  const historical = s4.years ?? s4.historical ?? s4.income_statement ?? [];
+  const technicals = report.technicals ?? {};
+  const icBreakdown = rec.conviction_breakdown ?? {};
+
+  const finRows = (historical as any[]).slice(0, 5).map((row: any) =>
+    `  ${str(row.label ?? row.year)}: Rev=${money(row.revenue)} YoY=${num(v(row.revenue_yoy))}% GM=${pct(row.gross_margin)} EBITDA Mgn=${pct(row.ebitda_margin)} Net Mgn=${pct(row.net_margin)} EPS=${num(row.eps_diluted ?? row.eps, 2)} FCF=${money(row.fcf)}`
+  ).join("\n");
+
+  const icBD = Object.entries(icBreakdown).filter(([k]) => !["raw_total","final_conviction"].includes(k))
+    .map(([k, c]: [string, any]) => `  ${k}: ${c.score}/${c.max} (${c.input})`).join("\n");
+
+  const bear = v(s12.bear) ?? {};
+  const base = v(s12.base) ?? {};
+  const bull = v(s12.bull) ?? {};
+
+  const nearCatalysts = Array.isArray(s3.near_term_catalysts) ? s3.near_term_catalysts : [];
+  const medCatalysts  = Array.isArray(s3.medium_term_catalysts) ? s3.medium_term_catalysts : [];
+  const risks = Array.isArray(s11.key_risks) ? s11.key_risks : (Array.isArray(rec.key_risks) ? rec.key_risks : []);
+
+  const ar = (s10.analyst_ratings ?? {}) as Record<string, any>;
+  const consensus = str(ar.consensus ?? s14.analyst_consensus);
+
+  const lines = [
+    `TICKER: ${ticker.toUpperCase()} | Company: ${str(s1.company_name ?? s2.company_name)}`,
+    `Sector: ${str(s1.sector ?? s2.sector)} | Industry: ${str(s1.industry ?? s2.industry)}`,
+    `Market Cap: ${money(s1.market_cap)} | Current Price: $${num(s1.current_price, 2)} | 52w Range: $${num(s1["52w_low"] ?? technicals["52w_low"], 2)}–$${num(s1["52w_high"] ?? technicals["52w_high"], 2)}`,
+    `Setup Type: ${str(s1.setup_type)}`,
+    "",
+    "--- INVESTMENT COMMITTEE RECOMMENDATION ---",
+    `Direction: ${str(rec.direction)} | Conviction: ${v(rec.conviction_score ?? rec.conviction) ?? "N/A"}/100`,
+    `Expected Return 12m: ${str(rec.expected_return_12m)} | Position Size: ${num(rec.position_size_pct, 1)}% | Stop Loss: ${num(rec.stop_loss_pct, 1)}%`,
+    `Source: ${str(rec.conviction_source)}`,
+    "Three Arguments:",
+    list(rec.three_arguments ?? []),
+    "Key Risks (IC):",
+    list(rec.key_risks ?? []),
+    rec.committee_narrative ? `Committee Narrative:\n${String(rec.committee_narrative).slice(0, 800)}` : "",
+    icBD ? `\nConviction Sub-Components:\n${icBD}` : "",
+    "",
+    "--- HISTORICAL FINANCIALS (Annual) ---",
+    "Year: Revenue, YoY%, Gross Margin, EBITDA Margin, Net Margin, EPS, FCF",
+    finRows || "  No data",
+    "",
+    "--- VALUATION ---",
+    `P/E TTM: ${num(s6.pe_ttm)}x | Fwd P/E: ${num(s6.pe_fwd)}x | EV/EBITDA: ${num(s6.ev_ebitda)}x | P/S: ${num(s6.ps)}x | FCF Yield: ${pct(s6.fcf_yield)}`,
+    `DCF Implied Price: $${num(s5.implied_price ?? s5.dcf?.implied_price, 2)} | Upside: ${pct(s5.upside_pct ?? s5.implied_upside)} | WACC: ${pct((s5.wacc_inputs ?? s5.wacc ?? {}).wacc ?? s5.wacc)}`,
+    `Analyst PT Mean: $${num(s14.analyst_pt_mean, 2)} | Our DCF: $${num(s14.our_dcf_implied, 2)}`,
+    "",
+    "--- TECHNICALS ---",
+    `RSI: ${num(technicals.rsi)} | Trend: ${str(technicals.trend_signal)} | Quant Score: ${num(s7.quant_score)}`,
+    `Support: $${num(technicals.support_1 ?? technicals.support, 2)} | Resistance: $${num(technicals.resistance_1 ?? technicals.resistance, 2)}`,
+    `Pct from 52w High: ${pct(technicals.pct_from_52w_high)} | ATR%: ${num(technicals.atr_pct)}%`,
+    "",
+    "--- SCENARIOS ---",
+    `Bear: $${num(v(bear.price_target) ?? bear.price_target, 2)} (${num(v(bear.probability) ?? bear.probability, 0)}% prob) — ${str(bear.trigger ?? bear.assumption)}`,
+    `Base: $${num(v(base.price_target) ?? base.price_target, 2)} (${num(v(base.probability) ?? base.probability, 0)}% prob) — ${str(base.trigger ?? base.assumption)}`,
+    `Bull: $${num(v(bull.price_target) ?? bull.price_target, 2)} (${num(v(bull.probability) ?? bull.probability, 0)}% prob) — ${str(bull.trigger ?? bull.assumption)}`,
+    `Probability-Weighted Return: ${pct(s12.probability_weighted_return)}`,
+    "",
+    "--- ANALYST CONSENSUS ---",
+    `Consensus: ${consensus} | Buy: ${v(ar.buy_count) ?? "N/A"} | Hold: ${v(ar.hold_count) ?? "N/A"} | Sell: ${v(ar.sell_count) ?? "N/A"}`,
+    `PT Mean: $${num(s14.analyst_pt_mean, 2)} | PT High: $${num(s14.analyst_pt_high, 2)} | PT Low: $${num(s14.analyst_pt_low, 2)}`,
+    "",
+    "--- NEAR-TERM CATALYSTS ---",
+    nearCatalysts.length ? list(nearCatalysts) : "  No data",
+    "--- MEDIUM-TERM CATALYSTS ---",
+    medCatalysts.length ? list(medCatalysts) : "  No data",
+    "",
+    "--- KEY RISKS ---",
+    risks.length ? list(risks) : "  No data",
+    "",
+    "--- SENTIMENT ---",
+    `Score: ${num(s13.sentiment_score)}/100 | Contrarian Signal: ${str(s13.contrarian_signal)}`,
+    `Short Interest: ${pct(s13.short_pct_float ?? s1.short_pct_float)} | Institutional: ${pct(s10.institutional_pct ?? s1.institutional_pct)}`,
+    `News Tone: ${str(s13.news_tone)} | Analyst Upgrade Momentum: ${str(s13.upgrade_momentum)}`,
+    "",
+    "--- SETUP CHECKLIST ---",
+    `Score: ${num(s15.overall_score)}/100 | Criteria: ${v(s15.passed_count) ?? "N/A"}/${v(s15.total_count) ?? "N/A"} passed`,
+    "",
+    `Report Generated: ${report.generated_at ?? "unknown"}`,
+  ];
+
+  return lines.filter(l => l !== undefined).join("\n");
+}
+
+function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<string, any> }) {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+  const send = async () => {
+    const text = input.trim();
+    if (!text || loading) return;
+    const userMsg = { role: "user" as const, content: text };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setInput("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/chat/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: newMessages,
+          context: buildReportContext(ticker, report),
+          ticker,
+        }),
+      });
+      const data = await res.json() as { reply: string };
+      setMessages(prev => [...prev, { role: "assistant", content: data.reply }]);
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: "Connection error. Please try again." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { if (open) { scrollToBottom(); inputRef.current?.focus(); } }, [open, messages]);
+
+  const SUGGESTIONS = [
+    `What's the bull case for ${ticker}?`,
+    "What are the biggest risks?",
+    "Is the valuation cheap or expensive?",
+    "What does the DCF imply?",
+    "What is the analyst consensus?",
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[200] flex flex-col items-end gap-3">
+      {/* Chat panel */}
+      {open && (
+        <div className="w-[380px] bg-[#060D1A] border border-[#1E2D4A] rounded-2xl shadow-2xl flex flex-col"
+          style={{ height: 520, boxShadow: "0 0 40px rgba(45,107,255,0.15)" }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#1E2D4A] shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-[#2D6BFF] flex items-center justify-center text-white text-[10px] font-black">
+                AI
+              </div>
+              <div>
+                <p className="text-[11px] font-bold text-white">Research AI</p>
+                <p className="text-[9px] text-[#475569]">{ticker.toUpperCase()} · Haz Capital</p>
+              </div>
+            </div>
+            <button onClick={() => setOpen(false)} className="text-[#475569] hover:text-white text-lg leading-none cursor-pointer">×</button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+            {messages.length === 0 && (
+              <div>
+                <p className="text-[11px] text-[#475569] mb-3 leading-relaxed">
+                  Ask me anything about <span className="text-[#2D6BFF] font-bold">{ticker.toUpperCase()}</span> — financials, valuation, risks, scenarios, or the investment committee recommendation.
+                </p>
+                <div className="space-y-1.5">
+                  {SUGGESTIONS.map((s) => (
+                    <button key={s} onClick={() => { setInput(s); inputRef.current?.focus(); }}
+                      className="w-full text-left text-[10px] text-[#64748B] border border-[#1E2D4A] rounded-lg px-3 py-2 hover:border-[#2D6BFF] hover:text-[#94A3B8] transition-all cursor-pointer">
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div className={[
+                  "max-w-[88%] rounded-2xl px-3 py-2 text-[11px] leading-relaxed",
+                  m.role === "user"
+                    ? "bg-[#2D6BFF] text-white rounded-br-sm"
+                    : "bg-[#0F1929] border border-[#1E2D4A] text-[#CBD5E1] rounded-bl-sm",
+                ].join(" ")}>
+                  {m.content}
+                </div>
+              </div>
+            ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="bg-[#0F1929] border border-[#1E2D4A] rounded-2xl rounded-bl-sm px-4 py-2.5 flex gap-1.5 items-center">
+                  {[0,1,2].map(i => (
+                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#2D6BFF]"
+                      style={{ animation: `bounce 1s ease-in-out ${i * 0.2}s infinite` }} />
+                  ))}
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="px-3 pb-3 shrink-0">
+            <div className="flex gap-2 bg-[#0F1929] border border-[#1E2D4A] rounded-xl px-3 py-2 focus-within:border-[#2D6BFF] transition-colors">
+              <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                placeholder={`Ask about ${ticker.toUpperCase()}…`}
+                className="flex-1 bg-transparent text-[11px] text-white placeholder-[#334155] outline-none min-w-0" />
+              <button onClick={send} disabled={!input.trim() || loading}
+                className="shrink-0 w-6 h-6 rounded-lg bg-[#2D6BFF] flex items-center justify-center disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed hover:bg-[#4B7FFF] transition-colors">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M1 9L9 5L1 1V4.5L6.5 5L1 5.5V9Z" fill="white"/>
+                </svg>
+              </button>
+            </div>
+            <p className="text-[8px] text-[#1E2D4A] mt-1.5 text-center">Powered by GPT-4o · Report data only · Not investment advice</p>
+          </div>
+        </div>
+      )}
+
+      {/* Toggle button */}
+      <button onClick={() => setOpen(o => !o)}
+        className={[
+          "w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all cursor-pointer",
+          open ? "bg-[#0F1929] border-2 border-[#2D6BFF]" : "bg-[#2D6BFF] hover:bg-[#4B7FFF]",
+        ].join(" ")}
+        style={{ boxShadow: "0 0 20px rgba(45,107,255,0.4)" }}>
+        {open ? (
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 4L14 14M14 4L4 14" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round"/>
+          </svg>
+        ) : (
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="9" cy="10" r="1" fill="white"/>
+            <circle cx="12" cy="10" r="1" fill="white"/>
+            <circle cx="15" cy="10" r="1" fill="white"/>
+          </svg>
+        )}
+      </button>
+      <style>{`@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }`}</style>
+    </div>
+  );
+}
+
+// ─── S4 Historical Financials with Annual / QoQ toggle ───────────────────────
+function HistoricalFinancialsSection({ s4 }: { s4: any }) {
+  const [view, setView] = useState<"annual" | "quarterly">("annual");
+
+  const annual    = s4.years ?? s4.historical ?? s4.income_statement ?? [];
+  const quarterly = s4.quarters ?? s4.quarterly ?? [];
+  const historical = view === "annual" ? annual : quarterly;
+  const earnings   = s4.earnings_surprises ?? s4.earnings_history ?? [];
+  const hasQoQ     = quarterly.length > 0;
+
+  const periodLabel = view === "annual" ? "Annual" : "Quarterly";
+  const growthLabel = view === "annual" ? "YoY%" : "QoQ%";
+  const yearLabel   = view === "annual" ? "Year" : "Quarter";
+
+  return (
+    <>
+      {/* View toggle */}
+      <div className="flex items-center gap-2 mb-5">
+        {(["annual", "quarterly"] as const).map((v) => (
+          <button key={v} onClick={() => setView(v)}
+            disabled={v === "quarterly" && !hasQoQ}
+            className={[
+              "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all",
+              view === v
+                ? "bg-[#2D6BFF] text-white"
+                : "bg-[#0F1929] text-[#475569] border border-[#1E2D4A] hover:border-[#2D6BFF] hover:text-[#94A3B8]",
+              v === "quarterly" && !hasQoQ ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
+            ].join(" ")}>
+            {v === "annual" ? "Annual" : "Quarterly (QoQ)"}
+            {v === "quarterly" && !hasQoQ && <span className="ml-1 opacity-60">— N/A</span>}
+          </button>
+        ))}
+      </div>
+
+      <RevenueBarChart years={historical} viewLabel={periodLabel} />
+      <MarginChart years={historical} />
+
+      {historical.length > 0 ? (
+        <div className="overflow-x-auto mb-6">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-[#1E2D4A]">
+                {[yearLabel, "Revenue", growthLabel, "Gross Margin", "EBITDA Margin", "Net Margin", "EPS", "FCF"].map((h) => (
+                  <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(historical as any[]).map((row: any, i: number) => {
+                const yoy = fv(row.revenue_yoy);
+                return (
+                  <tr key={i} className={`border-b border-[#1E2D4A]/50 ${i === 0 ? "bg-[#0F1929]/60" : ""}`}>
+                    <td className="py-2 px-2 font-mono text-white font-semibold">{row.label ?? fv(row.year)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
+                    <td className={`py-2 px-2 font-mono text-right ${yoy == null ? "text-[#475569]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {yoy == null ? "—" : `${Number(yoy) >= 0 ? "+" : ""}${Number(yoy).toFixed(1)}%`}
+                      {fs(row.revenue) && <TagBadge source={fs(row.revenue)} />}
+                    </td>
+                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.gross_margin)) > 0 ? "text-[#94A3B8]" : "text-[#475569]"}`}>
+                      {fmtPct(row.gross_margin)}</td>
+                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.ebitda_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                      {fmtPct(row.ebitda_margin)}</td>
+                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.net_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                      {fmtPct(row.net_margin)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
+                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                      {fmtBn(row.fcf)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-xs text-[#475569] mb-4">
+          {view === "quarterly" ? "Quarterly data not available for this ticker." : "Historical financials unavailable."}
+        </p>
+      )}
+
+      {earnings.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Earnings Surprise History</p>
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-[#1E2D4A]">
+                {["Quarter", "Est. EPS", "Act. EPS", "Surprise%"].map((h) => (
+                  <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(earnings as any[]).slice(0, 4).map((row: any, i: number) => {
+                const surp = Number(fv(row.surprise_pct ?? row.surprise));
+                return (
+                  <tr key={i} className="border-b border-[#1E2D4A]/50">
+                    <td className="py-2 px-2 font-mono text-[#94A3B8]">{fv(row.quarter ?? row.period)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#475569]">{fmt$(row.estimate ?? row.eps_estimate)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.actual ?? row.eps_actual)}</td>
+                    <td className={`py-2 px-2 font-mono text-right font-bold ${surp >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {isNaN(surp) ? "—" : `${surp >= 0 ? "+" : ""}${surp.toFixed(1)}%`}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1150,84 +1603,7 @@ export default function AdhocTickerPage() {
           {/* S4 — Historical Financials */}
           <div id="s4" data-section>
             <Section n={4} id="s4" title="Historical Financials" color="#2D6BFF">
-              {(() => {
-                const historical = s4.years ?? s4.historical ?? s4.income_statement ?? [];
-                const earnings   = s4.earnings_surprises ?? s4.earnings_history ?? [];
-                return (
-                  <>
-                    <RevenueBarChart years={historical} />
-                    <MarginChart years={historical} />
-                    {historical.length > 0 ? (
-                      <div className="overflow-x-auto mb-6">
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="border-b border-[#1E2D4A]">
-                              {["Year", "Revenue", "YoY%", "Gross Margin", "EBITDA Margin", "Net Margin", "EPS", "FCF"].map((h) => (
-                                <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(historical as any[]).map((row: any, i: number) => {
-                              const yoy = fv(row.revenue_yoy);
-                              return (
-                                <tr key={i} className="border-b border-[#1E2D4A]/50">
-                                  <td className="py-2 px-2 font-mono text-white">{row.label ?? fv(row.year)}</td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right ${yoy == null ? "text-[#475569]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {yoy == null ? "—" : `${Number(yoy) >= 0 ? "+" : ""}${Number(yoy).toFixed(1)}%`}
-                                    {fs(row.revenue) && <TagBadge source={fs(row.revenue)} />}
-                                  </td>
-                                  <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.gross_margin)) > 0 ? "text-[#94A3B8]" : "text-[#475569]"}`}>
-                                    {fmtPct(row.gross_margin)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.ebitda_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
-                                    {fmtPct(row.ebitda_margin)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.net_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
-                                    {fmtPct(row.net_margin)}</td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
-                                    {fmtBn(row.fcf)}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[#475569] mb-4">Historical financials unavailable</p>
-                    )}
-                    {earnings.length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Earnings Surprise History</p>
-                        <table className="w-full text-xs">
-                          <thead>
-                            <tr className="border-b border-[#1E2D4A]">
-                              {["Quarter", "Est. EPS", "Act. EPS", "Surprise%"].map((h) => (
-                                <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(earnings as any[]).slice(0, 4).map((row: any, i: number) => {
-                              const surp = Number(fv(row.surprise_pct ?? row.surprise));
-                              return (
-                                <tr key={i} className="border-b border-[#1E2D4A]/50">
-                                  <td className="py-2 px-2 font-mono text-[#94A3B8]">{fv(row.quarter ?? row.period)}</td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#475569]">{fmt$(row.estimate ?? row.eps_estimate)}</td>
-                                  <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.actual ?? row.eps_actual)}</td>
-                                  <td className={`py-2 px-2 font-mono text-right font-bold ${surp >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {isNaN(surp) ? "—" : `${surp >= 0 ? "+" : ""}${surp.toFixed(1)}%`}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+              <HistoricalFinancialsSection s4={s4} />
             </Section>
           </div>
 
@@ -2269,6 +2645,10 @@ export default function AdhocTickerPage() {
 
         </main>
       </div>
+
+      {/* Research AI chatbot — fixed bottom-right, pre-loaded with full report context */}
+      <ResearchChatbot ticker={ticker} report={report} />
+
     </div>
   );
 }

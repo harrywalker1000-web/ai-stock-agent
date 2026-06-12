@@ -175,6 +175,7 @@ def fetch_yfinance_comprehensive(ticker: str) -> dict:
         info = t.info or {}
         result["info"] = {
             "company_name":             info.get("longName"),
+            "quote_type":               info.get("quoteType"),
             "sector":                   info.get("sector"),
             "industry":                 info.get("industry"),
             "country":                  info.get("country"),

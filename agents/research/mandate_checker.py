@@ -71,13 +71,13 @@ def run_mandate_checks(data: dict) -> dict:
     # ------------------------------------------------------------------
     # Check 1: Asset class — common equity or ADR
     # ------------------------------------------------------------------
-    quote_type = (info.get("quoteType") or "").upper()
+    quote_type = (info.get("quote_type") or "").upper()
     long_name  = (info.get("company_name") or fmp.get("company_name") or "").upper()
     is_equity  = quote_type == "EQUITY"
     is_adr     = "ADR" in long_name or "AMERICAN DEPOSITARY" in long_name
-    # Fallback: if we got meaningful financial data, assume equity
-    has_financials = bool(info.get("market_cap") and info.get("pe_ttm"))
-    c1_passed = is_equity or is_adr or has_financials
+    # Fallback: any ticker with a market cap is a listed equity (P/E optional — pre-profit stocks are valid)
+    has_market_cap = bool(info.get("market_cap"))
+    c1_passed = is_equity or is_adr or has_market_cap
     c1_detail = f"Quote type: {quote_type or 'EQUITY (inferred)'}"
     if is_adr:
         c1_detail += " (ADR)"
