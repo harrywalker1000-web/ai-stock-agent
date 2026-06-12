@@ -413,7 +413,7 @@ export default function AdhocInputPage() {
             setSeenReports(prev => {
               const next = new Set(prev);
               next.add(key);
-              try { localStorage.setItem("seenReports", JSON.stringify([...next])); } catch { /* ignore */ }
+              try { localStorage.setItem("seenReports", JSON.stringify(Array.from(next))); } catch { /* ignore */ }
               return next;
             });
           };
