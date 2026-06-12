@@ -107,13 +107,8 @@ jobs:
             git push origin HEAD:main
           fi
 
-      - name: Deploy dashboard to Vercel
-        if: success()
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: team_pFA012DC3TZYp9nFJKnicS6N
-          VERCEL_PROJECT_ID: prj_h6mJ85DvIDbXH0vVkTMBVicjGSDp
-        run: |
-          npm install -g vercel --silent
-          vercel deploy --prod --token=$VERCEL_TOKEN --yes --cwd dashboard
+      # Dashboard deploy is handled by deploy.yml, triggered automatically
+      # when the "Commit data back to repo" step pushes dashboard/data/** changes.
+      # Keeping deploy out of this workflow ensures a broken dashboard build
+      # never causes a false-failure of the trading pipeline.
 
