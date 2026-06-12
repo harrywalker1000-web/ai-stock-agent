@@ -615,7 +615,7 @@ def fetch_all_data(ticker: str) -> dict:
     tavily_queries = {
         "tavily_overview":    f"{company_name} business model products services operations 2025",
         "tavily_catalysts":   f"{ticker} upcoming catalyst earnings {industry} 2025 2026",
-        "tavily_industry":    f"{sector} {industry} market size growth trends 2025 2026",
+        "tavily_industry":    f"{company_name} {ticker} industry competitive landscape key players IPO regulation 2025 2026",
         "tavily_competitive": f"{company_name} competitive advantages moat competitors 2025",
     }
 

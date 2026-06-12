@@ -2090,9 +2090,14 @@ export default function AdhocTickerPage() {
             <Section n={9} id="s9" title="Industry & Macro" color="#2D6BFF">
               {(() => {
                 const aiNarr  = s9.ai_narrative as any;
-                const narrative = fv(aiNarr);
-                const tailwinds = aiNarr?.tailwinds ?? [];
-                const headwinds = aiNarr?.headwinds ?? [];
+                const narrative     = fv(aiNarr);
+                const competitive   = aiNarr?.competitive_dynamics as string | undefined;
+                const ipoRisk       = aiNarr?.ipo_and_event_risk as string | null | undefined;
+                const tailwinds     = aiNarr?.tailwinds ?? [];
+                const headwinds     = aiNarr?.headwinds ?? [];
+                const AiBadge = () => (
+                  <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                );
                 // Macro stats from direct FRED fields on the section
                 const macroFields = ([
                   ["10Y Yield",    s9.risk_free_rate],
@@ -2100,7 +2105,7 @@ export default function AdhocTickerPage() {
                   ["GDP Growth",   s9.gdp_growth],
                   ["Unemployment", s9.unemployment],
                 ] as [string, any][]).filter(([, v]) => fv(v) != null);
-                const hasContent = narrative || tailwinds.length > 0 || headwinds.length > 0 || macroFields.length > 0;
+                const hasContent = narrative || competitive || tailwinds.length > 0 || headwinds.length > 0 || macroFields.length > 0;
                 return (
                   <>
                     {macroFields.length > 0 && (
@@ -2111,12 +2116,27 @@ export default function AdhocTickerPage() {
                         ))}
                       </div>
                     )}
+                    {/* Industry overview */}
                     {narrative && (
-                      <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
-                        {narrative}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                      <p className="text-xs text-[#94A3B8] leading-relaxed mb-4 whitespace-pre-wrap">
+                        {narrative}<AiBadge />
                       </p>
                     )}
+                    {/* Competitive dynamics */}
+                    {competitive && (
+                      <div className="mb-4 p-3 rounded-xl bg-[#0D1928] border border-[#1E3A5F]/60">
+                        <p className="text-[10px] font-bold text-[#60A5FA] uppercase tracking-wider mb-1.5">Competitive Dynamics</p>
+                        <p className="text-xs text-[#94A3B8] leading-relaxed">{competitive}<AiBadge /></p>
+                      </div>
+                    )}
+                    {/* IPO / Event Risk */}
+                    {ipoRisk && ipoRisk !== "null" && (
+                      <div className="mb-5 p-3 rounded-xl bg-[#1A120A] border border-[#92400E]/60">
+                        <p className="text-[10px] font-bold text-[#F59E0B] uppercase tracking-wider mb-1.5">IPO &amp; Event Impact</p>
+                        <p className="text-xs text-[#94A3B8] leading-relaxed">{ipoRisk}<AiBadge /></p>
+                      </div>
+                    )}
+                    {/* Tailwinds / Headwinds */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {tailwinds.length > 0 && (
                         <div>

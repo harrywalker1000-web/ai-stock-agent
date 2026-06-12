@@ -283,37 +283,49 @@ def synthesize_industry_macro(data: dict) -> dict:
         ],
     }
 
-    prompt = f"""Here is the industry and macro data for {ticker}:
+    company_name = (data.get("fmp_profile") or {}).get("company_name") or \
+                   (data.get("yfinance") or {}).get("info", {}).get("company_name") or ticker
 
+    prompt = f"""You are a sector analyst writing the Industry & Market Context section of a research report on {ticker} ({company_name}).
+
+STRUCTURED DATA (search excerpts + macro):
 {json.dumps(structured, indent=2)}
 
 Based ONLY on the data above, respond with ONLY a valid JSON object — no preamble, no markdown fences.
 
 {{
-  "industry_overview": "2 sentences about key trends in this sector, based only on the search context",
-  "macro_context": "2 sentences about how the current macro data (rates, GDP, unemployment) affects this sector",
-  "tailwinds": ["specific growth factor from the data", "another factor", "third factor"],
-  "headwinds": ["specific risk from the data", "another risk", "third risk"]
+  "industry_overview": "3 sentences. Describe the SPECIFIC market {ticker} operates in (not a generic sector description), name the 1-2 most important structural trends shaping it RIGHT NOW. Use company and competitor names.",
+  "competitive_dynamics": "2-3 sentences. Name the most important competitors including private companies (e.g. SpaceX/Starlink, Amazon Kuiper, government programs). Describe how they compete and the intensity of that competition for {ticker} specifically.",
+  "ipo_and_event_risk": "1-2 sentences. If a major competitor IPO, merger, or sector-defining event appears in the data (e.g. SpaceX IPO, spectrum auction, government contract award), clearly state whether it would be POSITIVE or NEGATIVE for {ticker}'s stock price and WHY. If no such event is in the data, write null.",
+  "macro_context": "2 sentences. How do the current macro numbers (rates, GDP, unemployment) specifically affect {ticker}'s cost of capital, launch timelines, customer demand, or path to profitability.",
+  "tailwinds": ["specific named factor — e.g. 'FCC direct-to-device spectrum ruling accelerates commercial launch'", "second specific factor", "third specific factor"],
+  "headwinds": ["specific named risk — e.g. 'SpaceX Starlink has 4M+ subscribers vs. zero for ASTS'", "second specific risk", "third specific risk"]
 }}
 
 Rules:
-- Do NOT fabricate TAM figures, CAGR percentages, or market size data unless explicitly stated.
-- tailwinds and headwinds are arrays of plain strings, max 15 words each.
-- Max 3 items per array. Use empty array [] if no data."""
+- Do NOT use generic boilerplate ("evolving demand patterns", "digital transformation", "technological advancement"). Be company-specific.
+- Name real companies, real regulatory events, real competitors including private ones.
+- Do NOT fabricate TAM/CAGR figures unless explicitly in the search data above.
+- tailwinds/headwinds: max 20 words each, plain strings, max 3 items per array.
+- If competitive_dynamics data is missing from search results, write what you can infer from company name/sector alone but mark it as inferred."""
 
-    raw = _haiku(prompt, max_tokens=600)
+    raw = _haiku(prompt, max_tokens=800)
     try:
         parsed = json.loads(_strip_code_fences(raw))
-        overview = parsed.get("industry_overview") or ""
-        macro    = parsed.get("macro_context") or ""
+        overview     = parsed.get("industry_overview") or ""
+        competitive  = parsed.get("competitive_dynamics") or ""
+        ipo_risk     = parsed.get("ipo_and_event_risk") or None
+        macro        = parsed.get("macro_context") or ""
         return {
-            "value":            "\n\n".join(filter(None, [overview, macro])),
-            "industry_overview": overview,
-            "macro_context":     macro,
-            "tailwinds":         parsed.get("tailwinds") or [],
-            "headwinds":         parsed.get("headwinds") or [],
-            "source":            f"{HAIKU_MODEL} [AI narrative]",
-            "status":            "ok",
+            "value":                 "\n\n".join(filter(None, [overview, macro])),
+            "industry_overview":     overview,
+            "competitive_dynamics":  competitive,
+            "ipo_and_event_risk":    ipo_risk,
+            "macro_context":         macro,
+            "tailwinds":             parsed.get("tailwinds") or [],
+            "headwinds":             parsed.get("headwinds") or [],
+            "source":                f"{HAIKU_MODEL} [AI narrative]",
+            "status":                "ok",
         }
     except Exception:
         return _ai_tag(raw)
