@@ -356,6 +356,250 @@ function KV({ label, value, color }: { label: string; value: React.ReactNode; co
   );
 }
 
+// ─── Chart components (inline SVG — no external deps) ────────────────────────
+
+function RevenueBarChart({ years }: { years: any[] }) {
+  if (!years || years.length === 0) return null;
+  const vals = years.map((y: any) => Math.abs(Number(fv(y.revenue) ?? 0)));
+  const maxV = Math.max(...vals, 1);
+  const W = 480, H = 140, pad = { top: 28, right: 16, bottom: 32, left: 16 };
+  const innerW = W - pad.left - pad.right;
+  const innerH = H - pad.top - pad.bottom;
+  const barW = Math.floor(innerW / years.length) - 8;
+  const slotW = innerW / years.length;
+  return (
+    <div className="mb-6">
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Revenue Trend</p>
+      <div className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-4 overflow-x-auto">
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ maxHeight: 160 }}>
+          {/* Grid lines */}
+          {[0.25, 0.5, 0.75, 1].map((t) => (
+            <line key={t} x1={pad.left} x2={W - pad.right}
+              y1={pad.top + innerH * (1 - t)} y2={pad.top + innerH * (1 - t)}
+              stroke="#1E2D4A" strokeWidth={1} strokeDasharray="3 3" />
+          ))}
+          {years.map((yr: any, i: number) => {
+            const rev = Math.abs(Number(fv(yr.revenue) ?? 0));
+            const nm = Number(fv(yr.net_margin) ?? 0);
+            const h = Math.max((rev / maxV) * innerH, 2);
+            const x = pad.left + i * slotW + (slotW - barW) / 2;
+            const y = pad.top + innerH - h;
+            const isNeg = Number(fv(yr.revenue) ?? 0) < 0;
+            const barColor = isNeg ? "#EF4444" : "#2D6BFF";
+            const nmColor = nm >= 10 ? "#10B981" : nm >= 0 ? "#F59E0B" : "#EF4444";
+            const revStr = (() => {
+              const v = Math.abs(rev);
+              if (v >= 1e12) return `$${(v/1e12).toFixed(1)}T`;
+              if (v >= 1e9)  return `$${(v/1e9).toFixed(1)}B`;
+              return `$${(v/1e6).toFixed(0)}M`;
+            })();
+            return (
+              <g key={i}>
+                {/* Bar */}
+                <rect x={x} y={y} width={barW} height={h} rx={3} fill={`${barColor}55`} stroke={barColor} strokeWidth={1} />
+                {/* Revenue label top */}
+                <text x={x + barW / 2} y={y - 6} textAnchor="middle" fill="#94A3B8" fontSize={9} fontFamily="monospace">{revStr}</text>
+                {/* Net margin badge */}
+                {nm !== 0 && (
+                  <text x={x + barW / 2} y={y + h / 2 + 4} textAnchor="middle" fill={nmColor} fontSize={8} fontFamily="monospace" fontWeight="bold">
+                    {nm.toFixed(1)}%
+                  </text>
+                )}
+                {/* Year label */}
+                <text x={x + barW / 2} y={H - 4} textAnchor="middle" fill="#475569" fontSize={9} fontFamily="monospace">
+                  {yr.label ?? fv(yr.year)}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+        <p className="text-[9px] text-[#1E3A5F] mt-1 text-right">Bars = Revenue · % inside bar = Net Margin · Source: {fv(years[0]?.revenue?.source ?? "yfinance/FMP")}</p>
+      </div>
+    </div>
+  );
+}
+
+function MarginChart({ years }: { years: any[] }) {
+  if (!years || years.length === 0) return null;
+  const metrics = [
+    { key: "gross_margin",  label: "Gross",  color: "#10B981" },
+    { key: "ebitda_margin", label: "EBITDA", color: "#2D6BFF" },
+    { key: "net_margin",    label: "Net",    color: "#F59E0B" },
+  ];
+  const hasAny = metrics.some(m => years.some((y: any) => fv(y[m.key]) != null));
+  if (!hasAny) return null;
+  return (
+    <div className="mb-6">
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Margin Profile (most recent year)</p>
+      <div className="space-y-2">
+        {metrics.map(({ key, label, color }) => {
+          const latest = years[0];
+          const val = Number(fv(latest?.[key]) ?? 0);
+          if (isNaN(val)) return null;
+          const clamped = Math.max(-100, Math.min(100, val));
+          const pct = Math.abs(clamped);
+          const neg = val < 0;
+          return (
+            <div key={key} className="flex items-center gap-3">
+              <span className="text-[10px] text-[#475569] w-14 shrink-0">{label}</span>
+              <div className="flex-1 bg-[#1E2D4A] rounded-full h-2 overflow-hidden">
+                <div className="h-full rounded-full transition-all" style={{
+                  width: `${pct}%`,
+                  background: neg ? "#EF4444" : color,
+                  opacity: neg ? 0.7 : 1,
+                }} />
+              </div>
+              <span className="text-[10px] font-mono font-bold w-14 text-right shrink-0" style={{ color: neg ? "#EF4444" : color }}>
+                {val.toFixed(1)}%
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PeerBarChart({ peers, subjectTicker, metric = "ev_ebitda", label = "EV/EBITDA" }: {
+  peers: any[]; subjectTicker: string; metric?: string; label?: string;
+}) {
+  const rows = peers.map((p: any) => ({
+    sym: String(fv(p.symbol) ?? p.ticker ?? ""),
+    val: Number(fv(p[metric]) ?? 0),
+  })).filter(r => !isNaN(r.val) && r.val !== 0 && r.val > 0).slice(0, 8);
+  if (rows.length === 0) return null;
+  const sorted = [...rows].sort((a, b) => b.val - a.val);
+  const maxV = Math.max(...sorted.map(r => r.val), 1);
+  return (
+    <div className="mt-5">
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Peer {label} Comparison</p>
+      <div className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-4 space-y-2">
+        {sorted.map(({ sym, val }) => {
+          const isSubject = sym.toUpperCase() === subjectTicker.toUpperCase();
+          const barPct = (val / maxV) * 100;
+          const color = isSubject ? "#F59E0B" : "#2D6BFF";
+          return (
+            <div key={sym} className="flex items-center gap-3">
+              <span className={`text-[10px] font-mono font-bold w-14 shrink-0 ${isSubject ? "text-[#F59E0B]" : "text-[#475569]"}`}>
+                {sym}
+              </span>
+              <div className="flex-1 bg-[#1E2D4A] rounded-full h-3 overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${barPct}%`, background: `${color}70` }} />
+              </div>
+              <span className="text-[10px] font-mono w-10 text-right shrink-0" style={{ color: isSubject ? "#F59E0B" : "#94A3B8" }}>
+                {val.toFixed(1)}x
+              </span>
+            </div>
+          );
+        })}
+        <p className="text-[9px] text-[#1E3A5F] text-right pt-1">Highlighted = subject company · Source: yfinance</p>
+      </div>
+    </div>
+  );
+}
+
+function OwnershipDonut({ instPct, insiderPct, instSource, insiderSource }: {
+  instPct: number | null; insiderPct: number | null; instSource?: string; insiderSource?: string;
+}) {
+  if (instPct == null && insiderPct == null) return null;
+  const inst    = Number(instPct ?? 0);
+  const insider = Number(insiderPct ?? 0);
+  const pub     = Math.max(0, 100 - inst - insider);
+  const segments = [
+    { label: "Institutional", pct: inst,    color: "#2D6BFF", source: instSource },
+    { label: "Insider",       pct: insider, color: "#F59E0B", source: insiderSource },
+    { label: "Public Float",  pct: pub,     color: "#1E2D4A", source: undefined },
+  ];
+  const cx = 60, cy = 60, R = 44, r = 28;
+  let cumAngle = -Math.PI / 2;
+  const arcs = segments.map(s => {
+    const theta = (s.pct / 100) * 2 * Math.PI;
+    const start = cumAngle;
+    cumAngle += theta;
+    const end = cumAngle;
+    const x1 = cx + R * Math.cos(start), y1 = cy + R * Math.sin(start);
+    const x2 = cx + R * Math.cos(end),   y2 = cy + R * Math.sin(end);
+    const xi1 = cx + r * Math.cos(start), yi1 = cy + r * Math.sin(start);
+    const xi2 = cx + r * Math.cos(end),   yi2 = cy + r * Math.sin(end);
+    const large = theta > Math.PI ? 1 : 0;
+    const path = `M ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z`;
+    return { ...s, path };
+  });
+  return (
+    <div className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-4 mb-5">
+      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Ownership Breakdown</p>
+      <div className="flex items-center gap-6 flex-wrap">
+        <svg width={120} height={120} viewBox="0 0 120 120">
+          {arcs.map((arc, i) => arc.pct > 0 && (
+            <path key={i} d={arc.path} fill={arc.color} opacity={arc.label === "Public Float" ? 0.4 : 0.85} />
+          ))}
+          <text x={cx} y={cy - 4} textAnchor="middle" fill="#E2E8F0" fontSize={13} fontWeight="bold" fontFamily="monospace">
+            {inst.toFixed(0)}%
+          </text>
+          <text x={cx} y={cy + 10} textAnchor="middle" fill="#475569" fontSize={8} fontFamily="monospace">Inst.</text>
+        </svg>
+        <div className="space-y-2">
+          {segments.filter(s => s.pct > 0).map(s => (
+            <div key={s.label} className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm shrink-0" style={{ background: s.color, opacity: s.label === "Public Float" ? 0.4 : 0.85 }} />
+              <span className="text-[10px] text-[#94A3B8]">{s.label}</span>
+              <span className="text-[10px] font-mono font-bold text-[#E2E8F0] ml-auto pl-3">{s.pct.toFixed(1)}%</span>
+              {s.source && <TagBadge source={s.source} />}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnalystBar({ buyCnt, holdCnt, sellCnt }: { buyCnt: number; holdCnt: number; sellCnt: number }) {
+  const total = buyCnt + holdCnt + sellCnt;
+  if (total === 0) return null;
+  const segments = [
+    { label: "Buy",  count: buyCnt,  color: "#10B981" },
+    { label: "Hold", count: holdCnt, color: "#F59E0B" },
+    { label: "Sell", count: sellCnt, color: "#EF4444" },
+  ].filter(s => s.count > 0);
+  return (
+    <div className="mb-5">
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Analyst Ratings</p>
+        <span className="text-[10px] text-[#475569]">{total} analysts</span>
+      </div>
+      {/* Stacked horizontal bar */}
+      <div className="flex h-8 rounded-lg overflow-hidden w-full mb-3">
+        {segments.map(({ label, count, color }) => {
+          const pct = (count / total) * 100;
+          return (
+            <div key={label} className="flex items-center justify-center flex-col transition-all relative"
+              style={{ width: `${pct}%`, background: `${color}55`, borderRight: "1px solid #0F1623" }}>
+              {pct > 12 && (
+                <span className="text-[10px] font-bold font-mono absolute inset-0 flex items-center justify-center" style={{ color }}>
+                  {count}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {/* Legend */}
+      <div className="flex gap-4">
+        {segments.map(({ label, count, color }) => {
+          const pct = ((count / total) * 100).toFixed(0);
+          return (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-sm" style={{ background: color }} />
+              <span className="text-[10px] text-[#94A3B8]">{label}</span>
+              <span className="text-[10px] font-mono font-bold" style={{ color }}>{count} ({pct}%)</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Loading screen ───────────────────────────────────────────────────────────
 function LoadingScreen({ ticker }: { ticker: string }) {
   const [stepIdx, setStepIdx] = useState(0);
@@ -911,6 +1155,8 @@ export default function AdhocTickerPage() {
                 const earnings   = s4.earnings_surprises ?? s4.earnings_history ?? [];
                 return (
                   <>
+                    <RevenueBarChart years={historical} />
+                    <MarginChart years={historical} />
                     {historical.length > 0 ? (
                       <div className="overflow-x-auto mb-6">
                         <table className="w-full text-xs">
@@ -1241,6 +1487,7 @@ export default function AdhocTickerPage() {
                         </div>
                       </div>
                     )}
+                    <PeerBarChart peers={peers} subjectTicker={ticker} metric="ev_ebitda" label="EV/EBITDA" />
                     {metricFields.length === 0 && peers.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
@@ -1457,12 +1704,9 @@ export default function AdhocTickerPage() {
                 const totalAnal  = buyCnt + holdCnt + sellCnt;
                 return (
                   <>
-                    {(instPct != null || insiderPct != null) && (
-                      <div className="grid grid-cols-2 gap-3 mb-5">
-                        {instPct != null && <StatCard label="Institutional Ownership" value={`${Number(instPct).toFixed(1)}%`} source={fs(s10.institutional_pct)} color="#2D6BFF" large />}
-                        {insiderPct != null && <StatCard label="Insider Ownership" value={`${Number(insiderPct).toFixed(1)}%`} source={fs(s10.insider_pct)} color="#94A3B8" large />}
-                      </div>
-                    )}
+                    <OwnershipDonut instPct={instPct != null ? Number(instPct) : null}
+                      insiderPct={insiderPct != null ? Number(insiderPct) : null}
+                      instSource={fs(s10.institutional_pct)} insiderSource={fs(s10.insider_pct)} />
                     {holders.length > 0 && (
                       <div className="mb-5">
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Top Institutional Holders</p>
@@ -1533,32 +1777,12 @@ export default function AdhocTickerPage() {
                         </table>
                       </div>
                     )}
-                    {totalAnal > 0 && (
-                      <div className="mb-5">
-                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Analyst Consensus</p>
-                        <div className="flex items-end gap-1 h-14 mb-2">
-                          {[
-                            { label: "Buy", count: buyCnt, color: "#10B981" },
-                            { label: "Hold", count: holdCnt, color: "#F59E0B" },
-                            { label: "Sell", count: sellCnt, color: "#EF4444" },
-                          ].map(({ label, count, color }) => {
-                            const h = totalAnal > 0 ? (count / totalAnal) * 100 : 0;
-                            return (
-                              <div key={label} className="flex flex-col items-center gap-1 flex-1">
-                                <span className="text-[10px] font-mono font-bold" style={{ color }}>{count}</span>
-                                <div className="w-full rounded-t-sm" style={{ height: `${h}%`, background: `${color}50`, minHeight: count > 0 ? 4 : 0 }} />
-                                <span className="text-[10px] text-[#475569]">{label}</span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        {(ptMean ?? ptHigh ?? ptLow) && (
-                          <div className="mt-3 grid grid-cols-3 gap-2">
-                            {ptMean != null && <StatCard label="Mean PT" value={fmt$(ptMean)} color="#2D6BFF" />}
-                            {ptHigh != null && <StatCard label="High PT" value={fmt$(ptHigh)} color="#10B981" />}
-                            {ptLow  != null && <StatCard label="Low PT"  value={fmt$(ptLow)}  color="#EF4444" />}
-                          </div>
-                        )}
+                    <AnalystBar buyCnt={buyCnt} holdCnt={holdCnt} sellCnt={sellCnt} />
+                    {(ptMean ?? ptHigh ?? ptLow) && (
+                      <div className="grid grid-cols-3 gap-2 mb-5">
+                        {ptMean != null && <StatCard label="Mean PT" value={fmt$(ptMean)} color="#2D6BFF" />}
+                        {ptHigh != null && <StatCard label="High PT" value={fmt$(ptHigh)} color="#10B981" />}
+                        {ptLow  != null && <StatCard label="Low PT"  value={fmt$(ptLow)}  color="#EF4444" />}
                       </div>
                     )}
                     {instPct == null && holders.length === 0 && insiderTrades.length === 0 && totalAnal === 0 && (
