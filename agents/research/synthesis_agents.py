@@ -6,6 +6,7 @@ STRICT RULE: AI receives structured JSON only. AI writes narratives only. Never 
 
 import json
 import os
+import re
 import sys
 from typing import Any
 
@@ -56,6 +57,21 @@ def _ai_tag(text: str, model: str = HAIKU_MODEL) -> dict:
         "source": f"{model} [AI narrative]",
         "status": "ok" if text else "error",
     }
+
+
+def _strip_code_fences(raw: str) -> str:
+    """Remove markdown ```json ... ``` fences before JSON parsing."""
+    raw = raw.strip()
+    m = re.match(r'^```(?:json)?\s*\n(.*?)\n```\s*$', raw, re.DOTALL)
+    if m:
+        return m.group(1).strip()
+    if raw.startswith("```"):
+        lines = raw.split("\n")
+        lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        return "\n".join(lines).strip()
+    return raw
 
 
 # ---------------------------------------------------------------------------
@@ -157,7 +173,7 @@ Rules:
 
     raw = _haiku(prompt, max_tokens=800)
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_strip_code_fences(raw))
         return {
             "value":                 parsed.get("news_synthesis", ""),
             "near_term_catalysts":   parsed.get("near_term_catalysts", []),
@@ -217,7 +233,7 @@ Rules:
 
     raw = _haiku(prompt, max_tokens=500)
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_strip_code_fences(raw))
         moat = parsed.get("moat_rating", "")
         reasons = parsed.get("moat_reasons") or []
         intensity = parsed.get("competitive_intensity") or ""
@@ -287,7 +303,7 @@ Rules:
 
     raw = _haiku(prompt, max_tokens=600)
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_strip_code_fences(raw))
         overview = parsed.get("industry_overview") or ""
         macro    = parsed.get("macro_context") or ""
         return {
@@ -378,7 +394,7 @@ Rules:
 
     raw = _haiku(prompt, max_tokens=900)
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_strip_code_fences(raw))
         if not isinstance(parsed, list):
             raise ValueError("expected list")
         return {

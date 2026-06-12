@@ -1613,7 +1613,7 @@ export default function AdhocTickerPage() {
 
                 {/* Investment arguments */}
                 {(() => {
-                  const args = s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
+                  const args = s16.three_arguments ?? s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
                   return args.length > 0 ? (
                     <div className="mb-5">
                       <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Investment Arguments</p>

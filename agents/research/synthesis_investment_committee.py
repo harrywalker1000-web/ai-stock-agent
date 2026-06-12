@@ -5,10 +5,11 @@ Conviction scoring is deterministic (sub-component model). AI writes narrative o
 
 import json
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from agents.research.synthesis_agents import _sonnet, _get_client
+from agents.research.synthesis_agents import _sonnet, _get_client, _strip_code_fences
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -188,11 +189,7 @@ Rules:
     raw = _sonnet(prompt, max_tokens=2000)
 
     try:
-        cleaned = raw.strip()
-        if cleaned.startswith("```"):
-            lines = cleaned.splitlines()
-            cleaned = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-        result = json.loads(cleaned)
+        result = json.loads(_strip_code_fences(raw))
     except (json.JSONDecodeError, Exception) as exc:
         logger.error("Investment Committee JSON parse failed: %s\nRaw: %s", exc, raw[:500])
         result = {
