@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 const REPO = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
 const WORKFLOW = "adhoc_report.yml";
 
-// 7 real steps that actually exist in the workflow
-type StepKey = "checkout" | "python" | "install" | "analysis" | "sync" | "commit" | "deploy";
+// 6 real steps that actually exist in the workflow (no sync step)
+type StepKey = "checkout" | "python" | "install" | "analysis" | "commit" | "deploy";
 
 function classifyStep(rawName: string): StepKey | null {
   const n = rawName.toLowerCase();
@@ -12,13 +12,12 @@ function classifyStep(rawName: string): StepKey | null {
   if (n.includes("set up python") || n.includes("setup python")) return "python";
   if (n.includes("install")) return "install";
   if (n.includes("run") || n.includes("adhoc") || n.includes("ad-hoc") || n.includes("analysis") || n.includes("report")) return "analysis";
-  if (n.includes("sync")) return "sync";
   if (n.includes("commit")) return "commit";
   if (n.includes("deploy")) return "deploy";
   return null;
 }
 
-const ALL_STEPS: StepKey[] = ["checkout", "python", "install", "analysis", "sync", "commit", "deploy"];
+const ALL_STEPS: StepKey[] = ["checkout", "python", "install", "analysis", "commit", "deploy"];
 
 export async function GET(req: NextRequest) {
   const ticker   = req.nextUrl.searchParams.get("ticker")?.toUpperCase();

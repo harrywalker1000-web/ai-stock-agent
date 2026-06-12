@@ -24,10 +24,10 @@ const DIRECTION_STYLE: Record<string, string> = {
   PASS: "text-[#6B7280] bg-white/05",
 };
 
-// 7 real workflow steps — matches adhoc_report.yml exactly
+// 6 real workflow steps — matches adhoc_report.yml exactly (no sync step)
 const SETUP_STEPS    = [{ key: "checkout", label: "Checkout" }, { key: "python", label: "Python" }, { key: "install", label: "Dependencies" }];
 const ANALYSIS_STEPS = [{ key: "analysis", label: "Run Analysis\n(6 agents)" }];
-const FINALIZE_STEPS = [{ key: "sync", label: "Sync" }, { key: "commit", label: "Commit" }, { key: "deploy", label: "Deploy" }];
+const FINALIZE_STEPS = [{ key: "commit", label: "Commit" }, { key: "deploy", label: "Deploy" }];
 
 type StepStatus = "pending" | "running" | "done" | "failed";
 interface Progress {
@@ -141,16 +141,16 @@ export default function AdhocInputPage() {
   const [errorMsg, setErrorMsg]   = useState<string | null>(null);
   const [recent, setRecent]       = useState<ReportPreview[]>([]);
   const [progress, setProgress]   = useState<Progress | null>(null);
-  const [deleting, setDeleting]   = useState<string | null>(null); // "ticker_date" key being deleted
+  const [deleting, setDeleting]   = useState<string | null>(null);
+  const [seenReports, setSeenReports] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Restore queued state across refreshes
+    // Restore queued state — only expire if >20 min old; let progress poller handle completion
     try {
       const raw = localStorage.getItem("adhocQueued");
       if (raw) {
         const { ticker: t, queuedAt: qa } = JSON.parse(raw) as { ticker: string; queuedAt: number };
-        const age = Date.now() - qa;
-        if (age < 20 * 60 * 1000) {
+        if (Date.now() - qa < 20 * 60 * 1000) {
           setQueued(t); setQueuedAt(qa); setStatus("queued");
         } else {
           localStorage.removeItem("adhocQueued");
@@ -163,21 +163,15 @@ export default function AdhocInputPage() {
       .then((data) => {
         if (Array.isArray(data)) {
           setRecent(data);
-          // Clear queued banner only if a fresh report appeared (dated today)
+          // Load seen reports; seed with all current reports on first visit so none show as NEW
           try {
-            const raw = localStorage.getItem("adhocQueued");
-            if (raw) {
-              const { ticker: t, queuedAt } = JSON.parse(raw) as { ticker: string; queuedAt: number };
-              const today = new Date().toISOString().slice(0, 10);
-              const freshReport = data.find(
-                (r: ReportPreview) => r.ticker === t && r.date >= today
-              );
-              const isStale = Date.now() - queuedAt > 20 * 60 * 1000;
-              if (freshReport || isStale) {
-                localStorage.removeItem("adhocQueued");
-                setStatus("idle");
-                setQueued(null);
-              }
+            const rawSeen = localStorage.getItem("seenReports");
+            if (rawSeen) {
+              setSeenReports(new Set(JSON.parse(rawSeen)));
+            } else {
+              const allKeys = data.map((r: ReportPreview) => `${r.ticker}_${r.date}`);
+              localStorage.setItem("seenReports", JSON.stringify(allKeys));
+              setSeenReports(new Set(allKeys));
             }
           } catch { /* ignore */ }
         }
@@ -198,7 +192,15 @@ export default function AdhocInputPage() {
           if (data.status === "completed") {
             setTimeout(() => {
               fetch("/api/adhoc").then(r => r.json()).then(d => {
-                if (Array.isArray(d)) setRecent(d);
+                if (Array.isArray(d)) {
+                  setRecent(d);
+                  // Always clear the banner on completion — the report may have been committed
+                  // with a different date or might be Vercel-cached; don't gate on date match
+                  localStorage.removeItem("adhocQueued");
+                  setStatus("idle");
+                  setQueued(null);
+                  // Any new reports not yet in seenReports will show the NEW badge
+                }
               }).catch(() => {});
             }, 3000);
           }
@@ -407,6 +409,15 @@ export default function AdhocInputPage() {
             </svg>
           );
 
+          const markSeen = (key: string) => {
+            setSeenReports(prev => {
+              const next = new Set(prev);
+              next.add(key);
+              try { localStorage.setItem("seenReports", JSON.stringify([...next])); } catch { /* ignore */ }
+              return next;
+            });
+          };
+
           const ReportRow = ({ r }: { r: ReportPreview }) => {
             const dir = r.direction ?? "PASS";
             const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
@@ -414,15 +425,19 @@ export default function AdhocInputPage() {
             const cvColor = cv == null ? "#6B7280" : cv >= 70 ? "#10B981" : cv >= 40 ? "#F59E0B" : "#EF4444";
             const rowKey = `${r.ticker}_${r.date}`;
             const isDeleting = deleting === rowKey;
+            const isNew = !seenReports.has(rowKey);
             return (
               <div className="relative group">
-                <Link href={`/reports/adhoc/${r.ticker}`}>
+                <Link href={`/reports/adhoc/${r.ticker}`} onClick={() => markSeen(rowKey)}>
                   <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
                       <div>
                         <span className="font-mono text-sm font-bold text-[#E8EDF2]">{r.ticker}</span>
                         <span className="text-xs text-[#6B7280] ml-2">{r.company_name}</span>
+                        {isNew && (
+                          <span className="ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/30 align-middle">NEW</span>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-right">

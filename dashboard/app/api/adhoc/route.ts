@@ -131,6 +131,10 @@ export async function GET() {
           const currentPrice = s1.current_price?.value ?? s1.current_price ?? data.current_price;
           const mandatePass = mandate.passed ?? s1.mandate_status?.value ?? data.mandate_pass;
           const expectedReturn = s16.expected_return_12m?.value ?? s16.expected_return_12m ?? data.expected_return_12m ?? data.expected_return_2_3yr;
+          // Infer source from filename if not explicitly set in JSON:
+          // TICKER_YYYY-MM-DD.json = daily pipeline auto-generated
+          // TICKER_YYYYMMDD_HHMMSS.json = manual adhoc run
+          const inferredSource = /^\w+_\d{8}_\d{6}\.json$/.test(file) ? "manual" : "pipeline_auto";
           reports.push({
             ticker: data.ticker,
             company_name: data.company_name,
@@ -143,7 +147,7 @@ export async function GET() {
             expected_return_12m: expectedReturn,
             macro_regime: data.macro_regime,
             cached: data.cached,
-            source: data.source ?? "manual",
+            source: data.source ?? inferredSource,
           });
         } catch {
           // skip malformed

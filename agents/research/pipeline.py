@@ -90,6 +90,7 @@ def run_pipeline(ticker: str) -> dict:
     )
 
     # 7. Write to disk
+    report["source"] = "manual"
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = os.path.join(OUTPUT_DIR, f"{ticker}_{ts}.json")
