@@ -583,29 +583,48 @@ export default function AdhocTickerPage() {
           <div id="s2" data-section>
             <Section n={2} id="s2" title="Company Overview" color="#10B981">
               {(() => {
-                const narrative = fv(s2.narrative ?? s2.overview ?? s2.description);
-                const facts = s2.facts ?? s2.key_facts ?? {};
+                const narrative = fv(s2.ai_narrative);
+                const fmpDesc   = fv(s2.fmp_description);
+                const factFields = ([
+                  ["CEO",          s2.ceo],
+                  ["Employees",    s2.employees],
+                  ["IPO Date",     s2.ipo_date],
+                  ["Sector",       s2.sector],
+                  ["Industry",     s2.industry],
+                  ["Country",      s2.country],
+                  ["Market Cap",   s2.market_cap],
+                  ["Rev CAGR 3Y",  s2.revenue_cagr_3y],
+                  ["Exchange",     s2.exchange],
+                  ["Website",      s2.website],
+                ] as [string, any][]).filter(([, v]) => fv(v) != null);
+                const hasContent = narrative || fmpDesc || factFields.length > 0;
                 return (
                   <>
-                    {narrative && (
+                    {narrative ? (
                       <div className="mb-5">
                         <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                           {narrative}
                           <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                         </p>
                       </div>
-                    )}
-                    {Object.keys(facts).length > 0 && (
+                    ) : fmpDesc ? (
+                      <div className="mb-5">
+                        <p className="text-xs text-[#94A3B8] leading-relaxed">{fmpDesc}</p>
+                        <TagBadge source={fs(s2.fmp_description)} />
+                      </div>
+                    ) : null}
+                    {factFields.length > 0 && (
                       <div className="grid grid-cols-2 gap-x-6">
-                        {Object.entries(facts).map(([k, v]: [string, any]) => (
-                          <KV key={k} label={k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
-                            value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
+                        {factFields.map(([label, v]) => (
+                          <KV key={label} label={label}
+                            value={<>
+                              {label === "Market Cap" ? fmtBn(v) : String(fv(v) ?? "—")}
+                              {fs(v) && <TagBadge source={fs(v)} />}
+                            </>} />
                         ))}
                       </div>
                     )}
-                    {!narrative && Object.keys(facts).length === 0 && (
-                      <p className="text-xs text-[#475569]">Data unavailable</p>
-                    )}
+                    {!hasContent && <p className="text-xs text-[#475569]">Data unavailable</p>}
                   </>
                 );
               })()}
@@ -616,12 +635,29 @@ export default function AdhocTickerPage() {
           <div id="s3" data-section>
             <Section n={3} id="s3" title="News & Catalysts" color="#F59E0B">
               {(() => {
-                const synthesis = fv(s3.synthesis ?? s3.narrative ?? s3.summary);
-                const nearTerm = s3.near_term_catalysts ?? s3.catalysts_near ?? [];
-                const medTerm  = s3.medium_term_catalysts ?? s3.catalysts_medium ?? [];
-                const riskEvts = s3.key_risk_events ?? s3.risk_events ?? [];
+                const aiSynth  = s3.ai_synthesis as any;
+                const synthesis = fv(aiSynth);
+                const nearTerm  = aiSynth?.near_term_catalysts   ?? [];
+                const medTerm   = aiSynth?.medium_term_catalysts  ?? [];
+                const riskEvts  = aiSynth?.key_risk_events        ?? [];
+                const newsItems  = (s3.news_items ?? []) as any[];
+                const upcoming   = (s3.upcoming_earnings ?? []) as any[];
+                const hasAi = synthesis || nearTerm.length > 0 || medTerm.length > 0 || riskEvts.length > 0;
                 return (
                   <>
+                    {upcoming.length > 0 && (
+                      <div className="mb-4 flex flex-wrap gap-2">
+                        {upcoming.slice(0, 2).map((e: any, i: number) => (
+                          <div key={i} className="bg-[#0D1626] border border-[#F59E0B]/30 rounded-lg px-3 py-2 text-xs">
+                            <span className="text-[#F59E0B] font-bold">{fv(e.quarter) ?? "Earnings"}</span>
+                            <span className="text-[#94A3B8] ml-2">{fv(e.date)}</span>
+                            {fv(e.eps_estimate) != null && (
+                              <span className="text-[#475569] ml-2">EPS est: {fmt$(fv(e.eps_estimate))}</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {synthesis && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
                         {synthesis}
@@ -655,7 +691,7 @@ export default function AdhocTickerPage() {
                       </div>
                     )}
                     {riskEvts.length > 0 && (
-                      <div>
+                      <div className="mb-4">
                         <p className="text-[10px] font-bold text-[#EF4444] uppercase tracking-wider mb-2">Key Risk Events</p>
                         <ul className="space-y-1">
                           {riskEvts.map((c: any, i: number) => (
@@ -667,7 +703,21 @@ export default function AdhocTickerPage() {
                         </ul>
                       </div>
                     )}
-                    {!synthesis && nearTerm.length === 0 && medTerm.length === 0 && riskEvts.length === 0 && (
+                    {/* Fallback: raw headlines when AI synthesis failed */}
+                    {!hasAi && newsItems.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Recent Headlines</p>
+                        <ul className="space-y-2">
+                          {newsItems.slice(0, 8).map((n: any, i: number) => (
+                            <li key={i} className="border-b border-[#1E2D4A] pb-2 last:border-0">
+                              <p className="text-xs text-[#94A3B8]">{n.headline}</p>
+                              {n.date && <p className="text-[10px] text-[#475569] mt-0.5">{n.date}</p>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {!hasAi && newsItems.length === 0 && upcoming.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
@@ -856,15 +906,32 @@ export default function AdhocTickerPage() {
           <div id="s6" data-section>
             <Section n={6} id="s6" title="Valuation Metrics" color="#2D6BFF">
               {(() => {
-                const metrics = s6.metrics ?? s6.valuation_metrics ?? {};
-                const peers   = s6.peer_comparison ?? s6.peers ?? [];
+                const metricFields = ([
+                  ["P/E TTM",    s6.pe_ttm,           undefined],
+                  ["P/E Fwd",   s6.pe_fwd,            undefined],
+                  ["P/B",       s6.price_to_book,      undefined],
+                  ["P/S",       s6.price_to_sales,     undefined],
+                  ["EV/EBITDA", s6.ev_ebitda,          undefined],
+                  ["FCF Yield", s6.fcf_yield,          "%"],
+                  ["ROIC",      s6.roic,               "%"],
+                  ["ROE",       s6.roe,                "%"],
+                  ["Beta",      s6.beta,               undefined],
+                  ["Div Yield", s6.dividend_yield,     "%"],
+                  ["52W High",  s6["52w_high"],        "$"],
+                  ["52W Low",   s6["52w_low"],         "$"],
+                  ["% from 52W High", s6.pct_from_52w_high, "%"],
+                ] as [string, any, string?][]).filter(([, v]) => fv(v) != null);
+                const peers = (s6.peer_table ?? s6.peer_comparison ?? s6.peers ?? []) as any[];
+                const PEER_COLS = ["symbol", "pe", "pe_fwd", "ev_ebitda", "ps", "pb", "ebitda_margin", "net_margin", "debt_to_equity"];
                 return (
                   <>
-                    {Object.keys(metrics).length > 0 && (
+                    {metricFields.length > 0 && (
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-6">
-                        {Object.entries(metrics).map(([k, v]: [string, any]) => (
-                          <StatCard key={k} label={k.replace(/_/g, " ")} value={fv(v)} source={fs(v)} />
-                        ))}
+                        {metricFields.map(([label, v, unit]) => {
+                          const raw = fv(v);
+                          const display = unit === "$" ? fmt$(raw) : unit === "%" ? fmtPct(raw) : fmtN(raw, 2);
+                          return <StatCard key={label as string} label={label as string} value={display} source={fs(v)} />;
+                        })}
                       </div>
                     )}
                     {peers.length > 0 && (
@@ -874,35 +941,36 @@ export default function AdhocTickerPage() {
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b border-[#1E2D4A]">
-                                <th className="text-[10px] font-medium text-[#475569] text-left pb-2 px-2">Company</th>
-                                {Object.keys(peers[0]).filter((k) => k !== "ticker" && k !== "company" && k !== "is_subject").map((k) => (
-                                  <th key={k} className="text-[10px] font-medium text-[#475569] text-right pb-2 px-2">
-                                    {k.replace(/_/g, " ")}
+                                <th className="text-[10px] font-medium text-[#475569] text-left pb-2 px-2">Ticker</th>
+                                {PEER_COLS.filter(c => c !== "symbol").map((c) => (
+                                  <th key={c} className="text-[10px] font-medium text-[#475569] text-right pb-2 px-2">
+                                    {c.replace(/_/g, " ")}
                                   </th>
                                 ))}
                               </tr>
                             </thead>
                             <tbody>
-                              {(peers as any[]).map((row: any, i: number) => (
-                                <tr key={i}
-                                  className={`border-b border-[#1E2D4A]/50 ${row.is_subject ? "bg-[#2D6BFF]/05" : ""}`}
-                                >
-                                  <td className={`py-2 px-2 font-mono ${row.is_subject ? "text-white font-bold" : "text-[#94A3B8]"}`}>
-                                    {row.ticker ?? row.company ?? "—"}
-                                  </td>
-                                  {Object.entries(row).filter(([k]) => k !== "ticker" && k !== "company" && k !== "is_subject").map(([k, v]: [string, any]) => (
-                                    <td key={k} className="py-2 px-2 font-mono text-right text-[#94A3B8]">
-                                      {fv(v) ?? "—"}
-                                    </td>
-                                  ))}
-                                </tr>
-                              ))}
+                              {peers.map((row: any, i: number) => {
+                                const sym = fv(row.symbol) ?? row.ticker ?? "—";
+                                const isSubject = sym === ticker;
+                                return (
+                                  <tr key={i} className={`border-b border-[#1E2D4A]/50 ${isSubject ? "bg-[#2D6BFF]/5" : ""}`}>
+                                    <td className={`py-2 px-2 font-mono ${isSubject ? "text-white font-bold" : "text-[#94A3B8]"}`}>{sym}</td>
+                                    {PEER_COLS.filter(c => c !== "symbol").map((c) => {
+                                      const v = row[c];
+                                      const raw = fv(v);
+                                      const txt = raw == null ? "—" : /margin|ebitda/i.test(c) ? fmtPct(raw) : fmtN(raw, 1);
+                                      return <td key={c} className="py-2 px-2 font-mono text-right text-[#94A3B8]">{txt}</td>;
+                                    })}
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
                       </div>
                     )}
-                    {Object.keys(metrics).length === 0 && peers.length === 0 && (
+                    {metricFields.length === 0 && peers.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
@@ -984,11 +1052,20 @@ export default function AdhocTickerPage() {
           <div id="s8" data-section>
             <Section n={8} id="s8" title="Competitive Moat" color="#10B981">
               {(() => {
-                const narrative = fv(s8.narrative ?? s8.moat_narrative);
-                const moatRating = fv(s8.moat_rating ?? s8.rating);
-                const moatColor = moatRating === "Wide" ? "#10B981" : moatRating === "Narrow" ? "#F59E0B" : "#EF4444";
+                const aiNarr    = s8.ai_narrative as any;
+                const moatRating = aiNarr?.moat_rating ?? null;
+                const narrative  = aiNarr?.narrative   ?? null;
+                const headlines  = (s8.recent_headlines ?? []) as string[];
+                const moatColor  = moatRating === "Wide" ? "#10B981" : moatRating === "Narrow" ? "#F59E0B" : "#EF4444";
+                const hasAi = moatRating || narrative;
                 return (
                   <>
+                    <div className="grid grid-cols-2 gap-x-8 mb-4">
+                      {[["Sector", s8.sector], ["Industry", s8.industry], ["Peer Count", s8.peer_count]].filter(([, v]) => fv(v) != null).map(([l, v]) => (
+                        <KV key={l as string} label={l as string}
+                          value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
+                      ))}
+                    </div>
                     {moatRating && (
                       <div className="mb-4">
                         <span className="text-sm font-bold px-3 py-1 rounded-lg"
@@ -1004,12 +1081,19 @@ export default function AdhocTickerPage() {
                         <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     )}
-                    <div className="mt-4 grid grid-cols-2 gap-x-8">
-                      {[["Sector", s8.sector], ["Industry", s8.industry], ["Peer Count", s8.peer_count]].filter(([, v]) => v != null).map(([l, v]) => (
-                        <KV key={l as string} label={l as string} value={fv(v)} />
-                      ))}
-                    </div>
-                    {!narrative && !moatRating && <p className="text-xs text-[#475569]">Data unavailable</p>}
+                    {!hasAi && headlines.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Recent Context</p>
+                        <ul className="space-y-1.5">
+                          {headlines.slice(0, 5).map((h, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-[#94A3B8]">
+                              <span className="text-[#475569] shrink-0">·</span>{h}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {!hasAi && headlines.length === 0 && <p className="text-xs text-[#475569]">Data unavailable</p>}
                   </>
                 );
               })()}
@@ -1020,24 +1104,33 @@ export default function AdhocTickerPage() {
           <div id="s9" data-section>
             <Section n={9} id="s9" title="Industry & Macro" color="#2D6BFF">
               {(() => {
-                const narrative  = fv(s9.narrative ?? s9.industry_narrative);
-                const macro      = s9.macro_data ?? s9.macro ?? {};
-                const tailwinds  = s9.tailwinds ?? [];
-                const headwinds  = s9.headwinds ?? [];
+                const aiNarr  = s9.ai_narrative as any;
+                const narrative = fv(aiNarr);
+                const tailwinds = aiNarr?.tailwinds ?? [];
+                const headwinds = aiNarr?.headwinds ?? [];
+                // Macro stats from direct FRED fields on the section
+                const macroFields = ([
+                  ["10Y Yield",    s9.risk_free_rate],
+                  ["Fed Funds",    s9.fed_funds_rate],
+                  ["GDP Growth",   s9.gdp_growth],
+                  ["Unemployment", s9.unemployment],
+                ] as [string, any][]).filter(([, v]) => fv(v) != null);
+                const hasContent = narrative || tailwinds.length > 0 || headwinds.length > 0 || macroFields.length > 0;
                 return (
                   <>
+                    {macroFields.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+                        {macroFields.map(([label, v]) => (
+                          <StatCard key={label as string} label={label as string}
+                            value={`${fmtN(v, 2)}%`} source={fs(v)} />
+                        ))}
+                      </div>
+                    )}
                     {narrative && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
                         {narrative}
                         <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
-                    )}
-                    {Object.keys(macro).length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                        {Object.entries(macro).map(([k, v]: [string, any]) => (
-                          <StatCard key={k} label={k.replace(/_/g, " ")} value={fv(v)} source={fs(v)} />
-                        ))}
-                      </div>
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                       {tailwinds.length > 0 && (
@@ -1067,9 +1160,7 @@ export default function AdhocTickerPage() {
                         </div>
                       )}
                     </div>
-                    {!narrative && Object.keys(macro).length === 0 && tailwinds.length === 0 && headwinds.length === 0 && (
-                      <p className="text-xs text-[#475569]">Data unavailable</p>
-                    )}
+                    {!hasContent && <p className="text-xs text-[#475569]">Data unavailable</p>}
                   </>
                 );
               })()}
@@ -1206,12 +1297,28 @@ export default function AdhocTickerPage() {
           <div id="s11" data-section>
             <Section n={11} id="s11" title="Risk Register" color="#EF4444">
               {(() => {
-                const risks = s11.risks ?? s11.risk_register ?? [];
-                const beta  = fv(s11.beta);
-                const de    = fv(s11.debt_to_equity ?? s11.de_ratio);
-                const cr    = fv(s11.current_ratio);
+                const aiReg   = s11.ai_risk_register as any;
+                const risks   = aiReg?.risks ?? [];
+                const rawText = aiReg?.value ?? null;
+                const finSnap = (s11.financials_snapshot ?? {}) as any;
+                const techSnap = (s11.technicals_snapshot ?? {}) as any;
+                const beta  = fv(finSnap.beta ?? s11.beta);
+                const de    = fv(finSnap.debt_to_equity ?? s11.debt_to_equity ?? s11.de_ratio);
+                const cr    = fv(finSnap.current_ratio ?? s11.current_ratio);
+                const headlines = (s11.recent_headlines ?? []) as string[];
                 return (
                   <>
+                    {/* Financial snapshot always shown at top */}
+                    {(beta != null || de != null || cr != null) && (
+                      <div className="grid grid-cols-3 gap-3 mb-5">
+                        {beta != null && <StatCard label="Beta" value={fmtN(beta, 2)} source={fs(finSnap.beta)} color={Number(beta) > 1.5 ? "#EF4444" : Number(beta) < 0.8 ? "#10B981" : "#94A3B8"} />}
+                        {de   != null && <StatCard label="D/E Ratio" value={fmtN(de, 2)} source={fs(finSnap.debt_to_equity)} color={Number(de) > 2 ? "#EF4444" : "#94A3B8"} />}
+                        {cr   != null && <StatCard label="Current Ratio" value={fmtN(cr, 2)} source={fs(finSnap.current_ratio)} color={Number(cr) < 1 ? "#EF4444" : Number(cr) > 2 ? "#10B981" : "#94A3B8"} />}
+                        {fv(finSnap.pe_ttm) != null && <StatCard label="P/E TTM" value={fmtN(fv(finSnap.pe_ttm), 1)} source={fs(finSnap.pe_ttm)} />}
+                        {fv(finSnap.ev_ebitda) != null && <StatCard label="EV/EBITDA" value={fmtN(fv(finSnap.ev_ebitda), 1)} source={fs(finSnap.ev_ebitda)} />}
+                        {fv(techSnap.rsi) != null && <StatCard label="RSI" value={fmtN(fv(techSnap.rsi), 0)} source={fs(techSnap.rsi)} color={Number(fv(techSnap.rsi)) > 70 ? "#F59E0B" : "#94A3B8"} />}
+                      </div>
+                    )}
                     {risks.length > 0 ? (
                       <div className="mb-5 space-y-3">
                         {(risks as any[]).map((r: any, i: number) => {
@@ -1247,20 +1354,29 @@ export default function AdhocTickerPage() {
                                   {r.mechanism ?? r.detail ?? r.description}
                                 </p>
                               )}
+                              <span className="ml-7 mt-1 inline-block text-[9px] font-bold px-1 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                             </div>
                           );
                         })}
                       </div>
-                    ) : (
-                      <p className="text-xs text-[#475569] mb-4">No risk register data available</p>
-                    )}
-                    {(beta != null || de != null || cr != null) && (
-                      <div className="grid grid-cols-3 gap-3">
-                        {beta != null && <StatCard label="Beta" value={fmtN(beta, 2)} color={Number(beta) > 1.5 ? "#EF4444" : Number(beta) < 0.8 ? "#10B981" : "#94A3B8"} />}
-                        {de   != null && <StatCard label="D/E Ratio" value={fmtN(de, 2)} color={Number(de) > 2 ? "#EF4444" : "#94A3B8"} />}
-                        {cr   != null && <StatCard label="Current Ratio" value={fmtN(cr, 2)} color={Number(cr) < 1 ? "#EF4444" : Number(cr) > 2 ? "#10B981" : "#94A3B8"} />}
+                    ) : rawText ? (
+                      <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap mb-4">{rawText}
+                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                      </p>
+                    ) : headlines.length > 0 ? (
+                      <div className="mb-4">
+                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Recent Context</p>
+                        <ul className="space-y-1.5">
+                          {headlines.slice(0, 6).map((h, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-[#94A3B8]">
+                              <span className="text-[#475569] shrink-0">·</span>{h}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
-                    )}
+                    ) : beta == null && de == null && cr == null ? (
+                      <p className="text-xs text-[#475569]">Data unavailable</p>
+                    ) : null}
                   </>
                 );
               })()}
@@ -1310,34 +1426,47 @@ export default function AdhocTickerPage() {
           <div id="s13" data-section>
             <Section n={13} id="s13" title="Sentiment" color="#2D6BFF">
               {(() => {
-                const summary   = fv(s13.summary ?? s13.sentiment_summary ?? s13.ai_sentiment);
+                const summary   = fv(s13.ai_sentiment);
                 const newsTone  = fv(s13.news_tone);
                 const shortPct  = fv(s13.short_interest_pct ?? s13.short_interest);
                 const consensus = fv(s13.analyst_consensus);
+                const newsItems = (s13.news_items ?? []) as any[];
                 const toneColor = /positive|bullish/i.test(newsTone ?? "") ? "#10B981"
                   : /negative|bearish/i.test(newsTone ?? "") ? "#EF4444" : "#F59E0B";
+                const hasStats = shortPct != null || consensus;
                 return (
                   <>
+                    {hasStats && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+                        {shortPct != null && (
+                          <StatCard label="Short Interest" value={`${Number(shortPct).toFixed(1)}%`}
+                            source={fs(s13.short_interest_pct)}
+                            color={Number(shortPct) > 15 ? "#EF4444" : Number(shortPct) < 5 ? "#10B981" : "#F59E0B"} />
+                        )}
+                        {consensus && <StatCard label="Analyst Consensus" value={consensus} source={fs(s13.analyst_consensus)} color="#94A3B8" />}
+                      </div>
+                    )}
                     {summary && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
                         {summary}
                         <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     )}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      {newsTone && (
-                        <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
-                          <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">News Tone</p>
-                          <p className="text-sm font-bold" style={{ color: toneColor }}>{newsTone}</p>
-                        </div>
-                      )}
-                      {shortPct != null && (
-                        <StatCard label="Short Interest" value={`${Number(shortPct).toFixed(1)}%`}
-                          color={Number(shortPct) > 15 ? "#EF4444" : Number(shortPct) < 5 ? "#10B981" : "#F59E0B"} />
-                      )}
-                      {consensus && <StatCard label="Analyst Consensus" value={consensus} color="#94A3B8" />}
-                    </div>
-                    {!summary && !newsTone && shortPct == null && (
+                    {!summary && newsItems.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Recent News ({newsItems.length} articles)</p>
+                        <ul className="space-y-2">
+                          {newsItems.slice(0, 6).map((n: any, i: number) => (
+                            <li key={i} className="border-b border-[#1E2D4A] pb-2 last:border-0">
+                              <p className="text-xs text-[#94A3B8]">{n.headline}</p>
+                              {n.summary && <p className="text-[10px] text-[#475569] mt-0.5 leading-relaxed">{n.summary}</p>}
+                              {n.date && <p className="text-[10px] text-[#1E2D4A] mt-0.5">{n.date}</p>}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {!summary && !hasStats && newsItems.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
                   </>
@@ -1350,32 +1479,60 @@ export default function AdhocTickerPage() {
           <div id="s14" data-section>
             <Section n={14} id="s14" title="Where We Differ" color="#F59E0B">
               {(() => {
-                const streetView = fv(s14.street_view ?? s14.consensus_view);
-                const ourView    = fv(s14.our_view ?? s14.fund_view);
-                const narrative  = fv(s14.narrative ?? s14.explanation);
+                const narrative     = fv(s14.ai_where_we_differ);
+                const curPrice      = fv(s14.current_price);
+                const analystPT     = fv(s14.analyst_pt_mean);
+                const analystRating = fv(s14.analyst_rating);
+                const ourDcf        = fv(s14.our_dcf_implied);
+                const fmpDcf        = fv(s14.fmp_dcf_crosscheck);
+                const ourDir        = fv(s14.direction);
+                const ourConv       = fv(s14.conviction);
+
+                const streetParts: string[] = [];
+                if (analystPT != null) streetParts.push(`Consensus PT: ${fmt$(analystPT)}`);
+                if (analystRating) streetParts.push(`Rating: ${String(analystRating).toUpperCase()}`);
+                if (curPrice != null) streetParts.push(`vs Current: ${fmt$(curPrice)}`);
+
+                const ourParts: string[] = [];
+                if (ourDir) ourParts.push(`Direction: ${ourDir}`);
+                if (ourConv != null) ourParts.push(`Conviction: ${ourConv}/10`);
+                if (ourDcf != null) ourParts.push(`Our DCF: ${fmt$(ourDcf)}`);
+                if (fmpDcf != null) ourParts.push(`FMP DCF: ${fmt$(fmpDcf)}`);
+
+                const hasData = streetParts.length > 0 || ourParts.length > 0 || narrative;
                 return (
                   <>
-                    {(streetView || ourView) ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    {(streetParts.length > 0 || ourParts.length > 0) && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                         <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
-                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Street View</p>
-                          <p className="text-xs text-[#94A3B8] leading-relaxed">{streetView ?? "—"}</p>
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Street View</p>
+                          <div className="space-y-1.5">
+                            {streetParts.map((p, i) => {
+                              const [lbl, val] = p.split(": ");
+                              return <KV key={i} label={lbl} value={val} />;
+                            })}
+                          </div>
+                          <TagBadge source={fs(s14.analyst_pt_mean) || "yfinance"} />
                         </div>
                         <div className="bg-[#0D1626] border border-[#2D6BFF]/40 rounded-xl p-4">
-                          <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-2">Our View</p>
-                          <p className="text-xs text-[#94A3B8] leading-relaxed">{ourView ?? "—"}</p>
+                          <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-3">Our View</p>
+                          <div className="space-y-1.5">
+                            {ourParts.map((p, i) => {
+                              const [lbl, val] = p.split(": ");
+                              return <KV key={i} label={lbl} value={val} />;
+                            })}
+                          </div>
+                          <TagBadge source={fs(s14.direction) || "mandate_checker"} />
                         </div>
                       </div>
-                    ) : null}
+                    )}
                     {narrative && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                         {narrative}
                         <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     )}
-                    {!streetView && !ourView && !narrative && (
-                      <p className="text-xs text-[#475569]">Data unavailable</p>
-                    )}
+                    {!hasData && <p className="text-xs text-[#475569]">Data unavailable</p>}
                   </>
                 );
               })()}

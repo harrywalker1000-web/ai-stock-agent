@@ -117,7 +117,7 @@ Rules:
 def synthesize_news_catalysts(data: dict) -> dict:
     """
     Haiku synthesises the most significant recent development from the news feed
-    and assesses near/medium-term catalysts. Receives only article data.
+    and assesses near/medium-term catalysts. Returns structured JSON.
     """
     news    = (data.get("finnhub_news") or [])[:20]
     tavily  = data.get("tavily_catalysts") or []
@@ -141,21 +141,33 @@ def synthesize_news_catalysts(data: dict) -> dict:
 
 {json.dumps(structured, indent=2)}
 
-Based ONLY on the data above, provide:
+Based ONLY on the data above, respond with ONLY a valid JSON object — no preamble, no markdown fences.
 
-1. NEWS SYNTHESIS (2 paragraphs): What is the most significant recent development for this company and what does it mean for the investment thesis? Only reference articles provided. Do not add external context or fabricate events.
+{{
+  "news_synthesis": "2-paragraph text: what is the most significant recent development and what does it mean for the investment thesis? Reference specific headlines. Do not fabricate events.",
+  "near_term_catalysts": ["specific event from data within 0-30 days", "another event"],
+  "medium_term_catalysts": ["specific event 1-6 months out", "another event"],
+  "key_risk_events": ["specific risk or negative event visible in the data", "another risk"]
+}}
 
-2. NEAR-TERM CATALYSTS (bullet list, 0-30 days): Specific events from the data that could move the stock.
+Rules:
+- Only reference articles and events in the provided data.
+- If a category has no data, use an empty array [].
+- Each catalyst/risk item is a plain string, max 15 words."""
 
-3. MEDIUM-TERM CATALYSTS (bullet list, 1-6 months): Specific events from the data.
-
-4. KEY RISK EVENTS (bullet list): Regulatory, competitive, or macro events visible in the data.
-
-If information is unavailable in the data, write "Insufficient data for this category."
-Maximum 300 words total."""
-
-    narrative = _haiku(prompt, max_tokens=700)
-    return _ai_tag(narrative)
+    raw = _haiku(prompt, max_tokens=800)
+    try:
+        parsed = json.loads(raw)
+        return {
+            "value":                 parsed.get("news_synthesis", ""),
+            "near_term_catalysts":   parsed.get("near_term_catalysts", []),
+            "medium_term_catalysts": parsed.get("medium_term_catalysts", []),
+            "key_risk_events":       parsed.get("key_risk_events", []),
+            "source": f"{HAIKU_MODEL} [AI narrative]",
+            "status": "ok",
+        }
+    except Exception:
+        return _ai_tag(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -188,19 +200,43 @@ def synthesize_competitive_moat(data: dict) -> dict:
 
 {json.dumps(structured, indent=2)}
 
-Based ONLY on the data above, provide a competitive assessment with these three components:
+Based ONLY on the data above, respond with ONLY a valid JSON object — no preamble, no markdown fences.
 
-1. MOAT ASSESSMENT: Rate the company's competitive moat as Wide / Narrow / None and give 2-3 specific reasons from the data. Do NOT claim a moat if the data does not support it.
+{{
+  "moat_rating": "Wide" or "Narrow" or "None",
+  "moat_reasons": ["specific reason from data", "another reason"],
+  "competitive_intensity": "2-3 sentence description of the competitive landscape based on the data",
+  "key_threats": ["specific threat from news or context", "another threat"]
+}}
 
-2. COMPETITIVE INTENSITY: Describe the competitive landscape in 2-3 sentences. Name specific competitors only if they appear in the data.
+Rules:
+- Do NOT claim a wide moat unless the data clearly supports it.
+- moat_rating must be exactly one of: Wide, Narrow, None.
+- Each item in moat_reasons and key_threats is a plain string, max 15 words.
+- If data is insufficient for a field, use an empty array or "Insufficient data"."""
 
-3. KEY COMPETITIVE THREATS: 2-3 specific threats visible from recent news or search context. Do not fabricate threats.
-
-If the data is insufficient to assess a component, say so directly.
-Maximum 200 words total."""
-
-    narrative = _haiku(prompt, max_tokens=500)
-    return _ai_tag(narrative)
+    raw = _haiku(prompt, max_tokens=500)
+    try:
+        parsed = json.loads(raw)
+        moat = parsed.get("moat_rating", "")
+        reasons = parsed.get("moat_reasons") or []
+        intensity = parsed.get("competitive_intensity") or ""
+        threats = parsed.get("key_threats") or []
+        parts = []
+        if intensity:
+            parts.append(intensity)
+        if reasons:
+            parts.append("Moat drivers: " + "; ".join(str(r) for r in reasons))
+        if threats:
+            parts.append("Key threats: " + "; ".join(str(t) for t in threats))
+        return {
+            "moat_rating": moat,
+            "narrative":   "\n\n".join(parts),
+            "source":      f"{HAIKU_MODEL} [AI narrative]",
+            "status":      "ok" if moat else "error",
+        }
+    except Exception:
+        return _ai_tag(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -235,21 +271,36 @@ def synthesize_industry_macro(data: dict) -> dict:
 
 {json.dumps(structured, indent=2)}
 
-Based ONLY on the data above, provide:
+Based ONLY on the data above, respond with ONLY a valid JSON object — no preamble, no markdown fences.
 
-1. INDUSTRY OVERVIEW (2 sentences): Key trends in this sector. Only reference facts from the search context.
+{{
+  "industry_overview": "2 sentences about key trends in this sector, based only on the search context",
+  "macro_context": "2 sentences about how the current macro data (rates, GDP, unemployment) affects this sector",
+  "tailwinds": ["specific growth factor from the data", "another factor", "third factor"],
+  "headwinds": ["specific risk from the data", "another risk", "third risk"]
+}}
 
-2. MACRO ENVIRONMENT (2 sentences): How the current macro data (rates, GDP, unemployment) affects this sector.
+Rules:
+- Do NOT fabricate TAM figures, CAGR percentages, or market size data unless explicitly stated.
+- tailwinds and headwinds are arrays of plain strings, max 15 words each.
+- Max 3 items per array. Use empty array [] if no data."""
 
-3. TAILWINDS (bullet list, max 3): Specific factors from the data supporting growth.
-
-4. HEADWINDS (bullet list, max 3): Specific macro or industry risks from the data.
-
-Do NOT fabricate TAM figures, CAGR percentages, or market size data unless explicitly stated in the search results.
-Maximum 220 words total."""
-
-    narrative = _haiku(prompt, max_tokens=550)
-    return _ai_tag(narrative)
+    raw = _haiku(prompt, max_tokens=600)
+    try:
+        parsed = json.loads(raw)
+        overview = parsed.get("industry_overview") or ""
+        macro    = parsed.get("macro_context") or ""
+        return {
+            "value":            "\n\n".join(filter(None, [overview, macro])),
+            "industry_overview": overview,
+            "macro_context":     macro,
+            "tailwinds":         parsed.get("tailwinds") or [],
+            "headwinds":         parsed.get("headwinds") or [],
+            "source":            f"{HAIKU_MODEL} [AI narrative]",
+            "status":            "ok",
+        }
+    except Exception:
+        return _ai_tag(raw)
 
 
 # ---------------------------------------------------------------------------
@@ -306,24 +357,42 @@ Here is the structured data:
 
 {json.dumps(structured, indent=2)}
 
-Based ONLY on the data above, identify the top 5-7 investment risks. For each risk:
-- Risk name (concise, 8 words max)
-- Category: one of [Valuation | Execution | Financial | Macro | Regulatory | Competitive | Technical]
-- Mechanism: 1-2 sentences explaining exactly how this risk harms the investment
-- Likelihood: High / Medium / Low
-- Impact: High / Medium / Low
+Based ONLY on the data above, respond with ONLY a valid JSON array — no preamble, no markdown fences.
+
+[
+  {{
+    "name": "concise risk name, max 8 words",
+    "category": "Valuation | Execution | Financial | Macro | Regulatory | Competitive | Technical",
+    "mechanism": "1-2 sentences: exactly how this risk harms the investment",
+    "likelihood": "High | Medium | Low",
+    "impact": "High | Medium | Low"
+  }}
+]
 
 Rules:
-- Be direct and unsparing. Do NOT soften risks or default to generic statements.
-- If the valuation looks stretched (high PE/EV multiples), say so explicitly.
-- If revenue growth is decelerating, name it.
+- Identify 5-7 risks. Be direct and unsparing — do NOT soften risks.
+- If valuation multiples are stretched, say so explicitly.
+- If revenue growth is decelerating or margins are negative, name it.
 - Do NOT fabricate risks not supported by the data.
-- Format as a numbered list.
+- Each "mechanism" must reference a specific data point (e.g. EV/EBITDA, beta, headline)."""
 
-Maximum 350 words."""
-
-    narrative = _haiku(prompt, max_tokens=700)
-    return _ai_tag(narrative)
+    raw = _haiku(prompt, max_tokens=900)
+    try:
+        parsed = json.loads(raw)
+        if not isinstance(parsed, list):
+            raise ValueError("expected list")
+        return {
+            "risks":  parsed,
+            "source": f"{HAIKU_MODEL} [AI narrative]",
+            "status": "ok" if parsed else "error",
+        }
+    except Exception:
+        return {
+            "risks":  [],
+            "value":  raw,
+            "source": f"{HAIKU_MODEL} [AI narrative]",
+            "status": "error",
+        }
 
 
 # ---------------------------------------------------------------------------
