@@ -28,6 +28,102 @@ logger = get_logger(__name__)
 # Section 6: Valuation Metrics
 # ---------------------------------------------------------------------------
 
+def _build_valuation_history(data: dict) -> dict:
+    """
+    Compute 5Y historical P/E, P/B, EV/EBITDA ranges from monthly price history.
+    Uses year-end monthly closes + yfinance income/balance statement data.
+    Returns: annual_series (list, oldest-first), pe_range, pb_range, ev_ebitda_range.
+    """
+    try:
+        import yfinance as yf
+
+        ticker = (data.get("_meta") or {}).get("ticker", "")
+        if not ticker:
+            return {}
+
+        ph = data.get("price_history_5y")
+        if ph is None or (hasattr(ph, "empty") and ph.empty):
+            return {}
+
+        yf_info = (data.get("yfinance") or {}).get("info") or {}
+        shares = float(yf_info.get("sharesOutstanding") or yf_info.get("impliedSharesOutstanding") or 0)
+        if shares == 0:
+            return {}
+
+        t = yf.Ticker(ticker)
+        is_ = t.income_stmt
+        bs_ = t.balance_sheet
+
+        def _get(df, *names):
+            for name in names:
+                if df is not None and not df.empty and name in df.index:
+                    return df.loc[name]
+            return None
+
+        eps_s  = _get(is_, "Diluted EPS")
+        eq_s   = _get(bs_, "Stockholders Equity", "Common Stock Equity")
+        ebit_s = _get(is_, "EBITDA")
+        debt_s = _get(bs_, "Total Debt")
+        cash_s = _get(bs_, "Cash And Cash Equivalents",
+                       "Cash Cash Equivalents And Short Term Investments")
+
+        if eps_s is None:
+            return {}
+
+        annual = []
+        for col in eps_s.index[:5]:
+            year = col.year if hasattr(col, "year") else int(str(col)[:4])
+
+            def _v(s, c=col):
+                if s is None or c not in s.index:
+                    return None
+                v = s[c]
+                return float(v) if str(v) != "nan" else None
+
+            eps  = _v(eps_s)
+            eq   = _v(eq_s)
+            ebit = _v(ebit_s)
+            debt = _v(debt_s)
+            cash = _v(cash_s)
+
+            ph_year = ph[ph.index.year == year]
+            if ph_year.empty:
+                continue
+            price = float(ph_year["Close"].iloc[-1])
+
+            bvps = eq / shares if (eq and shares) else None
+            pe   = round(price / eps, 1) if (eps and eps > 0 and abs(eps) > 0.01) else None
+            pb   = round(price / bvps, 2) if (bvps and bvps > 0) else None
+            ev   = price * shares + (debt or 0) - (cash or 0)
+            ev_ebitda = round(ev / ebit, 1) if (ebit and ebit > 0) else None
+
+            annual.append({"year": str(year), "price": round(price, 2),
+                           "pe": pe, "pb": pb, "ev_ebitda": ev_ebitda})
+
+        if not annual:
+            return {}
+
+        def _summary(key):
+            vals = [m[key] for m in annual if m.get(key) is not None]
+            if len(vals) < 2:
+                return None
+            lo, hi = min(vals), max(vals)
+            avg = round(sum(vals) / len(vals), 1)
+            cur = annual[0].get(key)
+            pct = round((cur - lo) / (hi - lo) * 100) if (cur is not None and hi > lo) else None
+            return {"min": lo, "max": hi, "avg": avg, "current": cur, "percentile": pct}
+
+        return {
+            "annual_series":  list(reversed(annual)),
+            "pe_range":       _summary("pe"),
+            "pb_range":       _summary("pb"),
+            "ev_ebitda_range": _summary("ev_ebitda"),
+            "source":         "yfinance [CALCULATED]",
+        }
+    except Exception as exc:
+        logger.warning("valuation history build failed: %s", exc)
+        return {}
+
 def build_valuation_metrics(data: dict, mandate: dict) -> dict:
     """
     Section 6: Valuation multiples, yield, and peer comparison table.
@@ -86,6 +182,8 @@ def build_valuation_metrics(data: dict, mandate: dict) -> dict:
             "market_cap":     _tag(_safe_float(p.get("market_cap")), "yfinance/FMP"),
         })
 
+    val_history = _build_valuation_history(data)
+
     return {
         "section":           "valuation_metrics",
         "pe_ttm":            _tag(pe_ttm, "yfinance"),
@@ -103,6 +201,7 @@ def build_valuation_metrics(data: dict, mandate: dict) -> dict:
         "pct_from_52w_high": _tag(pct_from_52w_high, "yfinance [CALCULATED]"),
         "setup_type":        _tag(mandate.get("setup_type", "Unclassified"), "mandate_checker [CALCULATED]"),
         "peer_table":        peer_table,
+        "val_history":       val_history,
     }
 
 

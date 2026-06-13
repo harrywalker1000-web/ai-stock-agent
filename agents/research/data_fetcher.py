@@ -232,6 +232,13 @@ def fetch_yfinance_comprehensive(ticker: str) -> dict:
         logger.error("yfinance price history failed for %s: %s", ticker, exc)
 
     try:
+        hist_5y = t.history(period="5y", interval="1mo")
+        result["price_history_5y"] = hist_5y
+    except Exception as exc:
+        result["price_history_5y"] = pd.DataFrame()
+        logger.error("yfinance 5y price history failed for %s: %s", ticker, exc)
+
+    try:
         closes = result.get("price_history", pd.DataFrame())
         if not closes.empty:
             c = closes["Close"].squeeze()

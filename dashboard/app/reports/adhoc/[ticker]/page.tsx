@@ -947,6 +947,39 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
 }
 
 // ─── S4 Historical Financials with Annual / QoQ toggle ───────────────────────
+function ValuationThermometer({ label, range }: {
+  label: string;
+  range: { min: number; max: number; avg: number; current: number | null; percentile: number | null } | null;
+}) {
+  if (!range || range.current == null || range.max <= range.min) return null;
+  const { min, max, avg, current, percentile } = range;
+  const pct = percentile ?? Math.round((current - min) / (max - min) * 100);
+  const avgPct = Math.round((avg - min) / (max - min) * 100);
+  return (
+    <div className="mb-5">
+      <div className="flex justify-between items-baseline mb-1.5">
+        <span className="text-[10px] text-[#475569] font-medium uppercase tracking-wide">{label}</span>
+        <span className="text-sm font-mono font-bold text-white">
+          {current.toFixed(1)}x <span className="text-[10px] text-[#475569] font-normal">({pct}th pctile)</span>
+        </span>
+      </div>
+      <div className="relative h-4 bg-[#0F1929] rounded-full border border-[#1E2D4A] overflow-visible">
+        <div className="absolute inset-y-0 rounded-full bg-[#2D6BFF]/25" style={{ width: `${Math.min(pct, 100)}%` }} />
+        <div className="absolute inset-y-0 w-px bg-[#475569]" style={{ left: `${avgPct}%` }} />
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#2D6BFF] border-2 border-[#0B0F19] shadow"
+          style={{ left: `calc(${Math.min(pct, 98)}% - 7px)` }}
+        />
+      </div>
+      <div className="flex justify-between text-[9px] text-[#334155] mt-1">
+        <span>{min.toFixed(1)}x <span className="text-[#1E2D4A]">5Y low</span></span>
+        <span>{avg.toFixed(1)}x <span className="text-[#1E2D4A]">5Y avg</span></span>
+        <span>{max.toFixed(1)}x <span className="text-[#1E2D4A]">5Y high</span></span>
+      </div>
+    </div>
+  );
+}
+
 function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
   return (
     <ResponsiveContainer width="100%" height={110}>
@@ -2015,6 +2048,19 @@ export default function AdhocTickerPage() {
                       </div>
                     )}
                     <PeerBarChart peers={peerData} subjectTicker={ticker} metric="ev_ebitda" label="EV/EBITDA" />
+                    {(() => {
+                      const vh = s6.val_history as any;
+                      if (!vh || (!vh.pe_range && !vh.pb_range && !vh.ev_ebitda_range)) return null;
+                      return (
+                        <div className="mt-6">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-4">Historical Valuation Context — 5Y Range</p>
+                          <ValuationThermometer label="EV/EBITDA" range={vh.ev_ebitda_range} />
+                          <ValuationThermometer label="P/E (Trailing)" range={vh.pe_range} />
+                          <ValuationThermometer label="P/B" range={vh.pb_range} />
+                          <p className="text-[9px] text-[#334155] mt-1">Source: yfinance [CALCULATED] — dot = current, bar = 5Y range, line = 5Y avg</p>
+                        </div>
+                      );
+                    })()}
                     {metricFields.length === 0 && peerData.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
