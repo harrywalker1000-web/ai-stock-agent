@@ -436,7 +436,7 @@ def _yf_financial_rows(data: dict) -> list[dict]:
         if rev_s is None:
             return []
 
-        cols = rev_s.index[:4]  # up to 4 years, newest first
+        cols = rev_s.index[:10]  # up to 10 years, newest first
         rows = []
         for j, col in enumerate(cols):
             def _v(s): return float(s[col]) if s is not None and col in s.index and str(s[col]) != "nan" else None
