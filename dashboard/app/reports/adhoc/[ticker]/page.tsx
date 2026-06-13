@@ -1409,6 +1409,7 @@ export default function AdhocTickerPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState("s1");
   const [livePeers, setLivePeers] = useState<any[]>([]);
+  const [tavilyBannerDismissed, setTavilyBannerDismissed] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Trigger pipeline on mount
@@ -1537,6 +1538,16 @@ export default function AdhocTickerPage() {
 
   const currentPrice = fv(report.current_price ?? s1.current_price);
   const mandatePassed = mandate.passed ?? fv(s1.mandate_passed) ?? false;
+  const tavilyQuotaExceeded: boolean = !!(report as any).tavily_quota_exceeded;
+
+  // Compute next monthly reset date (1st of the month after generated_at)
+  const tavilyResetDate = (() => {
+    try {
+      const d = new Date((report as any).generated_at ?? Date.now());
+      const reset = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+      return reset.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    } catch { return "the 1st of next month"; }
+  })();
 
   return (
     <div className="min-h-screen bg-[#0B0F19] pb-20" ref={sectionRefs}>
@@ -1634,6 +1645,37 @@ export default function AdhocTickerPage() {
 
         {/* ── Report body ────────────────────────────────────────────────── */}
         <main className="flex-1 min-w-0">
+
+          {/* ── Tavily quota exhausted banner ─────────────────────────────── */}
+          {tavilyQuotaExceeded && !tavilyBannerDismissed && (
+            <div className="mb-6 flex items-start gap-4 rounded-2xl border border-[#F59E0B]/40 bg-[#F59E0B]/6 px-5 py-4">
+              <svg className="w-5 h-5 text-[#F59E0B] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#FCD34D] mb-1">Tavily search credits exhausted</p>
+                <p className="text-xs text-[#D97706]/80 leading-relaxed">
+                  This report&apos;s AI narrative sections — Company Overview, News Catalysts, Revenue Drivers, Industry &amp; Macro,
+                  Competitive Moat, Sentiment, and Where We Differ — rely on Tavily web searches that could not run.
+                  Those sections will appear empty or show fallback text only.
+                  Structured data (financials, technicals, valuation metrics) is unaffected.
+                </p>
+                <p className="text-xs text-[#FCD34D] mt-2">
+                  Credits reset on <span className="font-semibold">{tavilyResetDate}</span>.
+                  Re-run the pipeline after that date to get the full report.
+                </p>
+              </div>
+              <button
+                onClick={() => setTavilyBannerDismissed(true)}
+                className="shrink-0 text-[#78716C] hover:text-[#D97706] transition-colors mt-0.5 cursor-pointer"
+                aria-label="Dismiss"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
 
           {/* ── Report Hero Cover ─────────────────────────────────────────── */}
           {(() => {

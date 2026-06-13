@@ -463,10 +463,15 @@ def fetch_sec_8k_filings(ticker: str, limit: int = 5) -> list[dict]:
 # Tavily web search
 # ---------------------------------------------------------------------------
 
+_TAVILY_QUOTA_SENTINEL = [{"_quota_exceeded": True}]
+
+
 def fetch_tavily_search(query: str, max_results: int = 5) -> list[dict]:
-    """Tavily web search. Returns list of {title, url, content, score}."""
+    """Tavily web search. Returns list of {title, url, content, score}.
+    Returns _TAVILY_QUOTA_SENTINEL on UsageLimitExceededError so callers can detect exhaustion.
+    """
     try:
-        from tavily import TavilyClient
+        from tavily import TavilyClient, UsageLimitExceededError
         key = os.environ.get("TAVILY_API_KEY", "")
         if not key:
             raise EnvironmentError("TAVILY_API_KEY not set")
@@ -474,6 +479,10 @@ def fetch_tavily_search(query: str, max_results: int = 5) -> list[dict]:
         response = client.search(query=query, max_results=max_results)
         return response.get("results", [])
     except Exception as exc:
+        exc_name = type(exc).__name__
+        if "UsageLimitExceeded" in exc_name or "usage" in str(exc).lower() and "limit" in str(exc).lower():
+            logger.warning("Tavily quota exhausted for '%s': %s", query, exc)
+            return _TAVILY_QUOTA_SENTINEL
         logger.error("Tavily search failed for '%s': %s", query, exc)
         return []
 
@@ -657,6 +666,22 @@ def fetch_all_data(ticker: str) -> dict:
             except Exception as exc:
                 logger.error("Phase2 task '%s' failed: %s", key, exc)
                 results[key] = [] if key != "peer_metrics" else []
+
+    # Detect Tavily quota exhaustion — any search returning the sentinel triggers the flag
+    tavily_keys = [k for k in results if k.startswith("tavily_")]
+    quota_hit = any(
+        isinstance(results.get(k), list) and
+        len(results[k]) == 1 and
+        results[k][0].get("_quota_exceeded")
+        for k in tavily_keys
+    )
+    if quota_hit:
+        logger.warning("[%s] Tavily quota exhausted — AI search sections will be empty", ticker)
+        results["_tavily_quota_exceeded"] = True
+        # Replace sentinels with empty lists so downstream code doesn't see the marker
+        for k in tavily_keys:
+            if isinstance(results.get(k), list) and results[k] == _TAVILY_QUOTA_SENTINEL:
+                results[k] = []
 
     elapsed = round(time.time() - t0, 1)
     results["_meta"] = {
