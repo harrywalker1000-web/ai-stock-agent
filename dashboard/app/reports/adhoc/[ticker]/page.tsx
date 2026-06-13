@@ -953,28 +953,41 @@ function ValuationThermometer({ label, range }: {
 }) {
   if (!range || range.current == null || range.max <= range.min) return null;
   const { min, max, avg, current, percentile } = range;
-  const pct = percentile ?? Math.round((current - min) / (max - min) * 100);
+  const pct = Math.max(2, Math.min(98, percentile ?? Math.round((current - min) / (max - min) * 100)));
   const avgPct = Math.round((avg - min) / (max - min) * 100);
+  // Color: green = cheap (low pctile), amber = fair, red = expensive (high pctile)
+  const dotColor = pct <= 30 ? "#10B981" : pct >= 70 ? "#EF4444" : "#F59E0B";
+  const fillColor = pct <= 30 ? "#10B981" : pct >= 70 ? "#EF4444" : "#2D6BFF";
+  const label_pct = pct <= 30 ? "historically cheap" : pct >= 70 ? "historically expensive" : "near average";
   return (
-    <div className="mb-5">
+    <div className="mb-5 group">
       <div className="flex justify-between items-baseline mb-1.5">
         <span className="text-[10px] text-[#475569] font-medium uppercase tracking-wide">{label}</span>
-        <span className="text-sm font-mono font-bold text-white">
-          {current.toFixed(1)}x <span className="text-[10px] text-[#475569] font-normal">({pct}th pctile)</span>
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-medium" style={{ color: dotColor }}>{label_pct}</span>
+          <span className="text-sm font-mono font-bold text-white">
+            {current.toFixed(1)}x <span className="text-[10px] text-[#475569] font-normal">({pct}th pctile)</span>
+          </span>
+        </div>
       </div>
-      <div className="relative h-4 bg-[#0F1929] rounded-full border border-[#1E2D4A] overflow-visible">
-        <div className="absolute inset-y-0 rounded-full bg-[#2D6BFF]/25" style={{ width: `${Math.min(pct, 100)}%` }} />
-        <div className="absolute inset-y-0 w-px bg-[#475569]" style={{ left: `${avgPct}%` }} />
+      <div className="relative h-3 bg-[#0A0E1A] rounded-full border border-[#1E2D4A] overflow-visible">
+        {/* Filled region */}
         <div
-          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-[#2D6BFF] border-2 border-[#0B0F19] shadow"
-          style={{ left: `calc(${Math.min(pct, 98)}% - 7px)` }}
+          className="absolute inset-y-0 rounded-full transition-all duration-700"
+          style={{ width: `${pct}%`, background: `${fillColor}22` }}
+        />
+        {/* Avg tick */}
+        <div className="absolute inset-y-0 w-px bg-[#334155]" style={{ left: `${avgPct}%` }} />
+        {/* Current dot */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full border-2 border-[#0B0F19] shadow-lg transition-transform duration-200 group-hover:scale-125 motion-safe:transition-transform"
+          style={{ left: `calc(${pct}% - 7px)`, background: dotColor, boxShadow: `0 0 8px ${dotColor}66` }}
         />
       </div>
-      <div className="flex justify-between text-[9px] text-[#334155] mt-1">
-        <span>{min.toFixed(1)}x <span className="text-[#1E2D4A]">5Y low</span></span>
-        <span>{avg.toFixed(1)}x <span className="text-[#1E2D4A]">5Y avg</span></span>
-        <span>{max.toFixed(1)}x <span className="text-[#1E2D4A]">5Y high</span></span>
+      <div className="flex justify-between text-[9px] text-[#334155] mt-1.5">
+        <span className="text-[#475569]">{min.toFixed(1)}x <span className="text-[#1E2D4A]">5Y low</span></span>
+        <span className="text-[#475569]">{avg.toFixed(1)}x <span className="text-[#1E2D4A]">avg</span></span>
+        <span className="text-[#475569]">{max.toFixed(1)}x <span className="text-[#1E2D4A]">5Y high</span></span>
       </div>
     </div>
   );
@@ -982,17 +995,25 @@ function ValuationThermometer({ label, range }: {
 
 function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
   return (
-    <ResponsiveContainer width="100%" height={110}>
-      <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-        <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#475569" }} />
-        <YAxis tick={{ fontSize: 9, fill: "#475569" }} tickFormatter={(v: number) => `$${v.toFixed(2)}`} width={44} />
+    <ResponsiveContainer width="100%" height={120}>
+      <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
+        <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#475569" }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 9, fill: "#475569" }} tickFormatter={(v: number) => `$${v.toFixed(2)}`} width={44} axisLine={false} tickLine={false} />
         <Tooltip
-          contentStyle={{ background: "#0F1929", border: "1px solid #1E2D4A", borderRadius: 6, fontSize: 11 }}
-          labelStyle={{ color: "#94A3B8" }}
+          contentStyle={{ background: "#0A0E1A", border: "1px solid #1E2D4A", borderRadius: 8, fontSize: 11, padding: "8px 12px" }}
+          labelStyle={{ color: "#94A3B8", marginBottom: 4 }}
+          cursor={{ fill: "#1E2D4A44" }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          formatter={(v: any) => [`$${Number(v).toFixed(4)}`, "DPS"]}
+          formatter={(v: any) => [`$${Number(v).toFixed(4)}`, "Annual DPS"]}
         />
-        <Bar dataKey="dps" fill="#2D6BFF" radius={[3, 3, 0, 0]} />
+        <Bar
+          dataKey="dps"
+          fill="#2D6BFF"
+          radius={[4, 4, 0, 0]}
+          animationDuration={700}
+          animationEasing="ease-out"
+          activeBar={{ fill: "#60A5FA" }}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -1001,11 +1022,12 @@ function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
 function HistoricalFinancialsSection({ s4 }: { s4: any }) {
   const [view, setView] = useState<"annual" | "quarterly">("annual");
 
-  const annual    = s4.years ?? s4.historical ?? s4.income_statement ?? [];
+  const annual    = (s4.years ?? s4.historical ?? s4.income_statement ?? []) as any[];
   const quarterly = s4.quarters ?? s4.quarterly ?? [];
   const historical = view === "annual" ? annual : quarterly;
   const earnings   = s4.earnings_surprises ?? s4.earnings_history ?? [];
   const hasQoQ     = quarterly.length > 0;
+  const coverageNote: string | null = s4.data_coverage_note ?? null;
 
   const periodLabel = view === "annual" ? "Annual" : "Quarterly";
   const growthLabel = view === "annual" ? "YoY%" : "QoQ%";
@@ -1013,58 +1035,74 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
 
   return (
     <>
-      {/* View toggle */}
-      <div className="flex items-center gap-2 mb-5">
-        {(["annual", "quarterly"] as const).map((v) => (
-          <button key={v} onClick={() => setView(v)}
-            disabled={v === "quarterly" && !hasQoQ}
-            className={[
-              "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all",
-              view === v
-                ? "bg-[#2D6BFF] text-white"
-                : "bg-[#0F1929] text-[#475569] border border-[#1E2D4A] hover:border-[#2D6BFF] hover:text-[#94A3B8]",
-              v === "quarterly" && !hasQoQ ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
-            ].join(" ")}>
-            {v === "annual" ? "Annual" : "Quarterly (QoQ)"}
-            {v === "quarterly" && !hasQoQ && <span className="ml-1 opacity-60">— N/A</span>}
-          </button>
-        ))}
+      {/* View toggle + coverage badge */}
+      <div className="flex items-center justify-between gap-2 mb-5 flex-wrap">
+        <div className="flex items-center gap-2">
+          {(["annual", "quarterly"] as const).map((v) => (
+            <button key={v} onClick={() => setView(v)}
+              disabled={v === "quarterly" && !hasQoQ}
+              className={[
+                "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all duration-150",
+                view === v
+                  ? "bg-[#2D6BFF] text-white"
+                  : "bg-[#0F1929] text-[#475569] border border-[#1E2D4A] hover:border-[#2D6BFF] hover:text-[#94A3B8]",
+                v === "quarterly" && !hasQoQ ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
+              ].join(" ")}>
+              {v === "annual" ? "Annual" : "Quarterly"}
+              {v === "quarterly" && !hasQoQ && <span className="ml-1 opacity-60">— N/A</span>}
+            </button>
+          ))}
+        </div>
+        {coverageNote && (
+          <span className="text-[9px] text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 rounded-full px-3 py-1">
+            {coverageNote}
+          </span>
+        )}
       </div>
 
       <RevenueBarChart years={historical} viewLabel={periodLabel} />
       <MarginChart years={historical} />
 
       {historical.length > 0 ? (
-        <div className="overflow-x-auto mb-6">
+        <div className="overflow-x-auto mb-6 rounded-xl border border-[#1E2D4A]">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#1E2D4A]">
-                {[yearLabel, "Revenue", growthLabel, "Gross Margin", "EBITDA Margin", "Net Margin", "EPS", "BVPS", "CFPS", "FCF"].map((h) => (
-                  <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
+              <tr className="border-b border-[#1E2D4A] bg-[#080C14]">
+                {[yearLabel, "Revenue", growthLabel, "Gross Mgn", "EBITDA Mgn", "Net Mgn", "EPS", "BVPS", "CFPS", "FCF"].map((h) => (
+                  <th key={h} className="text-[9px] font-semibold text-[#475569] uppercase tracking-wider text-right first:text-left py-2.5 px-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {(historical as any[]).map((row: any, i: number) => {
+              {historical.map((row: any, i: number) => {
                 const yoy = fv(row.revenue_yoy);
+                const isMostRecent = i === 0;
                 return (
-                  <tr key={i} className={`border-b border-[#1E2D4A]/50 ${i === 0 ? "bg-[#0F1929]/60" : ""}`}>
-                    <td className="py-2 px-2 font-mono text-white font-semibold">{row.label ?? fv(row.year)}</td>
-                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
-                    <td className={`py-2 px-2 font-mono text-right ${yoy == null ? "text-[#475569]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                      {yoy == null ? "—" : `${Number(yoy) >= 0 ? "+" : ""}${Number(yoy).toFixed(1)}%`}
-                      {fs(row.revenue) && <TagBadge source={fs(row.revenue)} />}
+                  <tr
+                    key={i}
+                    className={[
+                      "border-b border-[#1E2D4A]/40 last:border-0 transition-colors duration-150",
+                      isMostRecent ? "bg-[#1E2D4A]/20 hover:bg-[#1E2D4A]/35" : "hover:bg-[#1E2D4A]/15",
+                    ].join(" ")}
+                  >
+                    <td className={`py-2.5 px-3 font-mono font-bold ${isMostRecent ? "text-white" : "text-[#94A3B8]"}`}>
+                      {row.label ?? fv(row.year)}
+                      {isMostRecent && <span className="ml-2 text-[8px] text-[#2D6BFF] font-normal uppercase tracking-wide">latest</span>}
                     </td>
-                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.gross_margin)) > 0 ? "text-[#94A3B8]" : "text-[#475569]"}`}>
+                    <td className="py-2.5 px-3 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
+                    <td className={`py-2.5 px-3 font-mono text-right font-medium ${yoy == null ? "text-[#334155]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      {yoy == null ? "—" : `${Number(yoy) >= 0 ? "+" : ""}${Number(yoy).toFixed(1)}%`}
+                    </td>
+                    <td className={`py-2.5 px-3 font-mono text-right ${Number(fv(row.gross_margin)) > 0 ? "text-[#94A3B8]" : "text-[#334155]"}`}>
                       {fmtPct(row.gross_margin)}</td>
-                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.ebitda_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                    <td className={`py-2.5 px-3 font-mono text-right ${Number(fv(row.ebitda_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                       {fmtPct(row.ebitda_margin)}</td>
-                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.net_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                    <td className={`py-2.5 px-3 font-mono text-right font-medium ${Number(fv(row.net_margin)) > 0 ? "text-[#10B981]" : Number(fv(row.net_margin)) < 0 ? "text-[#EF4444]" : "text-[#334155]"}`}>
                       {fmtPct(row.net_margin)}</td>
-                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
-                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.bvps)}</td>
-                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.cfps)}</td>
-                    <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
+                    <td className="py-2.5 px-3 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
+                    <td className="py-2.5 px-3 font-mono text-right text-[#94A3B8]">{fmt$(row.bvps)}</td>
+                    <td className="py-2.5 px-3 font-mono text-right text-[#94A3B8]">{fmt$(row.cfps)}</td>
+                    <td className={`py-2.5 px-3 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                       {fmtBn(row.fcf)}</td>
                   </tr>
                 );
@@ -1073,9 +1111,14 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
           </table>
         </div>
       ) : (
-        <p className="text-xs text-[#475569] mb-4">
-          {view === "quarterly" ? "Quarterly data not available for this ticker." : "Historical financials unavailable."}
-        </p>
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-[#1E2D4A] bg-[#0A0E1A] mb-6">
+          <div className="w-1 self-stretch bg-[#334155] rounded-full" />
+          <p className="text-xs text-[#475569]">
+            {view === "quarterly"
+              ? "Quarterly breakdowns are not available for this ticker."
+              : "Historical financial data is not available — the company may be recently listed or data is outside free-tier API coverage."}
+          </p>
+        </div>
       )}
 
       {/* Dividend History */}

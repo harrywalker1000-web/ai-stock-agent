@@ -405,7 +405,7 @@ def _yf_dividend_history(ticker: str) -> list:
         if divs is None or divs.empty:
             return []
         annual = divs.groupby(divs.index.year).sum()
-        recent = annual.iloc[-8:]
+        recent = annual.iloc[-5:]
         return [
             {"year": str(yr), "dps": round(float(v), 4), "source": "yfinance"}
             for yr, v in zip(reversed(recent.index.tolist()), reversed(recent.values.tolist()))
@@ -457,7 +457,7 @@ def _yf_financial_rows(data: dict) -> list[dict]:
         shares = yf_info.get("sharesOutstanding") or yf_info.get("impliedSharesOutstanding")
         shares = float(shares) if shares else None
 
-        cols = rev_s.index[:10]  # up to 10 years, newest first
+        cols = rev_s.index[:5]  # up to 5 years, newest first
         rows = []
         for j, col in enumerate(cols):
             def _v(s): return float(s[col]) if s is not None and col in s.index and str(s[col]) != "nan" else None
@@ -510,6 +510,8 @@ def _yf_financial_rows(data: dict) -> list[dict]:
                 "bvps":           _tag(bvps, "yfinance [CALCULATED]"),
                 "cfps":           _tag(cfps, "yfinance [CALCULATED]"),
             })
+        # Drop rows with no revenue data (e.g. partial current year or company too new)
+        rows = [r for r in rows if r.get("revenue", {}).get("value") is not None]
         return rows
     except Exception as exc:
         logger.warning("yfinance financial rows fallback failed for %s: %s", ticker, exc)
@@ -531,7 +533,7 @@ def build_historical_financials(data: dict) -> dict:
     fmp_shares = float(fmp_shares_raw) if fmp_shares_raw else None
 
     # Align all three by date — zip by index (FMP returns most-recent-first)
-    n = min(len(income), len(balance), len(cashflow), 10)
+    n = min(len(income), len(balance), len(cashflow), 5)
 
     years = []
     for i in range(n):
@@ -614,13 +616,22 @@ def build_historical_financials(data: dict) -> dict:
     div_history = _yf_dividend_history(ticker_sym) if ticker_sym else []
     is_dividend_paying = bool(div_history and any(d.get("dps", 0) > 0 for d in div_history))
 
+    yr_count = len(years)
+    if yr_count >= 5:
+        coverage_note = None
+    elif yr_count == 0:
+        coverage_note = "No annual financial data available via free APIs."
+    else:
+        coverage_note = f"{yr_count} year{'s' if yr_count > 1 else ''} of data available — company may be recently listed or free-tier API coverage is limited."
+
     return {
-        "section":          "historical_financials",
-        "years":            years,
-        "year_count":       len(years),
-        "currency":         _tag(income[0].get("reportedCurrency") if income else "USD", "FMP"),
-        "dividend_history": div_history,
+        "section":            "historical_financials",
+        "years":              years,
+        "year_count":         yr_count,
+        "currency":           _tag(income[0].get("reportedCurrency") if income else "USD", "FMP"),
+        "dividend_history":   div_history,
         "is_dividend_paying": is_dividend_paying,
+        "data_coverage_note": coverage_note,
     }
 
 
