@@ -7,23 +7,25 @@ import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
 
 // ─── Helper functions ────────────────────────────────────────────────────────
+const NP = "Not publicly disclosed";
+
 function fv(f: any): any {
   if (f !== null && typeof f === "object" && "value" in f) return f.value;
   return f;
 }
 function fs(f: any): string { return f?.source ?? ""; }
-function fmt$(n: any): string { return n == null ? "—" : `$${Number(fv(n)).toFixed(2)}`; }
-function fmtPct(n: any): string { const v = fv(n); return v == null ? "—" : `${Number(v).toFixed(1)}%`; }
+function fmt$(n: any): string { return n == null ? NP : `$${Number(fv(n)).toFixed(2)}`; }
+function fmtPct(n: any): string { const v = fv(n); return v == null ? NP : `${Number(v).toFixed(1)}%`; }
 function fmtBn(n: any): string {
   const raw = fv(n);
-  if (raw == null) return "—";
+  if (raw == null) return NP;
   const v = Number(raw);
-  if (isNaN(v)) return "—";
+  if (isNaN(v)) return NP;
   if (Math.abs(v) >= 1e12) return `$${(v / 1e12).toFixed(1)}T`;
   if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toFixed(1)}B`;
   return `$${(v / 1e6).toFixed(0)}M`;
 }
-function fmtN(n: any, dp = 1): string { const v = fv(n); return v == null ? "—" : Number(v).toFixed(dp); }
+function fmtN(n: any, dp = 1): string { const v = fv(n); return v == null ? NP : Number(v).toFixed(dp); }
 function usd(n: any) { return fmt$(n); }
 
 // ─── Nav sections ────────────────────────────────────────────────────────────
@@ -1373,7 +1375,7 @@ export default function AdhocTickerPage() {
             const stopLs  = fv(rec.stop_loss_pct);
             const heroStats = [
               { label: "Price",        val: currentPrice ? fmt$(currentPrice) : null, color: "#E2E8F0" },
-              { label: "Market Cap",   val: fmtBn(s1.market_cap) !== "—" ? fmtBn(s1.market_cap) : null, color: "#94A3B8" },
+              { label: "Market Cap",   val: fmtBn(s1.market_cap) !== NP ? fmtBn(s1.market_cap) : null, color: "#94A3B8" },
               { label: "Exp. Return",  val: expRet,   color: expRet && String(expRet).startsWith("-") ? "#EF4444" : "#10B981" },
               { label: "Position",     val: posSz != null ? `${posSz}%` : null, color: "#94A3B8" },
               { label: "Stop Loss",    val: stopLs != null ? `-${stopLs}%` : null, color: "#EF4444" },

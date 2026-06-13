@@ -492,7 +492,7 @@ def _yf_financial_rows(data: dict) -> list[dict]:
 
 def build_historical_financials(data: dict) -> dict:
     """
-    Section 4: 4-year annual income statement + balance sheet + cash flow.
+    Section 4: Up to 10-year annual income statement + balance sheet + cash flow.
     Primary source: FMP. Fallback: yfinance (used when FMP is unavailable, e.g. 402 free-plan limit).
     Margins and ratios computed and tagged [CALCULATED].
     """
@@ -501,7 +501,7 @@ def build_historical_financials(data: dict) -> dict:
     cashflow = data.get("fmp_cashflow") or []
 
     # Align all three by date — zip by index (FMP returns most-recent-first)
-    n = min(len(income), len(balance), len(cashflow), 4)
+    n = min(len(income), len(balance), len(cashflow), 10)
 
     years = []
     for i in range(n):

@@ -574,9 +574,9 @@ def fetch_all_data(ticker: str) -> dict:
 
     tasks = {
         "fmp_profile":       lambda: fetch_fmp_profile(ticker),
-        "fmp_income":        lambda: fetch_fmp_income_statement(ticker, limit=4),
-        "fmp_balance":       lambda: fetch_fmp_balance_sheet(ticker, limit=4),
-        "fmp_cashflow":      lambda: fetch_fmp_cash_flow(ticker, limit=4),
+        "fmp_income":        lambda: fetch_fmp_income_statement(ticker, limit=10),
+        "fmp_balance":       lambda: fetch_fmp_balance_sheet(ticker, limit=10),
+        "fmp_cashflow":      lambda: fetch_fmp_cash_flow(ticker, limit=10),
         "fmp_key_metrics":   lambda: fetch_fmp_key_metrics(ticker, limit=4),
         "fmp_dcf":           lambda: fetch_fmp_dcf(ticker),
         "fmp_peers":         lambda: fetch_fmp_stock_peers(ticker),
