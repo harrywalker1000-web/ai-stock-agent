@@ -5,6 +5,9 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+} from "recharts";
 
 // ─── Helper functions ────────────────────────────────────────────────────────
 const NP = "Not publicly disclosed";
@@ -944,6 +947,24 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
 }
 
 // ─── S4 Historical Financials with Annual / QoQ toggle ───────────────────────
+function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
+  return (
+    <ResponsiveContainer width="100%" height={110}>
+      <BarChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+        <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#475569" }} />
+        <YAxis tick={{ fontSize: 9, fill: "#475569" }} tickFormatter={(v: number) => `$${v.toFixed(2)}`} width={44} />
+        <Tooltip
+          contentStyle={{ background: "#0F1929", border: "1px solid #1E2D4A", borderRadius: 6, fontSize: 11 }}
+          labelStyle={{ color: "#94A3B8" }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          formatter={(v: any) => [`$${Number(v).toFixed(4)}`, "DPS"]}
+        />
+        <Bar dataKey="dps" fill="#2D6BFF" radius={[3, 3, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 function HistoricalFinancialsSection({ s4 }: { s4: any }) {
   const [view, setView] = useState<"annual" | "quarterly">("annual");
 
@@ -985,7 +1006,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-[#1E2D4A]">
-                {[yearLabel, "Revenue", growthLabel, "Gross Margin", "EBITDA Margin", "Net Margin", "EPS", "FCF"].map((h) => (
+                {[yearLabel, "Revenue", growthLabel, "Gross Margin", "EBITDA Margin", "Net Margin", "EPS", "BVPS", "CFPS", "FCF"].map((h) => (
                   <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
                 ))}
               </tr>
@@ -1008,6 +1029,8 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
                     <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.net_margin)) > 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                       {fmtPct(row.net_margin)}</td>
                     <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.eps_diluted ?? row.eps)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.bvps)}</td>
+                    <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">{fmt$(row.cfps)}</td>
                     <td className={`py-2 px-2 font-mono text-right ${Number(fv(row.fcf)) >= 0 ? "text-[#94A3B8]" : "text-[#EF4444]"}`}>
                       {fmtBn(row.fcf)}</td>
                   </tr>
@@ -1021,6 +1044,41 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
           {view === "quarterly" ? "Quarterly data not available for this ticker." : "Historical financials unavailable."}
         </p>
       )}
+
+      {/* Dividend History */}
+      {(() => {
+        const divHistory: { year: string; dps: number; source: string }[] = s4.dividend_history ?? [];
+        const isPaying: boolean = s4.is_dividend_paying ?? divHistory.some((d) => d.dps > 0);
+        return (
+          <div className="mb-6">
+            <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Dividend History</p>
+            {isPaying && divHistory.length > 0 ? (
+              <>
+                <DPSBarChart data={divHistory} />
+                <table className="w-full text-xs mt-3">
+                  <thead>
+                    <tr className="border-b border-[#1E2D4A]">
+                      {["Year", "DPS"].map((h) => (
+                        <th key={h} className="text-[10px] font-medium text-[#475569] text-right first:text-left pb-2 px-2">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {divHistory.map((d, i) => (
+                      <tr key={i} className="border-b border-[#1E2D4A]/50">
+                        <td className="py-1 px-2 font-mono text-[#94A3B8]">{d.year}</td>
+                        <td className="py-1 px-2 font-mono text-right text-[#94A3B8]">${d.dps.toFixed(4)} <span className="text-[9px] text-[#334155]">[{d.source}]</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            ) : (
+              <p className="text-xs text-[#475569]">[Non-dividend paying stock]</p>
+            )}
+          </div>
+        );
+      })()}
 
       {earnings.length > 0 && (
         <div>

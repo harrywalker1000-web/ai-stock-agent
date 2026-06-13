@@ -397,6 +397,23 @@ def _yoy(current: Any, prior: Any) -> Any:
         return None
 
 
+def _yf_dividend_history(ticker: str) -> list:
+    """Fetch annual DPS history from yfinance. Returns list newest-first."""
+    try:
+        import yfinance as yf
+        divs = yf.Ticker(ticker).dividends
+        if divs is None or divs.empty:
+            return []
+        annual = divs.groupby(divs.index.year).sum()
+        recent = annual.iloc[-8:]
+        return [
+            {"year": str(yr), "dps": round(float(v), 4), "source": "yfinance"}
+            for yr, v in zip(reversed(recent.index.tolist()), reversed(recent.values.tolist()))
+        ]
+    except Exception:
+        return []
+
+
 def _yf_financial_rows(data: dict) -> list[dict]:
     """
     Build income-statement-like rows from yfinance when FMP is unavailable.
@@ -436,6 +453,10 @@ def _yf_financial_rows(data: dict) -> list[dict]:
         if rev_s is None:
             return []
 
+        yf_info = (data.get("yfinance") or {}).get("info") or {}
+        shares = yf_info.get("sharesOutstanding") or yf_info.get("impliedSharesOutstanding")
+        shares = float(shares) if shares else None
+
         cols = rev_s.index[:10]  # up to 10 years, newest first
         rows = []
         for j, col in enumerate(cols):
@@ -453,6 +474,9 @@ def _yf_financial_rows(data: dict) -> list[dict]:
             curr_a = _v(ca_s)
             curr_l = _v(cl_s)
             cash  = _v(cash_s)
+
+            bvps = round(eq / shares, 2) if (eq and shares and shares > 0) else None
+            cfps = round(op_cf / shares, 2) if (op_cf and shares and shares > 0) else None
 
             year_label = str(col.year) if hasattr(col, "year") else str(col)[:4]
             prior_rev = _v(rev_s) if j == 0 else None
@@ -483,6 +507,8 @@ def _yf_financial_rows(data: dict) -> list[dict]:
                 "de_ratio":       _tag(round(debt / eq, 2) if (debt and eq and eq != 0) else None, "yfinance [CALCULATED]"),
                 "current_ratio":  _tag(round(curr_a / curr_l, 2) if (curr_a and curr_l and curr_l != 0) else None, "yfinance [CALCULATED]"),
                 "interest_coverage": _tag(None, "yfinance"),
+                "bvps":           _tag(bvps, "yfinance [CALCULATED]"),
+                "cfps":           _tag(cfps, "yfinance [CALCULATED]"),
             })
         return rows
     except Exception as exc:
@@ -499,6 +525,10 @@ def build_historical_financials(data: dict) -> dict:
     income   = data.get("fmp_income") or []
     balance  = data.get("fmp_balance") or []
     cashflow = data.get("fmp_cashflow") or []
+
+    yf_info  = (data.get("yfinance") or {}).get("info") or {}
+    fmp_shares_raw = yf_info.get("sharesOutstanding") or yf_info.get("impliedSharesOutstanding")
+    fmp_shares = float(fmp_shares_raw) if fmp_shares_raw else None
 
     # Align all three by date — zip by index (FMP returns most-recent-first)
     n = min(len(income), len(balance), len(cashflow), 10)
@@ -545,6 +575,9 @@ def build_historical_financials(data: dict) -> dict:
             prior_rev = income[i + 1].get("revenue")
             rev_yoy = _yoy(rev, prior_rev)
 
+        bvps_fmp = round(float(equity) / fmp_shares, 2) if (equity and fmp_shares and fmp_shares > 0) else None
+        cfps_fmp = round(float(op_cf) / fmp_shares, 2) if (op_cf and fmp_shares and fmp_shares > 0) else None
+
         years.append({
             "label":          year_label,
             "date":           _tag(inc.get("date"), "FMP"),
@@ -569,17 +602,25 @@ def build_historical_financials(data: dict) -> dict:
             "de_ratio":       _tag(de_ratio, "FMP [CALCULATED]"),
             "current_ratio":  _tag(current_ratio, "FMP [CALCULATED]"),
             "interest_coverage": _tag(interest_cov, "FMP [CALCULATED]"),
+            "bvps":           _tag(bvps_fmp, "yfinance + FMP [CALCULATED]"),
+            "cfps":           _tag(cfps_fmp, "yfinance + FMP [CALCULATED]"),
         })
 
     # Fallback to yfinance when FMP returned no data (e.g. 402 free-plan limit)
     if not years:
         years = _yf_financial_rows(data)
 
+    ticker_sym = (data.get("_meta") or {}).get("ticker", "")
+    div_history = _yf_dividend_history(ticker_sym) if ticker_sym else []
+    is_dividend_paying = bool(div_history and any(d.get("dps", 0) > 0 for d in div_history))
+
     return {
-        "section":      "historical_financials",
-        "years":        years,
-        "year_count":   len(years),
-        "currency":     _tag(income[0].get("reportedCurrency") if income else "USD", "FMP"),
+        "section":          "historical_financials",
+        "years":            years,
+        "year_count":       len(years),
+        "currency":         _tag(income[0].get("reportedCurrency") if income else "USD", "FMP"),
+        "dividend_history": div_history,
+        "is_dividend_paying": is_dividend_paying,
     }
 
 
