@@ -906,3 +906,51 @@ def build_forward_dcf(data: dict) -> dict:
             "note":          "FMP proprietary model — shown as cross-check only, not used in our calculation",
         },
     }
+
+
+# ---------------------------------------------------------------------------
+# Section 4b: Revenue Growth Drivers (structured raw data — AI synthesis separate)
+# ---------------------------------------------------------------------------
+
+def build_revenue_growth_drivers(data: dict) -> dict:
+    """
+    Package raw Tavily + news search results for the AI synthesis layer.
+    No AI at this stage — deterministic packaging only.
+    """
+    ticker       = (data.get("_meta") or {}).get("ticker", "")
+    company_name = (data.get("fmp_profile") or {}).get("company_name") or \
+                   ((data.get("yfinance") or {}).get("info") or {}).get("company_name") or ticker
+
+    earnings_results = data.get("tavily_growth_drivers") or []
+    analyst_results  = data.get("tavily_analyst_growth") or []
+
+    # Pull recent Finnhub headlines (news feed) as supplementary signal
+    news_headlines = [
+        {"headline": a.get("headline", ""), "summary": (a.get("summary") or "")[:200]}
+        for a in (data.get("finnhub_news") or [])[:15]
+    ]
+
+    # FMP earnings guidance — pull latest annual revenue and growth for context
+    income = data.get("fmp_income") or []
+    latest  = income[0] if income else {}
+    prior   = income[1] if len(income) > 1 else {}
+    rev     = _safe_float(latest.get("revenue"))
+    rev_pr  = _safe_float(prior.get("revenue"))
+    rev_yoy = round((rev / rev_pr - 1) * 100, 1) if (rev and rev_pr and rev_pr > 0) else None
+
+    return {
+        "section":       "revenue_growth_drivers",
+        "ticker":        ticker,
+        "company_name":  company_name,
+        "recent_revenue_growth_pct": _tag(rev_yoy, "FMP/yfinance [CALCULATED]"),
+        "earnings_search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "excerpt": (r.get("content") or "")[:500]}
+            for r in earnings_results[:5]
+        ],
+        "analyst_search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "excerpt": (r.get("content") or "")[:500]}
+            for r in analyst_results[:5]
+        ],
+        "news_headlines": news_headlines,
+        "drivers": None,  # populated by AI synthesis layer
+    }

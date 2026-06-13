@@ -36,8 +36,9 @@ const NAV = [
   { id: "s1",  n: 1,  label: "Fund Mandate" },
   { id: "s2",  n: 2,  label: "Company Overview" },
   { id: "s3",  n: 3,  label: "News & Catalysts" },
-  { id: "s4",  n: 4,  label: "Historical Financials" },
-  { id: "s5",  n: 5,  label: "Forward Est. & DCF" },
+  { id: "s4",  n: 4,    label: "Historical Financials" },
+  { id: "s4b", n: "4b", label: "Revenue Drivers" },
+  { id: "s5",  n: 5,    label: "Forward Est. & DCF" },
   { id: "s6",  n: 6,  label: "Valuation Metrics" },
   { id: "s7",  n: 7,  label: "Technical Analysis" },
   { id: "s8",  n: 8,  label: "Competitive Moat" },
@@ -1019,6 +1020,137 @@ function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
   );
 }
 
+// ─── Category config for Revenue Driver cards ─────────────────────────────────
+const DRIVER_CATEGORY: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  pricing:    { label: "Pricing",      color: "#60A5FA", bg: "#2D6BFF1A", border: "#2D6BFF40" },
+  volume:     { label: "Volume",       color: "#818CF8", bg: "#6366F11A", border: "#6366F140" },
+  geographic: { label: "Geographic",   color: "#34D399", bg: "#10B9811A", border: "#10B98140" },
+  product:    { label: "Product",      color: "#A78BFA", bg: "#8B5CF61A", border: "#8B5CF640" },
+  m_and_a:    { label: "M&A",          color: "#FCD34D", bg: "#F59E0B1A", border: "#F59E0B40" },
+  efficiency: { label: "Efficiency",   color: "#6EE7B7", bg: "#10B9811A", border: "#10B98140" },
+  regulatory: { label: "Regulatory",   color: "#94A3B8", bg: "#4758691A", border: "#47586940" },
+};
+
+function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
+  const drivers: any[] = s4b.drivers ?? [];
+  const aiSource: string = s4b.ai_source ?? "";
+  const revenueGrowth = fv(s4b.recent_revenue_growth_pct);
+
+  if (!drivers || drivers.length === 0) {
+    return (
+      <div className="flex items-start gap-3 p-5 rounded-2xl border-l-4 border-[#2D6BFF] bg-[#0F1629]">
+        <svg className="w-5 h-5 text-[#2D6BFF] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="text-xs text-[#475569]">
+          Revenue growth driver analysis requires pipeline data. Re-run the pipeline to populate this section.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Summary row */}
+      {revenueGrowth != null && (
+        <div className="flex items-center gap-3 text-xs text-[#475569]">
+          <span>Most recent annual revenue growth:</span>
+          <span
+            className={`font-semibold text-sm ${Number(revenueGrowth) >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"}`}
+          >
+            {Number(revenueGrowth) >= 0 ? "+" : ""}
+            {Number(revenueGrowth).toFixed(1)}%
+          </span>
+          <span className="text-[#1E2D4A]">•</span>
+          <span className="text-[#334155]">FMP/yfinance [CALCULATED]</span>
+        </div>
+      )}
+
+      {/* Driver cards grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {drivers.map((d: any, i: number) => {
+          const cat = DRIVER_CATEGORY[d.category] ?? DRIVER_CATEGORY["pricing"];
+          return (
+            <div
+              key={i}
+              className="relative flex flex-col gap-3 rounded-2xl border p-5 transition-all duration-200 motion-safe:hover:scale-[1.015] cursor-default group"
+              style={{
+                background: "#0F1629",
+                borderColor: "#1E2D4A",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = cat.border.replace("40", "80");
+                (e.currentTarget as HTMLElement).style.background = cat.bg;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = "#1E2D4A";
+                (e.currentTarget as HTMLElement).style.background = "#0F1629";
+              }}
+            >
+              {/* Number + AI badge row */}
+              <div className="flex items-center justify-between">
+                <div
+                  className="w-8 h-8 flex items-center justify-center rounded-full font-bold text-sm"
+                  style={{ background: cat.bg, border: `1px solid ${cat.border}`, color: cat.color }}
+                >
+                  {i + 1}
+                </div>
+                <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40">
+                  AI
+                </span>
+              </div>
+
+              {/* Driver name */}
+              <p className="text-sm font-semibold text-white leading-snug">{d.name}</p>
+
+              {/* Mechanism */}
+              <p className="text-xs text-[#93C5FD]/75 leading-relaxed flex-1">{d.mechanism}</p>
+
+              {/* Evidence callout */}
+              {d.evidence && (
+                <div className="flex items-start gap-2 rounded-xl border border-[#F59E0B]/25 bg-[#F59E0B]/8 px-3 py-2">
+                  <svg className="w-3 h-3 text-[#FCD34D] shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] text-[#FCD34D] font-medium leading-relaxed">{d.evidence}</p>
+                    {d.evidence_source && (
+                      <p className="text-[9px] text-[#78716C] mt-0.5 truncate">
+                        {(() => {
+                          try { return new URL(d.evidence_source).hostname; }
+                          catch { return d.evidence_source; }
+                        })()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Category badge */}
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="text-[9px] font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider"
+                  style={{ background: cat.bg, color: cat.color, border: `1px solid ${cat.border}` }}
+                >
+                  {cat.label}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Source attribution */}
+      {aiSource && (
+        <p className="text-[9px] text-[#334155]">
+          Source: Tavily earnings call + analyst search →{" "}
+          <span className="text-indigo-400/70">{aiSource}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
 function HistoricalFinancialsSection({ s4 }: { s4: any }) {
   const [view, setView] = useState<"annual" | "quarterly">("annual");
 
@@ -1377,6 +1509,7 @@ export default function AdhocTickerPage() {
   const s2  = sections.s2_overview        ?? sections.s2_company         ?? {};
   const s3  = sections.s3_news            ?? {};
   const s4  = sections.s4_financials      ?? sections.s4_financial       ?? {};
+  const s4b = sections.s4b_drivers        ?? {};
   const s5  = sections.s5_dcf             ?? sections.s5_forward         ?? {};
   const s6  = sections.s6_valuation       ?? {};
   const s7  = sections.s7_technicals      ?? sections.s7_technical       ?? {};
@@ -1754,6 +1887,13 @@ export default function AdhocTickerPage() {
           <div id="s4" data-section>
             <Section n={4} id="s4" title="Historical Financials" color="#2D6BFF">
               <HistoricalFinancialsSection s4={s4} />
+            </Section>
+          </div>
+
+          {/* S4b — Revenue Growth Drivers */}
+          <div id="s4b" data-section>
+            <Section n={"4b" as any} id="s4b" title="Revenue Growth Drivers" color="#3B82F6">
+              <RevenueGrowthDriversSection s4b={s4b} />
             </Section>
           </div>
 

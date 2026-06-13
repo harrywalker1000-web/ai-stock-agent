@@ -507,3 +507,80 @@ Maximum 200 words."""
 
     narrative = _haiku(prompt, max_tokens=500)
     return _ai_tag(narrative)
+
+
+# ---------------------------------------------------------------------------
+# Section 4b: Revenue Growth Drivers
+# ---------------------------------------------------------------------------
+
+def synthesize_revenue_growth_drivers(data: dict) -> dict:
+    """
+    Haiku identifies 3-5 specific, named revenue growth drivers from Tavily
+    earnings call + analyst search results and Finnhub news.
+    Returns a structured JSON list of driver cards.
+    """
+    ticker       = (data.get("_meta") or {}).get("ticker", "")
+    company_name = (data.get("fmp_profile") or {}).get("company_name") or \
+                   ((data.get("yfinance") or {}).get("info") or {}).get("company_name") or ticker
+
+    earnings_results = data.get("tavily_growth_drivers") or []
+    analyst_results  = data.get("tavily_analyst_growth") or []
+    news = (data.get("finnhub_news") or [])[:10]
+
+    structured = {
+        "ticker":       ticker,
+        "company_name": company_name,
+        "earnings_call_excerpts": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "text": (r.get("content") or "")[:600]}
+            for r in earnings_results[:5]
+        ],
+        "analyst_excerpts": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "text": (r.get("content") or "")[:600]}
+            for r in analyst_results[:5]
+        ],
+        "recent_headlines": [a.get("headline", "") for a in news],
+    }
+
+    prompt = f"""You are an equity analyst at Haz Capital. Below are search results from earnings calls, analyst reports, and news for {ticker} ({company_name}).
+
+{json.dumps(structured, indent=2)}
+
+From the provided data ONLY, identify the 3 to 5 most important specific revenue growth drivers for this company. For each driver:
+- Give it a short, specific name (3-6 words, no generic labels like "Revenue Growth" or "Strong Business"). Examples: "Direct-to-Device Commercial Launch", "Pricing Power Above Inflation", "GLP-1 Market Expansion", "European Geographic Expansion".
+- Write one sentence describing the specific mechanism (how it drives revenue).
+- If the search data contains a specific quantitative evidence (a percentage, a $ figure, a subscriber count) — include it verbatim. If not, set evidence to null. NEVER fabricate a number.
+- Assign a category from: pricing | volume | geographic | product | m_and_a | efficiency | regulatory
+
+Respond with ONLY a valid JSON array — no preamble, no markdown fences:
+[
+  {{
+    "name": "...",
+    "mechanism": "...",
+    "evidence": "..." or null,
+    "evidence_source": "url or source name if evidence present, else null",
+    "category": "..."
+  }}
+]
+
+Rules:
+- If fewer than 3 drivers are supported by the data, return only those supported. Do NOT invent drivers.
+- evidence must be a direct quote or verbatim figure from the data. Never synthesise a number.
+- name must be specific to {ticker}, not a generic descriptor."""
+
+    raw = _haiku(prompt, max_tokens=800)
+    try:
+        drivers = json.loads(_strip_code_fences(raw))
+        if not isinstance(drivers, list):
+            drivers = []
+        return {
+            "drivers": drivers,
+            "source":  f"{HAIKU_MODEL} [AI narrative] — Tavily earnings call + analyst search",
+            "status":  "ok",
+        }
+    except Exception:
+        return {
+            "drivers": [],
+            "source":  f"{HAIKU_MODEL} [AI narrative]",
+            "status":  "parse_error",
+            "raw":     raw[:500],
+        }

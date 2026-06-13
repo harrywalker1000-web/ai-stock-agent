@@ -620,10 +620,12 @@ def fetch_all_data(ticker: str) -> dict:
     industry     = yf_info.get("industry") or fmp_profile.get("industry") or ""
 
     tavily_queries = {
-        "tavily_overview":    f"{company_name} business model products services operations 2025",
-        "tavily_catalysts":   f"{ticker} upcoming catalyst earnings {industry} 2025 2026",
-        "tavily_industry":    f"{company_name} {ticker} industry competitive landscape key players IPO regulation 2025 2026",
-        "tavily_competitive": f"{company_name} competitive advantages moat competitors 2025",
+        "tavily_overview":       f"{company_name} business model products services operations 2025",
+        "tavily_catalysts":      f"{ticker} upcoming catalyst earnings {industry} 2025 2026",
+        "tavily_industry":       f"{company_name} {ticker} industry competitive landscape key players IPO regulation 2025 2026",
+        "tavily_competitive":    f"{company_name} competitive advantages moat competitors 2025",
+        "tavily_growth_drivers": f"{ticker} {company_name} earnings call revenue growth drivers management commentary 2025",
+        "tavily_analyst_growth": f"{ticker} {company_name} revenue growth catalyst analyst forecast 2025 2026",
     }
 
     # Analyst-curated peer overrides — supersede FMP auto-peers when defined

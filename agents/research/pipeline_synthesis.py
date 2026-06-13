@@ -18,6 +18,7 @@ from agents.research.synthesis_agents import (
     synthesize_risk_register,
     synthesize_sentiment,
     synthesize_where_we_differ,
+    synthesize_revenue_growth_drivers,
 )
 from agents.research.synthesis_investment_committee import synthesize_investment_committee
 from utils.logger import get_logger
@@ -40,18 +41,19 @@ def run_haiku_synthesis(data: dict, assembled: dict) -> dict:
     }
 
     tasks = {
-        "s2_ai":  (synthesize_company_overview,  (data,)),
-        "s3_ai":  (synthesize_news_catalysts,     (data,)),
-        "s8_ai":  (synthesize_competitive_moat,   (data,)),
-        "s9_ai":  (synthesize_industry_macro,     (data,)),
-        "s11_ai": (synthesize_risk_register,      (data,)),
-        "s13_ai": (synthesize_sentiment,          (data,)),
-        "s14_ai": (synthesize_where_we_differ,    (data, sections_for_differ)),
+        "s2_ai":  (synthesize_company_overview,        (data,)),
+        "s3_ai":  (synthesize_news_catalysts,           (data,)),
+        "s4b_ai": (synthesize_revenue_growth_drivers,   (data,)),
+        "s8_ai":  (synthesize_competitive_moat,         (data,)),
+        "s9_ai":  (synthesize_industry_macro,           (data,)),
+        "s11_ai": (synthesize_risk_register,            (data,)),
+        "s13_ai": (synthesize_sentiment,                (data,)),
+        "s14_ai": (synthesize_where_we_differ,          (data, sections_for_differ)),
     }
 
     results = {}
 
-    logger.info("[%s] Running parallel Haiku synthesis (7 calls)", ticker)
+    logger.info("[%s] Running parallel Haiku synthesis (8 calls)", ticker)
     with ThreadPoolExecutor(max_workers=7) as executor:
         future_to_key = {
             executor.submit(fn, *args): key
@@ -77,17 +79,25 @@ def merge_ai_into_sections(assembled: dict, ai: dict) -> dict:
     Merge AI narratives into their respective structured sections.
     Returns the 7 AI-enriched section dicts.
     """
-    s2 = {**assembled["s2_structured"], "ai_narrative": ai.get("s2_ai")}
-    s3 = {**assembled["s3_structured"], "ai_synthesis": ai.get("s3_ai")}
-    s8 = {**assembled["s8_structured"], "ai_narrative": ai.get("s8_ai")}
-    s9 = {**assembled["s9_structured"], "ai_narrative": ai.get("s9_ai")}
+    s2  = {**assembled["s2_structured"],  "ai_narrative":     ai.get("s2_ai")}
+    s3  = {**assembled["s3_structured"],  "ai_synthesis":     ai.get("s3_ai")}
+    s4b_ai = ai.get("s4b_ai") or {}
+    s4b = {
+        **assembled["s4b_structured"],
+        "drivers": s4b_ai.get("drivers") or [],
+        "ai_source": s4b_ai.get("source"),
+        "ai_status": s4b_ai.get("status"),
+    }
+    s8  = {**assembled["s8_structured"],  "ai_narrative":     ai.get("s8_ai")}
+    s9  = {**assembled["s9_structured"],  "ai_narrative":     ai.get("s9_ai")}
     s11 = {**assembled["s11_structured"], "ai_risk_register": ai.get("s11_ai")}
-    s13 = {**assembled["s13_structured"], "ai_sentiment": ai.get("s13_ai")}
+    s13 = {**assembled["s13_structured"], "ai_sentiment":     ai.get("s13_ai")}
     s14 = {**assembled["s14_structured"], "ai_where_we_differ": ai.get("s14_ai")}
 
     return {
         "s2":  s2,
         "s3":  s3,
+        "s4b": s4b,
         "s8":  s8,
         "s9":  s9,
         "s11": s11,

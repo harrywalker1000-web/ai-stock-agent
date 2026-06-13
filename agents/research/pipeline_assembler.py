@@ -14,6 +14,7 @@ from agents.research.report_assembler import (
     build_news_catalysts_structured,
     build_historical_financials,
     build_forward_dcf,
+    build_revenue_growth_drivers,
 )
 from agents.research.report_assembler_extended import (
     build_valuation_metrics,
@@ -52,6 +53,7 @@ def assemble_structured_sections(data: dict) -> dict:
     s2_structured = build_overview_structured(data)
     s3_structured = build_news_catalysts_structured(data)
     s4 = build_historical_financials(data)
+    s4b_structured = build_revenue_growth_drivers(data)
     s5 = build_forward_dcf(data)
     s6 = build_valuation_metrics(data, mandate)
     s7 = build_technicals(data)
@@ -73,11 +75,12 @@ def assemble_structured_sections(data: dict) -> dict:
     s15 = build_setup_checklist(data, mandate, s7)
 
     return {
-        "mandate":       mandate,
-        "s1":            s1,
-        "s2_structured": s2_structured,
-        "s3_structured": s3_structured,
-        "s4":            s4,
+        "mandate":        mandate,
+        "s1":             s1,
+        "s2_structured":  s2_structured,
+        "s3_structured":  s3_structured,
+        "s4":             s4,
+        "s4b_structured": s4b_structured,
         "s5":            s5,
         "s6":            s6,
         "s7":            s7,
@@ -98,6 +101,7 @@ def build_final_report(
     assembled: dict,
     s2: dict,
     s3: dict,
+    s4b: dict,
     s8: dict,
     s9: dict,
     s11: dict,
@@ -114,6 +118,7 @@ def build_final_report(
         "s2":  s2,
         "s3":  s3,
         "s4":  assembled["s4"],
+        "s4b": s4b,
         "s5":  assembled["s5"],
         "s6":  assembled["s6"],
         "s7":  assembled["s7"],
@@ -146,6 +151,7 @@ def build_final_report(
             "s2_overview":     s2,
             "s3_news":         s3,
             "s4_financials":   assembled["s4"],
+            "s4b_drivers":     s4b,
             "s5_dcf":          assembled["s5"],
             "s6_valuation":    assembled["s6"],
             "s7_technicals":   assembled["s7"],
