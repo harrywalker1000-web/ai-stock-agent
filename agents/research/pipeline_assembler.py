@@ -141,12 +141,15 @@ def build_final_report(
         or ticker
     )
 
+    api_errors = data.get("_api_errors") or {}
+
     return {
         "ticker":                  ticker,
         "company_name":            company_name,
         "generated_at":            (data.get("_meta") or {}).get("fetched_at", ""),
         "mandate":                 assembled["mandate"],
         "tavily_quota_exceeded":   bool(data.get("_tavily_quota_exceeded")),
+        "api_errors":              api_errors,
         "sections": {
             "s1_cover":        assembled["s1"],
             "s2_overview":     s2,

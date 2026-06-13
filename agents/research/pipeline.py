@@ -21,6 +21,7 @@ from agents.research.pipeline_synthesis import (
     merge_ai_into_sections,
     run_investment_committee,
 )
+from agents.research.synthesis_agents import clear_api_errors, get_api_errors
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -44,6 +45,7 @@ def run_pipeline(ticker: str) -> dict:
     """
     ticker = ticker.upper().strip()
     logger.info("[%s] Pipeline start", ticker)
+    clear_api_errors()  # Reset per-run error tracker
 
     # 1. Fetch all live data
     logger.info("[%s] Fetching data from all APIs", ticker)
@@ -73,6 +75,11 @@ def run_pipeline(ticker: str) -> dict:
 
     # 5. Investment Committee — Sonnet (sequential, needs full context)
     s16 = run_investment_committee(data, assembled, merged)
+
+    # Capture any Anthropic API errors that occurred during synthesis
+    data["_api_errors"] = get_api_errors()
+    if data["_api_errors"]:
+        logger.warning("[%s] Anthropic API errors recorded: %s", ticker, data["_api_errors"])
 
     # 6. Assemble final report (includes S17 data reliability)
     report = build_final_report(

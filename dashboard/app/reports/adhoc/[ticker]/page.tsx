@@ -1410,6 +1410,7 @@ export default function AdhocTickerPage() {
   const [activeSection, setActiveSection] = useState("s1");
   const [livePeers, setLivePeers] = useState<any[]>([]);
   const [tavilyBannerDismissed, setTavilyBannerDismissed] = useState(false);
+  const [anthropicBannerDismissed, setAnthropicBannerDismissed] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Trigger pipeline on mount
@@ -1539,6 +1540,8 @@ export default function AdhocTickerPage() {
   const currentPrice = fv(report.current_price ?? s1.current_price);
   const mandatePassed = mandate.passed ?? fv(s1.mandate_passed) ?? false;
   const tavilyQuotaExceeded: boolean = !!(report as any).tavily_quota_exceeded;
+  const anthropicError: { type?: string; message?: string; model?: string } | null =
+    (report as any).api_errors?.anthropic ?? null;
 
   // Compute next monthly reset date (1st of the month after generated_at)
   const tavilyResetDate = (() => {
@@ -1548,6 +1551,16 @@ export default function AdhocTickerPage() {
       return reset.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
     } catch { return "the 1st of next month"; }
   })();
+
+  const anthropicErrorMeta: Record<string, { label: string; detail: string; color: string; border: string; bg: string }> = {
+    missing_key:  { label: "API Key Missing",           detail: "ANTHROPIC_API_KEY is not set in your environment. All AI narrative sections are blank. Set the key and re-run the pipeline.", color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
+    invalid_key:  { label: "Invalid API Key",            detail: "Anthropic rejected the API key. Check that ANTHROPIC_API_KEY is correct and active in your Anthropic console.", color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
+    rate_limit:   { label: "Rate Limit Hit",             detail: "Too many requests were sent to the Anthropic API in a short window. Wait a few minutes, then re-run the pipeline.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    billing:      { label: "Credit Balance Exhausted",   detail: "The Anthropic account may be out of credits. All AI narrative sections are blank. Top up credits at console.anthropic.com and re-run.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    overloaded:   { label: "API Temporarily Overloaded", detail: "Anthropic returned a 529 overload error. This is transient — wait a few minutes and re-run the pipeline.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    connection:   { label: "Connection Error",           detail: "Could not reach the Anthropic API. Check your network connection and re-run.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    api_error:    { label: "Anthropic API Error",        detail: "An unexpected Anthropic API error occurred. AI narrative sections may be incomplete. Check logs for details.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+  };
 
   return (
     <div className="min-h-screen bg-[#0B0F19] pb-20" ref={sectionRefs}>
@@ -1676,6 +1689,43 @@ export default function AdhocTickerPage() {
               </button>
             </div>
           )}
+
+          {/* ── Anthropic API error banner ────────────────────────────────── */}
+          {anthropicError && !anthropicBannerDismissed && (() => {
+            const meta = anthropicErrorMeta[anthropicError.type ?? "api_error"] ?? anthropicErrorMeta["api_error"];
+            return (
+              <div
+                className="mb-4 flex items-start gap-4 rounded-2xl border px-5 py-4"
+                style={{ borderColor: meta.border, background: meta.bg }}
+              >
+                <svg className="w-5 h-5 shrink-0 mt-0.5" style={{ color: meta.color }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold mb-1" style={{ color: meta.color }}>
+                    Anthropic AI — {meta.label}
+                  </p>
+                  <p className="text-xs leading-relaxed" style={{ color: meta.color, opacity: 0.75 }}>
+                    {meta.detail}
+                  </p>
+                  {anthropicError.message && (
+                    <p className="text-[10px] mt-1.5 font-mono text-[#475569] break-all">
+                      {anthropicError.message}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setAnthropicBannerDismissed(true)}
+                  className="shrink-0 text-[#475569] hover:text-[#94A3B8] transition-colors mt-0.5 cursor-pointer"
+                  aria-label="Dismiss"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            );
+          })()}
 
           {/* ── Report Hero Cover ─────────────────────────────────────────── */}
           {(() => {

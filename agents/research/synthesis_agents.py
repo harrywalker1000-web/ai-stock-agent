@@ -8,6 +8,7 @@ import json
 import os
 import re
 import sys
+import threading
 from typing import Any
 
 import anthropic
@@ -20,6 +21,36 @@ logger = get_logger(__name__)
 HAIKU_MODEL  = "claude-haiku-4-5-20251001"
 SONNET_MODEL = "claude-sonnet-4-6"
 
+# ---------------------------------------------------------------------------
+# Per-pipeline API error tracking (thread-safe, reset at pipeline start)
+# ---------------------------------------------------------------------------
+
+_error_lock = threading.Lock()
+_api_errors: dict = {}
+
+
+def clear_api_errors() -> None:
+    global _api_errors
+    with _error_lock:
+        _api_errors = {}
+
+
+def get_api_errors() -> dict:
+    with _error_lock:
+        return dict(_api_errors)
+
+
+def _record_error(error_type: str, message: str, model: str = "") -> None:
+    with _error_lock:
+        # Only record the first (most significant) error — subsequent calls
+        # may fail for the same reason and we don't want to overwrite detail.
+        if "anthropic" not in _api_errors:
+            _api_errors["anthropic"] = {
+                "type":    error_type,
+                "message": message[:300],
+                "model":   model,
+            }
+
 
 def _get_client() -> anthropic.Anthropic:
     key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -29,7 +60,9 @@ def _get_client() -> anthropic.Anthropic:
 
 
 def _call_claude(model: str, prompt: str, max_tokens: int = 1000) -> str:
-    """Base call to Claude. Returns text content or empty string on error."""
+    """Base call to Claude. Returns text content or empty string on error.
+    Classifies specific error types into _api_errors for pipeline-level reporting.
+    """
     try:
         client = _get_client()
         msg = client.messages.create(
@@ -38,6 +71,31 @@ def _call_claude(model: str, prompt: str, max_tokens: int = 1000) -> str:
             messages=[{"role": "user", "content": prompt}],
         )
         return msg.content[0].text.strip() if msg.content else ""
+    except EnvironmentError as exc:
+        _record_error("missing_key", str(exc), model)
+        logger.error("Anthropic API key missing (%s): %s", model, exc)
+        return ""
+    except anthropic.RateLimitError as exc:
+        _record_error("rate_limit", str(exc), model)
+        logger.error("Anthropic rate limit (%s): %s", model, exc)
+        return ""
+    except anthropic.AuthenticationError as exc:
+        _record_error("invalid_key", str(exc), model)
+        logger.error("Anthropic auth error (%s): %s", model, exc)
+        return ""
+    except anthropic.APIStatusError as exc:
+        if exc.status_code in (402, 403):
+            _record_error("billing", f"HTTP {exc.status_code} — credit balance may be exhausted", model)
+        elif exc.status_code == 529:
+            _record_error("overloaded", "Anthropic API is temporarily overloaded (529)", model)
+        else:
+            _record_error("api_error", f"HTTP {exc.status_code}: {exc.message}", model)
+        logger.error("Anthropic APIStatusError %d (%s): %s", exc.status_code, model, exc)
+        return ""
+    except anthropic.APIConnectionError as exc:
+        _record_error("connection", "Could not connect to Anthropic API — check network", model)
+        logger.error("Anthropic connection error (%s): %s", model, exc)
+        return ""
     except Exception as exc:
         logger.error("Claude call failed (%s): %s", model, exc)
         return ""
