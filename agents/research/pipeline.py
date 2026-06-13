@@ -91,6 +91,7 @@ def run_pipeline(ticker: str) -> dict:
         s4b=merged["s4b"],
         s8=merged["s8"],
         s9=merged["s9"],
+        s10b=merged["s10b"],
         s11=merged["s11"],
         s13=merged["s13"],
         s14=merged["s14"],

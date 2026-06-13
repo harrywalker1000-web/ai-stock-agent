@@ -43,8 +43,9 @@ const NAV = [
   { id: "s7",  n: 7,  label: "Technical Analysis" },
   { id: "s8",  n: 8,  label: "Competitive Moat" },
   { id: "s9",  n: 9,  label: "Industry & Macro" },
-  { id: "s10", n: 10, label: "Institutional" },
-  { id: "s11", n: 11, label: "Risk Register" },
+  { id: "s10",  n: 10,    label: "Institutional" },
+  { id: "s10b", n: "10b", label: "Management" },
+  { id: "s11",  n: 11,    label: "Risk Register" },
   { id: "s12", n: 12, label: "Scenario Analysis" },
   { id: "s13", n: 13, label: "Sentiment" },
   { id: "s14", n: 14, label: "Where We Differ" },
@@ -1020,6 +1021,162 @@ function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
   );
 }
 
+// ─── Management & Governance ─────────────────────────────────────────────────
+
+function ManagementGovernanceSection({ s10b }: { s10b: any }) {
+  const ceoName         = fv(s10b.ceo_name) as string | null;
+  const ceoProfile      = s10b.ai_ceo_profile as string | null;
+  const tenureNote      = s10b.ai_tenure_note as string | null;
+  const leadership      = s10b.ai_leadership_style as string | null;
+  const board           = (s10b.ai_board_assessment ?? {}) as { total_members?: number | null; independent_pct?: number | null; governance_flag?: string };
+  const executives      = (s10b.executives ?? []) as any[];
+  const employees       = fv(s10b.employees);
+  const aiSource        = s10b.ai_source as string | null;
+
+  const govFlag: string  = board.governance_flag ?? "No red flags identified";
+  const isFlag           = govFlag.toLowerCase().startsWith("flag:");
+  const hasBoardData     = board.total_members != null || board.independent_pct != null;
+
+  if (!ceoName && executives.length === 0 && !ceoProfile) {
+    return (
+      <div className="flex items-start gap-3 p-5 rounded-2xl border-l-4 border-[#2D6BFF] bg-[#0F1629]">
+        <svg className="w-5 h-5 text-[#2D6BFF] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p className="text-xs text-[#475569]">Management data requires pipeline data. Re-run the pipeline to populate this section.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+
+      {/* ── CEO card ───────────────────────────────────────────────────────── */}
+      {(ceoName || ceoProfile) && (
+        <div className="rounded-2xl border border-[#1E2D4A] bg-[#0F1629] overflow-hidden">
+          {/* Left accent strip header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#1E2D4A] bg-[#0A0E1A]">
+            <div className="w-1 self-stretch rounded-full bg-[#2D6BFF]" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-semibold text-white">{ceoName ?? "CEO"}</p>
+                <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#2D6BFF]/15 border border-[#2D6BFF]/30 text-[#60A5FA] font-medium">
+                  Chief Executive Officer
+                </span>
+                {tenureNote && (
+                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#1E2D4A] border border-[#334155] text-[#93C5FD] font-medium">
+                    {tenureNote}
+                  </span>
+                )}
+              </div>
+              {employees != null && (
+                <p className="text-[10px] text-[#475569] mt-0.5">
+                  {Number(employees).toLocaleString()} employees
+                </p>
+              )}
+            </div>
+            <span className="shrink-0 text-[9px] px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 font-medium">AI</span>
+          </div>
+
+          {/* Bio body */}
+          <div className="px-5 py-4 space-y-3">
+            {ceoProfile && (
+              <p className="text-xs text-[#93C5FD]/80 leading-relaxed">{ceoProfile}</p>
+            )}
+            {leadership && (
+              <div className="flex items-start gap-2 rounded-xl border border-[#2D6BFF]/20 bg-[#2D6BFF]/6 px-3 py-2.5">
+                <svg className="w-3.5 h-3.5 text-[#60A5FA] shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <p className="text-[10px] text-[#60A5FA] leading-relaxed">{leadership}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Board governance row ───────────────────────────────────────────── */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center">
+          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Board Size</p>
+          <p className="text-lg font-bold text-white font-mono">
+            {board.total_members != null ? board.total_members : "—"}
+          </p>
+          <p className="text-[9px] text-[#334155] mt-0.5">
+            {hasBoardData ? "Tavily [AI EXTRACTED]" : "Data not found"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center">
+          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Independent</p>
+          <p className="text-lg font-bold font-mono" style={{ color: board.independent_pct != null && board.independent_pct >= 50 ? "#22C55E" : "#F59E0B" }}>
+            {board.independent_pct != null ? `${board.independent_pct}%` : "—"}
+          </p>
+          <p className="text-[9px] text-[#334155] mt-0.5">
+            {hasBoardData ? "Tavily [AI EXTRACTED]" : "Data not found"}
+          </p>
+        </div>
+        <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center flex flex-col items-center justify-center">
+          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-2">Governance</p>
+          <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full ${
+            isFlag
+              ? "bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#FCD34D]"
+              : "bg-[#22C55E]/10 border border-[#22C55E]/30 text-[#4ADE80]"
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isFlag ? "bg-[#F59E0B]" : "bg-[#22C55E]"}`} />
+            {isFlag ? govFlag.replace("Flag: ", "") : "No red flags"}
+          </span>
+          <p className="text-[9px] text-[#334155] mt-1.5">AI assessment</p>
+        </div>
+      </div>
+
+      {/* ── Key executives table ────────────────────────────────────────────── */}
+      {executives.length > 0 && (
+        <div>
+          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Key Executives — FMP</p>
+          <div className="rounded-xl border border-[#1E2D4A] overflow-hidden">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-[#080C14]">
+                  <th className="text-left px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Name</th>
+                  <th className="text-left px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Title</th>
+                  <th className="text-right px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Compensation</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1E2D4A]">
+                {executives.slice(0, 8).map((exec: any, i: number) => {
+                  const pay = fv(exec.pay);
+                  return (
+                    <tr
+                      key={i}
+                      className="transition-colors duration-150 hover:bg-[#1E2D4A]/20 cursor-default"
+                    >
+                      <td className="px-4 py-2.5 font-medium text-white">{exec.name || "—"}</td>
+                      <td className="px-4 py-2.5 text-[#93C5FD]/70">{exec.title || "—"}</td>
+                      <td className="px-4 py-2.5 text-right font-mono text-[#60A5FA]">
+                        {pay != null
+                          ? `$${Number(pay).toLocaleString()}`
+                          : <span className="text-[#334155]">Not disclosed</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Source attribution */}
+      {aiSource && (
+        <p className="text-[9px] text-[#334155]">
+          AI narrative: <span className="text-indigo-400/70">{aiSource}</span>
+          {" · "}Executive data: FMP /v3/key-executives
+        </p>
+      )}
+    </div>
+  );
+}
+
 // ─── Category config for Revenue Driver cards ─────────────────────────────────
 const DRIVER_CATEGORY: Record<string, { label: string; color: string; bg: string; border: string }> = {
   pricing:    { label: "Pricing",      color: "#60A5FA", bg: "#2D6BFF1A", border: "#2D6BFF40" },
@@ -1517,8 +1674,9 @@ export default function AdhocTickerPage() {
   const s7  = sections.s7_technicals      ?? sections.s7_technical       ?? {};
   const s8  = sections.s8_competitive     ?? {};
   const s9  = sections.s9_industry        ?? {};
-  const s10 = sections.s10_institutional  ?? {};
-  const s11 = sections.s11_risks          ?? {};
+  const s10  = sections.s10_institutional  ?? {};
+  const s10b = sections.s10b_management   ?? {};
+  const s11  = sections.s11_risks         ?? {};
   const s12 = sections.s12_scenarios      ?? {};
   const s13 = sections.s13_sentiment      ?? {};
   const s14 = sections.s14_differ         ?? {};
@@ -2659,6 +2817,13 @@ export default function AdhocTickerPage() {
                   </>
                 );
               })()}
+            </Section>
+          </div>
+
+          {/* S10b — Management & Governance */}
+          <div id="s10b" data-section>
+            <Section n={"10b" as any} id="s10b" title="Management & Governance" color="#2D6BFF">
+              <ManagementGovernanceSection s10b={s10b} />
             </Section>
           </div>
 

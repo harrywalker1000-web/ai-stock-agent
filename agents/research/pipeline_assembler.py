@@ -23,6 +23,7 @@ from agents.research.report_assembler_extended import (
     build_industry_macro,
     build_institutional_activity,
     build_risk_register,
+    build_management_governance,
 )
 from agents.research.report_assembler_scenarios import (
     build_scenario_analysis,
@@ -60,6 +61,7 @@ def assemble_structured_sections(data: dict) -> dict:
     s8_structured = build_competitive_moat(data)
     s9_structured = build_industry_macro(data)
     s10 = build_institutional_activity(data)
+    s10b_structured = build_management_governance(data)
     s11_structured = build_risk_register(data)
     s12 = build_scenario_analysis(data, s5)
     s13_structured = build_sentiment(data)
@@ -86,7 +88,8 @@ def assemble_structured_sections(data: dict) -> dict:
         "s7":            s7,
         "s8_structured": s8_structured,
         "s9_structured": s9_structured,
-        "s10":           s10,
+        "s10":            s10,
+        "s10b_structured": s10b_structured,
         "s11_structured": s11_structured,
         "s12":           s12,
         "s13_structured": s13_structured,
@@ -104,6 +107,7 @@ def build_final_report(
     s4b: dict,
     s8: dict,
     s9: dict,
+    s10b: dict,
     s11: dict,
     s13: dict,
     s14: dict,
@@ -125,6 +129,7 @@ def build_final_report(
         "s8":  s8,
         "s9":  s9,
         "s10": assembled["s10"],
+        "s10b": s10b,
         "s11": s11,
         "s12": assembled["s12"],
         "s13": s13,
@@ -161,7 +166,8 @@ def build_final_report(
             "s7_technicals":   assembled["s7"],
             "s8_competitive":  s8,
             "s9_industry":     s9,
-            "s10_institutional": assembled["s10"],
+            "s10_institutional":  assembled["s10"],
+            "s10b_management":    s10b,
             "s11_risks":       s11,
             "s12_scenarios":   assembled["s12"],
             "s13_sentiment":   s13,

@@ -19,6 +19,7 @@ from agents.research.synthesis_agents import (
     synthesize_sentiment,
     synthesize_where_we_differ,
     synthesize_revenue_growth_drivers,
+    synthesize_management_governance,
 )
 from agents.research.synthesis_investment_committee import synthesize_investment_committee
 from utils.logger import get_logger
@@ -43,7 +44,8 @@ def run_haiku_synthesis(data: dict, assembled: dict) -> dict:
     tasks = {
         "s2_ai":  (synthesize_company_overview,        (data,)),
         "s3_ai":  (synthesize_news_catalysts,           (data,)),
-        "s4b_ai": (synthesize_revenue_growth_drivers,   (data,)),
+        "s4b_ai":  (synthesize_revenue_growth_drivers,  (data,)),
+        "s10b_ai": (synthesize_management_governance,   (data,)),
         "s8_ai":  (synthesize_competitive_moat,         (data,)),
         "s9_ai":  (synthesize_industry_macro,           (data,)),
         "s11_ai": (synthesize_risk_register,            (data,)),
@@ -53,7 +55,7 @@ def run_haiku_synthesis(data: dict, assembled: dict) -> dict:
 
     results = {}
 
-    logger.info("[%s] Running parallel Haiku synthesis (8 calls)", ticker)
+    logger.info("[%s] Running parallel Haiku synthesis (9 calls)", ticker)
     with ThreadPoolExecutor(max_workers=7) as executor:
         future_to_key = {
             executor.submit(fn, *args): key
@@ -84,9 +86,19 @@ def merge_ai_into_sections(assembled: dict, ai: dict) -> dict:
     s4b_ai = ai.get("s4b_ai") or {}
     s4b = {
         **assembled["s4b_structured"],
-        "drivers": s4b_ai.get("drivers") or [],
+        "drivers":   s4b_ai.get("drivers") or [],
         "ai_source": s4b_ai.get("source"),
         "ai_status": s4b_ai.get("status"),
+    }
+    s10b_ai = ai.get("s10b_ai") or {}
+    s10b = {
+        **assembled["s10b_structured"],
+        "ai_ceo_profile":      s10b_ai.get("ceo_profile"),
+        "ai_tenure_note":      s10b_ai.get("tenure_note"),
+        "ai_board_assessment": s10b_ai.get("board_assessment"),
+        "ai_leadership_style": s10b_ai.get("leadership_style"),
+        "ai_source":           s10b_ai.get("source"),
+        "ai_status":           s10b_ai.get("status"),
     }
     s8  = {**assembled["s8_structured"],  "ai_narrative":     ai.get("s8_ai")}
     s9  = {**assembled["s9_structured"],  "ai_narrative":     ai.get("s9_ai")}
@@ -95,14 +107,15 @@ def merge_ai_into_sections(assembled: dict, ai: dict) -> dict:
     s14 = {**assembled["s14_structured"], "ai_where_we_differ": ai.get("s14_ai")}
 
     return {
-        "s2":  s2,
-        "s3":  s3,
-        "s4b": s4b,
-        "s8":  s8,
-        "s9":  s9,
-        "s11": s11,
-        "s13": s13,
-        "s14": s14,
+        "s2":   s2,
+        "s3":   s3,
+        "s4b":  s4b,
+        "s8":   s8,
+        "s9":   s9,
+        "s10b": s10b,
+        "s11":  s11,
+        "s13":  s13,
+        "s14":  s14,
     }
 
 

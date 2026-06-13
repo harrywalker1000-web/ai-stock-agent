@@ -642,3 +642,90 @@ Rules:
             "status":  "parse_error",
             "raw":     raw[:500],
         }
+
+
+# ---------------------------------------------------------------------------
+# Section 10b: Management & Governance
+# ---------------------------------------------------------------------------
+
+def synthesize_management_governance(data: dict) -> dict:
+    """
+    Haiku writes a CEO profile and board governance assessment from Tavily
+    management search results + FMP profile data.
+    Returns structured JSON with ceo_profile, tenure_note, and board_assessment.
+    """
+    fmp        = data.get("fmp_profile") or {}
+    yf_info    = (data.get("yfinance") or {}).get("info") or {}
+    executives = data.get("fmp_executives") or []
+    mgmt_hits  = data.get("tavily_management") or []
+    ticker     = (data.get("_meta") or {}).get("ticker", "")
+
+    ceo_name     = fmp.get("ceo") or ""
+    company_name = fmp.get("company_name") or yf_info.get("company_name") or ticker
+    ipo_date     = fmp.get("ipo_date") or ""
+    sector       = fmp.get("sector") or yf_info.get("sector") or ""
+    employees    = fmp.get("employees") or yf_info.get("fullTimeEmployees")
+
+    exec_titles = [{"name": e.get("name", ""), "title": e.get("title", "")} for e in executives[:8]]
+
+    structured = {
+        "ticker":       ticker,
+        "company_name": company_name,
+        "ceo_name":     ceo_name,
+        "sector":       sector,
+        "ipo_date":     ipo_date,
+        "employees":    employees,
+        "exec_team":    exec_titles,
+        "search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "text": (r.get("content") or "")[:700]}
+            for r in mgmt_hits[:5]
+        ],
+    }
+
+    prompt = f"""You are an equity analyst writing the Management & Governance section of a research report on {ticker} ({company_name}).
+
+STRUCTURED DATA:
+{json.dumps(structured, indent=2)}
+
+Respond with ONLY a valid JSON object — no preamble, no markdown fences:
+{{
+  "ceo_profile": "2-3 sentences. CEO name, their background before this role, how long they have been CEO (extract from search data if available, otherwise omit tenure), one notable decision or achievement at this company. Only include information from the provided data. If you cannot find meaningful background, write one sentence acknowledging limited public information.",
+  "tenure_note": "e.g. 'CEO since 2019 (6 years)' — extract only if explicitly stated in search data, else null",
+  "board_assessment": {{
+    "total_members": null or integer if found in search data,
+    "independent_pct": null or integer (%) if found in search data,
+    "governance_flag": "No red flags identified" or "Flag: [specific named concern from search data]"
+  }},
+  "leadership_style": "1 sentence only. Describe the CEO's stated strategic priorities or management approach based on quotes/commentary found in the search data. If nothing found, null."
+}}
+
+Rules:
+- board total_members and independent_pct: extract only if explicitly stated in search results. If not found, set to null.
+- governance_flag: only flag a specific named issue (e.g. 'dual-class shares', 'no independent chair', 'related-party transactions') if found in the search data. Default to 'No red flags identified'.
+- Do NOT fabricate tenure, board counts, or any figures not present in the data.
+- tenure_note must be null if year not found in search data."""
+
+    raw = _haiku(prompt, max_tokens=600)
+    try:
+        parsed = json.loads(_strip_code_fences(raw))
+        return {
+            "ceo_profile":    parsed.get("ceo_profile") or "",
+            "tenure_note":    parsed.get("tenure_note"),
+            "board_assessment": parsed.get("board_assessment") or {
+                "total_members": None,
+                "independent_pct": None,
+                "governance_flag": "No red flags identified",
+            },
+            "leadership_style": parsed.get("leadership_style"),
+            "source": f"{HAIKU_MODEL} [AI narrative] — FMP profile + Tavily management search",
+            "status": "ok",
+        }
+    except Exception:
+        return {
+            "ceo_profile":    raw[:400] if raw else "",
+            "tenure_note":    None,
+            "board_assessment": {"total_members": None, "independent_pct": None, "governance_flag": "No red flags identified"},
+            "leadership_style": None,
+            "source": f"{HAIKU_MODEL} [AI narrative]",
+            "status": "parse_error",
+        }

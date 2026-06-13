@@ -507,3 +507,48 @@ def build_risk_register(data: dict) -> dict:
         "recent_headlines": news_hls[:10],
         "ai_risk_register": None,
     }
+
+
+# ---------------------------------------------------------------------------
+# Section 10b: Management & Governance (structured layer — AI synthesis separate)
+# ---------------------------------------------------------------------------
+
+def build_management_governance(data: dict) -> dict:
+    """
+    Package FMP executives, FMP profile (CEO), Tavily management search results.
+    Zero AI at this layer — deterministic packaging only.
+    """
+    fmp          = data.get("fmp_profile") or {}
+    yf_info      = (data.get("yfinance") or {}).get("info") or {}
+    executives   = data.get("fmp_executives") or []
+    mgmt_results = data.get("tavily_management") or []
+
+    ceo_name = fmp.get("ceo") or yf_info.get("companyOfficers", [{}])[0].get("name", "") if not fmp.get("ceo") else fmp.get("ceo")
+
+    # Clean pay figures — FMP returns annual comp in $
+    def _clean_exec(e: dict) -> dict:
+        pay = e.get("pay")
+        return {
+            "name":   e.get("name", ""),
+            "title":  e.get("title", ""),
+            "pay":    _tag(int(pay) if pay else None, "FMP"),
+        }
+
+    # Employees and company basics for context
+    employees = fmp.get("employees") or yf_info.get("fullTimeEmployees")
+
+    return {
+        "section":        "management_governance",
+        "ceo_name":       _tag(ceo_name or None, "FMP"),
+        "company_name":   fmp.get("company_name") or yf_info.get("company_name"),
+        "employees":      _tag(employees, "FMP/yfinance"),
+        "ipo_date":       _tag(fmp.get("ipo_date"), "FMP"),
+        "executives":     [_clean_exec(e) for e in executives[:10]],   # FMP, up to 10
+        "mgmt_search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "excerpt": (r.get("content") or "")[:600]}
+            for r in mgmt_results[:5]
+        ],
+        # Populated by AI synthesis:
+        "ai_ceo_profile":      None,
+        "ai_board_assessment": None,
+    }

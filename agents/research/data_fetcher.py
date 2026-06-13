@@ -80,6 +80,34 @@ def fetch_fmp_profile(ticker: str) -> dict:
         return {}
 
 
+def fetch_fmp_key_executives(ticker: str) -> list[dict]:
+    """Key executives: name, title, pay. Returns [] if not on free tier."""
+    try:
+        r = requests.get(
+            f"{FMP_V3}/key-executives/{ticker}",
+            params={"apikey": _fmp_key()},
+            timeout=15,
+        )
+        if r.status_code == 402:
+            logger.info("FMP key-executives: 402 for %s (not on free tier)", ticker)
+            return []
+        r.raise_for_status()
+        data = r.json() or []
+        return [
+            {
+                "name":   e.get("name", ""),
+                "title":  e.get("title", ""),
+                "pay":    e.get("pay"),          # annual compensation in $
+                "gender": e.get("gender", ""),
+                "year_born": e.get("yearBorn"),
+            }
+            for e in data
+        ]
+    except Exception as exc:
+        logger.error("FMP key-executives failed for %s: %s", ticker, exc)
+        return []
+
+
 def fetch_fmp_balance_sheet(ticker: str, limit: int = 4) -> list[dict]:
     """Balance sheet: debt, equity, current assets/liabilities, cash, interest expense."""
     try:
@@ -596,6 +624,7 @@ def fetch_all_data(ticker: str) -> dict:
         "fmp_key_metrics":   lambda: fetch_fmp_key_metrics(ticker, limit=4),
         "fmp_dcf":           lambda: fetch_fmp_dcf(ticker),
         "fmp_peers":         lambda: fetch_fmp_stock_peers(ticker),
+        "fmp_executives":    lambda: fetch_fmp_key_executives(ticker),
         "yfinance":          lambda: fetch_yfinance_comprehensive(ticker),
         "finnhub_news":      lambda: fetch_finnhub_company_news(ticker, days_back=30),
         "finnhub_ratings":   lambda: fetch_finnhub_analyst_ratings(ticker),
@@ -607,7 +636,7 @@ def fetch_all_data(ticker: str) -> dict:
     }
 
     results: dict[str, Any] = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=14) as executor:
         futures = {executor.submit(fn): key for key, fn in tasks.items()}
         for future in concurrent.futures.as_completed(futures):
             key = futures[future]
@@ -635,6 +664,7 @@ def fetch_all_data(ticker: str) -> dict:
         "tavily_competitive":    f"{company_name} competitive advantages moat competitors 2025",
         "tavily_growth_drivers": f"{ticker} {company_name} earnings call revenue growth drivers management commentary 2025",
         "tavily_analyst_growth": f"{ticker} {company_name} revenue growth catalyst analyst forecast 2025 2026",
+        "tavily_management":     f"{company_name} CEO leadership board directors governance executive team 2025",
     }
 
     # Analyst-curated peer overrides — supersede FMP auto-peers when defined
