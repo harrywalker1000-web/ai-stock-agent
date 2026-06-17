@@ -1,24 +1,24 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "stable",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "energy transition",
-    "defensive equities",
+    "defensive stocks",
+    "high-quality bonds",
     "commodities",
-    "high-quality bonds"
+    "healthcare investments"
   ],
   "avoid_themes": [
-    "high-yield bonds",
+    "high-growth tech",
     "cyclical stocks",
     "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions affecting oil prices",
-    "Russian military actions in Ukraine",
-    "potential economic sanctions"
+    "Israel airstrikes in Lebanon could escalate tensions",
+    "Iran's oil exports may increase supply volatility",
+    "U.S.-Iran deal impacts oil prices"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, driven by rising inflation and geopolitical tensions, particularly related to the US-Iran situation. While the Fed Funds Rate remains stable, the yield curve is inverted, signaling recession risks. Conflicts arise from differing signals, with FRED and newsapi_finnhub indicating RISK-OFF, while yfinance_market remains NEUTRAL, leading to a low confidence level.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, as both FRED and newsapi_finnhub signal this, while yfinance_market remains NEUTRAL, leading to a conflict in signals. Inflation is rising, with CPI increasing from 332.41 to 333.98, and the Fed Funds Rate is also on an upward trajectory at 3.63%. The yield curve remains inverted, indicating recession risks.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -32,14 +32,14 @@
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
+    "confidence_note": "The low confidence level reflects conflicting signals from multiple sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.48,
-    "us_2y_yield": 4.09,
-    "yield_curve_spread": 0.39,
+    "us_10y_yield": 4.47,
+    "us_2y_yield": 4.07,
+    "yield_curve_spread": 0.4,
     "cpi_latest": 333.98,
     "cpi_prev": 332.41,
     "cpi_trend": "rising",
@@ -47,47 +47,47 @@
     "gdp_latest": 31819.5,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.26,
-    "dxy_current": 99.54,
+    "dxy_current": 99.71,
     "dxy_1m_ago": 98.97,
     "dxy_trend": "strengthening",
-    "vix": 15.9,
-    "tlt_1m_change_pct": 3.7,
-    "hyg_1m_change_pct": 1.16,
+    "vix": 16.87,
+    "tlt_1m_change_pct": 3.81,
+    "hyg_1m_change_pct": 1.15,
     "macro_headlines": [
-      "Jim Cramer: Why we're headed back to pre-Iran war oil prices and what it means",
-      "Rivian laying off hundreds of workers amid R2 launch",
-      "Exclusive: The U.S. is using an Iranian smuggling tactic to sneak oil out of the Gulf - Reuters",
-      "Wells Fargo's asset cap removal has not been the silver bullet we expected. What to do next",
-      "US-Iran deal allows Tehran to immediately sell oil upon signing, says US official - Reuters",
-      "Jim Cramer debates his next move on a software stock on an 11 day losing streak",
-      "Hezbollah believes Iran will not sign nuclear deal without Israeli withdrawal from Lebanon - Reuters",
-      "Spot oil premiums slip after US-Iran deal, but shipping angst provides floor - Reuters",
-      "Novig wins CFTC approval as competition intensifies in sports prediction markets",
-      "Trump says memo states clearly Iran will not have a nuclear weapon - Reuters"
+      "JetBlue to reduce Newark, LaGuardia footprint as it forges ahead in Fort Lauderdale",
+      "UniQure to seek FDA approval for Huntington's disease gene therapy after previous clash with agency",
+      "Israel launches fresh airstrikes in Lebanon; Trump says he could still restart war - Reuters",
+      "3 of our stocks striking gold and 3 others hitting the skids over the past 3 weeks",
+      "While Trump hails Gulf oil flowing, Iran's fleet also gearing up to boost exports - Reuters",
+      "CME Group's Terry Duffy to step down in 2027, CFO Lynne Fitzpatrick to become CEO",
+      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "CNBC to simulcast 11 WNBA games this season",
+      "Middle East crude slips into discounts as U.S.-Iran deal lifts supply outlook - Reuters",
+      "BMW shares sink after profit warning highlights China and Iran risk - Reuters"
     ],
     "geopolitical_headlines": [
       "My favorite Qi2 power bank is cheaper than ever for Verge readers",
       "Bank of America CEO Brian Moynihan on how Americans are spending their money",
       "Kevin Warsh's first Fed meeting could bring unwelcome news for Trump",
+      "All eyes turn to Fed chair Kevin Warsh and his first moves on interest rates",
+      "Palestine weekly wrap: World sanctions settlers, Israel funds settlements",
+      "Japan\u2019s central bank raises interest rates to highest level since 1995",
       "Inside Ebola country: NPR reports from eastern DR Congo's outbreak zone",
+      "Fed set to make interest rate decision as inflation hits 3-year high",
       "Killer of law student in 1996 'still at large'",
-      "The Sharepower power bank does something you won't expect, just with one tiny flaw",
-      "Russian attack sets fire to religious site in Kyiv, kills 5 in Kharkiv",
-      "Solid-state batteries still aren\u2019t ready, but gels are",
-      "Have you made a major trade-off in your career over money, flexibility, or other benefits? Tell us if it was worth it.",
-      "Green Growth Claims Are Overstated \u2013 Our Study Shows Three Reasons Why"
+      "EU fails to agree on sanctions for far-right Israeli minister Ben-Gvir"
     ],
     "central_bank_headlines": [
+      "Kevin Warsh's Fed debut comes at a pivotal moment for global monetary policy",
+      "Morning Bid: Central banks take the stage",
       "Shares and bonds surge, oil slides on Iran deal",
       "Can Their Retirement Portfolio Bankroll Restoring a Historic Home In Vermont?",
+      "Bank of Japan says hikes interest rate to highest since 1995",
+      "Stocks Set to Open Sharply Higher as Oil Sinks on U.S.-Iran Deal, Fed Meeting Awaited",
       "Tentative deal on ending Iran war sends stocks soaring while oil prices fall",
-      "Global central banks assess Iran war\u2019s impact on inflation and growth",
-      "Bank of England to keep rates on hold after ECB hike",
-      "Gold futures rise to \u20b91.52 lakh/10g as US-Iran deal lifts investor sentiment",
-      "Gold jumps over 2% as US-Iran peace deal boosts bullion demand",
-      "RBA Set for First Rate Pause of 2026 as Bets on Further Hike Ebb"
+      "Central banks take the stage, and crypto markets are listening closely"
     ],
-    "as_of": "2026-06-16 18:21 UTC"
+    "as_of": "2026-06-17 16:48 UTC"
   },
-  "generated_at": "2026-06-16T18:22:08.067579"
+  "generated_at": "2026-06-17T16:48:50.307238"
 }
