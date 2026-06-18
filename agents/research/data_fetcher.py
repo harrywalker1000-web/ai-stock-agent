@@ -353,6 +353,44 @@ def fetch_yfinance_comprehensive(ticker: str) -> dict:
     except Exception:
         result["eps_surprises"] = []
 
+    # Annual financials for historical fallback when FMP is unavailable (micro-caps, OTC)
+    for attr, key in [
+        ("income_stmt",   "income_stmt"),
+        ("balance_sheet", "balance_sheet"),
+        ("cashflow",      "cashflow"),
+    ]:
+        try:
+            df = getattr(t, attr)
+            result[key] = df if (df is not None and not getattr(df, "empty", True)) else None
+        except Exception:
+            result[key] = None
+
+    # News — Finnhub-compatible format, used as fallback when Finnhub returns nothing
+    try:
+        raw_news = t.news or []
+        normalized = []
+        for n in raw_news[:25]:
+            if "content" in n:
+                c = n["content"]
+                normalized.append({
+                    "headline": c.get("title", ""),
+                    "source":   (c.get("provider") or {}).get("displayName", ""),
+                    "datetime": c.get("pubDate", ""),
+                    "url":      (c.get("canonicalUrl") or {}).get("url", "") or "",
+                    "summary":  c.get("summary", ""),
+                })
+            else:
+                normalized.append({
+                    "headline": n.get("title", ""),
+                    "source":   n.get("publisher", ""),
+                    "datetime": n.get("providerPublishTime"),
+                    "url":      n.get("link", "") or n.get("url", ""),
+                    "summary":  "",
+                })
+        result["news"] = normalized
+    except Exception:
+        result["news"] = []
+
     return result
 
 
@@ -799,6 +837,41 @@ def fetch_all_data(ticker: str) -> dict:
         for k in tavily_keys:
             if isinstance(results.get(k), list) and results[k] == _TAVILY_QUOTA_SENTINEL:
                 results[k] = []
+
+    # Phase 3: broader fallback queries for any Tavily keys that returned empty
+    # (only when quota not hit — if quota is exhausted, no point retrying)
+    if not quota_hit:
+        empty_tavily = [k for k in tavily_keys if not results.get(k)]
+        if empty_tavily:
+            logger.info("[%s] %d Tavily queries empty — retrying with broader terms: %s",
+                        ticker, len(empty_tavily), empty_tavily)
+            key_to_fallback: dict[str, str] = {
+                "tavily_overview":       f"{company_name} {sector} company overview business",
+                "tavily_catalysts":      f"{company_name} earnings investor relations {sector}",
+                "tavily_industry":       f"{sector} {industry} industry trends outlook 2025",
+                "tavily_competitive":    f"{company_name} {sector} competitors market position",
+                "tavily_growth_drivers": f"{company_name} revenue growth business strategy",
+                "tavily_analyst_growth": f"{ticker} stock analyst price target forecast",
+                "tavily_management":     f"{company_name} CEO executive leadership team",
+                "tavily_esg":            f"{company_name} {sector} sustainability ESG environment",
+                "tavily_ma":             f"{company_name} mergers acquisitions deal history",
+                "tavily_market_share":   f"{sector} {industry} market leaders key players",
+                "tavily_brand":          f"{company_name} {sector} brand recognition customers",
+                "tavily_subscribers":    f"{company_name} customers users {sector} growth",
+            }
+            fallback_tasks = {k: key_to_fallback[k] for k in empty_tavily if k in key_to_fallback}
+            if fallback_tasks:
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
+                    p3_futures = {ex.submit(fetch_tavily_search, q, 3): k for k, q in fallback_tasks.items()}
+                    for future in concurrent.futures.as_completed(p3_futures):
+                        key = p3_futures[future]
+                        try:
+                            res = future.result()
+                            if res and res != _TAVILY_QUOTA_SENTINEL:
+                                results[key] = res
+                                logger.info("[%s] Broader Tavily fallback: '%s' → %d results", ticker, key, len(res))
+                        except Exception as exc:
+                            logger.warning("[%s] Broader Tavily fallback failed for '%s': %s", ticker, key, exc)
 
     elapsed = round(time.time() - t0, 1)
     results["_meta"] = {

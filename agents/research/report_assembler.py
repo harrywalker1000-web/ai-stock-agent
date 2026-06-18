@@ -270,10 +270,17 @@ def build_news_catalysts_structured(data: dict) -> dict:
     """
     earnings_cal  = data.get("finnhub_earnings") or []
     eps_surprises = (data.get("yfinance") or {}).get("eps_surprises") or []
-    news          = data.get("finnhub_news") or []
     sec_8k        = data.get("sec_8k") or []
     yf_info       = (data.get("yfinance") or {}).get("info") or {}
     ticker        = (data.get("_meta") or {}).get("ticker", "")
+
+    news = data.get("finnhub_news") or []
+    news_source = "Finnhub"
+    if not news:
+        yf_news = (data.get("yfinance") or {}).get("news") or []
+        if yf_news:
+            news = yf_news
+            news_source = "yfinance"
 
     # --- 3a: Upcoming earnings ---
     upcoming_earnings = []
@@ -342,13 +349,13 @@ def build_news_catalysts_structured(data: dict) -> dict:
                 from datetime import timezone
                 date_str = datetime.fromtimestamp(int(dt), tz=timezone.utc).strftime("%Y-%m-%d")
             except Exception:
-                date_str = str(dt)
+                date_str = str(dt)[:10] if dt else None
         news_feed.append({
-            "headline": _tag(article.get("headline", ""), "Finnhub"),
-            "source":   _tag(article.get("source", ""), "Finnhub"),
-            "date":     _tag(date_str, "Finnhub"),
-            "url":      _tag(article.get("url", ""), "Finnhub"),
-            "summary":  _tag((article.get("summary") or "")[:200], "Finnhub"),
+            "headline": _tag(article.get("headline", ""), news_source),
+            "source":   _tag(article.get("source", ""), news_source),
+            "date":     _tag(date_str, news_source),
+            "url":      _tag(article.get("url", ""), news_source),
+            "summary":  _tag((article.get("summary") or "")[:200], news_source),
         })
 
     # --- 3f: Tavily catalyst context sources ---
@@ -366,7 +373,7 @@ def build_news_catalysts_structured(data: dict) -> dict:
         "ex_dividend":      div_event,
         "press_releases":   press_releases,
         "news_feed":        news_feed,
-        "news_count":       _tag(len(news), "Finnhub"),
+        "news_count":       _tag(len(news_feed), news_source),
         "tavily_sources":   tavily_sources,
         # AI synthesis placeholders — filled by synthesize_news_catalysts()
         "ai_news_synthesis": None,
@@ -425,11 +432,17 @@ def _yf_financial_rows(data: dict) -> list[dict]:
     if not ticker:
         return []
     try:
-        import yfinance as yf
-        t = yf.Ticker(ticker)
-        is_  = t.income_stmt    # annual, cols = dates newest→oldest
-        bs_  = t.balance_sheet
-        cf_  = t.cashflow
+        yf_prefetched = data.get("yfinance") or {}
+        is_  = yf_prefetched.get("income_stmt")
+        bs_  = yf_prefetched.get("balance_sheet")
+        cf_  = yf_prefetched.get("cashflow")
+        # Fall back to a fresh yfinance fetch if not pre-loaded (e.g. legacy pipeline)
+        if is_ is None:
+            import yfinance as yf
+            t = yf.Ticker(ticker)
+            is_  = t.income_stmt
+            bs_  = t.balance_sheet
+            cf_  = t.cashflow
 
         def _get(df, *row_names):
             for name in row_names:
