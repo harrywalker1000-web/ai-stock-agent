@@ -24,6 +24,10 @@ from agents.research.report_assembler_extended import (
     build_institutional_activity,
     build_risk_register,
     build_management_governance,
+    build_esg_section,
+    build_ma_track_record,
+    build_porter_five_forces,
+    build_sotp_valuation,
 )
 from agents.research.report_assembler_scenarios import (
     build_scenario_analysis,
@@ -75,6 +79,10 @@ def assemble_structured_sections(data: dict) -> dict:
 
     # S15 uses technicals dict (the section, not raw data key)
     s15 = build_setup_checklist(data, mandate, s7)
+    s_h_structured = build_esg_section(data)
+    s_j_structured = build_ma_track_record(data)
+    s_b_structured = build_porter_five_forces(data)
+    s_c_structured = build_sotp_valuation(data)
 
     return {
         "mandate":        mandate,
@@ -95,6 +103,10 @@ def assemble_structured_sections(data: dict) -> dict:
         "s13_structured": s13_structured,
         "s14_structured": s14_structured,
         "s15":           s15,
+        "s_h_structured": s_h_structured,
+        "s_j_structured": s_j_structured,
+        "s_b_structured": s_b_structured,
+        "s_c_structured": s_c_structured,
     }
 
 
@@ -105,6 +117,7 @@ def build_final_report(
     s2: dict,
     s3: dict,
     s4b: dict,
+    s7: dict,
     s8: dict,
     s9: dict,
     s10b: dict,
@@ -112,6 +125,11 @@ def build_final_report(
     s13: dict,
     s14: dict,
     s16: dict,
+    s_esg: dict,
+    s_ma: dict,
+    s_porter: dict,
+    s_c: dict,
+    brand_colors: dict | None = None,
 ) -> dict:
     """
     Merge AI-enriched sections with structured sections and produce the final report dict.
@@ -125,7 +143,7 @@ def build_final_report(
         "s4b": s4b,
         "s5":  assembled["s5"],
         "s6":  assembled["s6"],
-        "s7":  assembled["s7"],
+        "s7":  s7,
         "s8":  s8,
         "s9":  s9,
         "s10": assembled["s10"],
@@ -153,6 +171,7 @@ def build_final_report(
         "company_name":            company_name,
         "generated_at":            (data.get("_meta") or {}).get("fetched_at", ""),
         "mandate":                 assembled["mandate"],
+        "brand_colors":            brand_colors or {},
         "tavily_quota_exceeded":   bool(data.get("_tavily_quota_exceeded")),
         "api_errors":              api_errors,
         "sections": {
@@ -163,7 +182,7 @@ def build_final_report(
             "s4b_drivers":     s4b,
             "s5_dcf":          assembled["s5"],
             "s6_valuation":    assembled["s6"],
-            "s7_technicals":   assembled["s7"],
+            "s7_technicals":   s7,
             "s8_competitive":  s8,
             "s9_industry":     s9,
             "s10_institutional":  assembled["s10"],
@@ -175,5 +194,9 @@ def build_final_report(
             "s15_checklist":   assembled["s15"],
             "s16_recommendation": s16,
             "s17_reliability": s17,
+            "s_h_esg":         s_esg,
+            "s_j_ma":          s_ma,
+            "s_b_porter":      s_porter,
+            "s_c_sotp":        s_c,
         },
     }

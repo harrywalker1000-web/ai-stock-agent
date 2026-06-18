@@ -7,6 +7,7 @@ import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, Radar,
 } from "recharts";
 
 // ─── Helper functions ────────────────────────────────────────────────────────
@@ -39,16 +40,20 @@ const NAV = [
   { id: "s4",  n: 4,    label: "Historical Financials" },
   { id: "s4b", n: "4b", label: "Revenue Drivers" },
   { id: "s5",  n: 5,    label: "Forward Est. & DCF" },
-  { id: "s6",  n: 6,  label: "Valuation Metrics" },
-  { id: "s7",  n: 7,  label: "Technical Analysis" },
-  { id: "s8",  n: 8,  label: "Competitive Moat" },
-  { id: "s9",  n: 9,  label: "Industry & Macro" },
+  { id: "s6",  n: 6,    label: "Valuation Metrics" },
+  { id: "s14", n: 14,   label: "Where We Differ" },
+  { id: "sc",  n: "C",  label: "SOTP Valuation" },
+  { id: "s7",  n: 7,    label: "Technical Analysis" },
+  { id: "s8",  n: 8,    label: "Competitive Moat" },
+  { id: "sb",  n: "B",  label: "Porter's Five Forces" },
+  { id: "s9",  n: 9,    label: "Industry & Macro" },
   { id: "s10",  n: 10,    label: "Institutional" },
   { id: "s10b", n: "10b", label: "Management" },
+  { id: "sh",   n: "H",   label: "ESG" },
+  { id: "sj",   n: "J",   label: "M&A Track Record" },
   { id: "s11",  n: 11,    label: "Risk Register" },
   { id: "s12", n: 12, label: "Scenario Analysis" },
   { id: "s13", n: 13, label: "Sentiment" },
-  { id: "s14", n: 14, label: "Where We Differ" },
   { id: "s15", n: 15, label: "Setup Checklist" },
   { id: "s16", n: 16, label: "Recommendation" },
   { id: "s17", n: 17, label: "Data Reliability" },
@@ -81,7 +86,7 @@ function TagBadge({ source }: { source: string }) {
   if (!source) return null;
   const isAI = /llm|ai|gpt|sonnet|claude|estimated/i.test(source);
   return (
-    <span className={`ml-1 inline-block text-[9px] font-bold px-1 py-0 rounded leading-5 align-middle border
+    <span className={`ml-1 inline-block text-[10px] font-bold px-1 py-0 rounded leading-5 align-middle border
       ${isAI
         ? "bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30"
         : "bg-[#1E3A5F] text-[#60A5FA] border-[#2D6BFF]/30"
@@ -96,10 +101,10 @@ function StatCard({ label, value, source, color, large }: {
   label: string; value: React.ReactNode; source?: string; color?: string; large?: boolean;
 }) {
   return (
-    <div className="bg-[#131929] border border-[#1E2D4A] rounded-xl p-4 flex flex-col gap-1">
-      <p className="text-[10px] text-[#475569] uppercase tracking-wider font-medium">{label}</p>
-      <p className={`font-mono font-bold ${large ? "text-2xl" : "text-lg"}`} style={{ color: color ?? "#E2E8F0" }}>
-        {value ?? "—"}
+    <div className="rounded-xl p-4 flex flex-col gap-1" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)" }}>
+      <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
+      <p className={`font-mono font-bold ${large ? "text-2xl" : "text-lg"}`} style={{ color: color ?? "var(--text-primary)" }}>
+        {value ?? "Not publicly disclosed"}
         {source && <TagBadge source={source} />}
       </p>
     </div>
@@ -107,12 +112,13 @@ function StatCard({ label, value, source, color, large }: {
 }
 
 function SectionHeader({ n, title, color = "#2D6BFF" }: { n: number; title: string; color?: string }) {
+  const c = `var(--section-accent, ${color})`;
   return (
-    <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-t-xl overflow-hidden">
-      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${color}, transparent 60%)` }} />
+    <div className="rounded-t-xl overflow-hidden" style={{ backgroundColor: "var(--bg-section-header)", border: "1px solid var(--border)" }}>
+      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${c}, transparent 60%)` }} />
       <div className="px-5 py-3.5 flex items-center gap-3">
         <span className="flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-mono font-bold shrink-0"
-          style={{ background: `${color}18`, color, border: `1px solid ${color}40` }}>
+          style={{ background: `color-mix(in srgb, ${c} 10%, transparent)`, color: c, border: `1px solid color-mix(in srgb, ${c} 25%, transparent)` }}>
           {String(n).padStart(2, "0")}
         </span>
         <h2 className="text-sm font-bold text-white tracking-wide">{title}</h2>
@@ -127,7 +133,7 @@ function Section({ id, n, title, color, children }: {
   return (
     <div id={id} className="mb-7 rounded-xl overflow-hidden shadow-lg shadow-black/20">
       <SectionHeader n={n} title={title} color={color} />
-      <div className="bg-[#0F1623] border border-t-0 border-[#1E2D4A] px-5 py-5">
+      <div className="px-5 py-5" style={{ backgroundColor: "var(--bg-section-body)", borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
         {children}
       </div>
     </div>
@@ -151,7 +157,7 @@ function MandateRing({ passed, total }: { passed: number; total: number }) {
       </svg>
       <div>
         <p className="text-xl font-bold font-mono" style={{ color }}>{passed}/{total}</p>
-        <p className="text-[10px] text-[#475569] uppercase tracking-wider">criteria passed</p>
+        <p className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>criteria passed</p>
       </div>
     </div>
   );
@@ -204,7 +210,7 @@ function PriceRangeChart({ bearPrice, basePrice, bullPrice, currentPrice, bearUp
           <div key={label} className="absolute text-center" style={{ left: `${p}%`, transform: "translateX(-50%)" }}>
             <p className="text-xs font-bold font-mono" style={{ color }}>{fmt$(price)}</p>
             {upside != null && (
-              <p className="text-[9px] font-mono" style={{ color }}>
+              <p className="text-[10px] font-mono" style={{ color }}>
                 {Number(upside) >= 0 ? "+" : ""}{Number(upside).toFixed(1)}%
               </p>
             )}
@@ -241,7 +247,7 @@ function PriceRangeChart({ bearPrice, basePrice, bullPrice, currentPrice, bearUp
       <div className="relative h-8">
         <div className="absolute text-center" style={{ left: `${curPct}%`, transform: "translateX(-50%)" }}>
           <p className="text-[11px] font-bold font-mono text-white">{fmt$(currentPrice)}</p>
-          <p className="text-[9px] text-[#475569]">current</p>
+          <p className="text-[10px] text-[#475569]">current</p>
         </div>
       </div>
     </div>
@@ -252,13 +258,13 @@ function CheckItem({ passed, name, detail, source }: {
   passed: boolean; name: string; detail?: string; source?: string;
 }) {
   return (
-    <div className="flex items-start gap-3 py-2 border-b border-[#1E2D4A] last:border-0">
+    <div className="flex items-start gap-3 py-2 border-b last:border-0" style={{ borderColor: "var(--border)" }}>
       <span className={`text-sm font-bold mt-0.5 shrink-0 w-4 text-center ${passed ? "text-[#10B981]" : "text-[#EF4444]"}`}>
         {passed ? "+" : "-"}
       </span>
       <div className="flex-1">
-        <span className="text-xs text-[#E2E8F0]">{name}</span>
-        {detail && <span className="text-[10px] text-[#475569] ml-2">{detail}</span>}
+        <span className="text-xs" style={{ color: "var(--text-primary)" }}>{name}</span>
+        {detail && <span className="text-[10px] ml-2" style={{ color: "var(--text-muted)" }}>{detail}</span>}
       </div>
       {source && <TagBadge source={source} />}
     </div>
@@ -268,43 +274,60 @@ function CheckItem({ passed, name, detail, source }: {
 function ScenarioCard({ type, price, upside, probability, source, trigger }: {
   type: "bull" | "base" | "bear"; price: any; upside: any; probability: any; source?: string; trigger?: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const cfg = {
     bull: { label: "Bull Case", color: "#10B981", border: "#10B981" },
     base: { label: "Base Case", color: "#2D6BFF", border: "#2D6BFF" },
     bear: { label: "Bear Case", color: "#EF4444", border: "#EF4444" },
   }[type];
+  const triggerStr = trigger ? String(trigger) : null;
+  const isLong     = triggerStr && triggerStr.length > 120;
+  const displayTxt = triggerStr && !expanded && isLong ? triggerStr.slice(0, 120) + "…" : triggerStr;
   return (
     <div
-      className="bg-[#0D1626] rounded-xl p-4 flex flex-col gap-2"
-      style={{ borderLeft: `3px solid ${cfg.border}`, border: `1px solid ${cfg.border}30`, borderLeftWidth: 3, borderLeftColor: cfg.color }}
+      className="rounded-xl p-4 flex flex-col gap-2"
+      style={{ backgroundColor: "var(--bg-card)", borderLeft: `3px solid ${cfg.color}`, border: `1px solid ${cfg.border}30`, borderLeftWidth: 3, borderLeftColor: cfg.color }}
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</span>
         {probability != null && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E2D4A] text-[#94A3B8]">
+          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-card-dark)", color: "var(--text-secondary)" }}>
             {fv(probability)}% prob
           </span>
         )}
       </div>
       <p className="text-2xl font-bold font-mono" style={{ color: cfg.color }}>{usd(price)}</p>
       {upside != null && (
-        <p className="text-xs font-mono text-[#94A3B8]">
+        <p className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
           {Number(fv(upside)) >= 0 ? "+" : ""}{fmtN(upside, 1)}%
         </p>
       )}
-      {trigger && <p className="text-[10px] text-[#475569] leading-relaxed mt-1">{trigger}</p>}
+      {displayTxt && (
+        <div>
+          <p className="text-[10px] leading-relaxed mt-1" style={{ color: "var(--text-muted)" }}>{displayTxt}</p>
+          {isLong && (
+            <button onClick={() => setExpanded(e => !e)}
+              className="text-[10px] mt-1 cursor-pointer"
+              style={{ color: cfg.color }}>
+              {expanded ? "Show less" : "Show more"}
+            </button>
+          )}
+        </div>
+      )}
       {source && <TagBadge source={source} />}
     </div>
   );
 }
 
-function HeatCell({ value, min, max }: { value: number; min: number; max: number }) {
+function HeatCell({ value, min, max, currentPrice }: { value: number; min: number; max: number; currentPrice?: number }) {
+  const aboveCurrent = currentPrice != null && value > currentPrice;
+  const r = aboveCurrent ? 16  : 239;
+  const g = aboveCurrent ? 185 : 68;
+  const b = aboveCurrent ? 129 : 68;
   const range = max - min || 1;
-  const t = (value - min) / range; // 0..1
-  const r = Math.round(239 - t * (239 - 16));
-  const g = Math.round(68 + t * (185 - 68));
-  const b = Math.round(68 + t * (129 - 68));
-  const bg = `rgba(${r},${g},${b},0.18)`;
+  const t = (value - min) / range;
+  const intensity = 0.12 + t * 0.18;
+  const bg = `rgba(${r},${g},${b},${intensity.toFixed(2)})`;
   const border = `rgba(${r},${g},${b},0.35)`;
   return (
     <td
@@ -356,9 +379,9 @@ function ConvictionBar({ score }: { score: number }) {
 
 function KV({ label, value, color }: { label: string; value: React.ReactNode; color?: string }) {
   return (
-    <div className="flex justify-between items-start py-1.5 border-b border-[#1E2D4A] last:border-0">
-      <span className="text-xs text-[#475569]">{label}</span>
-      <span className="text-xs font-mono text-right" style={{ color: color ?? "#94A3B8" }}>{value ?? "—"}</span>
+    <div className="flex justify-between items-start py-1.5 border-b last:border-0" style={{ borderColor: "var(--border)" }}>
+      <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
+      <span className="text-xs font-mono text-right" style={{ color: color ?? "var(--text-secondary)" }}>{value ?? "Not publicly disclosed"}</span>
     </div>
   );
 }
@@ -422,7 +445,9 @@ function RevenueBarChart({ years, viewLabel = "Annual" }: { years: any[], viewLa
               <g key={i}>
                 {/* Bar fill + border */}
                 <rect x={bx} y={by} width={barW} height={h} rx={4}
-                  fill="#2D6BFF22" stroke="#2D6BFF" strokeWidth={1.5} />
+                  fill="#2D6BFF55" stroke="#2D6BFF" strokeWidth={1.5}>
+                  <title>{yr.label ?? fv(yr.year)}: {fmtRev(rev)}{hasYoy ? ` (${yoyVal >= 0 ? "+" : ""}${yoyVal.toFixed(1)}% YoY)` : ""}</title>
+                </rect>
                 {/* YoY/QoQ badge — top row */}
                 {hasYoy && (
                   <text x={cx} y={by - 22} textAnchor="middle"
@@ -448,7 +473,7 @@ function RevenueBarChart({ years, viewLabel = "Annual" }: { years: any[], viewLa
             );
           })}
         </svg>
-        <p className="text-[9px] text-[#334155] mt-1 text-right">
+        <p className="text-[10px] text-[#334155] mt-1 text-right">
           Bars = Revenue · ▲▼ = Growth · NM = Net Margin below year · Source: {source}
         </p>
       </div>
@@ -468,69 +493,80 @@ function MarginChart({ years }: { years: any[] }) {
   const ordered = [...years].reverse(); // oldest first
   const latest = years[0];
 
+  // Normalize bars relative to max absolute value across all metrics & years
+  const allAbsVals = metrics.flatMap(({ key }) =>
+    years.map((y: any) => Math.abs(Number(fv(y[key]) ?? NaN))).filter(v => !isNaN(v))
+  );
+  const maxAbs = Math.max(...allAbsVals, 1);
+
+  const fmtPctVal = (v: number) => `${v >= 0 ? "+" : ""}${Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)}%`;
+
   return (
     <div className="mb-6">
-      <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Margin Profile</p>
-      <div className="grid grid-cols-1 gap-3">
+      <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>Margin Profile</p>
+
+      {/* Bar rows — one per metric */}
+      <div className="space-y-3 mb-4">
         {metrics.map(({ key, label, color }) => {
           const latestVal = Number(fv(latest?.[key]) ?? NaN);
           if (isNaN(latestVal)) return null;
           const neg = latestVal < 0;
-          const clampedLatest = Math.max(-100, Math.min(100, latestVal));
+          const barPct = (Math.abs(latestVal) / maxAbs) * 100;
+          const barColor = neg ? "#EF4444" : color;
           return (
-            <div key={key}>
-              {/* Current bar + value */}
-              <div className="flex items-center gap-3 mb-1">
-                <span className="text-[10px] text-[#64748B] w-14 shrink-0">{label}</span>
-                <div className="flex-1 relative bg-[#0F1929] rounded h-5 overflow-hidden">
-                  <div className="h-full rounded transition-all" style={{
-                    width: `${Math.abs(clampedLatest)}%`,
-                    background: neg ? `#EF444455` : `${color}44`,
-                    borderRight: `2px solid ${neg ? "#EF4444" : color}`,
-                  }} />
-                  {/* Mini year sparkline dots */}
-                  <div className="absolute inset-0 flex items-center justify-end gap-1 pr-2">
-                    {ordered.map((yr: any, idx: number) => {
-                      const v = Number(fv(yr[key]) ?? NaN);
-                      if (isNaN(v)) return null;
-                      const dotColor = v < 0 ? "#EF4444" : color;
-                      return (
-                        <div key={idx} title={`${yr.label ?? fv(yr.year)}: ${v.toFixed(1)}%`}
-                          className="rounded-full shrink-0"
-                          style={{ width: 5, height: 5, background: dotColor, opacity: 0.6 + 0.4 * (idx / ordered.length) }} />
-                      );
-                    })}
-                  </div>
-                </div>
-                <span className="text-[10px] font-mono font-bold w-16 text-right shrink-0"
-                  style={{ color: neg ? "#EF4444" : color }}>
-                  {latestVal >= 0 ? "" : "−"}{Math.abs(latestVal) >= 100 ? Math.abs(latestVal).toFixed(0) : Math.abs(latestVal).toFixed(1)}%
-                </span>
+            <div key={key} className="flex items-center gap-3">
+              <span className="text-[11px] font-medium w-14 shrink-0" style={{ color: "var(--text-secondary)" }}>{label}</span>
+              <div className="flex-1 rounded-full h-4 overflow-hidden" style={{ backgroundColor: "var(--bg-card-dark)" }}>
+                <div className="h-full rounded-full" style={{
+                  width: `${Math.max(barPct, 1)}%`,
+                  background: `${barColor}55`,
+                  borderRight: `2px solid ${barColor}`,
+                }} />
               </div>
-              {/* Trend micro-values */}
-              <div className="flex gap-0 pl-[72px]">
-                {ordered.map((yr: any, idx: number) => {
-                  const v = Number(fv(yr[key]) ?? NaN);
-                  return (
-                    <div key={idx} className="flex-1 text-center">
-                      <span className="text-[7px] font-mono" style={{ color: isNaN(v) ? "#1E2D4A" : v < 0 ? "#EF444488" : `${color}99` }}>
-                        {isNaN(v) ? "—" : (v >= 0 ? "" : "−") + (Math.abs(v) >= 100 ? Math.abs(v).toFixed(0) : Math.abs(v).toFixed(1))}%
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              <span className="text-[11px] font-mono font-bold w-16 text-right shrink-0"
+                style={{ color: neg ? "#EF4444" : color }}>
+                {fmtPctVal(latestVal)}
+              </span>
             </div>
           );
         })}
-        {/* Year axis labels */}
-        <div className="flex gap-0 pl-[72px]">
-          {ordered.map((yr: any, idx: number) => (
-            <div key={idx} className="flex-1 text-center">
-              <span className="text-[7px] font-mono text-[#334155]">{yr.label ?? fv(yr.year)}</span>
-            </div>
+      </div>
+
+      {/* Year-by-year table */}
+      <div className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+        {/* Header row */}
+        <div className="grid text-[10px] font-bold uppercase tracking-wider px-3 py-2"
+          style={{ gridTemplateColumns: `80px repeat(${ordered.length}, 1fr)`, backgroundColor: "var(--bg-card-dark)", color: "var(--text-muted)" }}>
+          <span>Metric</span>
+          {ordered.map((yr: any) => (
+            <span key={fv(yr.year)} className="text-center">{yr.label ?? fv(yr.year)}</span>
           ))}
         </div>
+        {/* Metric rows */}
+        {metrics.map(({ key, label, color }, mi) => {
+          const rowHasData = ordered.some((y: any) => fv(y[key]) != null);
+          if (!rowHasData) return null;
+          return (
+            <div key={key}
+              className="grid text-[10px] font-mono px-3 py-2"
+              style={{
+                gridTemplateColumns: `80px repeat(${ordered.length}, 1fr)`,
+                backgroundColor: mi % 2 === 0 ? "var(--bg-section-body)" : "var(--bg-card-dark)",
+                borderTop: "1px solid var(--border)",
+              }}>
+              <span className="font-medium" style={{ color }}>{label}</span>
+              {ordered.map((yr: any) => {
+                const v = Number(fv(yr[key]) ?? NaN);
+                const vColor = isNaN(v) ? "var(--text-muted)" : v < 0 ? "#EF4444" : v < 5 ? "#F59E0B" : color;
+                return (
+                  <span key={fv(yr.year)} className="text-center" style={{ color: vColor }}>
+                    {isNaN(v) ? "—" : fmtPctVal(v)}
+                  </span>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -568,7 +604,7 @@ function PeerBarChart({ peers, subjectTicker, metric = "ev_ebitda", label = "EV/
             </div>
           );
         })}
-        <p className="text-[9px] text-[#1E3A5F] text-right pt-1">Highlighted = subject company · Source: yfinance</p>
+        <p className="text-[10px] text-[#1E3A5F] text-right pt-1">Highlighted = subject company · Source: yfinance</p>
       </div>
     </div>
   );
@@ -607,7 +643,9 @@ function OwnershipDonut({ instPct, insiderPct, instSource, insiderSource }: {
       <div className="flex items-center gap-6 flex-wrap">
         <svg width={120} height={120} viewBox="0 0 120 120">
           {arcs.map((arc, i) => arc.pct > 0 && (
-            <path key={i} d={arc.path} fill={arc.color} opacity={arc.label === "Public Float" ? 0.4 : 0.85} />
+            <path key={i} d={arc.path} fill={arc.color} opacity={arc.label === "Public Float" ? 0.4 : 0.85}>
+              <title>{arc.label}: {arc.pct.toFixed(1)}%</title>
+            </path>
           ))}
           <text x={cx} y={cy - 4} textAnchor="middle" fill="#E2E8F0" fontSize={13} fontWeight="bold" fontFamily="monospace">
             {inst.toFixed(0)}%
@@ -856,7 +894,7 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
               </div>
               <div>
                 <p className="text-[11px] font-bold text-white">Research AI</p>
-                <p className="text-[9px] text-[#475569]">{ticker.toUpperCase()} · Haz Capital</p>
+                <p className="text-[10px] text-[#475569]">{ticker.toUpperCase()} · Haz Capital</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-[#475569] hover:text-white text-lg leading-none cursor-pointer">×</button>
@@ -918,7 +956,7 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
                 </svg>
               </button>
             </div>
-            <p className="text-[8px] text-[#1E2D4A] mt-1.5 text-center">Powered by GPT-4o · Report data only · Not investment advice</p>
+            <p className="text-[10px] text-[#1E2D4A] mt-1.5 text-center">Powered by GPT-4o · Report data only · Not investment advice</p>
           </div>
         </div>
       )}
@@ -966,7 +1004,7 @@ function ValuationThermometer({ label, range }: {
       <div className="flex justify-between items-baseline mb-1.5">
         <span className="text-[10px] text-[#475569] font-medium uppercase tracking-wide">{label}</span>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-medium" style={{ color: dotColor }}>{label_pct}</span>
+          <span className="text-[10px] font-medium" style={{ color: dotColor }}>{label_pct}</span>
           <span className="text-sm font-mono font-bold text-white">
             {current.toFixed(1)}x <span className="text-[10px] text-[#475569] font-normal">({pct}th pctile)</span>
           </span>
@@ -986,7 +1024,7 @@ function ValuationThermometer({ label, range }: {
           style={{ left: `calc(${pct}% - 7px)`, background: dotColor, boxShadow: `0 0 8px ${dotColor}66` }}
         />
       </div>
-      <div className="flex justify-between text-[9px] text-[#334155] mt-1.5">
+      <div className="flex justify-between text-[10px] text-[#334155] mt-1.5">
         <span className="text-[#475569]">{min.toFixed(1)}x <span className="text-[#1E2D4A]">5Y low</span></span>
         <span className="text-[#475569]">{avg.toFixed(1)}x <span className="text-[#1E2D4A]">avg</span></span>
         <span className="text-[#475569]">{max.toFixed(1)}x <span className="text-[#1E2D4A]">5Y high</span></span>
@@ -1018,6 +1056,636 @@ function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
         />
       </BarChart>
     </ResponsiveContainer>
+  );
+}
+
+// ─── Porter's Five Forces ────────────────────────────────────────────────────
+
+const FORCE_META: { key: string; label: string; shortLabel: string }[] = [
+  { key: "competitive_rivalry",  label: "Competitive Rivalry",     shortLabel: "Rivalry"     },
+  { key: "threat_new_entrants",  label: "Threat of New Entrants",  shortLabel: "New Entrants"},
+  { key: "threat_substitutes",   label: "Threat of Substitutes",   shortLabel: "Substitutes" },
+  { key: "buyer_power",          label: "Bargaining Power of Buyers",  shortLabel: "Buyers"  },
+  { key: "supplier_power",       label: "Bargaining Power of Suppliers", shortLabel: "Suppliers"},
+];
+
+function forceColor(score: number): string {
+  if (score <= 1) return "#10B981";
+  if (score <= 2) return "#34D399";
+  if (score <= 3) return "#F59E0B";
+  if (score <= 4) return "#F97316";
+  return "#EF4444";
+}
+
+// ---------------------------------------------------------------------------
+// Section C: SOTP Valuation
+// ---------------------------------------------------------------------------
+function SOTPSection({ s_c }: { s_c: any }) {
+  const segments = (s_c.enriched_segments ?? s_c.segments ?? []) as any[];
+  const hasSegments = segments.length > 0;
+  const hasMults = segments.some((s: any) => s.multiple_base != null);
+
+  const AiBadge = () => <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>;
+  const CalcBadge = () => <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#0F2A50] text-[#60A5FA] border border-[#2D6BFF]/30">CALC</span>;
+
+  const upsideColor = (pct: number | null) =>
+    pct == null ? "#94A3B8" : pct >= 20 ? "#10B981" : pct >= 0 ? "#60A5FA" : "#EF4444";
+
+  const currentPrice = fv(s_c.current_price);
+  const peerEvRev    = fv(s_c.peer_median_ev_rev);
+  const peerEvEbitda = fv(s_c.peer_median_ev_ebitda);
+  const subjEvRev    = fv(s_c.subj_ev_rev);
+
+  if (!hasSegments) {
+    return (
+      <div className="text-center py-8 text-[#64748B] text-sm">
+        Segment revenue breakdown not available from FMP for this ticker.
+        <div className="text-xs mt-1 text-[#475569]">SOTP analysis requires FMP product segmentation data.</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Peer multiple reference row */}
+      {(peerEvRev != null || subjEvRev != null || currentPrice != null) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {currentPrice != null && <StatCard label="Current Price" value={`$${Number(currentPrice).toFixed(2)}`} source={fs(s_c.current_price)} />}
+          {subjEvRev    != null && <StatCard label="Subject EV/Rev"      value={`${Number(subjEvRev).toFixed(1)}x`}    source={fs(s_c.subj_ev_rev)} />}
+          {peerEvRev    != null && <StatCard label="Peer Med. EV/Rev"    value={`${Number(peerEvRev).toFixed(1)}x`}    source={fs(s_c.peer_median_ev_rev)} />}
+          {peerEvEbitda != null && <StatCard label="Peer Med. EV/EBITDA" value={`${Number(peerEvEbitda).toFixed(1)}x`} source={fs(s_c.peer_median_ev_ebitda)} />}
+        </div>
+      )}
+
+      {/* Segment table */}
+      <div>
+        <h3 className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">
+          Segment Revenue &amp; Assigned Multiples
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-[#1E3A5F]">
+                <th className="pb-2 text-[#64748B] font-medium">Segment</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">Revenue</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">% Total</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">Low x</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">Base x</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">High x</th>
+                <th className="pb-2 text-[#64748B] font-medium text-right">Value (Base)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1E3A5F]/40">
+              {segments.map((seg: any, i: number) => {
+                const rev   = fv(seg.revenue);
+                const pct   = fv(seg.pct_of_total);
+                const mBase = seg.multiple_base;
+                const valBn = seg.value_base_bn;
+                return (
+                  <tr key={i} className="hover:bg-[#1E3A5F]/20 transition-colors">
+                    <td className="py-2 text-[#CBD5E1] font-medium pr-2">{seg.name}</td>
+                    <td className="py-2 text-right text-[#94A3B8]">
+                      {rev != null
+                        ? (rev >= 1e9 ? `$${(rev / 1e9).toFixed(1)}B` : `$${(rev / 1e6).toFixed(0)}M`)
+                        : NP}
+                      <span className="ml-0.5 text-[10px] text-[#2D6BFF] opacity-70">FMP</span>
+                    </td>
+                    <td className="py-2 text-right text-[#94A3B8]">
+                      {pct != null ? `${Number(pct).toFixed(1)}%` : NP}
+                    </td>
+                    <td className="py-2 text-right text-[#64748B]">
+                      {seg.multiple_low != null ? `${Number(seg.multiple_low).toFixed(1)}x` : NP}
+                    </td>
+                    <td className="py-2 text-right font-semibold text-[#60A5FA]">
+                      {mBase != null ? <>{Number(mBase).toFixed(1)}x<AiBadge /></> : NP}
+                    </td>
+                    <td className="py-2 text-right text-[#64748B]">
+                      {seg.multiple_high != null ? `${Number(seg.multiple_high).toFixed(1)}x` : NP}
+                    </td>
+                    <td className="py-2 text-right text-[#10B981] font-medium">
+                      {valBn != null ? <>${Number(valBn).toFixed(1)}B<CalcBadge /></> : NP}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {hasMults && (
+          <p className="mt-2 text-[10px] text-[#475569]">
+            Revenues: FMP API &nbsp;|&nbsp; Multiples: <span className="text-[#FBBF24]">AI estimates</span> anchored on peer group data &nbsp;|&nbsp; Values: Python [CALCULATED]
+          </p>
+        )}
+      </div>
+
+      {/* Bear / Base / Bull implied equity value cards */}
+      {(s_c.implied_price_base != null || s_c.implied_price_bear != null) && (
+        <div>
+          <h3 className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">
+            Implied Equity Value <CalcBadge />
+          </h3>
+          <div className="grid grid-cols-3 gap-3">
+            {([
+              { label: "Bear", color: "#EF4444", ev: s_c.total_ev_bear_bn, eq: s_c.equity_value_bear_bn, ip: s_c.implied_price_bear, up: s_c.upside_pct_bear },
+              { label: "Base", color: "#2D6BFF", ev: s_c.total_ev_base_bn, eq: s_c.equity_value_base_bn, ip: s_c.implied_price_base, up: s_c.upside_pct_base },
+              { label: "Bull", color: "#10B981", ev: s_c.total_ev_bull_bn, eq: s_c.equity_value_bull_bn, ip: s_c.implied_price_bull, up: s_c.upside_pct_bull },
+            ] as { label: string; color: string; ev: number | null; eq: number | null; ip: number | null; up: number | null }[]).map(({ label, color, ev, eq, ip, up }) => (
+              <div key={label} className="bg-[#0B1628] rounded-xl p-4 border border-[#1E3A5F]/60">
+                <div className="text-xs font-semibold mb-3" style={{ color }}>{label} Case</div>
+                <div className="space-y-2">
+                  {ev != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] text-[#64748B]">Total EV</span>
+                      <span className="text-xs text-[#CBD5E1]">${Number(ev).toFixed(1)}B</span>
+                    </div>
+                  )}
+                  {s_c.net_debt_bn != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] text-[#64748B]">Less: Net Debt</span>
+                      <span className="text-xs text-[#94A3B8]">${Number(s_c.net_debt_bn).toFixed(1)}B</span>
+                    </div>
+                  )}
+                  {eq != null && (
+                    <div className="flex justify-between items-baseline border-t border-[#1E3A5F]/40 pt-2">
+                      <span className="text-[10px] text-[#64748B]">Equity Value</span>
+                      <span className="text-xs font-semibold text-[#CBD5E1]">${Number(eq).toFixed(1)}B</span>
+                    </div>
+                  )}
+                  {ip != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] text-[#64748B]">Implied Price</span>
+                      <span className="text-xs font-bold" style={{ color }}>${Number(ip).toFixed(2)}</span>
+                    </div>
+                  )}
+                  {up != null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-[10px] text-[#64748B]">vs Current</span>
+                      <span className="text-xs font-bold" style={{ color: upsideColor(up) }}>
+                        {up > 0 ? "+" : ""}{Number(up).toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Multiple rationale from AI */}
+      {hasMults && segments.some((s: any) => s.rationale) && (
+        <div>
+          <h3 className="text-xs font-semibold text-[#94A3B8] uppercase tracking-wider mb-2">Multiple Rationale <AiBadge /></h3>
+          <div className="space-y-1.5">
+            {segments.filter((s: any) => s.rationale).map((seg: any, i: number) => (
+              <div key={i} className="flex items-start gap-2 text-xs">
+                <span className="text-[#D97706] shrink-0 font-medium">{seg.name}:</span>
+                <span className="text-[#94A3B8]">{seg.rationale}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Methodology note */}
+      {s_c.ai_methodology && (
+        <div className="bg-[#0B1628] rounded-xl p-4 border border-[#D97706]/20">
+          <div className="text-[10px] text-[#D97706] font-semibold mb-1">Methodology Note <AiBadge /></div>
+          <p className="text-xs text-[#94A3B8] leading-relaxed">{s_c.ai_methodology}</p>
+        </div>
+      )}
+
+      {s_c.ai_source && (
+        <p className="text-[10px] text-[#475569]">{s_c.ai_source}</p>
+      )}
+    </div>
+  );
+}
+
+function PorterFiveForcesSection({ s_porter }: { s_porter: any }) {
+  const forces         = (s_porter.ai_forces ?? {}) as any;
+  const attractiveness = forces.overall_attractiveness as string | undefined;
+  const narrative      = forces.sector_narrative as string | null | undefined;
+  const aiSource       = s_porter.ai_source as string | null;
+
+  const clampScore = (v: any) => v != null ? Math.min(5, Math.max(1, Number(v))) : null;
+  const forceEntries = FORCE_META.map(m => ({
+    ...m,
+    score:     clampScore(forces[m.key]?.score),
+    rationale: forces[m.key]?.rationale ?? null,
+  }));
+
+  const hasData = forceEntries.some(f => f.score !== null);
+
+  if (!hasData) {
+    return (
+      <p className="text-xs text-[#475569]">
+        Porter&apos;s Five Forces requires pipeline data. Re-run to populate this section.
+      </p>
+    );
+  }
+
+  // Radar chart data — higher score = bigger polygon = higher threat; clamp AI output to [1,5]
+  const radarData = FORCE_META.map(m => ({
+    subject:  m.shortLabel,
+    score:    Math.min(5, Math.max(1, Number(forces[m.key]?.score ?? 3))),
+    fullMark: 5,
+  }));
+
+  const avgScore   = forceEntries.reduce((sum, f) => sum + (f.score ?? 3), 0) / forceEntries.length;
+  const attrColor  = attractiveness === "High" ? "#10B981" : attractiveness === "Medium" ? "#F59E0B" : "#EF4444";
+
+  return (
+    <div className="space-y-5">
+      <p className="text-[10px] text-[#475569]">
+        Score 1 (low threat, favourable) → 5 (high threat, unfavourable). AI-assessed from industry and competitive search data.
+      </p>
+
+      {/* Radar + attractiveness */}
+      <div className="flex flex-col sm:flex-row gap-6 items-start">
+        <div className="w-full sm:w-56 shrink-0">
+          <ResponsiveContainer width="100%" height={200}>
+            <RadarChart data={radarData} margin={{ top: 8, right: 20, bottom: 8, left: 20 }}>
+              <PolarGrid stroke="#1E2D4A" />
+              <PolarAngleAxis
+                dataKey="subject"
+                tick={{ fill: "#475569", fontSize: 9, fontFamily: "monospace" }}
+              />
+              <Radar
+                dataKey="score"
+                stroke="#F97316"
+                fill="#F97316"
+                fillOpacity={0.25}
+                strokeWidth={1.5}
+              />
+              <Tooltip
+                contentStyle={{ background: "#0D1626", border: "1px solid #1E2D4A", borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: "#94A3B8" }}
+                formatter={(v: any) => [`${v} / 5`, "Threat score"]}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+          <p className="text-[10px] text-[#334155] text-center -mt-1">Threat level (outer = higher threat)</p>
+        </div>
+
+        <div className="flex-1 space-y-3">
+          {attractiveness && (
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] text-[#475569]">Industry Attractiveness</span>
+              <span className="text-sm font-bold px-3 py-1 rounded-lg border"
+                style={{ color: attrColor, borderColor: `${attrColor}40`, background: `${attrColor}12` }}>
+                {attractiveness}
+              </span>
+              <span className="text-[10px] px-1.5 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 font-bold">AI</span>
+            </div>
+          )}
+          <div className="text-[10px] text-[#475569] flex items-center gap-1.5">
+            Avg threat score:
+            <span className="font-bold font-mono" style={{ color: forceColor(avgScore) }}>
+              {avgScore.toFixed(1)}/5
+            </span>
+          </div>
+          {narrative && (
+            <p className="text-[11px] text-[#94A3B8] leading-relaxed">{narrative}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Force breakdown cards */}
+      <div className="space-y-2">
+        {forceEntries.map(({ label, score, rationale }) => {
+          if (score === null) return null;
+          const c = forceColor(score);
+          return (
+            <div key={label} className="flex items-start gap-3 bg-[#080C14] border border-[#1E2D4A] rounded-xl px-4 py-3 motion-safe:hover:border-[#334155] transition-colors">
+              {/* Score pill */}
+              <div className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold font-mono border"
+                style={{ color: c, borderColor: `${c}40`, background: `${c}12` }}>
+                {score}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[11px] font-semibold text-[#E2E8F0]">{label}</span>
+                  {/* Mini bar */}
+                  <div className="flex-1 h-1 bg-[#1E2D4A] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${(score / 5) * 100}%`, background: c }} />
+                  </div>
+                </div>
+                {rationale && (
+                  <p className="text-[10px] text-[#94A3B8] leading-snug">{rationale}</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {aiSource && <p className="text-[10px] text-[#334155]">{aiSource}</p>}
+    </div>
+  );
+}
+
+// ─── M&A Track Record ────────────────────────────────────────────────────────
+
+const MA_TYPE_STYLE: Record<string, { color: string; bg: string; border: string }> = {
+  Acquisition:          { color: "#60A5FA", bg: "#2D6BFF14", border: "#2D6BFF40" },
+  Divestiture:          { color: "#F97316", bg: "#F9731614", border: "#F9731640" },
+  Merger:               { color: "#A78BFA", bg: "#A78BFA14", border: "#A78BFA40" },
+  "Strategic Partnership": { color: "#34D399", bg: "#34D39914", border: "#34D39940" },
+  "Spin-off":           { color: "#F59E0B", bg: "#F59E0B14", border: "#F59E0B40" },
+  "Joint Venture":      { color: "#E879F9", bg: "#E879F914", border: "#E879F940" },
+};
+
+const MA_STATUS_STYLE: Record<string, { color: string }> = {
+  Completed: { color: "#10B981" },
+  Pending:   { color: "#F59E0B" },
+  Cancelled: { color: "#EF4444" },
+  Rumoured:  { color: "#94A3B8" },
+};
+
+function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
+  const events     = (s_ma.ai_events ?? []) as {
+    year?: number; type?: string; target?: string; deal_value?: string | null; status?: string;
+  }[];
+  const narrative   = s_ma.ai_narrative as string | null;
+  const aiSource    = s_ma.ai_source as string | null;
+  const ma8k        = (s_ma.ma_8k_filings ?? []) as { date: string; items: string; url: string }[];
+  const maNews      = (s_ma.ma_news_headlines ?? []) as { headline: string; date: string; url: string }[];
+
+  const hasContent = events.length > 0 || narrative || ma8k.length > 0 || maNews.length > 0;
+
+  if (!hasContent) {
+    return (
+      <p className="text-xs text-[#475569]">
+        No M&A activity identified in available sources. Re-run the pipeline for an updated search.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* AI-extracted event timeline */}
+      {events.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wide">Deal History</span>
+            <span className="text-[10px] px-1.5 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 font-bold">AI</span>
+          </div>
+          <div className="space-y-2">
+            {events.map((ev, i) => {
+              const typeStyle = MA_TYPE_STYLE[ev.type ?? ""] ?? { color: "#94A3B8", bg: "#94A3B814", border: "#94A3B840" };
+              const statusStyle = MA_STATUS_STYLE[ev.status ?? ""] ?? { color: "#94A3B8" };
+              return (
+                <div key={i} className="flex items-start gap-3 bg-[#080C14] border border-[#1E2D4A] rounded-xl p-3 motion-safe:hover:border-[#8B5CF6]/30 transition-colors">
+                  {/* Year pill */}
+                  <div className="shrink-0 text-center">
+                    <span className="text-[11px] font-bold font-mono text-[#8B5CF6]">
+                      {ev.year ?? "—"}
+                    </span>
+                  </div>
+                  {/* Divider */}
+                  <div className="w-px self-stretch bg-[#1E2D4A] shrink-0" />
+                  {/* Content */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {ev.type && (
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md border"
+                          style={{ color: typeStyle.color, background: typeStyle.bg, borderColor: typeStyle.border }}>
+                          {ev.type}
+                        </span>
+                      )}
+                      {ev.status && (
+                        <span className="text-[10px] font-medium" style={{ color: statusStyle.color }}>
+                          {ev.status}
+                        </span>
+                      )}
+                      {ev.deal_value && (
+                        <span className="text-[10px] font-mono text-[#60A5FA]">{ev.deal_value}</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-[#E2E8F0] leading-snug">{ev.target ?? "—"}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* AI Narrative */}
+      {narrative && (
+        <div className="bg-[#8B5CF6]/05 border border-[#8B5CF6]/20 rounded-xl p-4 space-y-1">
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px] px-1.5 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 font-bold">AI</span>
+            <span className="text-[10px] text-[#475569]">M&A Strategy Assessment</span>
+          </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">{narrative}</p>
+          {aiSource && <p className="text-[10px] text-[#334155] pt-1">{aiSource}</p>}
+        </div>
+      )}
+
+      {/* Recent M&A SEC 8-K filings */}
+      {ma8k.length > 0 && (
+        <div>
+          <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wide block mb-2">
+            Recent M&A-Related SEC 8-K Filings
+          </span>
+          <div className="space-y-1.5">
+            {ma8k.map((f, i) => (
+              <div key={i} className="flex items-center gap-3 text-[10px]">
+                <span className="font-mono text-[#475569] shrink-0">{f.date}</span>
+                <span className="text-[#334155] shrink-0">Items: {f.items}</span>
+                <a href={f.url} target="_blank" rel="noreferrer"
+                  className="text-[#60A5FA] hover:text-white truncate transition-colors">
+                  SEC EDGAR →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recent M&A news headlines from Finnhub */}
+      {maNews.length > 0 && (
+        <div>
+          <span className="text-[10px] font-semibold text-[#475569] uppercase tracking-wide block mb-2">
+            Recent M&A News (Finnhub · 30 days)
+          </span>
+          <div className="space-y-1.5">
+            {maNews.map((n, i) => (
+              <div key={i} className="flex items-start gap-3 text-[10px]">
+                <span className="font-mono text-[#475569] shrink-0">
+                  {n.date ? new Date(typeof n.date === "number" ? n.date * 1000 : n.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}
+                </span>
+                {n.url ? (
+                  <a href={n.url} target="_blank" rel="noreferrer"
+                    className="text-[#94A3B8] hover:text-white transition-colors leading-snug">
+                    {n.headline}
+                  </a>
+                ) : (
+                  <span className="text-[#94A3B8] leading-snug">{n.headline}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── ESG & Sustainability ─────────────────────────────────────────────────────
+
+function esgRiskBand(score: number | null): { label: string; color: string } {
+  if (score === null) return { label: "No data", color: "#475569" };
+  if (score < 10)    return { label: "Negligible Risk", color: "#10B981" };
+  if (score < 20)    return { label: "Low Risk",        color: "#34D399" };
+  if (score < 30)    return { label: "Medium Risk",     color: "#F59E0B" };
+  if (score < 40)    return { label: "High Risk",       color: "#F97316" };
+  return               { label: "Severe Risk",          color: "#EF4444" };
+}
+
+function esgPerfLabel(raw: string | null | undefined): string {
+  const map: Record<string, string> = {
+    STRONG_PERFORMER:    "Strong Performer",
+    ABOVE_AVG_PERFORMER: "Above Average",
+    AVG_PERFORMER:       "Average",
+    BELOW_AVG_PERFORMER: "Below Average",
+    WEAK_PERFORMER:      "Weak Performer",
+  };
+  return raw ? (map[raw] ?? raw) : "—";
+}
+
+function controversyLabel(level: number | null): { text: string; color: string } {
+  if (level === null) return { text: "—", color: "#475569" };
+  const levels = ["None", "Low", "Moderate", "Significant", "High", "Severe"];
+  const colors  = ["#10B981", "#34D399", "#F59E0B", "#F97316", "#EF4444", "#DC2626"];
+  return { text: levels[level] ?? `Level ${level}`, color: colors[level] ?? "#475569" };
+}
+
+function ESGSection({ s_esg }: { s_esg: any }) {
+  const totalScore    = fv(s_esg.total_esg_score);
+  const envScore      = fv(s_esg.environment_score);
+  const socialScore   = fv(s_esg.social_score);
+  const govScore      = fv(s_esg.governance_score);
+  const controversy   = fv(s_esg.highest_controversy);
+  const performance   = fv(s_esg.esg_performance);
+  const ratingPeriod  = fv(s_esg.rating_period);
+  const msciRating    = s_esg.ai_msci_rating as string | null;
+  const initiatives   = (s_esg.ai_initiatives ?? []) as { name: string; description: string }[];
+  const narrative     = s_esg.ai_narrative as string | null;
+  const aiSource      = s_esg.ai_source as string | null;
+
+  const hasScores = totalScore != null || envScore != null || socialScore != null || govScore != null;
+
+  if (!hasScores && !narrative && initiatives.length === 0) {
+    return (
+      <p className="text-xs text-[#475569]">
+        ESG data requires pipeline data. Sustainalytics scores are sourced from yfinance — some tickers may not have coverage.
+      </p>
+    );
+  }
+
+  const scoreCards = [
+    { label: "Total ESG Risk", value: totalScore,   accent: "#60A5FA", desc: "Overall risk score" },
+    { label: "Environmental",  value: envScore,     accent: "#34D399", desc: "E pillar" },
+    { label: "Social",         value: socialScore,  accent: "#A78BFA", desc: "S pillar" },
+    { label: "Governance",     value: govScore,     accent: "#F59E0B", desc: "G pillar" },
+  ];
+
+  const band = esgRiskBand(totalScore != null ? Number(totalScore) : null);
+  const ctv  = controversyLabel(controversy != null ? Number(controversy) : null);
+
+  return (
+    <div className="space-y-5">
+      {/* Note: Sustainalytics risk score — lower is better */}
+      <p className="text-[10px] text-[#475569]">
+        Sustainalytics ESG risk score (via yfinance) — lower score = less ESG risk exposure.
+        Ranges: 0–10 Negligible · 10–20 Low · 20–30 Medium · 30–40 High · 40+ Severe.
+      </p>
+
+      {/* Score cards */}
+      {hasScores && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {scoreCards.map(({ label, value, accent, desc }) => {
+            const num   = value != null ? Number(value) : null;
+            const b     = esgRiskBand(num);
+            return (
+              <div key={label} className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-3 flex flex-col gap-1">
+                <span className="text-[10px] font-medium" style={{ color: accent }}>{label}</span>
+                <span className="text-2xl font-bold font-mono text-white">
+                  {num != null ? num.toFixed(1) : NP}
+                </span>
+                {num != null && (
+                  <span className="text-[10px] font-semibold" style={{ color: b.color }}>{b.label}</span>
+                )}
+                <span className="text-[10px] text-[#334155] mt-auto">Sustainalytics · {desc}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Meta row */}
+      <div className="flex flex-wrap gap-2 items-center">
+        {performance && (
+          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-lg border"
+            style={{ color: band.color, borderColor: `${band.color}40`, background: `${band.color}12` }}>
+            {esgPerfLabel(performance)}
+          </span>
+        )}
+        {controversy != null && (
+          <span className="text-[10px] px-2.5 py-1 rounded-lg border"
+            style={{ color: ctv.color, borderColor: `${ctv.color}40`, background: `${ctv.color}12` }}>
+            Controversy: {ctv.text}
+          </span>
+        )}
+        {ratingPeriod && (
+          <span className="text-[10px] px-2.5 py-1 rounded-lg border border-[#1E2D4A] text-[#475569] bg-[#080C14]">
+            Rated: {ratingPeriod}
+          </span>
+        )}
+        {msciRating && (
+          <span className="text-[10px] px-2.5 py-1 rounded-lg border border-[#2D6BFF]/40 text-[#60A5FA] bg-[#2D6BFF]/10 flex items-center gap-1">
+            <span className="text-[10px] font-bold text-[#F59E0B] bg-[#F59E0B]/10 px-1 py-px rounded">AI</span>
+            MSCI: {msciRating}
+          </span>
+        )}
+      </div>
+
+      {/* AI Initiatives */}
+      {initiatives.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-[10px] font-semibold text-[#60A5FA] uppercase tracking-wide">Key Initiatives</span>
+            <span className="text-[10px] px-1.5 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 font-bold">AI</span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {initiatives.map((init, i) => (
+              <div key={i} className="bg-[#080C14] border border-[#1E2D4A] rounded-xl p-3 space-y-1 motion-safe:hover:border-[#2D6BFF]/40 transition-colors">
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold text-[#60A5FA] mt-px shrink-0">{i + 1}</span>
+                  <span className="text-[11px] font-semibold text-[#E2E8F0]">{init.name}</span>
+                </div>
+                <p className="text-[10px] text-[#94A3B8] leading-relaxed pl-4">{init.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* AI Narrative */}
+      {narrative && (
+        <div className="bg-[#2D6BFF]/05 border border-[#2D6BFF]/20 rounded-xl p-4 space-y-1">
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className="text-[10px] px-1.5 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 font-bold">AI</span>
+            <span className="text-[10px] text-[#475569]">ESG Assessment</span>
+          </div>
+          <p className="text-[11px] text-[#94A3B8] leading-relaxed">{narrative}</p>
+          {aiSource && <p className="text-[10px] text-[#334155] pt-1">{aiSource}</p>}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1060,11 +1728,11 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-sm font-semibold text-white">{ceoName ?? "CEO"}</p>
-                <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#2D6BFF]/15 border border-[#2D6BFF]/30 text-[#60A5FA] font-medium">
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#2D6BFF]/15 border border-[#2D6BFF]/30 text-[#60A5FA] font-medium">
                   Chief Executive Officer
                 </span>
                 {tenureNote && (
-                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#1E2D4A] border border-[#334155] text-[#93C5FD] font-medium">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1E2D4A] border border-[#334155] text-[#93C5FD] font-medium">
                     {tenureNote}
                   </span>
                 )}
@@ -1075,7 +1743,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
                 </p>
               )}
             </div>
-            <span className="shrink-0 text-[9px] px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 font-medium">AI</span>
+            <span className="shrink-0 text-[10px] px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40 font-medium">AI</span>
           </div>
 
           {/* Bio body */}
@@ -1098,25 +1766,25 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
       {/* ── Board governance row ───────────────────────────────────────────── */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center">
-          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Board Size</p>
+          <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Board Size</p>
           <p className="text-lg font-bold text-white font-mono">
             {board.total_members != null ? board.total_members : "—"}
           </p>
-          <p className="text-[9px] text-[#334155] mt-0.5">
+          <p className="text-[10px] text-[#334155] mt-0.5">
             {hasBoardData ? "Tavily [AI EXTRACTED]" : "Data not found"}
           </p>
         </div>
         <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center">
-          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Independent</p>
+          <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Independent</p>
           <p className="text-lg font-bold font-mono" style={{ color: board.independent_pct != null && board.independent_pct >= 50 ? "#22C55E" : "#F59E0B" }}>
             {board.independent_pct != null ? `${board.independent_pct}%` : "—"}
           </p>
-          <p className="text-[9px] text-[#334155] mt-0.5">
+          <p className="text-[10px] text-[#334155] mt-0.5">
             {hasBoardData ? "Tavily [AI EXTRACTED]" : "Data not found"}
           </p>
         </div>
         <div className="rounded-xl border border-[#1E2D4A] bg-[#0F1629] px-4 py-3 text-center flex flex-col items-center justify-center">
-          <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-2">Governance</p>
+          <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-2">Governance</p>
           <span className={`inline-flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-full ${
             isFlag
               ? "bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[#FCD34D]"
@@ -1125,7 +1793,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
             <span className={`w-1.5 h-1.5 rounded-full ${isFlag ? "bg-[#F59E0B]" : "bg-[#22C55E]"}`} />
             {isFlag ? govFlag.replace("Flag: ", "") : "No red flags"}
           </span>
-          <p className="text-[9px] text-[#334155] mt-1.5">AI assessment</p>
+          <p className="text-[10px] text-[#334155] mt-1.5">AI assessment</p>
         </div>
       </div>
 
@@ -1137,9 +1805,9 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="bg-[#080C14]">
-                  <th className="text-left px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Name</th>
-                  <th className="text-left px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Title</th>
-                  <th className="text-right px-4 py-2.5 text-[9px] font-bold text-[#475569] uppercase tracking-wider">Compensation</th>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#475569] uppercase tracking-wider">Name</th>
+                  <th className="text-left px-4 py-2.5 text-[10px] font-bold text-[#475569] uppercase tracking-wider">Title</th>
+                  <th className="text-right px-4 py-2.5 text-[10px] font-bold text-[#475569] uppercase tracking-wider">Compensation</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1E2D4A]">
@@ -1168,7 +1836,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
 
       {/* Source attribution */}
       {aiSource && (
-        <p className="text-[9px] text-[#334155]">
+        <p className="text-[10px] text-[#334155]">
           AI narrative: <span className="text-indigo-400/70">{aiSource}</span>
           {" · "}Executive data: FMP /v3/key-executives
         </p>
@@ -1252,7 +1920,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
                 >
                   {i + 1}
                 </div>
-                <span className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40">
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-800/40">
                   AI
                 </span>
               </div>
@@ -1272,7 +1940,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
                   <div className="flex-1 min-w-0">
                     <p className="text-[10px] text-[#FCD34D] font-medium leading-relaxed">{d.evidence}</p>
                     {d.evidence_source && (
-                      <p className="text-[9px] text-[#78716C] mt-0.5 truncate">
+                      <p className="text-[10px] text-[#78716C] mt-0.5 truncate">
                         {(() => {
                           try { return new URL(d.evidence_source).hostname; }
                           catch { return d.evidence_source; }
@@ -1286,7 +1954,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
               {/* Category badge */}
               <div className="flex items-center gap-1.5">
                 <span
-                  className="text-[9px] font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider"
+                  className="text-[10px] font-medium px-2.5 py-0.5 rounded-full uppercase tracking-wider"
                   style={{ background: cat.bg, color: cat.color, border: `1px solid ${cat.border}` }}
                 >
                   {cat.label}
@@ -1299,7 +1967,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
 
       {/* Source attribution */}
       {aiSource && (
-        <p className="text-[9px] text-[#334155]">
+        <p className="text-[10px] text-[#334155]">
           Source: Tavily earnings call + analyst search →{" "}
           <span className="text-indigo-400/70">{aiSource}</span>
         </p>
@@ -1343,7 +2011,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
           ))}
         </div>
         {coverageNote && (
-          <span className="text-[9px] text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 rounded-full px-3 py-1">
+          <span className="text-[10px] text-[#F59E0B] bg-[#F59E0B]/10 border border-[#F59E0B]/20 rounded-full px-3 py-1">
             {coverageNote}
           </span>
         )}
@@ -1358,7 +2026,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
             <thead>
               <tr className="border-b border-[#1E2D4A] bg-[#080C14]">
                 {[yearLabel, "Revenue", growthLabel, "Gross Mgn", "EBITDA Mgn", "Net Mgn", "EPS", "BVPS", "CFPS", "FCF"].map((h) => (
-                  <th key={h} className="text-[9px] font-semibold text-[#475569] uppercase tracking-wider text-right first:text-left py-2.5 px-3 whitespace-nowrap">{h}</th>
+                  <th key={h} className="text-[10px] font-semibold text-[#475569] uppercase tracking-wider text-right first:text-left py-2.5 px-3 whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
@@ -1376,7 +2044,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
                   >
                     <td className={`py-2.5 px-3 font-mono font-bold ${isMostRecent ? "text-white" : "text-[#94A3B8]"}`}>
                       {row.label ?? fv(row.year)}
-                      {isMostRecent && <span className="ml-2 text-[8px] text-[#2D6BFF] font-normal uppercase tracking-wide">latest</span>}
+                      {isMostRecent && <span className="ml-2 text-[10px] text-[#2D6BFF] font-normal uppercase tracking-wide">latest</span>}
                     </td>
                     <td className="py-2.5 px-3 font-mono text-right text-[#94A3B8]">{fmtBn(row.revenue)}</td>
                     <td className={`py-2.5 px-3 font-mono text-right font-medium ${yoy == null ? "text-[#334155]" : Number(yoy) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
@@ -1432,7 +2100,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
                     {divHistory.map((d, i) => (
                       <tr key={i} className="border-b border-[#1E2D4A]/50">
                         <td className="py-1 px-2 font-mono text-[#94A3B8]">{d.year}</td>
-                        <td className="py-1 px-2 font-mono text-right text-[#94A3B8]">${d.dps.toFixed(4)} <span className="text-[9px] text-[#334155]">[{d.source}]</span></td>
+                        <td className="py-1 px-2 font-mono text-right text-[#94A3B8]">${d.dps.toFixed(4)} <span className="text-[10px] text-[#334155]">[{d.source}]</span></td>
                       </tr>
                     ))}
                   </tbody>
@@ -1568,6 +2236,8 @@ export default function AdhocTickerPage() {
   const [livePeers, setLivePeers] = useState<any[]>([]);
   const [tavilyBannerDismissed, setTavilyBannerDismissed] = useState(false);
   const [anthropicBannerDismissed, setAnthropicBannerDismissed] = useState(false);
+  const [brandMode, setBrandMode] = useState(false);
+  const [lightMode, setLightMode] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Trigger pipeline on mount
@@ -1662,8 +2332,9 @@ export default function AdhocTickerPage() {
   }
 
   // ── Extract sections ──────────────────────────────────────────────────────
-  const sections = report.sections ?? {};
-  const mandate   = report.mandate ?? {};
+  const sections    = report.sections ?? {};
+  const mandate     = report.mandate ?? {};
+  const brandColors = (report.brand_colors ?? {}) as { primary?: string; secondary?: string; on_brand_text?: string; confidence?: string };
   const s1  = sections.s1_cover          ?? sections.s1_mandate         ?? {};
   const s2  = sections.s2_overview        ?? sections.s2_company         ?? {};
   const s3  = sections.s3_news            ?? {};
@@ -1672,10 +2343,14 @@ export default function AdhocTickerPage() {
   const s5  = sections.s5_dcf             ?? sections.s5_forward         ?? {};
   const s6  = sections.s6_valuation       ?? {};
   const s7  = sections.s7_technicals      ?? sections.s7_technical       ?? {};
-  const s8  = sections.s8_competitive     ?? {};
+  const s8       = sections.s8_competitive     ?? {};
+  const s_porter = sections.s_b_porter        ?? {};
   const s9  = sections.s9_industry        ?? {};
   const s10  = sections.s10_institutional  ?? {};
-  const s10b = sections.s10b_management   ?? {};
+  const s10b  = sections.s10b_management  ?? {};
+  const s_c    = sections.s_c_sotp        ?? {};
+  const s_esg = sections.s_h_esg         ?? {};
+  const s_ma  = sections.s_j_ma          ?? {};
   const s11  = sections.s11_risks         ?? {};
   const s12 = sections.s12_scenarios      ?? {};
   const s13 = sections.s13_sentiment      ?? {};
@@ -1720,14 +2395,53 @@ export default function AdhocTickerPage() {
     api_error:    { label: "Anthropic API Error",        detail: "An unexpected Anthropic API error occurred. AI narrative sections may be incomplete. Check logs for details.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
   };
 
+  const cssVars = {
+    "--section-accent": (brandMode && brandColors.primary) ? brandColors.primary : "#2D6BFF",
+    "--bg-page":           lightMode ? "#F0F4F8" : "#0B0F19",
+    "--bg-section-header": lightMode ? "#1B2951" : "#0D1626",
+    "--bg-section-body":   lightMode ? "#FFFFFF" : "#0F1623",
+    "--bg-card":           lightMode ? "#F1F5F9" : "#131929",
+    "--bg-card-dark":      lightMode ? "#E2EBF4" : "#080C14",
+    "--border":            lightMode ? "#CBD5E1" : "#1E2D4A",
+    "--text-primary":      lightMode ? "#1E293B" : "#E2E8F0",
+    "--text-secondary":    lightMode ? "#374151" : "#94A3B8",
+    "--text-muted":        lightMode ? "#475569" : "#8896AA",
+  } as React.CSSProperties;
+
   return (
-    <div className="min-h-screen bg-[#0B0F19] pb-20" ref={sectionRefs}>
+    <div className="adhoc-report min-h-screen pb-20" ref={sectionRefs}
+      style={{ ...cssVars, backgroundColor: "var(--bg-page)" }}>
+
+      {/* ── Theme CSS overrides: converts all hardcoded dark-theme colors to CSS vars ── */}
+      <style>{`
+        .adhoc-report .text-\\[#475569\\] { color: var(--text-muted) !important; }
+        .adhoc-report .text-\\[#1E2D4A\\] { color: var(--border) !important; }
+        .adhoc-report .bg-\\[#131929\\] { background-color: var(--bg-card) !important; }
+        .adhoc-report .bg-\\[#0D1626\\] { background-color: var(--bg-card) !important; }
+        .adhoc-report .bg-\\[#0F1623\\] { background-color: var(--bg-section-body) !important; }
+        .adhoc-report .bg-\\[#080C14\\] { background-color: var(--bg-card-dark) !important; }
+        .adhoc-report .border-\\[#1E2D4A\\] { border-color: var(--border) !important; }
+        .adhoc-report .divide-\\[#1E2D4A\\] > * + * { border-color: var(--border) !important; }
+        .adhoc-report .text-\\[#94A3B8\\] { color: var(--text-secondary) !important; }
+        .adhoc-report .text-\\[#E2E8F0\\] { color: var(--text-primary) !important; }
+        .adhoc-report .bg-\\[#1E2D4A\\] { background-color: var(--bg-card-dark) !important; }
+        .adhoc-report table thead th { background-color: var(--bg-card-dark) !important; }
+      `}</style>
 
       {/* ── Sticky cover bar ────────────────────────────────────────────── */}
-      <div className="sticky top-0 z-30 bg-[#0B0F19]/95 backdrop-blur border-b border-[#1E2D4A] px-4 py-3 print:hidden">
+      <div className="sticky top-0 z-30 backdrop-blur border-b px-4 py-3 print:hidden"
+        style={{ backgroundColor: lightMode ? "rgba(240,244,248,0.95)" : "rgba(11,15,25,0.95)", borderColor: "var(--border)" }}>
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
+              {s1.company_image && (
+                <img
+                  src={s1.company_image}
+                  alt=""
+                  className="w-7 h-7 rounded object-contain bg-white/5 shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                />
+              )}
               <span className="text-xl font-bold font-mono text-white">{ticker}</span>
               <span
                 className="text-sm font-bold px-3 py-0.5 rounded-lg"
@@ -1737,7 +2451,7 @@ export default function AdhocTickerPage() {
               </span>
             </div>
             {report.company_name && (
-              <span className="text-xs text-[#475569] hidden sm:block">{report.company_name}</span>
+              <span className="text-xs hidden sm:block" style={{ color: "var(--text-muted)" }}>{report.company_name}</span>
             )}
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded border
@@ -1760,6 +2474,39 @@ export default function AdhocTickerPage() {
                 ))}
               </div>
             )}
+            {/* Light / Dark toggle — always visible */}
+            <button
+              onClick={() => setLightMode(m => !m)}
+              title={lightMode ? "Switch to dark theme" : "Switch to light theme"}
+              className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded border transition-all"
+              style={lightMode
+                ? { background: "#E2EBF4", color: "#1B2951", borderColor: "#CBD5E1" }
+                : { background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }
+              }>
+              {lightMode ? "☀ Light" : "◐ Dark"}
+            </button>
+            {/* Brand color toggle — only when brand colors are available */}
+            {brandColors.primary ? (
+              <button
+                onClick={() => setBrandMode(m => !m)}
+                title={brandMode ? "Switch to default palette" : `Use brand colours: ${brandColors.primary}`}
+                className="flex items-center gap-1.5 text-[10px] px-3 py-1.5 rounded border transition-all"
+                style={brandMode
+                  ? { background: `${brandColors.primary}22`, color: brandColors.primary, borderColor: `${brandColors.primary}55` }
+                  : { background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }
+                }>
+                <span className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-white/20" style={{ background: brandColors.primary }} />
+                Brand
+              </button>
+            ) : (
+              <span
+                title="Regenerate this report to extract brand colours"
+                className="text-[10px] px-3 py-1.5 rounded border cursor-help"
+                style={{ background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)", opacity: 0.5 }}>
+                <span className="w-2.5 h-2.5 rounded-full inline-block mr-1.5 bg-slate-500 shrink-0 align-middle" />
+                Brand
+              </span>
+            )}
             <button
               onClick={() => {
                 setReport(null);
@@ -1770,11 +2517,13 @@ export default function AdhocTickerPage() {
                   .then(d => { setReport(d); setLoading(false); })
                   .catch(e => { setError(String(e)); setLoading(false); });
               }}
-              className="text-[10px] px-3 py-1.5 rounded bg-[#131929] border border-[#1E2D4A] text-[#475569] hover:text-white hover:border-[#10B981] transition-all">
+              className="text-[10px] px-3 py-1.5 rounded border transition-all"
+              style={{ background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }}>
               Regenerate
             </button>
             <button onClick={handlePrint}
-              className="text-[10px] px-3 py-1.5 rounded bg-[#131929] border border-[#1E2D4A] text-[#475569] hover:text-white hover:border-[#2D6BFF] transition-all">
+              className="text-[10px] px-3 py-1.5 rounded border transition-all"
+              style={{ background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }}>
               Print
             </button>
           </div>
@@ -1787,7 +2536,8 @@ export default function AdhocTickerPage() {
         <aside className="hidden lg:block w-56 shrink-0 print:hidden">
           <div className="sticky top-16 h-[calc(100vh-5rem)] overflow-y-auto pb-10">
             <Link href="/reports/adhoc"
-              className="text-[10px] text-[#475569] hover:text-[#60A5FA] block mb-5 transition-colors">
+              className="text-[10px] block mb-5 transition-colors hover:text-[#60A5FA]"
+              style={{ color: "var(--text-muted)" }}>
               &larr; Research
             </Link>
             <nav className="space-y-px">
@@ -1795,19 +2545,20 @@ export default function AdhocTickerPage() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
-                  className={`flex items-center gap-2 px-2 py-1.5 rounded text-[11px] transition-all
-                    ${activeSection === item.id
-                      ? "text-white bg-[#131929] border-l-2 border-[#2D6BFF]"
-                      : "text-[#475569] hover:text-[#94A3B8] hover:bg-[#131929]/50"}`}
+                  className="flex items-center gap-2 px-2 py-1.5 rounded text-[11px] transition-all"
+                  style={activeSection === item.id
+                    ? { color: "#fff", backgroundColor: "var(--bg-card)", borderLeft: "2px solid #2D6BFF" }
+                    : { color: "var(--text-muted)" }}
                 >
-                  <span className="font-mono text-[9px] w-4 text-center opacity-50">{item.n}</span>
-                  {item.label}
+                  <span className="font-mono text-[10px] shrink-0 opacity-50 w-6 text-right">{String(item.n).padStart(2, "0")}</span>
+                  <span className="text-[10px]">{item.label}</span>
                 </a>
               ))}
             </nav>
             <div className="mt-6 px-2">
               <button onClick={() => router.push("/reports/adhoc")}
-                className="w-full text-[11px] py-2 px-3 rounded-lg bg-[#131929] border border-[#1E2D4A] text-[#475569] hover:text-white hover:border-[#2D6BFF] transition-all">
+                className="w-full text-[11px] py-2 px-3 rounded-lg border transition-all"
+                style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
                 Run Another
               </button>
             </div>
@@ -1922,22 +2673,40 @@ export default function AdhocTickerPage() {
                       )}
                     </div>
                     <div>
-                      <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-2">Conviction Score</p>
+                      <p className="text-[10px] text-[#475569] uppercase tracking-widest mb-2">Conviction Score</p>
                       <ConvictionBar score={conviction} />
                     </div>
                   </div>
 
                   {/* Stat cards row */}
                   {heroStats.length > 0 && (
-                    <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(heroStats.length, 5)}, 1fr)` }}>
+                    <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: `repeat(${Math.min(heroStats.length, 5)}, 1fr)` }}>
                       {heroStats.map(({ label, val, color }) => (
                         <div key={label} className="rounded-xl px-4 py-3 border" style={{ background: "#080C14", borderColor: "#1E2D4A" }}>
-                          <p className="text-[9px] text-[#475569] uppercase tracking-widest mb-1.5">{label}</p>
+                          <p className="text-[10px] text-[#475569] uppercase tracking-widest mb-1.5">{label}</p>
                           <p className="text-xl font-bold font-mono" style={{ color }}>{val}</p>
                         </div>
                       ))}
                     </div>
                   )}
+                  {/* 2-line thesis from first investment argument */}
+                  {(() => {
+                    const args = rec.three_arguments ?? rec.investment_arguments ?? rec.arguments ?? [];
+                    if (!args.length) return null;
+                    const first = args[0];
+                    const title = typeof first === "object" ? first.title : null;
+                    const body  = typeof first === "string" ? first : (first.reasoning ?? first.argument ?? first.text ?? "");
+                    const lead  = body ? String(body).slice(0, 220) + (String(body).length > 220 ? "…" : "") : null;
+                    if (!title && !lead) return null;
+                    return (
+                      <div className="border-t border-[#1E2D4A]/60 pt-4">
+                        <p className="text-[10px] text-[#334155] uppercase tracking-wider mb-1.5">Core Thesis</p>
+                        {title && <p className="text-sm font-semibold text-[#CBD5E1] mb-1">{title}</p>}
+                        {lead && <p className="text-xs text-[#475569] leading-relaxed">{lead}</p>}
+                        <span className="mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI · Sonnet 4.6</span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             );
@@ -1945,42 +2714,44 @@ export default function AdhocTickerPage() {
 
           {/* S1 — Fund Mandate */}
           <div id="s1" data-section>
-            <Section n={1} id="s1" title="Fund Mandate Checklist" color="#2D6BFF">
+            <Section n={1} id="s1" title="Fund Mandate" color="#2D6BFF">
               {(() => {
                 const checks   = mandate.checks ?? s1.checks ?? s1.checklist ?? [];
                 const setupType = mandate.setup_type ?? fv(s1.setup_type);
                 const passedCnt = checks.filter((c: any) => c.pass ?? c.passed).length;
+                const failedCnt = checks.length - passedCnt;
+                const overallPass = checks.length > 0 && failedCnt === 0;
+                const scoreColor  = overallPass ? "#10B981" : failedCnt <= 2 ? "#F59E0B" : "#EF4444";
                 return (
-                  <>
-                    <div className="flex items-center justify-between gap-6 mb-5 flex-wrap">
-                      <MandateRing passed={passedCnt} total={checks.length || 17} />
-                      <div className="flex gap-2 flex-wrap">
+                  <div className="flex items-center gap-5 flex-wrap">
+                    <MandateRing passed={passedCnt} total={checks.length || 17} />
+                    <div className="flex-1 space-y-2 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="text-2xl font-bold font-mono" style={{ color: scoreColor }}>
+                          {passedCnt}<span className="text-base text-[#475569]">/{checks.length}</span>
+                        </span>
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${overallPass ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30" : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30"}`}>
+                          {overallPass ? "PASS" : `${failedCnt} failing`}
+                        </span>
                         {setupType && (
                           <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#2D6BFF]/10 text-[#60A5FA] border border-[#2D6BFF]/30">
                             Setup: {setupType}
                           </span>
                         )}
-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${passedCnt === checks.length ? "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30" : "bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/30"}`}>
-                          {checks.length - passedCnt} criteria failing
-                        </span>
                       </div>
+                      {failedCnt > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {checks.filter((c: any) => !(c.pass ?? c.passed)).slice(0, 4).map((c: any, i: number) => (
+                            <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20">
+                              {c.name ?? c.item ?? c.check}
+                            </span>
+                          ))}
+                          {failedCnt > 4 && <span className="text-[10px] text-[#475569]">+{failedCnt - 4} more</span>}
+                        </div>
+                      )}
+                      <p className="text-[10px] text-[#334155]">Full checklist → <span className="text-[#2D6BFF]">Section 15</span></p>
                     </div>
-                    {checks.length > 0 ? (
-                      <div className="border-t border-[#1E2D4A] pt-2">
-                        {checks.map((c: any, i: number) => (
-                          <CheckItem
-                            key={i}
-                            passed={c.pass ?? c.passed ?? false}
-                            name={c.name ?? c.item ?? c.check ?? "—"}
-                            detail={c.detail ?? c.note}
-                            source={c.source}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-[#475569]">No mandate checks available.</p>
-                    )}
-                  </>
+                  </div>
                 );
               })()}
             </Section>
@@ -2007,11 +2778,11 @@ export default function AdhocTickerPage() {
                 const hasContent = narrative || fmpDesc || factFields.length > 0;
                 return (
                   <>
-                    {narrative ? (
+                    {narrative && !String(narrative).startsWith("Synthesis failed") ? (
                       <div className="mb-5">
                         <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                           {narrative}
-                          <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                          <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                         </p>
                       </div>
                     ) : fmpDesc ? (
@@ -2031,6 +2802,49 @@ export default function AdhocTickerPage() {
                         ))}
                       </div>
                     )}
+
+                    {/* Market Position (Upgrade 1) */}
+                    {(() => {
+                      const msPct   = s2.market_share_pct as string | null | undefined;
+                      const compRank = s2.competitive_rank as string | null | undefined;
+                      const comps   = (s2.named_competitors ?? []) as string[];
+                      const src     = s2.mktpos_source as string | undefined;
+                      if (!msPct && !compRank && !comps.length) {
+                        return (
+                          <p className="mt-4 text-[10px] text-[#334155]">
+                            Market share: <span className="text-[#475569]">[Not publicly disclosed]</span>
+                          </p>
+                        );
+                      }
+                      return (
+                        <div className="mt-4 pt-4 border-t border-[#1E2D4A]/60">
+                          <p className="text-[10px] font-semibold text-[#60A5FA] uppercase tracking-wider mb-2">Market Position</p>
+                          <div className="flex flex-wrap gap-3">
+                            {msPct && src === "tavily" && (
+                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                                <span className="text-[#64748B]">Market Share: </span>
+                                <span className="font-bold text-[#60A5FA]">{msPct}</span>
+                                <TagBadge source={src} />
+                              </div>
+                            )}
+                            {compRank && (
+                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                                <span className="text-[#64748B]">Position: </span>
+                                <span className="font-bold text-[#10B981]">{compRank}</span>
+                                {src && <TagBadge source={src} />}
+                              </div>
+                            )}
+                          </div>
+                          {comps.length > 0 && (
+                            <p className="mt-2 text-[10px] text-[#64748B]">
+                              Key competitors: <span className="text-[#94A3B8]">{comps.join(", ")}</span>
+                            </p>
+                          )}
+                          {src && <p className="mt-1 text-[10px] text-[#334155]">{src}</p>}
+                        </div>
+                      );
+                    })()}
+
                     {!hasContent && <p className="text-xs text-[#475569]">Data unavailable</p>}
                   </>
                 );
@@ -2066,10 +2880,14 @@ export default function AdhocTickerPage() {
                       </div>
                     )}
                     {synthesis && (
-                      <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
-                        {synthesis}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
-                      </p>
+                      <div className="mb-5 space-y-2">
+                        {String(synthesis).split(/\n\n+/).map((para, pi) => (
+                          <p key={pi} className="text-xs text-[#94A3B8] leading-relaxed">
+                            {para}
+                            {pi === 0 && <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>}
+                          </p>
+                        ))}
+                      </div>
                     )}
                     {nearTerm.length > 0 && (
                       <div className="mb-4">
@@ -2156,9 +2974,6 @@ export default function AdhocTickerPage() {
                 const hasDcf    = !!(s5.implied_price || s5.pv_fcfs || s5.enterprise_value);
                 const dcf       = hasDcf ? s5 : (s5.dcf ?? s5.dcf_model ?? {});
                 const wacc      = s5.wacc_inputs ?? s5.wacc ?? (dcf as any).wacc_breakdown ?? {};
-                const sensitivity: any[] = (s5.sensitivity_table && Array.isArray(s5.sensitivity_table))
-                  ? s5.sensitivity_table
-                  : s5.sensitivity ?? [];
                 const implied   = fv(s5.implied_price ?? (dcf as any).implied_price);
                 const impliedUpside = fv(s5.upside_pct ?? s5.implied_upside ?? (dcf as any).implied_upside);
                 return (
@@ -2194,93 +3009,136 @@ export default function AdhocTickerPage() {
                       );
                     })()}
                     {(Object.keys(dcf).length > 0 || hasDcf) && (() => {
-                      const wacc_pct   = fv((wacc as any).wacc ?? (dcf as any).wacc);
-                      const tgr        = fv((dcf as any).terminal_growth ?? (dcf as any).terminal_growth_rate);
-                      const horizon    = fv((dcf as any).projection_years ?? (dcf as any).horizon_years ?? (dcf as any).years);
-                      const curP       = Number(fv(report.current_price ?? s1.current_price) ?? 0);
-                      const implP      = Number(implied ?? 0);
-                      const upPct      = impliedUpside != null ? Number(impliedUpside) : (curP > 0 && implP > 0 ? ((implP - curP) / curP * 100) : null);
-                      const upColor    = upPct != null && upPct >= 0 ? "#10B981" : "#EF4444";
-                      const barFill    = (curP > 0 && implP > 0)
-                        ? Math.max(5, Math.min(95, (Math.min(curP, implP) / Math.max(curP, implP)) * 100))
-                        : 50;
-                      const curIsLow   = implP > curP;
+                      const wacc_pct    = fv((wacc as any).wacc ?? (dcf as any).wacc);
+                      const tgr         = fv((dcf as any).terminal_growth ?? s5.terminal_growth);
+                      const curP        = Number(fv(report.current_price ?? s1.current_price) ?? 0);
+                      const implP       = Number(implied ?? 0);
+                      const upPct       = impliedUpside != null ? Number(impliedUpside) : (curP > 0 && implP > 0 ? ((implP - curP) / curP * 100) : null);
+                      const upColor     = upPct != null && upPct >= 0 ? "#10B981" : "#EF4444";
+                      const curIsLow    = implP > curP;
+                      const fcfMargRaw  = fv((dcf as any).fcf_margin_avg ?? s5.fcf_margin_avg);
+                      const pvFcfs      = fv((dcf as any).pv_fcfs ?? s5.pv_fcfs);
+                      const pvTerm      = fv((dcf as any).pv_terminal ?? s5.pv_terminal);
+                      const evVal       = fv((dcf as any).enterprise_value ?? s5.enterprise_value);
+                      const ndVal       = fv((dcf as any).net_debt ?? s5.net_debt);
+                      const termMult    = fv((dcf as any).terminal_multiple ?? s5.terminal_multiple);
+                      const eqVal       = (evVal != null && ndVal != null) ? Number(evVal) - Number(ndVal) : null;
+                      const fmtBnDcf    = (v: any) => v != null ? `$${Number(v).toFixed(0)}B` : null;
                       return (
                         <div className="mb-6">
                           <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">DCF Valuation</p>
-                          {/* Visual bridge */}
-                          {implP > 0 && curP > 0 && (
-                            <div className="bg-[#080C14] border border-[#1E2D4A] rounded-2xl p-5 mb-4">
-                              {/* Inputs row */}
-                              <div className="flex items-center gap-4 mb-5 flex-wrap">
-                                {wacc_pct != null && (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">WACC</span>
-                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{Number(wacc_pct).toFixed(1)}%</span>
+
+                          {implP > 0 && curP > 0 ? (
+                            /* ── Full DCF output card ── */
+                            <div className="rounded-2xl overflow-hidden mb-4" style={{ border: `1px solid ${upColor}25` }}>
+                              {/* Hero: current vs implied */}
+                              <div className="bg-[#080C14] px-5 pt-5 pb-4">
+                                <div className="flex items-center justify-between gap-4 mb-4">
+                                  <div>
+                                    <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Current Price</p>
+                                    <p className="text-3xl font-bold font-mono text-[#94A3B8]">{fmt$(curP)}</p>
                                   </div>
-                                )}
-                                {tgr != null && (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">Terminal Growth</span>
-                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{Number(tgr).toFixed(1)}%</span>
+                                  <div className="flex-1 text-center">
+                                    <p className="text-2xl font-bold font-mono" style={{ color: upColor }}>
+                                      {upPct != null ? `${upPct >= 0 ? "+" : ""}${upPct.toFixed(1)}%` : "—"}
+                                    </p>
+                                    <div className="mt-1.5 h-1.5 rounded-full bg-[#1E2D4A] overflow-hidden mx-4">
+                                      <div className="h-full rounded-full" style={{
+                                        width: `${Math.max(5, Math.min(95, (Math.min(curP, implP) / Math.max(curP, implP)) * 100))}%`,
+                                        background: upColor + "70",
+                                        marginLeft: curIsLow ? "0" : "auto",
+                                      }} />
+                                    </div>
+                                    <p className="text-[10px] text-[#475569] mt-1">{curIsLow ? "upside to fair value" : "above fair value"}</p>
                                   </div>
-                                )}
-                                {horizon != null && (
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[9px] text-[#475569] uppercase tracking-wider">Horizon</span>
-                                    <span className="text-sm font-bold font-mono text-[#60A5FA]">{horizon}Y</span>
+                                  <div className="text-right">
+                                    <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">DCF Fair Value</p>
+                                    <p className="text-3xl font-bold font-mono" style={{ color: upColor }}>{fmt$(implP)}</p>
                                   </div>
-                                )}
-                                <span className="ml-auto text-[9px] text-[#1E3A5F] px-2 py-0.5 rounded border border-[#1E2D4A]">Discounted Cash Flow Model</span>
+                                </div>
+                                {/* Methodology line */}
+                                <p className="text-[10px] text-[#334155] leading-relaxed">
+                                  [CALCULATED] 3-year projection horizon
+                                  {fcfMargRaw != null ? ` · ${Number(fcfMargRaw).toFixed(1)}% avg FCF margin (3yr historical)` : ""}
+                                  {wacc_pct != null ? ` · ${Number(wacc_pct).toFixed(1)}% WACC` : ""}
+                                  {termMult != null ? ` · ${Number(termMult).toFixed(1)}× terminal EV/EBITDA` : (tgr != null ? ` · ${Number(tgr).toFixed(2)}% terminal growth` : "")}
+                                  {" · FMP/yfinance [CALCULATED]"}
+                                </p>
                               </div>
-                              {/* Price comparison */}
-                              <div className="flex items-end justify-between gap-6 mb-4">
-                                <div>
-                                  <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">Current Price</p>
-                                  <p className={`text-2xl font-bold font-mono ${curIsLow ? "text-[#94A3B8]" : "text-white"}`}>{fmt$(curP)}</p>
-                                </div>
-                                <div className="flex-1 flex items-center gap-2 pb-3">
-                                  <div className="flex-1 h-2 rounded-full bg-[#1E2D4A] overflow-hidden">
-                                    <div className="h-full rounded-full" style={{
-                                      width: `${curIsLow ? barFill : 100}%`,
-                                      background: curIsLow ? "#94A3B840" : `${upColor}60`,
-                                    }} />
+
+                              {/* Value build-up waterfall */}
+                              {(pvFcfs != null || pvTerm != null) && (
+                                <div className="bg-[#0A0E1A] border-t border-[#1E2D4A] px-5 py-4">
+                                  <p className="text-[10px] text-[#334155] uppercase tracking-wider mb-3">Value Build-up</p>
+                                  <div className="space-y-2">
+                                    {([
+                                      { label: "PV of FCFs (3-year explicit period)", val: pvFcfs,  sign: " ",  sum: false },
+                                      { label: "PV of Terminal Value",                val: pvTerm,  sign: "+",  sum: false },
+                                      { label: "Enterprise Value",                    val: evVal,   sign: "=",  sum: true  },
+                                      { label: "Less: Net Debt (Debt − Cash)",        val: ndVal != null ? -Number(ndVal) : null, sign: "−", sum: false },
+                                      { label: "Equity Value",                        val: eqVal,   sign: "=",  sum: true  },
+                                    ] as { label: string; val: any; sign: string; sum: boolean }[])
+                                      .filter(r => r.val != null)
+                                      .map((row, i) => (
+                                        <div key={i} className={`flex items-center gap-3 ${row.sum ? "border-t border-[#1E2D4A] pt-2" : ""}`}>
+                                          <span className={`text-[11px] font-mono w-5 text-center shrink-0 ${row.sum ? "text-[#60A5FA]" : "text-[#475569]"}`}>{row.sign}</span>
+                                          <span className="text-[11px] text-[#94A3B8] flex-1">{row.label}</span>
+                                          <span className={`text-[11px] font-mono tabular-nums ${row.sum ? "font-bold text-white" : "text-[#64748B]"}`}>
+                                            {Number(row.val) < 0 ? `-$${Math.abs(Number(row.val)).toFixed(0)}B` : `$${Number(row.val).toFixed(0)}B`}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    <div className="border-t border-[#60A5FA]/20 pt-2 flex items-center gap-3">
+                                      <span className="text-[11px] font-mono w-5 text-center shrink-0" style={{ color: upColor }}>÷</span>
+                                      <span className="text-[11px] text-[#94A3B8] flex-1">Per Share (÷ diluted shares outstanding)</span>
+                                      <span className="text-[13px] font-bold font-mono tabular-nums" style={{ color: upColor }}>{fmt$(implP)}</span>
+                                    </div>
                                   </div>
-                                  <span className={`text-lg font-bold font-mono ${upPct != null && upPct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                    {upPct != null ? `${upPct >= 0 ? "+" : ""}${upPct.toFixed(1)}%` : "→"}
-                                  </span>
-                                  <div className="flex-1 h-2 rounded-full bg-[#1E2D4A] overflow-hidden">
-                                    <div className="h-full rounded-full" style={{
-                                      width: `${curIsLow ? 100 : barFill}%`,
-                                      background: curIsLow ? `${upColor}60` : "#94A3B840",
-                                    }} />
-                                  </div>
                                 </div>
-                                <div className="text-right">
-                                  <p className="text-[9px] text-[#475569] uppercase tracking-wider mb-1">DCF Implied</p>
-                                  <p className={`text-2xl font-bold font-mono ${curIsLow ? "text-white" : "text-[#94A3B8]"}`} style={{ color: curIsLow ? upColor : undefined }}>{fmt$(implP)}</p>
-                                </div>
-                              </div>
-                              <p className="text-[10px] text-[#475569] text-center">
-                                {curIsLow ? `Stock is trading ${Math.abs(upPct ?? 0).toFixed(1)}% below DCF fair value` : `Stock is trading ${Math.abs(upPct ?? 0).toFixed(1)}% above DCF fair value`}
+                              )}
+                            </div>
+                          ) : (
+                            /* ── DCF not calculable ── */
+                            <div className="flex items-start gap-3 bg-[#0D1626] border border-[#1E2D4A] rounded-xl px-4 py-3 mb-4">
+                              <svg className="shrink-0 mt-0.5" width={14} height={14} viewBox="0 0 16 16" fill="none">
+                                <circle cx={8} cy={8} r={7} stroke="#475569" strokeWidth={1.5}/>
+                                <path d="M8 5v3.5M8 11v.5" stroke="#475569" strokeWidth={1.5} strokeLinecap="round"/>
+                              </svg>
+                              <p className="text-[11px] text-[#475569] leading-relaxed">
+                                DCF implied price could not be calculated — this typically occurs when a company has negative or insufficient historical free cash flow (common for growth-stage companies, insurers, and pre-profit businesses). WACC inputs and peer multiples below are shown for reference.
                               </p>
                             </div>
                           )}
-                          {/* KV fallback for other DCF fields */}
+
+                          {/* KV details */}
                           <div className="grid grid-cols-2 gap-x-8">
                             {([
-                              ["FCF Margin Avg", (dcf as any).fcf_margin_avg],
-                              ["Terminal Growth", (dcf as any).terminal_growth],
-                              ["Terminal Multiple", (dcf as any).terminal_multiple],
-                              ["Peer EV/EBITDA Used", (dcf as any).peer_ev_ebitda_used],
-                              ["PV of FCFs", (dcf as any).pv_fcfs],
-                              ["PV Terminal", (dcf as any).pv_terminal],
-                              ["Enterprise Value", (dcf as any).enterprise_value],
-                              ["Net Debt", (dcf as any).net_debt],
-                            ] as [string, any][]).filter(([, v]) => fv(v) != null).map(([label, v]) => (
-                              <KV key={label} label={label}
-                                value={<>{typeof fv(v) === "number" && label.includes("Value") ? fmtBn(fv(v)) : typeof fv(v) === "number" && label.includes("Growth") ? `${fv(v)}%` : fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
-                            ))}
+                              ["FCF Margin (3yr Avg)", (dcf as any).fcf_margin_avg ?? s5.fcf_margin_avg],
+                              ["Terminal Growth Rate", (dcf as any).terminal_growth ?? s5.terminal_growth],
+                              ["Terminal EV/EBITDA",   (dcf as any).terminal_multiple ?? s5.terminal_multiple],
+                              ["Peer EV/EBITDA Median",(dcf as any).peer_ev_ebitda_used ?? s5.peer_ev_ebitda_used],
+                              ["PV of FCFs",           (dcf as any).pv_fcfs ?? s5.pv_fcfs],
+                              ["PV Terminal Value",    (dcf as any).pv_terminal ?? s5.pv_terminal],
+                              ["Enterprise Value",     (dcf as any).enterprise_value ?? s5.enterprise_value],
+                              ["Net Debt",             (dcf as any).net_debt ?? s5.net_debt],
+                            ] as [string, any][]).filter(([, v]) => fv(v) != null).map(([label, v]) => {
+                              const raw = fv(v);
+                              const formatted = Array.isArray(raw)
+                                ? (raw as number[]).map(n => n.toFixed(1)).join(", ")
+                                : typeof raw === "number" && (label.includes("PV") || label.includes("Value") || label.includes("Debt"))
+                                  ? fmtBnDcf(raw)
+                                  : typeof raw === "number" && label.includes("Margin")
+                                    ? `${raw}%`
+                                  : typeof raw === "number" && label.includes("Growth")
+                                    ? `${raw}%`
+                                  : typeof raw === "number" && label.includes("EV/EBITDA")
+                                    ? `${raw}`
+                                  : raw;
+                              return (
+                                <KV key={label} label={label}
+                                  value={<>{formatted}{fs(v) && <TagBadge source={fs(v)} />}</>} />
+                              );
+                            })}
                           </div>
                         </div>
                       );
@@ -2296,27 +3154,44 @@ export default function AdhocTickerPage() {
                         </div>
                       </div>
                     )}
-                    {sensitivity.length > 0 && (() => {
-                      const allVals = sensitivity.flat().map((v: any) => Number(fv(v))).filter((v: number) => !isNaN(v));
-                      const min = Math.min(...allVals), max = Math.max(...allVals);
+                    {(() => {
+                      /* Sensitivity table — s5.sensitivity_table is {wacc_steps, mult_steps, rows, source} */
+                      const st = s5.sensitivity_table as any;
+                      if (!st || !st.rows || !Array.isArray(st.rows) || st.rows.length === 0) return null;
+                      const multSteps: number[] = st.mult_steps ?? [];
+                      const rows: { wacc_pct: number; prices: (number | null)[] }[] = st.rows;
+                      const allPrices = rows.flatMap(r => r.prices).filter((v): v is number => v != null);
+                      const minP = Math.min(...allPrices), maxP = Math.max(...allPrices);
+                      const curP2 = Number(fv(report.current_price ?? s1.current_price) ?? 0);
                       return (
                         <div>
-                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Sensitivity Analysis</p>
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-1">Sensitivity: Implied Price (WACC × Terminal EV/EBITDA)</p>
+                          <p className="text-[10px] text-[#334155] mb-3">Rows = WACC %; Columns = Terminal EV/EBITDA multiple. Green = above current price, Red = below.</p>
                           <div className="overflow-x-auto">
-                            <table className="border-collapse">
+                            <table className="border-collapse text-[10px]">
+                              <thead>
+                                <tr>
+                                  <td className="px-2 py-1.5 border border-[#1E2D4A] text-[#475569]">WACC ↓ / EV/EBITDA →</td>
+                                  {multSteps.map(m => (
+                                    <td key={m} className="px-2 py-1.5 border border-[#1E2D4A] text-[#475569] text-center font-mono">{m}×</td>
+                                  ))}
+                                </tr>
+                              </thead>
                               <tbody>
-                                {(sensitivity as any[][]).map((row: any[], i: number) => (
+                                {rows.map((row, i) => (
                                   <tr key={i}>
-                                    {row.map((cell: any, j: number) => {
-                                      const v = Number(fv(cell));
-                                      if (isNaN(v)) return <td key={j} className="text-[10px] text-[#475569] px-2 py-1.5 border border-[#1E2D4A]">{fv(cell)}</td>;
-                                      return <HeatCell key={j} value={v} min={min} max={max} />;
-                                    })}
+                                    <td className="px-2 py-1.5 border border-[#1E2D4A] text-[#475569] font-mono">{row.wacc_pct}%</td>
+                                    {row.prices.map((p, j) => (
+                                      p != null
+                                        ? <HeatCell key={j} value={p} min={minP} max={maxP} currentPrice={curP2} />
+                                        : <td key={j} className="px-2 py-1.5 border border-[#1E2D4A] text-[#475569] text-center">—</td>
+                                    ))}
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
                           </div>
+                          <p className="text-[10px] text-[#334155] mt-2">[CALCULATED] FMP/yfinance · Bold = current base case</p>
                         </div>
                       );
                     })()}
@@ -2377,12 +3252,15 @@ export default function AdhocTickerPage() {
                   const n = Number(val);
                   return isNaN(n) ? null : n;
                 };
-                const sPE = subjectRow ? getRaw(subjectRow, "pe") : null;
-                const sPS = subjectRow ? getRaw(subjectRow, "ps") : null;
-                // Use P/E as primary for profitable companies; P/S for pre-profit (no valid P/E)
-                const primaryKey = (sPE != null && sPE > 0 && sPE < 1000) ? "pe" : "ps";
-                const primaryLabel = primaryKey === "pe" ? "P/E" : "P/S";
-                const subjectPrimary = primaryKey === "pe" ? sPE : sPS;
+                const sPE    = subjectRow ? getRaw(subjectRow, "pe")     : null;
+                const sPEfwd = subjectRow ? getRaw(subjectRow, "pe_fwd") : null;
+                const sPS    = subjectRow ? getRaw(subjectRow, "ps")     : null;
+                // Priority: trailing P/E → forward P/E → P/S
+                const primaryKey   = (sPE    != null && sPE    > 0 && sPE    < 1000) ? "pe"
+                                   : (sPEfwd != null && sPEfwd > 0 && sPEfwd < 1000) ? "pe_fwd"
+                                   : "ps";
+                const primaryLabel = primaryKey === "pe" ? "P/E" : primaryKey === "pe_fwd" ? "Fwd P/E" : "P/S";
+                const subjectPrimary = primaryKey === "pe" ? sPE : primaryKey === "pe_fwd" ? sPEfwd : sPS;
 
                 const PEER_COLS = ["pe", "pe_fwd", "ev_ebitda", "ps", "pb", "ebitda_margin", "net_margin", "debt_to_equity"];
                 const COL_LABELS: Record<string, string> = {
@@ -2411,7 +3289,7 @@ export default function AdhocTickerPage() {
                       <div>
                         <div className="flex items-center justify-between mb-3">
                           <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Peer Comparison</p>
-                          <span className="text-[9px] text-[#334155] px-2 py-0.5 rounded bg-[#1E2D4A]/60">
+                          <span className="text-[10px] text-[#334155] px-2 py-0.5 rounded bg-[#1E2D4A]/60">
                             Primary: <span className="text-[#60A5FA] font-bold">{primaryLabel}</span> · vs ASTS = cheap/pricey on {primaryLabel}
                           </span>
                         </div>
@@ -2475,8 +3353,8 @@ export default function AdhocTickerPage() {
                             </tbody>
                           </table>
                         </div>
-                        <p className="text-[9px] text-[#334155] mt-2">
-                          ★ Primary metric · Cheap = ASTS trades at a discount to this peer on {primaryLabel} · Pricey = ASTS trades at a premium · Source: {livePeers.length > 0 ? "Yahoo Finance (live)" : "yfinance/FMP (report)"}
+                        <p className="text-[10px] text-[#334155] mt-2">
+                          ★ Primary metric · Cheap = {ticker} trades at a discount to this peer on {primaryLabel} · Pricey = {ticker} trades at a premium · Source: {livePeers.length > 0 ? "Yahoo Finance (live)" : "yfinance/FMP (report)"}
                         </p>
                       </div>
                     )}
@@ -2490,16 +3368,125 @@ export default function AdhocTickerPage() {
                           <ValuationThermometer label="EV/EBITDA" range={vh.ev_ebitda_range} />
                           <ValuationThermometer label="P/E (Trailing)" range={vh.pe_range} />
                           <ValuationThermometer label="P/B" range={vh.pb_range} />
-                          <p className="text-[9px] text-[#334155] mt-1">Source: yfinance [CALCULATED] — dot = current, bar = 5Y range, line = 5Y avg</p>
+                          <p className="text-[10px] text-[#334155] mt-1">Source: yfinance [CALCULATED] — dot = current, bar = 5Y range, line = 5Y avg</p>
                         </div>
                       );
                     })()}
                     {metricFields.length === 0 && peerData.length === 0 && (
                       <p className="text-xs text-[#475569]">Data unavailable</p>
                     )}
+
+                    {/* Brand Value (Upgrade 2) — B2C companies only */}
+                    {(() => {
+                      const bv  = s2.brand_value as string | null | undefined;
+                      const br  = s2.brand_rank  as string | null | undefined;
+                      const rl  = s2.ranking_list as string | null | undefined;
+                      const bsrc = s2.brand_source as string | null | undefined;
+                      const sector = String(fv(s2.sector) ?? "");
+                      const isB2C = ["Consumer Cyclical", "Consumer Defensive", "Communication Services"].includes(sector);
+                      if (!isB2C || (!bv && !br)) return null;
+                      return (
+                        <div className="mt-4 pt-4 border-t border-[#1E2D4A]/60">
+                          <p className="text-[10px] font-semibold text-[#60A5FA] uppercase tracking-wider mb-2">Brand Value</p>
+                          <div className="flex flex-wrap gap-3">
+                            {bv && (
+                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                                <span className="text-[#64748B]">Brand Value: </span>
+                                <span className="font-bold text-[#10B981]">{bv}</span>
+                              </div>
+                            )}
+                            {br && (
+                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                                <span className="text-[#64748B]">{rl ?? "Brand Ranking"}: </span>
+                                <span className="font-bold text-[#60A5FA]">{br}</span>
+                              </div>
+                            )}
+                          </div>
+                          <p className="mt-1 text-[10px] text-[#334155]">Source: {bsrc ?? "Kantar BrandZ / Interbrand via Tavily"} <TagBadge source="tavily" /></p>
+                        </div>
+                      );
+                    })()}
                   </>
                 );
               })()}
+            </Section>
+          </div>
+
+          {/* S14 — Where We Differ (moved here: contrarian thesis visible before supporting data) */}
+          <div id="s14" data-section>
+            <Section n={14} id="s14" title="Where We Differ" color="#F59E0B">
+              {(() => {
+                const narrative     = fv(s14.ai_where_we_differ);
+                const curPrice      = fv(s14.current_price);
+                const analystPT     = fv(s14.analyst_pt_mean);
+                const analystRating = fv(s14.analyst_rating);
+                const ourDcf        = fv(s14.our_dcf_implied);
+                const fmpDcf        = fv(s14.fmp_dcf_crosscheck);
+                const ourDir  = direction !== "—" ? direction : fv(s14.direction);
+                const ourConv = Number(fv(rec.conviction_score ?? rec.conviction) ?? 0) || null;
+
+                const streetParts: string[] = [];
+                if (analystPT != null) streetParts.push(`Consensus PT: ${fmt$(analystPT)}`);
+                if (analystRating) streetParts.push(`Rating: ${String(analystRating).toUpperCase()}`);
+                if (curPrice != null) streetParts.push(`vs Current: ${fmt$(curPrice)}`);
+
+                const ourParts: string[] = [];
+                if (ourDir) ourParts.push(`Direction: ${ourDir}`);
+                if (ourConv) ourParts.push(`Conviction: ${ourConv}/100`);
+                if (ourDcf != null) ourParts.push(`Our DCF: ${fmt$(ourDcf)}`);
+                if (fmpDcf != null) ourParts.push(`FMP DCF: ${fmt$(fmpDcf)}`);
+
+                const hasData = streetParts.length > 0 || ourParts.length > 0 || narrative;
+                const leadSentence = narrative
+                  ? String(narrative).split(/(?<=[.!?])\s+/)[0] ?? String(narrative).slice(0, 200)
+                  : null;
+                return (
+                  <>
+                    {leadSentence && (
+                      <blockquote className="mb-5 pl-4 py-3 pr-4 rounded-r-xl border-l-4 border-[#F59E0B]"
+                        style={{ background: "linear-gradient(90deg, #1C160A 0%, #0D1626 100%)" }}>
+                        <p className="text-sm font-semibold text-[#FCD34D] leading-relaxed">{leadSentence}</p>
+                        <p className="text-[10px] text-[#92400E] mt-1 uppercase tracking-wider">Haz Capital view — where we differ from consensus</p>
+                      </blockquote>
+                    )}
+                    {ourParts.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                        <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Street Consensus</p>
+                          <p className="text-xs text-[#334155] leading-relaxed">
+                            Analyst price targets and buy/hold/sell counts are shown in full in{" "}
+                            <span className="text-[#2D6BFF]">Section 10 — Institutional Activity</span>.
+                          </p>
+                        </div>
+                        <div className="bg-[#0D1626] border border-[#2D6BFF]/40 rounded-xl p-4">
+                          <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-3">Our View</p>
+                          <div className="space-y-1.5">
+                            {ourParts.map((p, i) => {
+                              const [lbl, val] = p.split(": ");
+                              return <KV key={i} label={lbl} value={val} />;
+                            })}
+                          </div>
+                          <TagBadge source="Haz Capital" />
+                        </div>
+                      </div>
+                    )}
+                    {narrative && (
+                      <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
+                        {narrative}
+                        <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                      </p>
+                    )}
+                    {!hasData && <p className="text-xs text-[#475569]">Data unavailable</p>}
+                  </>
+                );
+              })()}
+            </Section>
+          </div>
+
+          {/* SC — SOTP Valuation */}
+          <div id="sc" data-section>
+            <Section n={"C" as any} id="sc" title="SOTP Valuation" color="#D97706">
+              <SOTPSection s_c={s_c} />
             </Section>
           </div>
 
@@ -2556,15 +3543,96 @@ export default function AdhocTickerPage() {
                         ["Resistance",    s7.resistance != null ? fmt$(s7.resistance) : null],
                         ["Trend",         s7.trend],
                         ["OBV Trend",     s7.obv_trend],
-                        ["Chart Pattern", s7.chart_pattern],
+                        ["Entry Context", s7.trend_context ?? null],
                       ].filter(([, v]) => v != null && fv(v) != null).map(([label, value]) => (
                         <KV key={label as string} label={label as string}
                           value={typeof value === "object" ? <>{fv(value)}<TagBadge source={fs(value)} /></> : String(fv(value))}
                         />
                       ))}
                     </div>
+
+                    {/* Quant score breakdown */}
+                    {(() => {
+                      const rawDetail = s7.quant_score_detail as Record<string, string> | null | undefined;
+                      const detail = rawDetail ? Object.values(rawDetail) : [];
+                      if (!detail.length) return null;
+                      return (
+                        <div className="mt-5 rounded-xl border border-[#1E2D4A] overflow-hidden">
+                          <div className="bg-[#0D1626] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[#475569]">Quant Score Breakdown</div>
+                          <div className="divide-y divide-[#1E2D4A]">
+                            {detail.map((line, i) => {
+                              const isPos = line.startsWith("+");
+                              const isZero = line.startsWith("0 ");
+                              const col = isPos ? "#10B981" : isZero ? "#475569" : "#EF4444";
+                              const parts = line.split(" ");
+                              return (
+                                <div key={i} className="flex items-start gap-3 px-4 py-2 text-xs">
+                                  <span className="font-mono font-bold shrink-0 mt-px" style={{ color: col }}>{parts[0]}</span>
+                                  <span style={{ color: "var(--text-secondary)" }}>{parts.slice(1).join(" ")}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {fv(s7.quant_summary) && (
                       <p className="text-xs text-[#94A3B8] mt-4 leading-relaxed">{fv(s7.quant_summary)}</p>
+                    )}
+
+                    {/* AI Chart Pattern Analysis */}
+                    {(s7.ai_chart_pattern || s7.ai_pattern_evidence || s7.ai_outlook_4_8w) && (
+                      <div className="mt-5 rounded-xl border border-[#1E2D4A] overflow-hidden">
+                        <div className="bg-[#0D1626] px-4 py-2 flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-widest text-[#475569]">Pattern Analysis</span>
+                          <TagBadge source="claude-haiku" />
+                        </div>
+                        <div className="p-4 space-y-3">
+                          {s7.ai_chart_pattern && (
+                            <div className="flex items-center gap-3">
+                              <span className="text-[10px] text-[#475569] uppercase tracking-wider w-28 shrink-0">Detected Pattern</span>
+                              <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{s7.ai_chart_pattern}</span>
+                            </div>
+                          )}
+                          {s7.ai_pattern_evidence && (
+                            <div>
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Evidence</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s7.ai_pattern_evidence}</p>
+                            </div>
+                          )}
+                          {s7.ai_pattern_invalidation && (
+                            <div>
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Invalidation Level</p>
+                              <p className="text-xs leading-relaxed text-[#F59E0B]">{s7.ai_pattern_invalidation}</p>
+                            </div>
+                          )}
+                          {s7.ai_entry_explanation && (
+                            <div>
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Entry Quality</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s7.ai_entry_explanation}</p>
+                            </div>
+                          )}
+                          {s7.ai_outlook_4_8w && (
+                            <div className="rounded-lg bg-[#080C14] border border-[#1E2D4A] px-3 py-2">
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">4–8 Week Outlook</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--text-primary)" }}>{s7.ai_outlook_4_8w}</p>
+                            </div>
+                          )}
+                          {s7.ai_volume_narrative && (
+                            <div>
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Volume Context</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s7.ai_volume_narrative}</p>
+                            </div>
+                          )}
+                          {s7.ai_momentum_read && (
+                            <div>
+                              <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-1">Momentum Read</p>
+                              <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>{s7.ai_momentum_read}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     )}
                   </>
                 );
@@ -2576,37 +3644,105 @@ export default function AdhocTickerPage() {
           <div id="s8" data-section>
             <Section n={8} id="s8" title="Competitive Moat" color="#10B981">
               {(() => {
-                const aiNarr    = s8.ai_narrative as any;
+                const aiNarr     = s8.ai_narrative as any;
                 const moatRating = aiNarr?.moat_rating ?? null;
                 const narrative  = aiNarr?.narrative   ?? null;
                 const headlines  = (s8.recent_headlines ?? []) as string[];
-                const moatColor  = moatRating === "Wide" ? "#10B981" : moatRating === "Narrow" ? "#F59E0B" : "#EF4444";
+                const moatTotal  = s8.moat_score_total as number | null ?? null;
+                const moatLabel  = s8.moat_score_label as string | null ?? null;
+                const dim5       = s8.moat_dim5_score  as number | null ?? null;
+                const moatQuant  = (s8.moat_quant ?? {}) as Record<string, { score: number; label: string; value?: string | null; source?: string }>;
+                const quant4     = Object.values(moatQuant);
+
+                const scoreColor = moatTotal === null ? "#475569"
+                  : moatTotal >= 75 ? "#10B981"
+                  : moatTotal >= 52 ? "#60A5FA"
+                  : moatTotal >= 32 ? "#F59E0B"
+                  : "#EF4444";
+
                 const hasAi = moatRating || narrative;
+
                 return (
-                  <>
-                    <div className="grid grid-cols-2 gap-x-8 mb-4">
+                  <div className="space-y-5">
+                    {/* Moat Score summary row */}
+                    {moatTotal !== null && (
+                      <div className="flex flex-wrap items-center gap-4 bg-[#080C14] border border-[#1E2D4A] rounded-xl p-4">
+                        <div className="flex items-end gap-2">
+                          <span className="text-4xl font-bold font-mono" style={{ color: scoreColor }}>{moatTotal}</span>
+                          <span className="text-lg text-[#475569] mb-1">/100</span>
+                        </div>
+                        <div>
+                          <p className="text-base font-semibold" style={{ color: scoreColor }}>{moatLabel}</p>
+                          <p className="text-[10px] text-[#475569]">Composite moat score · 5 dimensions</p>
+                        </div>
+                        {moatRating && (
+                          <span className="ml-auto text-[11px] font-bold px-3 py-1 rounded-lg border"
+                            style={{
+                              color: moatRating === "Wide" ? "#10B981" : moatRating === "Narrow" ? "#F59E0B" : "#EF4444",
+                              borderColor: moatRating === "Wide" ? "#10B98140" : moatRating === "Narrow" ? "#F59E0B40" : "#EF444440",
+                              background: moatRating === "Wide" ? "#10B98112" : moatRating === "Narrow" ? "#F59E0B12" : "#EF444412",
+                            }}>
+                            {moatRating} Moat
+                            <span className="ml-1.5 text-[10px] font-bold px-1 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20">AI</span>
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 5-dimension breakdown bars */}
+                    {(quant4.length > 0 || dim5 !== null) && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-semibold text-[#475569] uppercase tracking-wide">Dimension Breakdown</p>
+                        {quant4.map((dim, i) => (
+                          <div key={i} className="space-y-0.5">
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-[#94A3B8]">{dim.label}</span>
+                              <div className="flex items-center gap-2">
+                                {dim.value && <span className="font-mono text-[#475569]">{dim.value}</span>}
+                                <span className="font-bold text-white font-mono">{dim.score}<span className="text-[#475569]">/20</span></span>
+                              </div>
+                            </div>
+                            <div className="h-1.5 bg-[#1E2D4A] rounded-full overflow-hidden">
+                              <div className="h-full rounded-full transition-all"
+                                style={{ width: `${(dim.score / 20) * 100}%`, background: scoreColor }} />
+                            </div>
+                          </div>
+                        ))}
+                        {dim5 !== null && (
+                          <div className="space-y-0.5">
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className="text-[#94A3B8] flex items-center gap-1">
+                                Competitive Position
+                                <span className="text-[10px] font-bold px-1 py-px rounded bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20">AI</span>
+                              </span>
+                              <span className="font-bold text-white font-mono">{dim5}<span className="text-[#475569]">/20</span></span>
+                            </div>
+                            <div className="h-1.5 bg-[#1E2D4A] rounded-full overflow-hidden">
+                              <div className="h-full rounded-full transition-all"
+                                style={{ width: `${(dim5 / 20) * 100}%`, background: scoreColor }} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Context grid */}
+                    <div className="grid grid-cols-2 gap-x-8">
                       {[["Sector", s8.sector], ["Industry", s8.industry], ["Peer Count", s8.peer_count]].filter(([, v]) => fv(v) != null).map(([l, v]) => (
                         <KV key={l as string} label={l as string}
                           value={<>{fv(v)}{fs(v) && <TagBadge source={fs(v)} />}</>} />
                       ))}
                     </div>
-                    {moatRating && (
-                      <div className="mb-4">
-                        <span className="text-sm font-bold px-3 py-1 rounded-lg"
-                          style={{ background: `${moatColor}15`, color: moatColor, border: `1px solid ${moatColor}40` }}>
-                          {moatRating} Moat
-                        </span>
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
-                      </div>
-                    )}
+
+                    {/* AI Narrative */}
                     {narrative && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
                         {narrative}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                        <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     )}
                     {!hasAi && headlines.length > 0 && (
-                      <div className="mt-2">
+                      <div>
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">Recent Context</p>
                         <ul className="space-y-1.5">
                           {headlines.slice(0, 5).map((h, i) => (
@@ -2617,10 +3753,58 @@ export default function AdhocTickerPage() {
                         </ul>
                       </div>
                     )}
-                    {!hasAi && headlines.length === 0 && <p className="text-xs text-[#475569]">Data unavailable</p>}
-                  </>
+                    {!hasAi && moatTotal === null && headlines.length === 0 && (
+                      <p className="text-xs text-[#475569]">Data unavailable</p>
+                    )}
+
+                    {/* Subscriber Comparison (Upgrade 3) */}
+                    {(() => {
+                      const subComp = (s8 as any).subscriber_comparison ?? {};
+                      const comps   = (subComp.competitors ?? []) as any[];
+                      if (!comps.length) return null;
+                      const sorted = [...comps].sort((a, b) => (b.subscribers_m ?? 0) - (a.subscribers_m ?? 0));
+                      const maxVal = sorted[0]?.subscribers_m ?? 1;
+                      return (
+                        <div className="mt-5 pt-5 border-t border-[#1E2D4A]/60">
+                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">
+                            Subscriber / User Comparison (millions)
+                            <span className="ml-1 text-[10px] text-[#FBBF24] font-normal">[AI extracted from Tavily]</span>
+                          </p>
+                          <div className="space-y-2">
+                            {sorted.map((c: any, i: number) => {
+                              const pct = Math.max(4, Math.round((c.subscribers_m / maxVal) * 100));
+                              return (
+                                <div key={i} className="flex items-center gap-2">
+                                  <div className="text-[10px] text-[#94A3B8] w-28 shrink-0 truncate">{c.name}</div>
+                                  <div className="flex-1 bg-[#0A1020] rounded-full h-4 overflow-hidden">
+                                    <div
+                                      className="h-full rounded-full transition-all"
+                                      style={{ width: `${pct}%`, background: i === 0 ? "#2D6BFF" : "#1E3A5F" }}
+                                    />
+                                  </div>
+                                  <div className="text-[10px] font-mono text-[#94A3B8] w-14 text-right shrink-0">
+                                    {c.subscribers_m?.toFixed(1)}M
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {subComp.source && (
+                            <p className="mt-2 text-[10px] text-[#334155]">{subComp.source}</p>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 );
               })()}
+            </Section>
+          </div>
+
+          {/* SB — Porter's Five Forces */}
+          <div id="sb" data-section>
+            <Section n={"B" as any} id="sb" title="Porter's Five Forces" color="#F97316">
+              <PorterFiveForcesSection s_porter={s_porter} />
             </Section>
           </div>
 
@@ -2635,7 +3819,7 @@ export default function AdhocTickerPage() {
                 const tailwinds     = aiNarr?.tailwinds ?? [];
                 const headwinds     = aiNarr?.headwinds ?? [];
                 const AiBadge = () => (
-                  <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                  <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                 );
                 // Macro stats from direct FRED fields on the section
                 const macroFields = ([
@@ -2648,11 +3832,17 @@ export default function AdhocTickerPage() {
                 return (
                   <>
                     {macroFields.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                        {macroFields.map(([label, v]) => (
-                          <StatCard key={label as string} label={label as string}
-                            value={`${fmtN(v, 2)}%`} source={fs(v)} />
-                        ))}
+                      <div className="mb-5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
+                          {macroFields.map(([label, v]) => (
+                            <StatCard key={label as string} label={label as string}
+                              value={`${fmtN(v, 2)}%`} source={fs(v)} />
+                          ))}
+                        </div>
+                        <p className="text-[10px] text-[#334155]">
+                          Exposure for <span className="text-[#60A5FA] font-mono">{ticker}</span> to these macro factors — see Tailwinds &amp; Headwinds below.
+                          <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                        </p>
                       </div>
                     )}
                     {/* Industry overview */}
@@ -2749,7 +3939,7 @@ export default function AdhocTickerPage() {
                               <tr key={i} className="border-b border-[#1E2D4A]/50">
                                 <td className="py-2 px-2 text-[#94A3B8]">{fv(h.holder) ?? fv(h.name) ?? fv(h.institution) ?? "—"}</td>
                                 <td className="py-2 px-2 font-mono text-right text-[#94A3B8]">
-                                  {fv(h.shares) != null ? Number(fv(h.shares)).toLocaleString() : ""}
+                                  {fv(h.shares) != null ? Number(fv(h.shares)).toLocaleString() : "Not disclosed"}
                                   {fv(h.pct_held ?? h.pct) != null ? ` (${Number(fv(h.pct_held ?? h.pct)).toFixed(1)}%)` : ""}
                                 </td>
                                 <td className="py-2 px-2 text-right">{h.source && <TagBadge source={typeof h.source === "string" ? h.source : fv(h.holder) ? "yfinance" : ""} />}</td>
@@ -2763,7 +3953,7 @@ export default function AdhocTickerPage() {
                       <div className="mb-5">
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">
                           SEC Insider Transactions
-                          <span className="ml-2 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#1E3A5F] text-[#60A5FA] border border-[#2D6BFF]/30">SEC</span>
+                          <span className="ml-2 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#1E3A5F] text-[#60A5FA] border border-[#2D6BFF]/30">SEC</span>
                         </p>
                         <table className="w-full text-xs">
                           <thead>
@@ -2827,6 +4017,20 @@ export default function AdhocTickerPage() {
             </Section>
           </div>
 
+          {/* SH — ESG & Sustainability */}
+          <div id="sh" data-section>
+            <Section n={"H" as any} id="sh" title="ESG & Sustainability" color="#10B981">
+              <ESGSection s_esg={s_esg} />
+            </Section>
+          </div>
+
+          {/* SJ — M&A Track Record */}
+          <div id="sj" data-section>
+            <Section n={"J" as any} id="sj" title="M&A Track Record" color="#8B5CF6">
+              <MaTrackRecordSection s_ma={s_ma} />
+            </Section>
+          </div>
+
           {/* S11 — Risk Register */}
           <div id="s11" data-section>
             <Section n={11} id="s11" title="Risk Register" color="#EF4444">
@@ -2835,31 +4039,36 @@ export default function AdhocTickerPage() {
                 const risks   = aiReg?.risks ?? [];
                 const rawText = aiReg?.value ?? null;
                 const finSnap = (s11.financials_snapshot ?? {}) as any;
-                const techSnap = (s11.technicals_snapshot ?? {}) as any;
                 const beta  = fv(finSnap.beta ?? s11.beta);
                 const de    = fv(finSnap.debt_to_equity ?? s11.debt_to_equity ?? s11.de_ratio);
                 const cr    = fv(finSnap.current_ratio ?? s11.current_ratio);
                 const headlines = (s11.recent_headlines ?? []) as string[];
                 return (
                   <>
-                    {/* Financial snapshot always shown at top */}
+                    {/* Financial snapshot — risk-relevant metrics only (valuation metrics → S6, RSI → S7) */}
                     {(beta != null || de != null || cr != null) && (
-                      <div className="grid grid-cols-3 gap-3 mb-5">
+                      <div className="grid grid-cols-3 gap-3 mb-3">
                         {beta != null && <StatCard label="Beta" value={fmtN(beta, 2)} source={fs(finSnap.beta)} color={Number(beta) > 1.5 ? "#EF4444" : Number(beta) < 0.8 ? "#10B981" : "#94A3B8"} />}
                         {de   != null && <StatCard label="D/E Ratio" value={fmtN(de, 2)} source={fs(finSnap.debt_to_equity)} color={Number(de) > 2 ? "#EF4444" : "#94A3B8"} />}
                         {cr   != null && <StatCard label="Current Ratio" value={fmtN(cr, 2)} source={fs(finSnap.current_ratio)} color={Number(cr) < 1 ? "#EF4444" : Number(cr) > 2 ? "#10B981" : "#94A3B8"} />}
-                        {fv(finSnap.pe_ttm) != null && <StatCard label="P/E TTM" value={fmtN(fv(finSnap.pe_ttm), 1)} source={fs(finSnap.pe_ttm)} />}
-                        {fv(finSnap.ev_ebitda) != null && <StatCard label="EV/EBITDA" value={fmtN(fv(finSnap.ev_ebitda), 1)} source={fs(finSnap.ev_ebitda)} />}
-                        {fv(techSnap.rsi) != null && <StatCard label="RSI" value={fmtN(fv(techSnap.rsi), 0)} source={fs(techSnap.rsi)} color={Number(fv(techSnap.rsi)) > 70 ? "#F59E0B" : "#94A3B8"} />}
                       </div>
+                    )}
+                    {(beta != null || de != null || cr != null) && (
+                      <p className="text-[10px] text-[#334155] mb-5">
+                        For valuation multiples (P/E, EV/EBITDA) see <span className="text-[#2D6BFF]">Section 6</span> · For RSI see <span className="text-[#2D6BFF]">Section 7</span>
+                      </p>
                     )}
                     {risks.length > 0 ? (
                       <div className="mb-5 space-y-3">
                         {(risks as any[]).map((r: any, i: number) => {
                           const likeColor = r.likelihood === "High" ? "#EF4444" : r.likelihood === "Medium" ? "#F59E0B" : "#10B981";
                           const impColor  = r.impact     === "High" ? "#EF4444" : r.impact     === "Medium" ? "#F59E0B" : "#10B981";
+                          const isHigh = r.likelihood === "High" && r.impact === "High";
+                          const isMed  = !isHigh && (r.likelihood === "High" || r.impact === "High" || r.likelihood === "Medium" || r.impact === "Medium");
+                          const severityBorder = isHigh ? "#EF4444" : isMed ? "#F59E0B" : "#10B981";
                           return (
-                            <div key={i} className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
+                            <div key={i} className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4"
+                              style={{ borderLeft: `3px solid ${severityBorder}` }}>
                               <div className="flex items-start justify-between gap-3 mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-[10px] font-mono font-bold text-[#475569] w-5">{i + 1}.</span>
@@ -2867,16 +4076,16 @@ export default function AdhocTickerPage() {
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
                                   {r.category && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#1E2D4A] text-[#94A3B8]">{r.category}</span>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#1E2D4A] text-[#94A3B8]">{r.category}</span>
                                   )}
                                   {r.likelihood && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded font-bold"
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded font-bold"
                                       style={{ background: `${likeColor}15`, color: likeColor, border: `1px solid ${likeColor}30` }}>
                                       {r.likelihood}
                                     </span>
                                   )}
                                   {r.impact && (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded font-bold"
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded font-bold"
                                       style={{ background: `${impColor}15`, color: impColor, border: `1px solid ${impColor}30` }}>
                                       {r.impact} impact
                                     </span>
@@ -2888,14 +4097,14 @@ export default function AdhocTickerPage() {
                                   {r.mechanism ?? r.detail ?? r.description}
                                 </p>
                               )}
-                              <span className="ml-7 mt-1 inline-block text-[9px] font-bold px-1 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                              <span className="ml-7 mt-1 inline-block text-[10px] font-bold px-1 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : rawText ? (
                       <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap mb-4">{rawText}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                        <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     ) : headlines.length > 0 ? (
                       <div className="mb-4">
@@ -2976,8 +4185,22 @@ export default function AdhocTickerPage() {
                 const consensus = fv(s13.analyst_consensus);
                 const newsItems = (s13.news_items ?? []) as any[];
                 const hasStats = shortPct != null || consensus;
+                // Derive a sentiment score proxy from available structured data
+                const baseScore = consensus === "Buy" ? 70 : consensus === "Sell" ? 30 : consensus ? 50 : null;
+                const shortAdj  = shortPct != null ? (Number(shortPct) > 15 ? -10 : Number(shortPct) < 5 ? 10 : 0) : 0;
+                const sentScore = baseScore != null ? Math.min(100, Math.max(0, baseScore + shortAdj)) : null;
+                const sentColor = sentScore != null ? (sentScore >= 65 ? "#10B981" : sentScore >= 40 ? "#2D6BFF" : "#EF4444") : "#475569";
                 return (
                   <>
+                    {sentScore != null && (
+                      <div className="flex items-center gap-5 mb-5">
+                        <SemiGauge value={sentScore} max={100} color={sentColor} size={88} />
+                        <div>
+                          <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-0.5">Sentiment Score</p>
+                          <p className="text-xs text-[#94A3B8]">[CALCULATED] from analyst consensus + short interest</p>
+                        </div>
+                      </div>
+                    )}
                     {hasStats && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
                         {shortPct != null && (
@@ -2991,7 +4214,7 @@ export default function AdhocTickerPage() {
                     {summary && (
                       <p className="text-xs text-[#94A3B8] leading-relaxed mb-5 whitespace-pre-wrap">
                         {summary}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
+                        <span className="ml-1 text-[10px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
                       </p>
                     )}
                     {!summary && newsItems.length > 0 && (
@@ -3018,70 +4241,6 @@ export default function AdhocTickerPage() {
           </div>
 
           {/* S14 — Where We Differ */}
-          <div id="s14" data-section>
-            <Section n={14} id="s14" title="Where We Differ" color="#F59E0B">
-              {(() => {
-                const narrative     = fv(s14.ai_where_we_differ);
-                const curPrice      = fv(s14.current_price);
-                const analystPT     = fv(s14.analyst_pt_mean);
-                const analystRating = fv(s14.analyst_rating);
-                const ourDcf        = fv(s14.our_dcf_implied);
-                const fmpDcf        = fv(s14.fmp_dcf_crosscheck);
-                // Use committee direction (from S16) — s14.direction can be "BLOCK" from mandate
-                const ourDir  = direction !== "—" ? direction : fv(s14.direction);
-                const ourConv = Number(fv(rec.conviction_score ?? rec.conviction) ?? 0) || null;
-
-                const streetParts: string[] = [];
-                if (analystPT != null) streetParts.push(`Consensus PT: ${fmt$(analystPT)}`);
-                if (analystRating) streetParts.push(`Rating: ${String(analystRating).toUpperCase()}`);
-                if (curPrice != null) streetParts.push(`vs Current: ${fmt$(curPrice)}`);
-
-                const ourParts: string[] = [];
-                if (ourDir) ourParts.push(`Direction: ${ourDir}`);
-                if (ourConv) ourParts.push(`Conviction: ${ourConv}/100`);
-                if (ourDcf != null) ourParts.push(`Our DCF: ${fmt$(ourDcf)}`);
-                if (fmpDcf != null) ourParts.push(`FMP DCF: ${fmt$(fmpDcf)}`);
-
-                const hasData = streetParts.length > 0 || ourParts.length > 0 || narrative;
-                return (
-                  <>
-                    {(streetParts.length > 0 || ourParts.length > 0) && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
-                        <div className="bg-[#0D1626] border border-[#1E2D4A] rounded-xl p-4">
-                          <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-3">Street View</p>
-                          <div className="space-y-1.5">
-                            {streetParts.map((p, i) => {
-                              const [lbl, val] = p.split(": ");
-                              return <KV key={i} label={lbl} value={val} />;
-                            })}
-                          </div>
-                          <TagBadge source={fs(s14.analyst_pt_mean) || "yfinance"} />
-                        </div>
-                        <div className="bg-[#0D1626] border border-[#2D6BFF]/40 rounded-xl p-4">
-                          <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-3">Our View</p>
-                          <div className="space-y-1.5">
-                            {ourParts.map((p, i) => {
-                              const [lbl, val] = p.split(": ");
-                              return <KV key={i} label={lbl} value={val} />;
-                            })}
-                          </div>
-                          <TagBadge source="Haz Capital" />
-                        </div>
-                      </div>
-                    )}
-                    {narrative && (
-                      <p className="text-xs text-[#94A3B8] leading-relaxed whitespace-pre-wrap">
-                        {narrative}
-                        <span className="ml-1 text-[9px] font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI</span>
-                      </p>
-                    )}
-                    {!hasData && <p className="text-xs text-[#475569]">Data unavailable</p>}
-                  </>
-                );
-              })()}
-            </Section>
-          </div>
-
           {/* S15 — Setup Checklist */}
           <div id="s15" data-section>
             <Section n={15} id="s15" title="Setup Checklist" color="#10B981">
@@ -3134,10 +4293,50 @@ export default function AdhocTickerPage() {
                 <span className="flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-mono font-bold shrink-0"
                   style={{ background: `${dirColor}18`, color: dirColor, border: `1px solid ${dirColor}40` }}>16</span>
                 <h2 className="text-sm font-bold text-white tracking-wide">Investment Committee Recommendation</h2>
-                <span className="ml-auto text-[9px] font-bold px-2 py-0.5 rounded border bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30">Sonnet 4.6</span>
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded border bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30">Sonnet 4.6</span>
               </div>
 
               <div className="px-6 py-6" style={{ background: "linear-gradient(180deg, #0A0E1A 0%, #0D1626 100%)", border: `1px solid ${dirColor}20`, borderTop: "none" }}>
+                {/* Investment arguments — shown FIRST, most important output of the report */}
+                {(() => {
+                  const args = s16.three_arguments ?? s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
+                  return args.length > 0 ? (
+                    <div className="mb-7">
+                      <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-4">Investment Arguments</p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {(args as any[]).slice(0, 3).map((arg: any, i: number) => {
+                          const isStructured = typeof arg === "object" && arg !== null && ("title" in arg || "data_point" in arg || "reasoning" in arg);
+                          const title    = isStructured ? (arg.title ?? null) : null;
+                          const dataPt   = isStructured ? (arg.data_point ?? null) : null;
+                          const body     = isStructured
+                            ? (arg.reasoning ?? arg.argument ?? arg.text ?? "")
+                            : (typeof arg === "string" ? arg : (arg.argument ?? arg.thesis ?? arg.text ?? JSON.stringify(arg)));
+                          return (
+                            <div key={i} className="rounded-xl p-4 border flex flex-col"
+                              style={{ background: "#080C14", borderColor: "#1E2D4A" }}>
+                              <div className="flex items-center gap-2 mb-2.5">
+                                <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono shrink-0"
+                                  style={{ background: "#2D6BFF20", color: "#60A5FA", border: "1px solid #2D6BFF30" }}>{i + 1}</span>
+                                {title && (
+                                  <span className="text-[11px] font-semibold text-[#CBD5E1] leading-tight">{title}</span>
+                                )}
+                                <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, #2D6BFF30, transparent)" }} />
+                              </div>
+                              {dataPt && (
+                                <div className="mb-2 px-2 py-1 rounded bg-[#0D1E38] border border-[#2D6BFF]/20">
+                                  <span className="text-[10px] text-[#2D6BFF] font-semibold">DATA: </span>
+                                  <span className="text-[10px] text-[#60A5FA] font-mono">{dataPt}</span>
+                                </div>
+                              )}
+                              <p className="text-xs text-[#94A3B8] leading-relaxed flex-1">{body}</p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+
                 {/* Direction + Conviction + Key stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-7 items-center">
                   <div>
@@ -3160,31 +4359,6 @@ export default function AdhocTickerPage() {
                     ))}
                   </div>
                 </div>
-
-                {/* Investment arguments */}
-                {(() => {
-                  const args = s16.three_arguments ?? s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
-                  return args.length > 0 ? (
-                    <div className="mb-6">
-                      <p className="text-[10px] font-bold text-[#2D6BFF] uppercase tracking-wider mb-3">Investment Arguments</p>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {(args as any[]).slice(0, 3).map((arg: any, i: number) => (
-                          <div key={i} className="rounded-xl p-4 border"
-                            style={{ background: "#080C14", borderColor: "#1E2D4A" }}>
-                            <div className="flex items-center gap-2 mb-2.5">
-                              <span className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-mono shrink-0"
-                                style={{ background: "#2D6BFF20", color: "#60A5FA", border: "1px solid #2D6BFF30" }}>{i + 1}</span>
-                              <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, #2D6BFF30, transparent)" }} />
-                            </div>
-                            <p className="text-xs text-[#94A3B8] leading-relaxed">
-                              {typeof arg === "string" ? arg : (arg.argument ?? arg.thesis ?? arg.text ?? JSON.stringify(arg))}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null;
-                })()}
 
                 {/* Key risks */}
                 {(() => {
@@ -3214,7 +4388,7 @@ export default function AdhocTickerPage() {
                     <div className="rounded-xl border border-[#1E2D4A] overflow-hidden">
                       <div className="px-5 py-3 flex items-center gap-2" style={{ background: "#080C14", borderBottom: "1px solid #1E2D4A" }}>
                         <span className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Committee Narrative</span>
-                        <span className="text-[9px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">Sonnet</span>
+                        <span className="text-[10px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">Sonnet</span>
                       </div>
                       <div className="px-5 py-4 space-y-4" style={{ background: "#0A0E1A" }}>
                         {paras.map((p, i) => (
@@ -3271,7 +4445,7 @@ export default function AdhocTickerPage() {
                             return (
                               <div key={i} className="flex items-center justify-between bg-[#0D1626] border border-[#1E2D4A] rounded-lg px-3 py-2">
                                 <span className="text-xs text-[#94A3B8]">{src.name ?? src.source ?? src}</span>
-                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${ok ? "text-[#10B981] bg-[#10B981]/10" : "text-[#EF4444] bg-[#EF4444]/10"}`}>
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${ok ? "text-[#10B981] bg-[#10B981]/10" : "text-[#EF4444] bg-[#EF4444]/10"}`}>
                                   {ok ? "OK" : src.status ?? "ERR"}
                                 </span>
                               </div>
@@ -3295,7 +4469,7 @@ export default function AdhocTickerPage() {
             <p className="text-[10px] text-[#1E2D4A]">
               {ticker} &middot; Haz Capital Research &middot; {report.generated_at ?? ""}
             </p>
-            <p className="text-[9px] text-[#1E2D4A] mt-1">
+            <p className="text-[10px] text-[#1E2D4A] mt-1">
               For internal use only. Not investment advice.
             </p>
           </div>

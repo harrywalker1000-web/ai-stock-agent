@@ -138,6 +138,41 @@ def fetch_fmp_cash_flow(ticker: str, limit: int = 4) -> list[dict]:
         return []
 
 
+def fetch_fmp_revenue_segments(ticker: str) -> list[dict]:
+    """
+    Product/segment revenue breakdown from FMP v4 endpoint.
+    Returns the most recent annual year's segments as [{name, revenue, date}].
+    Confirmed FMP free-tier endpoint (also used in pitch-data API route).
+    """
+    try:
+        r = requests.get(
+            "https://financialmodelingprep.com/api/v4/revenue-product-segmentation",
+            params={"symbol": ticker, "period": "annual", "apikey": _fmp_key()},
+            timeout=15,
+        )
+        r.raise_for_status()
+        data = r.json()
+        if not data:
+            return []
+        latest = data[0] if isinstance(data, list) else data
+        if not isinstance(latest, dict):
+            return []
+        date = latest.get("date", "")
+        segments = []
+        for k, v in latest.items():
+            if k != "date" and v is not None:
+                try:
+                    segments.append({"name": k, "revenue": float(v), "date": date})
+                except (TypeError, ValueError):
+                    pass
+        # Sort largest first
+        segments.sort(key=lambda x: x["revenue"], reverse=True)
+        return segments
+    except Exception as exc:
+        logger.error("FMP revenue segments failed for %s: %s", ticker, exc)
+        return []
+
+
 def fetch_fmp_dcf(ticker: str) -> dict:
     """FMP's own DCF estimate — free tier stable endpoint. Used as cross-check only."""
     try:
@@ -379,12 +414,12 @@ def compute_technicals(price_history: pd.DataFrame) -> dict:
         "current_price":      current,
         "sma_50":             sma50,
         "sma_200":            sma200,
-        "pct_from_sma50":     round((current - sma50) / sma50 * 100, 2),
+        "pct_from_sma50":     round((current - sma50) / sma50 * 100, 2) if sma50 else None,
         "pct_from_sma200":    round((current - sma200) / sma200 * 100, 2) if sma200 else None,
-        "52w_high":           round(float(closes.max()), 2),
-        "52w_low":            round(float(closes.min()), 2),
-        "pct_from_52w_high":  round((current - float(closes.max())) / float(closes.max()) * 100, 2),
-        "pct_from_52w_low":   round((current - float(closes.min())) / float(closes.min()) * 100, 2),
+        "52w_high":           round(float(closes.max()), 2) if closes.max() else None,
+        "52w_low":            round(float(closes.min()), 2) if closes.min() else None,
+        "pct_from_52w_high":  round((current - float(closes.max())) / float(closes.max()) * 100, 2) if closes.max() else None,
+        "pct_from_52w_low":   round((current - float(closes.min())) / float(closes.min()) * 100, 2) if closes.min() else None,
         "rsi":                rsi,
         "macd":               macd,
         "bb_upper":           round(bb_up, 2),
@@ -398,6 +433,24 @@ def compute_technicals(price_history: pd.DataFrame) -> dict:
         "trend_signal":       trend,
         "source":             "yfinance [CALCULATED]",
     }
+
+
+# ---------------------------------------------------------------------------
+# yfinance ESG / Sustainability
+# ---------------------------------------------------------------------------
+
+def fetch_yfinance_sustainability(ticker: str) -> dict:
+    """Fetch ESG sustainability scores (Sustainalytics) via yfinance. Returns {} if unavailable."""
+    try:
+        t = yf.Ticker(ticker)
+        sus = t.sustainability
+        if sus is None or (hasattr(sus, "empty") and sus.empty):
+            return {}
+        # DataFrame: index = metric names, first column = numeric values
+        return sus.iloc[:, 0].to_dict()
+    except Exception as exc:
+        logger.warning("yfinance sustainability failed for %s: %s", ticker, exc)
+        return {}
 
 
 # ---------------------------------------------------------------------------
@@ -452,8 +505,8 @@ def fetch_sec_form4_trades(ticker: str, limit: int = 10) -> list[dict]:
         return []
 
 
-def fetch_sec_8k_filings(ticker: str, limit: int = 5) -> list[dict]:
-    """Recent 8-K press release filings from SEC EDGAR."""
+def fetch_sec_8k_filings(ticker: str, limit: int = 10) -> list[dict]:
+    """Recent 8-K filings from SEC EDGAR, including item codes for M&A detection."""
     try:
         cik = fetch_sec_cik_from_ticker(ticker)
         if not cik:
@@ -469,17 +522,20 @@ def fetch_sec_8k_filings(ticker: str, limit: int = 5) -> list[dict]:
         dates   = filings.get("filingDate", [])
         accnos  = filings.get("accessionNumber", [])
         docs    = filings.get("primaryDocument", [])
+        items_list = filings.get("items", [])  # e.g. "1.01,2.01,9.01"
         results = []
         for i, form in enumerate(forms):
             if form == "8-K" and len(results) < limit:
-                acc = accnos[i] if i < len(accnos) else ""
+                acc   = accnos[i] if i < len(accnos) else ""
+                items = items_list[i] if i < len(items_list) else ""
                 results.append({
-                    "form":       form,
-                    "date":       dates[i] if i < len(dates) else "",
-                    "accession":  acc,
-                    "document":   docs[i] if i < len(docs) else "",
-                    "url":        f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc.replace('-','')}/",
-                    "source":     "SEC EDGAR 8-K",
+                    "form":     form,
+                    "date":     dates[i] if i < len(dates) else "",
+                    "accession": acc,
+                    "document": docs[i] if i < len(docs) else "",
+                    "url":      f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc.replace('-','')}/",
+                    "items":    items,   # SEC item codes, e.g. "1.01,2.01,9.01"
+                    "source":   "SEC EDGAR 8-K",
                 })
         return results
     except Exception as exc:
@@ -559,6 +615,8 @@ def fetch_peer_yfinance_metrics(peer_symbols: list[str], limit: int = 6) -> list
                 "symbol":        sym,
                 "company_name":  info.get("longName") or sym,
                 "market_cap":    mc,
+                "sector":        info.get("sector") or "",
+                "industry":      info.get("industry") or "",
                 "pe":            info.get("trailingPE"),
                 "pe_fwd":        info.get("forwardPE"),
                 "ev_ebitda":     info.get("enterpriseToEbitda"),
@@ -623,9 +681,11 @@ def fetch_all_data(ticker: str) -> dict:
         "fmp_cashflow":      lambda: fetch_fmp_cash_flow(ticker, limit=5),
         "fmp_key_metrics":   lambda: fetch_fmp_key_metrics(ticker, limit=4),
         "fmp_dcf":           lambda: fetch_fmp_dcf(ticker),
-        "fmp_peers":         lambda: fetch_fmp_stock_peers(ticker),
-        "fmp_executives":    lambda: fetch_fmp_key_executives(ticker),
-        "yfinance":          lambda: fetch_yfinance_comprehensive(ticker),
+        "fmp_peers":            lambda: fetch_fmp_stock_peers(ticker),
+        "fmp_revenue_segments": lambda: fetch_fmp_revenue_segments(ticker),
+        "fmp_executives":          lambda: fetch_fmp_key_executives(ticker),
+        "yfinance":                lambda: fetch_yfinance_comprehensive(ticker),
+        "yfinance_sustainability":  lambda: fetch_yfinance_sustainability(ticker),
         "finnhub_news":      lambda: fetch_finnhub_company_news(ticker, days_back=30),
         "finnhub_ratings":   lambda: fetch_finnhub_analyst_ratings(ticker),
         "finnhub_basics":    lambda: fetch_finnhub_basic_financials(ticker),
@@ -636,7 +696,7 @@ def fetch_all_data(ticker: str) -> dict:
     }
 
     results: dict[str, Any] = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=14) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
         futures = {executor.submit(fn): key for key, fn in tasks.items()}
         for future in concurrent.futures.as_completed(futures):
             key = futures[future]
@@ -665,10 +725,18 @@ def fetch_all_data(ticker: str) -> dict:
         "tavily_growth_drivers": f"{ticker} {company_name} earnings call revenue growth drivers management commentary 2025",
         "tavily_analyst_growth": f"{ticker} {company_name} revenue growth catalyst analyst forecast 2025 2026",
         "tavily_management":     f"{company_name} CEO leadership board directors governance executive team 2025",
+        "tavily_esg":            f"{company_name} {ticker} ESG sustainability MSCI rating carbon emissions climate 2024 2025",
+        "tavily_ma":             f"{company_name} {ticker} acquisitions mergers divestitures M&A deal history 2020 2021 2022 2023 2024 2025",
+        "tavily_market_share":   f"{company_name} {ticker} market share {industry} rank position percentage 2024 2025",
+        "tavily_brand":          f"{company_name} brand value ranking Interbrand Forbes Global 2000 most valuable brands 2024 2025",
+        "tavily_subscribers":    f"{company_name} subscribers users paying customers {industry} vs competitors 2024 2025",
     }
 
-    # Analyst-curated peer overrides — supersede FMP auto-peers when defined
+    # Hard overrides for tickers where even AI peer selection may struggle
+    # (e.g. satellite cos with no US-listed comps, ADR pharma).
+    # These are rare escape hatches — most tickers use AI selection below.
     PEER_OVERRIDES: dict[str, list[str]] = {
+        # Satellite / space connectivity
         "ASTS": ["GSAT", "IRDM", "VSAT", "SATS", "TSAT"],
         "GSAT": ["ASTS", "IRDM", "VSAT", "SATS", "TSAT"],
         "IRDM": ["ASTS", "GSAT", "VSAT", "SATS"],
@@ -677,11 +745,30 @@ def fetch_all_data(ticker: str) -> dict:
         "TSAT": ["ASTS", "GSAT", "IRDM", "VSAT", "SATS"],
     }
 
-    # Also fetch peer yfinance metrics in this phase
+    # Peer selection: hard override → AI (Haiku) → FMP auto-peers (last resort)
     if ticker in PEER_OVERRIDES:
         peer_symbols = PEER_OVERRIDES[ticker]
+        logger.info("[%s] Using hard peer override: %s", ticker, peer_symbols)
     else:
-        peer_symbols = [p["symbol"] for p in (results.get("fmp_peers") or []) if p.get("symbol")]
+        # Ask Haiku for business-model-relevant peers — fast (<500ms), runs here
+        # between Phase 1 (data) and Phase 2 (Tavily), so no latency penalty.
+        try:
+            from agents.research.synthesis_agents import synthesize_peer_tickers
+            description = (
+                yf_info.get("long_business_summary")
+                or fmp_profile.get("description")
+                or ""
+            )
+            ai_peers = synthesize_peer_tickers(ticker, company_name, sector, industry, description)
+            if len(ai_peers) >= 3:
+                peer_symbols = ai_peers
+                logger.info("[%s] AI peer selection: %s", ticker, peer_symbols)
+            else:
+                peer_symbols = [p["symbol"] for p in (results.get("fmp_peers") or []) if p.get("symbol")]
+                logger.warning("[%s] AI returned too few peers (%d); using FMP auto-peers: %s", ticker, len(ai_peers), peer_symbols)
+        except Exception as exc:
+            logger.warning("[%s] AI peer selection failed: %s — using FMP auto-peers", ticker, exc)
+            peer_symbols = [p["symbol"] for p in (results.get("fmp_peers") or []) if p.get("symbol")]
 
     phase2_tasks: dict[str, Any] = {k: (fetch_tavily_search, (q, 5)) for k, q in tavily_queries.items()}
     if peer_symbols:

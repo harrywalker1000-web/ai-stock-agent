@@ -272,7 +272,7 @@ Provide the Investment Committee recommendation as a JSON object with EXACTLY th
 - "expected_return_12m": a string like "+18%" or "-5%" — base this on the scenario analysis above
 - "position_size_pct": a float (e.g. 3.0) — higher conviction = larger size, max 5.0%, min 0.5%
 - "stop_loss_pct": a float (e.g. 12.0) — distance from current price to stop loss in percent
-- "three_arguments": a list of exactly 3 strings — concise investment thesis arguments supported by the sub-component data
+- "three_arguments": a list of exactly 3 objects — each with {"title": "short argument name", "data_point": "specific metric from the data above", "reasoning": "2-3 sentence argument"}. Each argument MUST cite a specific data point from the provided structured_summary data. If you cannot find data supporting an argument, replace it with a different argument you CAN support.
 - "key_risks": a list of exactly 3 strings — top 3 risks that could invalidate the thesis
 - "committee_narrative": a SINGLE string containing exactly 3 paragraphs separated by \\n\\n
 

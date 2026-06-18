@@ -184,6 +184,7 @@ def build_cover(data: dict, mandate: dict) -> dict:
         "report_date":     _tag(datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"), "system"),
         "data_coverage":   _tag(_coverage_badge(coverage_fields), "system [CALCULATED]"),
         "fetched_at":      meta.get("fetched_at", ""),
+        "company_image":   fmp.get("image"),
     }
 
 
@@ -560,6 +561,16 @@ def build_historical_financials(data: dict) -> dict:
         capex    = cf.get("investmentsInPropertyPlantAndEquipment") or cf.get("capitalExpenditure")
         da       = cf.get("depreciationAndAmortization")
 
+        # EBITDA fallback: derive from OperatingIncome + D&A when FMP doesn't report it directly
+        # (common for insurance, financial services, and some tech companies)
+        ebit_source = "FMP"
+        if ebit is None and oi is not None and da is not None:
+            try:
+                ebit = float(oi) + float(da)
+                ebit_source = "FMP [CALCULATED: OpIncome + D&A]"
+            except (TypeError, ValueError):
+                pass
+
         # Computed ratios
         gross_margin  = _pct(gross, rev)
         ebitda_margin = _pct(ebit, rev)
@@ -587,8 +598,8 @@ def build_historical_financials(data: dict) -> dict:
             "revenue_yoy":    _tag(rev_yoy, "FMP [CALCULATED]"),
             "gross_profit":   _tag(gross, "FMP"),
             "gross_margin":   _tag(gross_margin, "FMP [CALCULATED]"),
-            "ebitda":         _tag(ebit, "FMP"),
-            "ebitda_margin":  _tag(ebitda_margin, "FMP [CALCULATED]"),
+            "ebitda":         _tag(ebit, ebit_source),
+            "ebitda_margin":  _tag(ebitda_margin, f"{ebit_source} [CALCULATED]"),
             "op_income":      _tag(oi, "FMP"),
             "op_margin":      _tag(op_margin, "FMP [CALCULATED]"),
             "net_income":     _tag(ni, "FMP"),
@@ -611,6 +622,21 @@ def build_historical_financials(data: dict) -> dict:
     # Fallback to yfinance when FMP returned no data (e.g. 402 free-plan limit)
     if not years:
         years = _yf_financial_rows(data)
+    else:
+        # Gross margin fallback: FMP omits grossProfit for insurance/financial companies.
+        # If any years are missing it, fetch yfinance income statement and fill the gaps.
+        needs_gross = any(yr.get("gross_margin", {}).get("value") is None for yr in years)
+        if needs_gross:
+            yf_rows = _yf_financial_rows(data)
+            yf_by_year = {str(r.get("label", ""))[:4]: r for r in yf_rows}
+            for yr in years:
+                if yr.get("gross_margin", {}).get("value") is None:
+                    yf = yf_by_year.get(str(yr.get("label", ""))[:4], {})
+                    gp_yf = yf.get("gross_profit", {}).get("value")
+                    gm_yf = yf.get("gross_margin", {}).get("value")
+                    if gm_yf is not None:
+                        yr["gross_profit"] = _tag(gp_yf, "yfinance")
+                        yr["gross_margin"] = _tag(gm_yf, "yfinance [CALCULATED]")
 
     ticker_sym = (data.get("_meta") or {}).get("ticker", "")
     div_history = _yf_dividend_history(ticker_sym) if ticker_sym else []

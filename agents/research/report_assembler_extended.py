@@ -213,20 +213,29 @@ def build_technicals(data: dict) -> dict:
     """
     Section 7: Technical indicators. All sourced from data['technicals'].
     Quant score computed deterministically. Zero AI.
+
+    Key-name contract with compute_technicals():
+      sma_50, sma_200 (underscores), macd nested dict, bb_position_pct (not bb_mid)
     """
     tech = data.get("technicals") or {}
     yf   = (data.get("yfinance") or {}).get("info") or {}
     src  = "yfinance [CALCULATED]"
 
     rsi           = _safe_float(tech.get("rsi"))
-    macd_line     = _safe_float(tech.get("macd_line"))
-    macd_signal   = _safe_float(tech.get("macd_signal"))
-    macd_hist     = _safe_float(tech.get("macd_hist"))
-    sma50         = _safe_float(tech.get("sma50"))
-    sma200        = _safe_float(tech.get("sma200"))
+    # MACD is stored as a nested dict by compute_technicals()
+    _macd         = tech.get("macd") or {}
+    macd_line     = _safe_float(_macd.get("macd"))
+    macd_signal   = _safe_float(_macd.get("signal"))
+    macd_hist     = _safe_float(_macd.get("histogram"))
+    macd_bullish  = bool(_macd.get("bullish")) if _macd else None
+    # SMA keys use underscores in compute_technicals()
+    sma_50        = _safe_float(tech.get("sma_50"))
+    sma_200       = _safe_float(tech.get("sma_200"))
+    pct_sma50     = _safe_float(tech.get("pct_from_sma50"))
+    pct_sma200    = _safe_float(tech.get("pct_from_sma200"))
     bb_upper      = _safe_float(tech.get("bb_upper"))
     bb_lower      = _safe_float(tech.get("bb_lower"))
-    bb_mid        = _safe_float(tech.get("bb_mid"))
+    bb_position   = _safe_float(tech.get("bb_position_pct"))  # 0-100
     atr_pct       = _safe_float(tech.get("atr_pct"))
     support       = _safe_float(tech.get("support"))
     resistance    = _safe_float(tech.get("resistance"))
@@ -235,45 +244,118 @@ def build_technicals(data: dict) -> dict:
     vol_vs_20d    = _safe_float(tech.get("volume_vs_20d_avg"))
     current_price = _safe_float(yf.get("current_price") or tech.get("current_price"))
 
-    # --- Quant score (0-75 max from defined signals) ---
+    # --- Quant score: entry quality 0-100 ---
+    # Measures how favourable the technical setup is for entering NOW.
+    # Trend direction (up/down) is separate; score reflects entry risk.
     score = 0
     score_detail = {}
 
-    if rsi is not None and 30 <= rsi <= 70:
-        score += 10
-        score_detail["rsi_neutral"] = "+10 (RSI 30-70)"
+    # RSI — sweet spot 40-65: full points; 30-70: partial; overbought >80 or oversold <30: 0
+    if rsi is not None:
+        if 40 <= rsi <= 65:
+            score += 15
+            score_detail["rsi"] = f"+15 RSI {rsi:.0f} — ideal entry zone (40-65)"
+        elif 30 <= rsi < 40:
+            score += 8
+            score_detail["rsi"] = f"+8 RSI {rsi:.0f} — mildly oversold, bounce risk"
+        elif 65 < rsi <= 75:
+            score += 8
+            score_detail["rsi"] = f"+8 RSI {rsi:.0f} — mildly overbought, elevated but acceptable"
+        else:
+            score += 0
+            score_detail["rsi"] = f"0 RSI {rsi:.0f} — {'extreme overbought (>75), pullback risk' if rsi > 75 else 'extreme oversold (<30)'}"
     else:
-        score_detail["rsi_neutral"] = "0 (RSI outside 30-70)"
+        score_detail["rsi"] = "0 RSI unavailable"
 
-    if current_price is not None and sma50 is not None and current_price > sma50:
-        score += 15
-        score_detail["above_sma50"] = "+15 (price > SMA50)"
+    # Price vs SMA50 — trend health
+    if current_price is not None and sma_50 is not None:
+        if current_price > sma_50:
+            score += 15
+            score_detail["above_sma50"] = f"+15 Price (${current_price:.2f}) > SMA50 (${sma_50:.2f}) — medium-term uptrend intact"
+        else:
+            score += 0
+            score_detail["above_sma50"] = f"0 Price (${current_price:.2f}) < SMA50 (${sma_50:.2f}) — below medium-term trend"
     else:
-        score_detail["above_sma50"] = "0 (price <= SMA50 or unavailable)"
+        score_detail["above_sma50"] = "0 SMA50 unavailable"
 
-    if current_price is not None and sma200 is not None and current_price > sma200:
-        score += 15
-        score_detail["above_sma200"] = "+15 (price > SMA200)"
+    # Price vs SMA200 — long-term trend
+    if current_price is not None and sma_200 is not None:
+        if current_price > sma_200:
+            score += 15
+            score_detail["above_sma200"] = f"+15 Price > SMA200 (${sma_200:.2f}) — in long-term uptrend"
+        else:
+            score += 0
+            score_detail["above_sma200"] = f"0 Price < SMA200 (${sma_200:.2f}) — below long-term trend"
     else:
-        score_detail["above_sma200"] = "0 (price <= SMA200 or unavailable)"
+        score_detail["above_sma200"] = "0 SMA200 unavailable (< 200 days of data)"
 
-    if macd_line is not None and macd_signal is not None and macd_line > macd_signal:
-        score += 15
-        score_detail["macd_bullish"] = "+15 (MACD line > signal)"
+    # MACD — momentum direction
+    if macd_line is not None and macd_signal is not None:
+        if macd_line > macd_signal:
+            score += 15
+            score_detail["macd"] = f"+15 MACD ({macd_line:.4f}) > Signal ({macd_signal:.4f}) — bullish momentum"
+        else:
+            score += 0
+            score_detail["macd"] = f"0 MACD ({macd_line:.4f}) < Signal ({macd_signal:.4f}) — bearish momentum"
     else:
-        score_detail["macd_bullish"] = "0 (MACD bearish or unavailable)"
+        score_detail["macd"] = "0 MACD unavailable"
 
-    if current_price is not None and bb_upper is not None and current_price < bb_upper:
-        score += 10
-        score_detail["bb_not_overbought"] = "+10 (price < BB upper)"
+    # Bollinger Band position — not at extremes
+    if current_price is not None and bb_upper is not None and bb_lower is not None:
+        band_range = bb_upper - bb_lower
+        if band_range > 0:
+            bb_pct = (current_price - bb_lower) / band_range * 100
+            if bb_pct < 80:
+                score += 10
+                score_detail["bollinger"] = f"+10 BB position {bb_pct:.0f}% — not at upper band extreme"
+            else:
+                score += 0
+                score_detail["bollinger"] = f"0 BB position {bb_pct:.0f}% — near/above upper band (overbought)"
+        else:
+            score_detail["bollinger"] = "0 BB band width zero"
     else:
-        score_detail["bb_not_overbought"] = "0 (price >= BB upper or unavailable)"
+        score_detail["bollinger"] = "0 Bollinger Bands unavailable"
 
-    if pct_from_52w is not None and pct_from_52w > -20:
-        score += 10
-        score_detail["near_52w_high"] = "+10 (pct_from_52w_high > -20%)"
+    # Proximity to 52w high — momentum without extreme extension
+    if pct_from_52w is not None:
+        if -15 < pct_from_52w <= 0:
+            score += 10
+            score_detail["52w_proximity"] = f"+10 {pct_from_52w:.1f}% from 52w high — near highs, strong momentum"
+        elif pct_from_52w <= -15:
+            score += 5
+            score_detail["52w_proximity"] = f"+5 {pct_from_52w:.1f}% from 52w high — some runway but trend may be weak"
+        else:
+            score += 3
+            score_detail["52w_proximity"] = f"+3 At/above 52w high — breakout territory, continuation risk"
     else:
-        score_detail["near_52w_high"] = "0 (pct_from_52w_high <= -20% or unavailable)"
+        score_detail["52w_proximity"] = "0 52w high unavailable"
+
+    # Volume confirmation
+    if vol_vs_20d is not None:
+        if vol_vs_20d >= 1.2:
+            score += 10
+            score_detail["volume"] = f"+10 Volume {vol_vs_20d:.1f}x 20d avg — strong institutional participation"
+        elif vol_vs_20d >= 0.8:
+            score += 5
+            score_detail["volume"] = f"+5 Volume {vol_vs_20d:.1f}x 20d avg — normal activity"
+        else:
+            score += 0
+            score_detail["volume"] = f"0 Volume {vol_vs_20d:.1f}x 20d avg — weak, low conviction move"
+    else:
+        score_detail["volume"] = "0 Volume data unavailable"
+
+    # Cap at 100
+    score = min(score, 100)
+
+    # Trend context label (separate from entry score)
+    trend_context = None
+    if trend_signal:
+        if score >= 60:
+            trend_context = f"{trend_signal} — good entry setup"
+        elif score >= 40:
+            trend_context = f"{trend_signal} — proceed with caution"
+        else:
+            trend_context = f"{trend_signal} — poor entry timing despite trend"
 
     return {
         "section":           "technicals",
@@ -281,11 +363,13 @@ def build_technicals(data: dict) -> dict:
         "macd_line":         _tag(macd_line, src),
         "macd_signal":       _tag(macd_signal, src),
         "macd_hist":         _tag(macd_hist, src),
-        "sma50":             _tag(sma50, src),
-        "sma200":            _tag(sma200, src),
+        "sma_50":            _tag(sma_50, src),
+        "sma_200":           _tag(sma_200, src),
+        "pct_from_sma50":    _tag(pct_sma50, src),
+        "pct_from_sma200":   _tag(pct_sma200, src),
         "bb_upper":          _tag(bb_upper, src),
         "bb_lower":          _tag(bb_lower, src),
-        "bb_mid":            _tag(bb_mid, src),
+        "bb_position":       _tag(bb_position, src),
         "atr_pct":           _tag(atr_pct, src),
         "support":           _tag(support, src),
         "resistance":        _tag(resistance, src),
@@ -295,12 +379,44 @@ def build_technicals(data: dict) -> dict:
         "current_price":     _tag(current_price, "yfinance"),
         "quant_score":       _tag(score, "yfinance [CALCULATED]"),
         "quant_score_detail": score_detail,
+        "trend_context":     trend_context,
     }
 
 
 # ---------------------------------------------------------------------------
 # Section 8: Competitive Moat (structured only — AI added in pipeline)
 # ---------------------------------------------------------------------------
+
+def _moat_score_roic(roic_decimal: float | None) -> int:
+    """ROIC as decimal (e.g. 0.15 = 15%). Returns 0-20. Non-multiple-of-5 by design."""
+    if roic_decimal is None:
+        return 8
+    r = roic_decimal * 100
+    return min(20, max(0, round(r * 1.1)))
+
+
+def _moat_score_gm(gm_decimal: float | None) -> int:
+    """Gross margin as decimal (e.g. 0.60 = 60%). Returns 0-20."""
+    if gm_decimal is None:
+        return 8
+    g = gm_decimal * 100
+    return min(20, max(0, round(g * 0.32)))
+
+
+def _moat_score_cagr(cagr_pct: float | None) -> int:
+    """Revenue CAGR in percent (not decimal). Returns 0-20."""
+    if cagr_pct is None:
+        return 8
+    return min(20, max(0, round(cagr_pct * 1.1) + 3))
+
+
+def _moat_score_ebitda(ebitda_decimal: float | None) -> int:
+    """EBITDA margin as decimal (e.g. 0.30 = 30%). Returns 0-20."""
+    if ebitda_decimal is None:
+        return 8
+    e = ebitda_decimal * 100
+    return min(20, max(0, round(e * 0.53) + 2))
+
 
 def build_competitive_moat(data: dict) -> dict:
     """Section 8 structured data. Haiku synthesis injected by pipeline."""
@@ -309,6 +425,8 @@ def build_competitive_moat(data: dict) -> dict:
     peers    = data.get("peer_metrics") or []
     tavily_c = data.get("tavily_competitive") or []
     news     = data.get("finnhub_news") or []
+    fmp_km   = (data.get("fmp_key_metrics") or [{}])[0]
+    inc      = data.get("fmp_income") or []
 
     tavily_excerpts = [
         {
@@ -320,6 +438,54 @@ def build_competitive_moat(data: dict) -> dict:
         if r.get("url")
     ]
 
+    # ── Quantitative moat dimensions ────────────────────────────────────────
+    roic_raw    = _safe_float(fmp_km.get("roic"))
+    gm_raw      = _safe_float(yf_info.get("gross_margins"))
+    ebitda_raw  = _safe_float(yf_info.get("ebitda_margins"))
+
+    # Revenue CAGR 3yr from FMP income statement (annual, newest-first)
+    rev_cagr_pct = None
+    if len(inc) >= 4:
+        try:
+            r0 = float(inc[0].get("revenue") or 0)
+            r3 = float(inc[3].get("revenue") or 0)
+            if r3 > 0 and r0 > 0:
+                rev_cagr_pct = round(((r0 / r3) ** (1 / 3) - 1) * 100, 2)
+        except (TypeError, ValueError, ZeroDivisionError):
+            pass
+
+    dim1 = _moat_score_roic(roic_raw)
+    dim2 = _moat_score_gm(gm_raw)
+    dim3 = _moat_score_cagr(rev_cagr_pct)
+    dim4 = _moat_score_ebitda(ebitda_raw)
+
+    moat_quant = {
+        "returns_on_capital": {
+            "score": dim1,
+            "label": "Returns on Capital",
+            "value": f"{round(roic_raw * 100, 1)}%" if roic_raw is not None else None,
+            "source": "FMP key_metrics [CALCULATED]",
+        },
+        "pricing_power": {
+            "score": dim2,
+            "label": "Pricing Power",
+            "value": f"{round(gm_raw * 100, 1)}% GM" if gm_raw is not None else None,
+            "source": "yfinance [CALCULATED]",
+        },
+        "revenue_quality": {
+            "score": dim3,
+            "label": "Revenue Quality",
+            "value": f"{rev_cagr_pct:+.1f}% CAGR" if rev_cagr_pct is not None else None,
+            "source": "FMP [CALCULATED]",
+        },
+        "operating_efficiency": {
+            "score": dim4,
+            "label": "Operating Efficiency",
+            "value": f"{round(ebitda_raw * 100, 1)}% EBITDA Mgn" if ebitda_raw is not None else None,
+            "source": "yfinance [CALCULATED]",
+        },
+    }
+
     return {
         "section":          "competitive_moat",
         "sector":           _tag(yf_info.get("sector") or fmp.get("sector"), "yfinance/FMP"),
@@ -327,7 +493,12 @@ def build_competitive_moat(data: dict) -> dict:
         "peer_count":       _tag(len(peers), "yfinance/FMP [CALCULATED]"),
         "tavily_excerpts":  tavily_excerpts,
         "recent_headlines": [a.get("headline", "") for a in news[:8] if a.get("headline")],
+        "moat_quant":       moat_quant,
+        # AI fields — filled by pipeline:
         "ai_narrative":     None,
+        "moat_score_total": None,
+        "moat_score_label": None,
+        "moat_dim5_score":  None,
     }
 
 
@@ -551,4 +722,285 @@ def build_management_governance(data: dict) -> dict:
         # Populated by AI synthesis:
         "ai_ceo_profile":      None,
         "ai_board_assessment": None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Section H: ESG & Sustainability
+# ---------------------------------------------------------------------------
+
+def build_esg_section(data: dict) -> dict:
+    """
+    Package Sustainalytics ESG scores (via yfinance) + Tavily ESG search results.
+    Sustainalytics risk scores: lower = better (risk exposure metric).
+    Zero AI at this layer — AI narrative added by synthesize_esg_initiatives.
+    """
+    sus    = data.get("yfinance_sustainability") or {}
+    tavily = data.get("tavily_esg") or []
+
+    def _sus_float(key: str):
+        v = sus.get(key)
+        try:
+            return round(float(v), 1) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    total_esg   = _sus_float("totalEsg")
+    env_score   = _sus_float("environmentScore")
+    social_score = _sus_float("socialScore")
+    gov_score   = _sus_float("governanceScore")
+    controversy = sus.get("highestControversy")
+    performance = sus.get("esgPerformance")    # e.g. "AVG_PERFORMER"
+    rating_year = sus.get("ratingYear")
+    rating_month = sus.get("ratingMonth")
+
+    rating_period = None
+    if rating_year and rating_month:
+        try:
+            rating_period = f"{int(rating_year)}-{int(rating_month):02d}"
+        except (TypeError, ValueError):
+            pass
+
+    controversy_int = None
+    if controversy is not None:
+        try:
+            controversy_int = int(float(controversy))
+        except (TypeError, ValueError):
+            pass
+
+    return {
+        "section":               "esg",
+        "total_esg_score":       _tag(total_esg, "yfinance (Sustainalytics)"),
+        "environment_score":     _tag(env_score, "yfinance (Sustainalytics)"),
+        "social_score":          _tag(social_score, "yfinance (Sustainalytics)"),
+        "governance_score":      _tag(gov_score, "yfinance (Sustainalytics)"),
+        "highest_controversy":   _tag(controversy_int, "yfinance (Sustainalytics)"),
+        "esg_performance":       _tag(performance, "yfinance (Sustainalytics)"),
+        "rating_period":         _tag(rating_period, "yfinance (Sustainalytics)"),
+        "esg_search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "excerpt": (r.get("content") or "")[:600]}
+            for r in tavily[:5]
+        ],
+        # Populated by AI synthesis:
+        "ai_msci_rating":        None,
+        "ai_initiatives":        None,
+        "ai_narrative":          None,
+        "ai_source":             None,
+        "ai_status":             None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Section J: M&A Track Record
+# ---------------------------------------------------------------------------
+
+_MA_ITEM_CODES = {"1.01", "2.01"}   # SEC 8-K item codes indicating M&A events
+_MA_KEYWORDS   = {"acqui", "merger", "divest", "takeover", "buyout", "spinoff",
+                  "spin-off", "joint venture", "strategic partner", "m&a"}
+
+
+def _is_ma_8k(filing: dict) -> bool:
+    """Return True if the 8-K filing items include a material M&A item code."""
+    items_str = filing.get("items") or ""
+    codes = {c.strip() for c in items_str.split(",")}
+    return bool(codes & _MA_ITEM_CODES)
+
+
+def _is_ma_news(headline: str) -> bool:
+    hl = headline.lower()
+    return any(kw in hl for kw in _MA_KEYWORDS)
+
+
+def build_ma_track_record(data: dict) -> dict:
+    """
+    Package SEC 8-K M&A filings, Finnhub M&A news, and Tavily M&A search results.
+    Zero AI at this layer — Haiku synthesis extracts structured events separately.
+    """
+    sec_8k     = data.get("sec_8k") or []
+    finnhub    = data.get("finnhub_news") or []
+    tavily     = data.get("tavily_ma") or []
+    fmp        = data.get("fmp_profile") or {}
+    yf_info    = (data.get("yfinance") or {}).get("info") or {}
+    company_name = fmp.get("company_name") or yf_info.get("company_name") or ""
+
+    # Filter 8-K filings that include M&A item codes
+    ma_8k_filings = [f for f in sec_8k if _is_ma_8k(f)]
+
+    # Filter Finnhub news for M&A headlines (last 30 days)
+    ma_news = [
+        {"headline": n.get("headline", ""), "date": n.get("datetime", ""), "url": n.get("url", "")}
+        for n in finnhub
+        if _is_ma_news(n.get("headline", ""))
+    ][:8]
+
+    return {
+        "section":        "ma_track_record",
+        "company_name":   company_name,
+        "ma_8k_filings":  [
+            {"date": f["date"], "items": f.get("items", ""), "url": f["url"]}
+            for f in ma_8k_filings[:5]
+        ],
+        "ma_news_headlines": ma_news,
+        "ma_search_results": [
+            {"title": r.get("title", ""), "url": r.get("url", ""), "excerpt": (r.get("content") or "")[:700]}
+            for r in tavily[:5]
+        ],
+        # Populated by AI synthesis:
+        "ai_events":     None,
+        "ai_narrative":  None,
+        "ai_source":     None,
+        "ai_status":     None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Section B: Porter's Five Forces
+# ---------------------------------------------------------------------------
+
+def build_porter_five_forces(data: dict) -> dict:
+    """
+    Package quantitative anchors + search excerpts for Haiku to score all 5 forces.
+    Capex intensity and peer count give quant grounding for two of the five forces.
+    Zero AI at this layer.
+    """
+    fmp      = data.get("fmp_profile") or {}
+    yf_info  = (data.get("yfinance") or {}).get("info") or {}
+    peers    = data.get("peer_metrics") or []
+    cashflow = data.get("fmp_cashflow") or []
+    income   = data.get("fmp_income") or []
+    tavily_i = data.get("tavily_industry") or []
+    tavily_c = data.get("tavily_competitive") or []
+
+    # Capex intensity = abs(capex) / revenue — proxy for barrier to entry
+    capex_intensity_pct = None
+    if cashflow and income:
+        capex = _safe_float(cashflow[0].get("capitalExpenditure"))
+        rev   = _safe_float(income[0].get("revenue"))
+        if capex is not None and rev and rev > 0:
+            capex_intensity_pct = round(abs(capex) / rev * 100, 1)
+
+    gm_pct = None
+    gm_raw = _safe_float(yf_info.get("gross_margins"))
+    if gm_raw is not None:
+        gm_pct = round(gm_raw * 100, 1)
+
+    def _excerpts(results: list, n: int = 3) -> list:
+        return [
+            {"title": r.get("title", ""), "excerpt": (r.get("content") or "")[:400]}
+            for r in results[:n]
+            if r.get("title") or r.get("content")
+        ]
+
+    return {
+        "section":              "porter_five_forces",
+        "company_name":         fmp.get("company_name") or yf_info.get("company_name"),
+        "sector":               _tag(yf_info.get("sector") or fmp.get("sector"), "yfinance/FMP"),
+        "industry":             _tag(yf_info.get("industry") or fmp.get("industry"), "yfinance/FMP"),
+        "peer_count":           _tag(len(peers), "yfinance/FMP [CALCULATED]"),
+        "capex_intensity_pct":  _tag(capex_intensity_pct, "FMP [CALCULATED]"),
+        "gross_margin_pct":     _tag(gm_pct, "yfinance [CALCULATED]"),
+        "industry_excerpts":    _excerpts(tavily_i, 3),
+        "competitive_excerpts": _excerpts(tavily_c, 3),
+        # Populated by AI synthesis:
+        "ai_forces":            None,
+        "ai_source":            None,
+        "ai_status":            None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Section C: SOTP Valuation
+# ---------------------------------------------------------------------------
+
+def build_sotp_valuation(data: dict) -> dict:
+    """
+    Package segment revenues (FMP), peer multiples (yfinance), and balance sheet
+    data for Haiku to assign segment-level multiples.
+    Python (not AI) does all arithmetic: value = revenue × multiple.
+    Zero AI at this layer.
+    """
+    fmp          = data.get("fmp_profile") or {}
+    yf_info      = (data.get("yfinance") or {}).get("info") or {}
+    income       = data.get("fmp_income") or []
+    balance      = data.get("fmp_balance") or []
+    key_metrics  = data.get("fmp_key_metrics") or []
+    peers        = data.get("peer_metrics") or []
+    segments_raw = data.get("fmp_revenue_segments") or []
+    tavily_growth = data.get("tavily_growth_drivers") or []
+    tavily_analyst = data.get("tavily_analyst_growth") or []
+    company_name = fmp.get("company_name") or yf_info.get("company_name") or ""
+
+    # Total revenue (most recent FMP annual, for segment % calculation)
+    total_revenue = _safe_float((income[0] if income else {}).get("revenue")) if income else None
+
+    # Net debt from balance sheet: totalDebt - cashAndCashEquivalents
+    net_debt = None
+    if balance:
+        b = balance[0]
+        total_debt = _safe_float(b.get("totalDebt"))
+        cash = _safe_float(b.get("cashAndCashEquivalents") or b.get("cashAndShortTermInvestments"))
+        if total_debt is not None and cash is not None:
+            net_debt = total_debt - cash
+
+    # Shares outstanding (yfinance preferred; FMP market_cap / price as fallback)
+    shares = _safe_float(yf_info.get("shares_outstanding"))
+    current_price = _safe_float(yf_info.get("current_price"))
+    market_cap    = _safe_float(yf_info.get("market_cap") or fmp.get("market_cap"))
+
+    # Peer multiples for context (median EV/Revenue and EV/EBITDA)
+    ev_rev_list    = [p.get("ps") for p in peers if p.get("ps") is not None]
+    ev_ebitda_list = [p.get("ev_ebitda") for p in peers if p.get("ev_ebitda") is not None]
+
+    def _median(lst):
+        if not lst:
+            return None
+        s = sorted(lst)
+        n = len(s)
+        return round(s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2, 2)
+
+    peer_median_ev_rev    = _median(ev_rev_list)
+    peer_median_ev_ebitda = _median(ev_ebitda_list)
+
+    # Subject company own multiples
+    subj_ev_ebitda = _safe_float(yf_info.get("ev_ebitda"))
+    subj_ps        = _safe_float(yf_info.get("ps"))
+
+    # Annotate segments with % of total
+    segments = []
+    for seg in segments_raw:
+        rev = _safe_float(seg.get("revenue"))
+        pct = round(rev / total_revenue * 100, 1) if rev and total_revenue else None
+        segments.append({
+            "name":    seg.get("name", ""),
+            "revenue": _tag(rev, "FMP"),
+            "pct_of_total": _tag(pct, "FMP [CALCULATED]") if pct is not None else _na(),
+            "date":    seg.get("date", ""),
+        })
+
+    # Earnings call / analyst excerpts (already fetched — reuse)
+    excerpts = [
+        {"title": r.get("title", ""), "text": (r.get("content") or "")[:500]}
+        for r in (tavily_growth[:3] + tavily_analyst[:2])
+        if r.get("title") or r.get("content")
+    ]
+
+    return {
+        "section":                "sotp_valuation",
+        "company_name":           company_name,
+        "total_revenue":          _tag(total_revenue, "FMP"),
+        "net_debt":               _tag(net_debt, "FMP [CALCULATED]"),
+        "shares_outstanding":     _tag(shares, "yfinance"),
+        "current_price":          _tag(current_price, "yfinance"),
+        "market_cap":             _tag(market_cap, "yfinance/FMP"),
+        "subj_ev_ebitda":         _tag(subj_ev_ebitda, "yfinance"),
+        "subj_ev_rev":            _tag(subj_ps, "yfinance"),
+        "peer_median_ev_rev":     _tag(peer_median_ev_rev, "yfinance [CALCULATED]"),
+        "peer_median_ev_ebitda":  _tag(peer_median_ev_ebitda, "yfinance [CALCULATED]"),
+        "peer_count":             _tag(len(peers), "yfinance [CALCULATED]"),
+        "segments":               segments,
+        "earnings_excerpts":      excerpts,
+        # AI populated by pipeline_synthesis.py (multiples only — no values):
+        "ai_sotp":   None,
+        "ai_source": None,
+        "ai_status": None,
     }

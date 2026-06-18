@@ -89,6 +89,7 @@ def run_pipeline(ticker: str) -> dict:
         s2=merged["s2"],
         s3=merged["s3"],
         s4b=merged["s4b"],
+        s7=merged["s7"],
         s8=merged["s8"],
         s9=merged["s9"],
         s10b=merged["s10b"],
@@ -96,6 +97,11 @@ def run_pipeline(ticker: str) -> dict:
         s13=merged["s13"],
         s14=merged["s14"],
         s16=s16,
+        s_esg=merged["s_esg"],
+        s_ma=merged["s_ma"],
+        s_porter=merged["s_porter"],
+        s_c=merged["s_c"],
+        brand_colors=merged.get("brand_colors", {}),
     )
 
     # 7. Write to disk
