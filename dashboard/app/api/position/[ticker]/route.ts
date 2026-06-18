@@ -190,12 +190,13 @@ export async function GET(
 
   // ── Merge: use pipeline agent data + live prices ───────────────────────────
   // If not in current report files but IS a held position, build from positions_log
+  // Fall back to Alpaca-only data (no pipeline analysis) when positions_log lacks the ticker
   if (!hasPipelineData) {
-    if (!positionEntry) {
+    if (!positionEntry && !alpacaPosition) {
       return NextResponse.json({ error: "No data available for this ticker" }, { status: 404 });
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pe = positionEntry as any;
+    const pe = (positionEntry ?? {}) as any;
     const ads = pe.agent_scores_detail ?? {};
     const posAgentScores = [
       { agent: "Fundamental", score: ads.fundamental ?? 0, view: ads.fundamental_summary ?? "—" },
