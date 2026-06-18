@@ -6,6 +6,13 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+const REPO = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
+const BRANCH = "main";
+const REPO_DIRS = [
+  "dashboard/data/adhoc_reports",
+  "data/adhoc_reports",
+];
+
 function sanitizeTicker(raw: string): string {
   return String(raw).toUpperCase().replace(/[^A-Z0-9.]/g, "");
 }
@@ -34,6 +41,57 @@ function readLatestReport(ticker: string): Record<string, unknown> | null {
   }
 }
 
+async function fetchLatestReportFromGitHub(
+  ticker: string
+): Promise<Record<string, unknown> | null> {
+  const token = process.env.GITHUB_DISPATCH_TOKEN;
+  if (!token) return null;
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.github+json",
+  };
+
+  let latestFile: { name: string; download_url: string } | null = null;
+
+  for (const dir of REPO_DIRS) {
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${REPO}/contents/${dir}?ref=${BRANCH}`,
+        { headers }
+      );
+      if (!res.ok) continue;
+      const items: Array<{ name: string; download_url: string; type: string }> =
+        await res.json();
+      if (!Array.isArray(items)) continue;
+      for (const item of items) {
+        if (
+          item.type === "file" &&
+          item.name.startsWith(`${ticker}_`) &&
+          item.name.endsWith(".json")
+        ) {
+          // Filename format YYYYMMDD_HHMMSS — lexicographic = chronological
+          if (!latestFile || item.name > latestFile.name) {
+            latestFile = item;
+          }
+        }
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  if (!latestFile) return null;
+
+  try {
+    const fileRes = await fetch(latestFile.download_url);
+    if (!fileRes.ok) return null;
+    return await fileRes.json();
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: { ticker: string } }
@@ -41,11 +99,15 @@ export async function GET(
   const ticker = sanitizeTicker(params.ticker);
   if (!ticker) return NextResponse.json({ error: "Invalid ticker" }, { status: 400 });
 
+  // 1. Try local filesystem (works locally and when includeFiles bundles the files)
   const report = readLatestReport(ticker);
-  if (!report) {
-    return NextResponse.json({ error: `No report found for ${ticker}` }, { status: 404 });
-  }
-  return NextResponse.json(report);
+  if (report) return NextResponse.json(report);
+
+  // 2. Fallback: fetch from GitHub (handles Vercel build cache not picking up new files)
+  const githubReport = await fetchLatestReportFromGitHub(ticker);
+  if (githubReport) return NextResponse.json(githubReport);
+
+  return NextResponse.json({ error: `No report found for ${ticker}` }, { status: 404 });
 }
 
 export async function POST(
