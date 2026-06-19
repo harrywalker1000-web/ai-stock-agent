@@ -481,21 +481,44 @@ def reconcile_positions_with_alpaca() -> dict:
             summary["ghosts_removed"].append(ticker)
 
     # --- Case 3: Positions in Alpaca not in log (manually entered) ---
+    # POLICY: Positions entered outside the pipeline violate the full-analysis requirement.
+    # We add a stub marked unanalysed_manual_entry=True so the committee can see them,
+    # but the pipeline will NOT manage (hold/increase) them until full analysis is run.
+    # A CRITICAL alert is logged so the violation is visible in every run.
     log_positions = memory.get_open_positions()
     for ticker, alpaca_data in alpaca_pos.items():
         if ticker not in log_positions:
-            logger.warning("Reconcile: %s in Alpaca but not in log — adding stub entry", ticker)
+            logger.critical(
+                "POLICY VIOLATION — %s is held in Alpaca but was NEVER analysed by the pipeline. "
+                "Positions may only be entered after full fundamental + quant + sentiment analysis "
+                "and committee debate. This position will NOT be managed until analysis is run. "
+                "Run an adhoc report for %s immediately.",
+                ticker, ticker,
+            )
             memory.store_trade_entry(
                 ticker=ticker,
                 entry_date=today,
                 entry_price=alpaca_data["avg_entry_price"],
                 direction="LONG" if alpaca_data["side"] == "long" else "SHORT",
-                conviction=50,
+                conviction=0,
                 size_pct=round(alpaca_data["market_value"] / portfolio_value * 100, 1) if portfolio_value else 10.0,
-                rationale="Position entered outside pipeline — stub entry added by reconciler",
-                signals=["manual_entry"],
+                rationale="UNANALYSED — position entered outside pipeline. Full analysis required before management.",
+                signals=["manual_entry", "unanalysed"],
                 alpaca_order_id="external",
             )
+            # Stamp the stub with the unanalysed flag so decision loop can block management
+            try:
+                import json as _json2
+                from pathlib import Path as _P2
+                _lp = _P2(__file__).resolve().parent.parent / "data" / "memory" / "positions_log.json"
+                with open(_lp) as _f2:
+                    _pos2 = _json2.load(_f2)
+                if ticker in _pos2:
+                    _pos2[ticker]["unanalysed_manual_entry"] = True
+                    with open(_lp, "w") as _f2:
+                        _json2.dump(_pos2, _f2, indent=2)
+            except Exception as _ue:
+                logger.warning("Reconcile: could not stamp unanalysed flag for %s: %s", ticker, _ue)
             summary["untracked_added"].append(ticker)
 
     # --- Case 4: Direction mismatch — log says LONG but Alpaca says SHORT (or vice versa) ---
@@ -697,6 +720,19 @@ def run(mode: str = "new_opportunities") -> dict:
             skipped.append({"ticker": ticker, "reason": decision.get("skip_reason", "")})
             continue
 
+        # Block management of positions flagged as unanalysed manual entries.
+        # Only "exit" is allowed — the system must not increase or maintain a position
+        # that was entered without full pipeline analysis.
+        if open_positions.get(ticker, {}).get("unanalysed_manual_entry") and action != "exit":
+            reason = (
+                f"BLOCKED_UNANALYSED: {ticker} was entered without pipeline analysis — "
+                "run a full adhoc report before the committee can hold/increase this position. "
+                "Only 'exit' actions are permitted on unanalysed positions."
+            )
+            logger.critical("%s: %s", ticker, reason)
+            skipped.append({"ticker": ticker, "reason": reason})
+            continue
+
         if action == "hold":
             # If portfolio construction set a target size_pct that differs from the
             # actual current allocation, convert to increase/decrease to rebalance.
@@ -754,6 +790,58 @@ def run(mode: str = "new_opportunities") -> dict:
                 continue
 
         if action in ("enter_long", "enter_short"):
+            # ── HARD GATE: full pipeline analysis required before any entry ─────────
+            # A position may NEVER be entered without complete fundamental + quant +
+            # sentiment analysis, a passing mandate check, and a committee debate where
+            # required (likely-entry composite ≥ 65 or agent_spread ≥ 20).
+            _sc = next(
+                (sc for sc in committee.get("scorecards", []) if sc.get("ticker") == ticker),
+                None,
+            )
+            if _sc is None:
+                reason = (
+                    "BLOCKED_NO_SCORECARD: ticker was not scored by the full pipeline — "
+                    "fundamental + quant + sentiment analysis required before entry"
+                )
+                logger.error("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
+
+            _fs = _sc.get("fundamental_score") or 0
+            _qs = _sc.get("quant_score") or 0
+            _ss = _sc.get("sentiment_score") or 0
+            if _fs == 0 or _qs == 0 or _ss == 0:
+                reason = (
+                    f"BLOCKED_INCOMPLETE_ANALYSIS: F={_fs} Q={_qs} S={_ss} — "
+                    "all three agent scores must be non-zero before entry"
+                )
+                logger.error("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
+
+            if _sc.get("mandate_pass") is False:
+                _fail = _sc.get("mandate_fail_reasons") or []
+                reason = (
+                    "BLOCKED_MANDATE_FAIL: "
+                    + ("; ".join(_fail) if _fail else "fund mandate check failed")
+                )
+                logger.error("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
+
+            _composite = _sc.get("composite_score", 0)
+            _spread    = _sc.get("agent_spread", 0)
+            _debated   = _sc.get("was_debated", False)
+            if (_composite >= 65 or _spread >= 20) and not _debated:
+                reason = (
+                    f"BLOCKED_DEBATE_REQUIRED: composite={_composite} spread={_spread} "
+                    "but was_debated=False — committee debate must be completed before entry"
+                )
+                logger.error("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
+            # ── End hard gate ──────────────────────────────────────────────────────
+
             if not size_pct:
                 logger.warning("%s: no size_pct from Committee — skipping", ticker)
                 skipped.append({"ticker": ticker, "reason": "no size_pct"})

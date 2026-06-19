@@ -1863,6 +1863,62 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
                 sc = sc_map.get(d.get("ticker", ""), {})
                 d["size_pct"] = sc.get("suggested_size_pct", 5.0)
 
+    # ── HARD GATE: strip any entry that lacks complete pipeline analysis ──────────
+    # A position may NEVER be entered without all three agent scores non-zero,
+    # a passing mandate check, and a debate where composite ≥ 65 or spread ≥ 20.
+    # Downgrade qualifying entries to skip and log the reason clearly.
+    _sc_map_gate = {sc["ticker"]: sc for sc in scorecards}
+    _gated_decisions = []
+    for _d in decisions:
+        _t = _d.get("ticker", "")
+        _a = _d.get("action", "skip")
+        if _a not in ("enter_long", "enter_short"):
+            _gated_decisions.append(_d)
+            continue
+        _sc_g = _sc_map_gate.get(_t)
+        if _sc_g is None:
+            reason_g = (
+                "BLOCKED_NO_SCORECARD: ticker not in pipeline scorecards — "
+                "fundamental + quant + sentiment analysis required before entry"
+            )
+            logger.error("Committee gate: %s %s → skip | %s", _t, _a, reason_g)
+            _gated_decisions.append({"ticker": _t, "action": "skip", "skip_reason": reason_g})
+            continue
+        _fs_g = _sc_g.get("fundamental_score") or 0
+        _qs_g = _sc_g.get("quant_score") or 0
+        _ss_g = _sc_g.get("sentiment_score") or 0
+        if _fs_g == 0 or _qs_g == 0 or _ss_g == 0:
+            reason_g = (
+                f"BLOCKED_INCOMPLETE_ANALYSIS: F={_fs_g} Q={_qs_g} S={_ss_g} — "
+                "all three agent scores must be non-zero before entry"
+            )
+            logger.error("Committee gate: %s %s → skip | %s", _t, _a, reason_g)
+            _gated_decisions.append({"ticker": _t, "action": "skip", "skip_reason": reason_g})
+            continue
+        if _sc_g.get("mandate_pass") is False:
+            _fail_g = _sc_g.get("mandate_fail_reasons") or []
+            reason_g = (
+                "BLOCKED_MANDATE_FAIL: "
+                + ("; ".join(_fail_g) if _fail_g else "fund mandate check failed")
+            )
+            logger.error("Committee gate: %s %s → skip | %s", _t, _a, reason_g)
+            _gated_decisions.append({"ticker": _t, "action": "skip", "skip_reason": reason_g})
+            continue
+        _comp_g = _sc_g.get("composite_score", 0)
+        _sprd_g = _sc_g.get("agent_spread", 0)
+        _deb_g  = _sc_g.get("was_debated", False)
+        if (_comp_g >= 65 or _sprd_g >= 20) and not _deb_g:
+            reason_g = (
+                f"BLOCKED_DEBATE_REQUIRED: composite={_comp_g} spread={_sprd_g} "
+                "but was_debated=False — debate must be completed before entry"
+            )
+            logger.error("Committee gate: %s %s → skip | %s", _t, _a, reason_g)
+            _gated_decisions.append({"ticker": _t, "action": "skip", "skip_reason": reason_g})
+            continue
+        _gated_decisions.append(_d)
+    decisions = _gated_decisions
+    # ── End committee entry gate ───────────────────────────────────────────────
+
     # Store all decisions in memory
     for d in decisions:
         ticker = d.get("ticker", "")
