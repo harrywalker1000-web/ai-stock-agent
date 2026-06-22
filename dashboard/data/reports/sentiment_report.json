@@ -1,87 +1,16 @@
 {
   "sentiment_analyses": [
     {
-      "ticker": "AMZN",
+      "ticker": "NVDA",
       "sentiment_score": 78,
       "direction": "LONG",
       "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 28.1,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 0.9,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, AMZN shows strong bullish sentiment from analysts with a significant upside potential based on price targets. The lack of recent news catalysts suggests that the current sentiment is leading, indicating potential value amidst market fears.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 319.25,
-        "target_count": 4,
-        "last_quarter_avg_target": 315.23,
-        "last_year_avg_target": 297.04,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Strong Buy",
-        "yf_num_analysts": 63,
-        "fh_strong_buy": 22,
-        "fh_buy": 49,
-        "fh_hold": 5,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 244.39,
-        "mean": 312.98715,
-        "high": 370.0,
-        "low": 207.0,
-        "upside_pct": 28.1
-      },
-      "short_interest": {
-        "ratio": 2.12,
-        "pct_float": 0.0094
-      },
-      "candidate_score": 4.0,
-      "candidate_signals": [
-        "institutional_signal",
-        "unusual_calls(12.9x_vol_oi)"
-      ]
-    },
-    {
-      "ticker": "NVDA",
-      "sentiment_score": 76,
-      "direction": "LONG",
-      "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 41.9,
+      "price_target_upside_pct": 43.0,
       "news_sentiment": "neutral",
       "short_interest_pct": 1.2,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
+      "analyst_targets_stale": true,
       "contrarian_signal": true,
       "sentiment_type": "leading",
       "data_conflicts": [],
@@ -94,11 +23,11 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, indicating potential value for contrarian long positions.",
+      "sentiment_summary": "Despite a risk-off macro regime, NVDA shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. However, the lack of recent news catalysts and low signal confidence suggests that the current sentiment may be leading, indicating a potential contrarian long opportunity.",
       "fmp_analyst_signals": {
         "available": true,
-        "avg_target_price": 322.63,
-        "target_count": 19,
+        "avg_target_price": 425.0,
+        "target_count": 1,
         "last_quarter_avg_target": 317.5,
         "last_year_avg_target": 276.29,
         "upgrades_recent": 0,
@@ -126,30 +55,108 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 210.69,
+        "current": 209.11,
         "mean": 298.9322,
         "high": 500.0,
         "low": 180.0,
-        "upside_pct": 41.9
+        "upside_pct": 43.0
       },
       "short_interest": {
         "ratio": 1.71,
         "pct_float": 0.012200001
       },
-      "candidate_score": 4.0,
+      "candidate_score": 7.5,
       "candidate_signals": [
         "institutional_signal",
-        "unusual_calls(7.2x_vol_oi)"
+        "analyst_upgrade",
+        "activist_13g",
+        "unusual_calls(20.3x_vol_oi)",
+        "sector_momentum"
       ]
     },
     {
-      "ticker": "AAPL",
-      "sentiment_score": 72,
+      "ticker": "TSLA",
+      "sentiment_score": 58,
       "direction": "LONG",
       "analyst_consensus": "Buy",
-      "price_target_upside_pct": 5.5,
+      "price_target_upside_pct": 3.0,
       "news_sentiment": "neutral",
-      "short_interest_pct": 1.1,
+      "short_interest_pct": 2.3,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "mixed",
+      "data_conflicts": [
+        "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 0,
+        "sources": [],
+        "conflicts": [
+          "yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+        ],
+        "confidence_note": "0/3 sources confirming; conflicts: yfinance analyst direction (bullish) conflicts with Finnhub (neutral)"
+      },
+      "sentiment_summary": "Current sentiment around TSLA is mixed, with analysts showing a bullish consensus while market sentiment remains neutral. The lack of recent news catalysts and the low short interest suggest that while there is potential for a contrarian long position, the overall confidence in the market is low.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 429.0,
+        "target_count": 6,
+        "last_quarter_avg_target": 429,
+        "last_year_avg_target": 436.27,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 41,
+        "fh_strong_buy": 9,
+        "fh_buy": 20,
+        "fh_hold": 23,
+        "fh_sell": 7,
+        "fh_strong_sell": 1,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": false,
+        "long_weight": 0.0,
+        "short_weight": 0.0,
+        "net_score": 0.0,
+        "total_catalysts": 0,
+        "top_catalyst": null
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 408.205,
+        "mean": 420.54633,
+        "high": 600.0,
+        "low": 123.0,
+        "upside_pct": 3.0
+      },
+      "short_interest": {
+        "ratio": 1.48,
+        "pct_float": 0.023
+      },
+      "candidate_score": 6.5,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "activist_13g",
+        "unusual_calls(46.7x_vol_oi)"
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "sentiment_score": 76,
+      "direction": "LONG",
+      "analyst_consensus": "Strong Buy",
+      "price_target_upside_pct": 33.7,
+      "news_sentiment": "neutral",
+      "short_interest_pct": 0.9,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
       "analyst_targets_stale": false,
@@ -165,25 +172,25 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, AAPL shows a bullish sentiment from analysts with a mean price target significantly above the current price, indicating potential value. The lack of news catalysts and low short interest suggest that the current sentiment is leading, reflecting optimism about future performance.",
+      "sentiment_summary": "Despite a risk-off macro regime, AMZN shows a strong bullish sentiment from analysts with significant upside potential in price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating a potential contrarian long opportunity.",
       "fmp_analyst_signals": {
         "available": true,
-        "avg_target_price": 345.0,
+        "avg_target_price": 321.67,
         "target_count": 3,
-        "last_quarter_avg_target": 327.77,
-        "last_year_avg_target": 295.96,
+        "last_quarter_avg_target": 315.23,
+        "last_year_avg_target": 297.04,
         "upgrades_recent": 0,
         "downgrades_recent": 0,
         "initiations_recent": 0,
         "upgrade_momentum": "stable"
       },
       "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 42,
-        "fh_strong_buy": 14,
-        "fh_buy": 24,
-        "fh_hold": 15,
-        "fh_sell": 2,
+        "yf_label": "Strong Buy",
+        "yf_num_analysts": 63,
+        "fh_strong_buy": 22,
+        "fh_buy": 49,
+        "fh_hold": 5,
+        "fh_sell": 0,
         "fh_strong_sell": 0,
         "fh_period": "2026-06-01"
       },
@@ -197,174 +204,30 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 298.01,
-        "mean": 314.4238,
-        "high": 400.0,
-        "low": 215.0,
-        "upside_pct": 5.5
+        "current": 234.055,
+        "mean": 312.98715,
+        "high": 370.0,
+        "low": 207.0,
+        "upside_pct": 33.7
       },
       "short_interest": {
-        "ratio": 3.12,
-        "pct_float": 0.0106
+        "ratio": 2.12,
+        "pct_float": 0.0094
       },
-      "candidate_score": 4.0,
+      "candidate_score": 6.5,
       "candidate_signals": [
         "institutional_signal",
-        "unusual_calls(7.0x_vol_oi)"
-      ]
-    },
-    {
-      "ticker": "MRNA",
-      "sentiment_score": 67,
-      "direction": "LONG",
-      "analyst_consensus": "Hold",
-      "price_target_upside_pct": -32.3,
-      "news_sentiment": "positive",
-      "short_interest_pct": 17.8,
-      "short_squeeze_risk": "medium",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": true,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, MRNA shows potential for a contrarian long position due to positive news catalysts and a significant analyst price target above the current price. The sentiment appears to be leading, reflecting optimism about future developments, particularly in light of the recent FDA backing for its influenza vaccine.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 41.25,
-        "target_count": 4,
-        "last_quarter_avg_target": 41.25,
-        "last_year_avg_target": 33.58,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Hold",
-        "yf_num_analysts": 20,
-        "fh_strong_buy": 0,
-        "fh_buy": 4,
-        "fh_hold": 19,
-        "fh_sell": 4,
-        "fh_strong_sell": 3,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
-        "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "MRNA Up as Influenza Vaccine Wins Unanimous FDA Advisory Panel Backing"
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 63.96,
-        "mean": 43.3,
-        "high": 69.0,
-        "low": 21.0,
-        "upside_pct": -32.3
-      },
-      "short_interest": {
-        "ratio": 7.48,
-        "pct_float": 0.17819999
-      },
-      "candidate_score": 3.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "LLY",
-      "sentiment_score": 83,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 10.9,
-      "news_sentiment": "positive",
-      "short_interest_pct": 1.1,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": false,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "The sentiment around Eli Lilly & Co (LLY) is currently positive, supported by a strong analyst consensus and favorable news catalysts. With a solid upside potential and low short interest, the sentiment appears to be leading, indicating a bullish outlook for the stock.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 29,
-        "fh_strong_buy": 11,
-        "fh_buy": 20,
-        "fh_hold": 7,
-        "fh_sell": 1,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
-        "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "Eli Lilly & Co (NYSE:LLY): A Dividend Growth Gem with Strong Fundamentals"
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 1098.57,
-        "mean": 1218.7241,
-        "high": 1500.0,
-        "low": 850.0,
-        "upside_pct": 10.9
-      },
-      "short_interest": {
-        "ratio": 2.75,
-        "pct_float": 0.011
-      },
-      "candidate_score": 3.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "sector_momentum",
-        "macro_tailwind"
+        "analyst_upgrade",
+        "activist_13g",
+        "unusual_calls(109.2x_vol_oi)"
       ]
     },
     {
       "ticker": "BSX",
-      "sentiment_score": 78,
+      "sentiment_score": 75,
       "direction": "LONG",
       "analyst_consensus": "Strong Buy",
-      "price_target_upside_pct": 70.2,
+      "price_target_upside_pct": 72.3,
       "news_sentiment": "neutral",
       "short_interest_pct": 3.9,
       "short_squeeze_risk": "low",
@@ -382,7 +245,7 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, BSX shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that the current sentiment is leading, indicating a potential contrarian long opportunity.",
+      "sentiment_summary": "Despite a risk-off macro regime, BSX shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggest that current sentiment is leading, indicating potential value for contrarian long positions.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": null,
@@ -396,7 +259,7 @@
       },
       "analyst_detail": {
         "yf_label": "Strong Buy",
-        "yf_num_analysts": 30,
+        "yf_num_analysts": 29,
         "fh_strong_buy": 12,
         "fh_buy": 20,
         "fh_hold": 8,
@@ -414,11 +277,11 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 45.29,
-        "mean": 77.1,
+        "current": 44.4,
+        "mean": 76.48276,
         "high": 106.0,
         "low": 55.0,
-        "upside_pct": 70.2
+        "upside_pct": 72.3
       },
       "short_interest": {
         "ratio": 2.71,
@@ -426,308 +289,24 @@
       },
       "candidate_score": 3.5,
       "candidate_signals": [
-        "dislocation_screen(-20%_1m)",
+        "dislocation_screen(-23%_1m)",
         "sector_momentum",
         "macro_tailwind"
       ]
     },
     {
-      "ticker": "SATS",
-      "sentiment_score": 72,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 26.0,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 36.5,
-      "short_squeeze_risk": "high",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, analyst sentiment towards SATS remains bullish with a significant upside potential indicated by price targets. The high short interest suggests a potential squeeze risk, but the lack of recent news catalysts keeps the sentiment neutral, indicating that current market fears may be overblown.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 5,
-        "fh_strong_buy": 2,
-        "fh_buy": 4,
-        "fh_hold": 4,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 109.17,
-        "mean": 137.6,
-        "high": 161.0,
-        "low": 120.0,
-        "upside_pct": 26.0
-      },
-      "short_interest": {
-        "ratio": 6.63,
-        "pct_float": 0.36490002
-      },
-      "candidate_score": 3.0,
-      "candidate_signals": [
-        "dislocation_screen(-20%_1m)",
-        "sector_momentum"
-      ]
-    },
-    {
-      "ticker": "ACN",
-      "sentiment_score": 78,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 57.0,
-      "news_sentiment": "neutral",
-      "short_interest_pct": 4.7,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
-        "conflicts": [],
-        "confidence_note": "1/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, ACN shows a bullish sentiment from analysts with a significant upside potential based on price targets. The lack of news catalysts and low short interest suggests that the current sentiment is leading, indicating potential value amidst market fears.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 25,
-        "fh_strong_buy": 8,
-        "fh_buy": 15,
-        "fh_hold": 10,
-        "fh_sell": 0,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": false,
-        "long_weight": 0.0,
-        "short_weight": 0.0,
-        "net_score": 0.0,
-        "total_catalysts": 0,
-        "top_catalyst": null
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 127.98,
-        "mean": 200.8908,
-        "high": 280.0,
-        "low": 135.0,
-        "upside_pct": 57.0
-      },
-      "short_interest": {
-        "ratio": 4.37,
-        "pct_float": 0.047
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "dislocation_screen(-28%_1m)"
-      ]
-    },
-    {
-      "ticker": "XOM",
-      "sentiment_score": 82,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 23.3,
-      "news_sentiment": "mixed",
-      "short_interest_pct": 1.1,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "Despite a risk-off macro regime, analysts maintain a bullish outlook on XOM, with significant upside potential reflected in price targets. The mixed news sentiment suggests some caution, but overall, the sentiment appears to be leading, indicating that the market may be underestimating the stock's value amidst current fears.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": 178.5,
-        "target_count": 2,
-        "last_quarter_avg_target": 175.42,
-        "last_year_avg_target": 153.43,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 22,
-        "fh_strong_buy": 6,
-        "fh_buy": 10,
-        "fh_hold": 14,
-        "fh_sell": 1,
-        "fh_strong_sell": 0,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 1.0,
-        "short_weight": 0.0,
-        "net_score": 1.0,
-        "total_catalysts": 1,
-        "top_catalyst": "Exxon Stock Plunges On U.S.-Iran Deal. Why It's Still Worth A Look."
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 137.81,
-        "mean": 169.90909,
-        "high": 185.0,
-        "low": 130.0,
-        "upside_pct": 23.3
-      },
-      "short_interest": {
-        "ratio": 2.39,
-        "pct_float": 0.0114
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "CRM",
-      "sentiment_score": 83,
-      "direction": "LONG",
-      "analyst_consensus": "Buy",
-      "price_target_upside_pct": 65.7,
-      "news_sentiment": "positive",
-      "short_interest_pct": 8.6,
-      "short_squeeze_risk": "low",
-      "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
-      "contrarian_signal": true,
-      "sentiment_type": "leading",
-      "data_conflicts": [],
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "analyst_consensus",
-          "news_catalysts"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 sources confirming"
-      },
-      "sentiment_summary": "The current sentiment around CRM is bullish, driven by strong analyst consensus and positive news catalysts. With a significant upside potential in price targets and low short interest, the sentiment appears to be leading, indicating potential value in a long position.",
-      "fmp_analyst_signals": {
-        "available": true,
-        "avg_target_price": null,
-        "target_count": 0,
-        "last_quarter_avg_target": null,
-        "last_year_avg_target": null,
-        "upgrades_recent": 0,
-        "downgrades_recent": 0,
-        "initiations_recent": 0,
-        "upgrade_momentum": "stable"
-      },
-      "analyst_detail": {
-        "yf_label": "Buy",
-        "yf_num_analysts": 52,
-        "fh_strong_buy": 12,
-        "fh_buy": 31,
-        "fh_hold": 13,
-        "fh_sell": 1,
-        "fh_strong_sell": 1,
-        "fh_period": "2026-06-01"
-      },
-      "news_detail": {
-        "found": true,
-        "long_weight": 0.7,
-        "short_weight": 0.0,
-        "net_score": 0.7,
-        "total_catalysts": 1,
-        "top_catalyst": "Salesforce (CRM) Inks Definitive Agreement for Fin Acquisition"
-      },
-      "reddit_detail": null,
-      "price_targets": {
-        "current": 151.78,
-        "mean": 251.52731,
-        "high": 475.0,
-        "low": 160.0,
-        "upside_pct": 65.7
-      },
-      "short_interest": {
-        "ratio": 4.45,
-        "pct_float": 0.0861
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "fresh_catalyst"
-      ]
-    },
-    {
       "ticker": "ADBE",
-      "sentiment_score": 61,
+      "sentiment_score": 62,
       "direction": "LONG",
       "analyst_consensus": "Hold",
-      "price_target_upside_pct": 44.6,
+      "price_target_upside_pct": 46.5,
       "news_sentiment": "neutral",
       "short_interest_pct": 5.2,
       "short_squeeze_risk": "low",
       "retail_euphoria_warning": false,
-      "analyst_targets_stale": false,
+      "analyst_targets_stale": true,
       "contrarian_signal": true,
-      "sentiment_type": "leading",
+      "sentiment_type": "mixed",
       "data_conflicts": [],
       "signal_confidence": {
         "level": "low",
@@ -738,7 +317,7 @@
         "conflicts": [],
         "confidence_note": "1/3 sources confirming"
       },
-      "sentiment_summary": "Despite a risk-off macro regime, ADBE shows potential for upside with a significant analyst price target above the current price. The lack of recent news catalysts and low short interest suggest that current sentiment is leading, indicating a possible contrarian long opportunity.",
+      "sentiment_summary": "Despite a risk-off macro regime, ADBE shows potential for upside based on analyst targets significantly above the current price. The lack of recent news catalysts and stable analyst ratings suggest that sentiment is mixed, with a contrarian opportunity for long positions as the market may be overly cautious.",
       "fmp_analyst_signals": {
         "available": true,
         "avg_target_price": 261.53,
@@ -770,24 +349,239 @@
       },
       "reddit_detail": null,
       "price_targets": {
-        "current": 195.16,
+        "current": 192.67,
         "mean": 282.27124,
         "high": 460.0,
         "low": 190.0,
-        "upside_pct": 44.6
+        "upside_pct": 46.5
       },
       "short_interest": {
         "ratio": 4.07,
         "pct_float": 0.051599998
       },
-      "candidate_score": 2.0,
+      "candidate_score": 3.0,
       "candidate_signals": [
-        "dislocation_screen(-23%_1m)"
+        "dislocation_screen(-21%_1m)",
+        "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "ACN",
+      "sentiment_score": 72,
+      "direction": "LONG",
+      "analyst_consensus": "Buy",
+      "price_target_upside_pct": 64.8,
+      "news_sentiment": "neutral",
+      "short_interest_pct": 4.7,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
+        "conflicts": [],
+        "confidence_note": "1/3 sources confirming"
+      },
+      "sentiment_summary": "Despite a risk-off macro regime, ACN shows a bullish sentiment from analysts with a significant upside potential based on price targets. The lack of recent news catalysts and low short interest suggest that the current sentiment is leading, indicating potential value in the stock amidst market fears.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": null,
+        "target_count": 0,
+        "last_quarter_avg_target": null,
+        "last_year_avg_target": null,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 25,
+        "fh_strong_buy": 8,
+        "fh_buy": 15,
+        "fh_hold": 10,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": false,
+        "long_weight": 0.0,
+        "short_weight": 0.0,
+        "net_score": 0.0,
+        "total_catalysts": 0,
+        "top_catalyst": null
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 119.94,
+        "mean": 197.6508,
+        "high": 280.0,
+        "low": 135.0,
+        "upside_pct": 64.8
+      },
+      "short_interest": {
+        "ratio": 4.37,
+        "pct_float": 0.047
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "dislocation_screen(-33%_1m)",
+        "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "CTSH",
+      "sentiment_score": 72,
+      "direction": "LONG",
+      "analyst_consensus": "Buy",
+      "price_target_upside_pct": 72.0,
+      "news_sentiment": "neutral",
+      "short_interest_pct": 12.7,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": true,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "analyst_consensus"
+        ],
+        "conflicts": [],
+        "confidence_note": "1/3 sources confirming"
+      },
+      "sentiment_summary": "Despite a risk-off macro regime, analyst sentiment towards CTSH remains bullish, with a significant upside potential indicated by the price targets. The lack of recent news catalysts and low retail sentiment suggests that the current market sentiment is leading, reflecting a potential contrarian opportunity as analysts see value in the stock.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": null,
+        "target_count": 0,
+        "last_quarter_avg_target": null,
+        "last_year_avg_target": null,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Buy",
+        "yf_num_analysts": 25,
+        "fh_strong_buy": 5,
+        "fh_buy": 14,
+        "fh_hold": 18,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": false,
+        "long_weight": 0.0,
+        "short_weight": 0.0,
+        "net_score": 0.0,
+        "total_catalysts": 0,
+        "top_catalyst": null
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 41.315,
+        "mean": 71.062,
+        "high": 93.0,
+        "low": 49.0,
+        "upside_pct": 72.0
+      },
+      "short_interest": {
+        "ratio": 6.89,
+        "pct_float": 0.1274
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "dislocation_screen(-22%_1m)",
+        "sector_momentum"
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "sentiment_score": 82,
+      "direction": "LONG",
+      "analyst_consensus": "Strong Buy",
+      "price_target_upside_pct": 51.7,
+      "news_sentiment": "positive",
+      "short_interest_pct": 1.2,
+      "short_squeeze_risk": "low",
+      "retail_euphoria_warning": false,
+      "analyst_targets_stale": false,
+      "contrarian_signal": false,
+      "sentiment_type": "leading",
+      "data_conflicts": [],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "analyst_consensus",
+          "news_catalysts"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 sources confirming"
+      },
+      "sentiment_summary": "The sentiment around MSFT is strongly bullish, supported by a consensus of analysts recommending a long position. With significant upside potential in price targets and positive news catalysts, the sentiment is leading, indicating that the market may be pricing in favorable future developments.",
+      "fmp_analyst_signals": {
+        "available": true,
+        "avg_target_price": 545.44,
+        "target_count": 16,
+        "last_quarter_avg_target": 545.44,
+        "last_year_avg_target": 592.37,
+        "upgrades_recent": 0,
+        "downgrades_recent": 0,
+        "initiations_recent": 0,
+        "upgrade_momentum": "stable"
+      },
+      "analyst_detail": {
+        "yf_label": "Strong Buy",
+        "yf_num_analysts": 55,
+        "fh_strong_buy": 23,
+        "fh_buy": 38,
+        "fh_hold": 5,
+        "fh_sell": 0,
+        "fh_strong_sell": 0,
+        "fh_period": "2026-06-01"
+      },
+      "news_detail": {
+        "found": true,
+        "long_weight": 1.0,
+        "short_weight": 0.0,
+        "net_score": 1.0,
+        "total_catalysts": 1,
+        "top_catalyst": "Treasury Authorizes Sale of Iranian Oil"
+      },
+      "reddit_detail": null,
+      "price_targets": {
+        "current": 370.09,
+        "mean": 561.38763,
+        "high": 870.0,
+        "low": 400.0,
+        "upside_pct": 51.7
+      },
+      "short_interest": {
+        "ratio": 2.42,
+        "pct_float": 0.0119
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum"
       ]
     }
   ],
-  "total_analysed": 11,
+  "total_analysed": 8,
   "macro_regime": "RISK-OFF",
   "reddit_enabled": false,
-  "generated_at": "2026-06-19 16:37 UTC"
+  "generated_at": "2026-06-22 18:19 UTC"
 }
