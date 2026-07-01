@@ -45,12 +45,13 @@ async function fetchLatestReportFromGitHub(
   ticker: string
 ): Promise<Record<string, unknown> | null> {
   const token = process.env.GITHUB_DISPATCH_TOKEN;
-  if (!token) return null;
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
+  // Token is optional — public repos work without auth.
+  // If token is absent and repo is private, GitHub returns 401 and we continue gracefully.
+  const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
   };
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   let latestFile: { name: string; download_url: string } | null = null;
 
