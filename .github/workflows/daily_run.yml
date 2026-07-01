@@ -93,18 +93,25 @@ jobs:
           # stash pop silently swallows new files and nothing gets committed.
           git fetch origin main
           git rebase --autostash origin/main
-          # Stage all pipeline output files (tracked modifications + new untracked files)
-          git add data/memory/positions_log.json
-          git add data/memory/decision_log.json
-          git add data/memory/pattern_history.json
+          # Stage all pipeline output files (tracked modifications + new untracked files).
+          # Use || true for individual file paths — they abort with set -e if missing.
+          # Directory paths (reports/, memory/) never fail even if nothing changed.
+          git add data/memory/positions_log.json   || true
+          git add data/memory/decision_log.json    || true
+          git add data/memory/pattern_history.json || true
           git add dashboard/data/reports/
           git add dashboard/data/memory/
-          # Only commit and push if there are staged changes
+          # Only commit and push if there are staged changes.
+          # Retry push up to 3 times in case another workflow pushed between our rebase and push.
           if git diff --cached --quiet; then
             echo "No data changes to commit"
           else
             git commit -m "chore: daily pipeline data update $(date -u '+%Y-%m-%d')"
-            git push origin HEAD:main
+            for i in 1 2 3; do
+              git push origin HEAD:main && break
+              echo "Push attempt $i failed — rebasing and retrying..."
+              git fetch origin main && git rebase --autostash origin/main
+            done
           fi
 
       # Dashboard deploy is handled by deploy.yml, triggered automatically

@@ -75,6 +75,10 @@ jobs:
             exit 1
           fi
           git commit -m "chore: adhoc report ${{ github.event.inputs.ticker }} $(date -u '+%Y-%m-%d')"
-          git push origin HEAD:main
+          for i in 1 2 3; do
+            git push origin HEAD:main && break
+            echo "Push attempt $i failed — rebasing and retrying..."
+            git fetch origin main && git rebase --autostash origin/main
+          done
 
       # deploy.yml triggers automatically on push to dashboard/** — no manual deploy needed here

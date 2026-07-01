@@ -54,10 +54,15 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git rebase --autostash origin/main
-          git add data/reports/intraday_alerts.json 2>/dev/null || true
+          git add data/reports/intraday_alerts.json || true
           if git diff --cached --quiet; then
             echo "No alert changes to commit"
           else
             git commit -m "chore: intraday monitor $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git push origin HEAD:main
+            # Retry push — concurrent 30-min runs create a race; losing a push drops alert data.
+            for i in 1 2 3; do
+              git push origin HEAD:main && break
+              echo "Push attempt $i failed — rebasing and retrying..."
+              git fetch origin main && git rebase --autostash origin/main
+            done
           fi
