@@ -1,24 +1,22 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "commodities",
-    "gold",
-    "high-quality bonds"
+    "high-yield bonds",
+    "inflation-protected securities"
   ],
   "avoid_themes": [
-    "high-yield bonds",
     "growth stocks",
-    "emerging markets"
+    "emerging markets",
+    "high-risk assets"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions impacting market sentiment",
-    "potential for conflict in the Middle East",
-    "global supply chain disruptions due to geopolitical instability"
+    "escalation of conflict in Syria",
+    "Iran's military actions affecting oil prices"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly between the US and Iran. While the Fed Funds Rate remains stable at 3.63%, the yield curve is inverted, suggesting recession risks. Conflicts exist between the FRED and newsapi_finnhub signals indicating RISK-OFF, while yfinance_market suggests NEUTRAL, leading to a low confidence level overall.",
+  "macro_summary": "The current macro environment shows a mixed signal with FRED indicating a RISK-OFF stance, while yfinance_market remains NEUTRAL and newsapi_finnhub suggests RISK-ON. Inflation is rising as indicated by the CPI increase, while interest rates are stable. The lack of agreement among sources leads to a low confidence level in the overall market regime classification.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -30,16 +28,17 @@
     "agreements": [],
     "conflicts": [
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+      "FRED signals RISK-OFF but newsapi_finnhub signals RISK-ON",
+      "newsapi_finnhub signals RISK-ON but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from different sources contribute to a low confidence level for downstream agents."
+    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.38,
-    "us_2y_yield": 4.1,
-    "yield_curve_spread": 0.28,
+    "us_10y_yield": 4.44,
+    "us_2y_yield": 4.14,
+    "yield_curve_spread": 0.3,
     "cpi_latest": 333.98,
     "cpi_prev": 332.41,
     "cpi_trend": "rising",
@@ -47,43 +46,27 @@
     "gdp_latest": 31865.7,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.41,
-    "dxy_current": 101.33,
-    "dxy_1m_ago": 99.2,
+    "dxy_current": 100.75,
+    "dxy_1m_ago": 99.22,
     "dxy_trend": "strengthening",
-    "vix": 16.11,
-    "tlt_1m_change_pct": 0.29,
-    "hyg_1m_change_pct": -0.28,
+    "vix": 16.46,
+    "tlt_1m_change_pct": 0.4,
+    "hyg_1m_change_pct": 0.3,
     "macro_headlines": [
-      "Wall St dips as US-Iran tensions weigh on sentiment - Reuters",
-      "US and Iran enter technical talks to secure peace deal, shipping restart - Reuters",
-      "PlayStation will end physical disc production for new games in 2028",
-      "Trump says the U.S. and Iran getting along very well - Reuters",
-      "We're exiting a troubled stock after a muted quarter, while considering better options",
-      "Buy the UK DIP? Defense stocks lifted by $20 billion spending boost as gilts come under fire",
-      "Iran warns of immediate response to any threat, cites US commitment to restrain Israel - Reuters",
-      "The next Iran war may come sooner than you think - Reuters",
-      "Iran insists on keeping control over Hormuz, senior Iranian sources say - Reuters",
-      "Tech leads first half stock gains \u2014 but the biggest winners weren't in the U.S."
+      "Stock market gains minted nearly 1 million new millionaires in 2025, new UBS report says",
+      "Trump says 'everybody's profiting' from recent market rallies \u2014 but it\u2019s mostly the 1%",
+      "How high hopes for Biden\u2019s student-loan forgiveness plans cost borrowers",
+      "Damascus cafe blast kills 5, wounds 16, Syrian state news agency says - Reuters",
+      "Jim Cramer's top 10 things to watch in the stock market Thursday",
+      "High-end camping and a capital raise: AutoCamp is banking on summer travel to fuel growth",
+      "Jeff Bezos' family office backed five AI startups in June",
+      "Iran's Revolutionary Guards say they killed Kurdish militants in northwest Iran - Reuters",
+      "Syrian foreign minister says Syria open to meeting Hezbollah, Lebanese state media reports - Reuters",
+      "Americans are paying record prices for steak. Here's why demand isn't cracking"
     ],
-    "geopolitical_headlines": [
-      "The central bank of central banks just released its flagship annual report \u2014 and it sees a $1 trillion AI investment boom headed for a reckoning",
-      "Metallica donates \u00a320,000 to city foodbank with 'empty shelves' after sell-out gig",
-      "3 reasons UBS sees gold surging 30% in the next year",
-      "Delcy Rodr\u00edguez\u2019s Venezuela is in such dire straits she can\u2019t afford to reject aid from either friends or foes",
-      "Supreme Court hangs up on whether smartphone search was 'reasonable'",
-      "Supreme Court says Fed\u2019s Cook can keep her job for now, but it upholds other Trump firings",
-      "Supreme Court restricts use of geofence warrants",
-      "Bernie Sanders Saw This Coming",
-      "Why this $200 phone could be the answer to battery anxiety",
-      "Are Checks Sent Through the Mail Vulnerable to Theft?"
-    ],
-    "central_bank_headlines": [
-      "GCC debt markets have rallied since the ceasefire, but tight liquidity remains a key hurdle",
-      "US Stock Market: Warsh faces crucial week with court ruling, global debut in focus",
-      "Intercontinental Exchange plans futures tied to monetary policy and natural gas storage",
-      "NYSE Owner Plans Futures Tied to Policy Decisions, Oil Reserves"
-    ],
-    "as_of": "2026-07-01 16:10 UTC"
+    "geopolitical_headlines": [],
+    "central_bank_headlines": [],
+    "as_of": "2026-07-02 15:56 UTC"
   },
-  "generated_at": "2026-07-01T16:10:59.915147"
+  "generated_at": "2026-07-02T15:56:42.530392"
 }
