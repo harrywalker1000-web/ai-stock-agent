@@ -1,22 +1,22 @@
 {
-  "regime": "NEUTRAL",
+  "regime": "RISK-OFF",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "defensive stocks",
-    "high-yield bonds",
-    "inflation-protected securities"
+    "inflation-protected securities",
+    "commodities",
+    "defensive stocks"
   ],
   "avoid_themes": [
-    "growth stocks",
-    "emerging markets",
-    "high-risk assets"
+    "high-growth tech",
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "escalation of conflict in Syria",
-    "Iran's military actions affecting oil prices"
+    "Iran's potential oil sales impacting global oil prices",
+    "NATO tensions affecting European stability"
   ],
-  "macro_summary": "The current macro environment shows a mixed signal with FRED indicating a RISK-OFF stance, while yfinance_market remains NEUTRAL and newsapi_finnhub suggests RISK-ON. Inflation is rising as indicated by the CPI increase, while interest rates are stable. The lack of agreement among sources leads to a low confidence level in the overall market regime classification.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions. FRED and newsapi_finnhub both signal RISK-OFF, while yfinance_market remains NEUTRAL, leading to a conflict in the signals. The Fed Funds Rate is stable at 3.63%, with inflation trending upwards as indicated by the CPI increase.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,17 +28,16 @@
     "agreements": [],
     "conflicts": [
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "FRED signals RISK-OFF but newsapi_finnhub signals RISK-ON",
-      "newsapi_finnhub signals RISK-ON but yfinance_market signals NEUTRAL"
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
+    "confidence_note": "The low confidence level reflects the conflicting signals from the sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.44,
-    "us_2y_yield": 4.14,
-    "yield_curve_spread": 0.3,
+    "us_10y_yield": 4.48,
+    "us_2y_yield": 4.17,
+    "yield_curve_spread": 0.31,
     "cpi_latest": 333.98,
     "cpi_prev": 332.41,
     "cpi_trend": "rising",
@@ -46,27 +45,47 @@
     "gdp_latest": 31865.7,
     "gdp_prev": 31422.5,
     "gdp_growth": 1.41,
-    "dxy_current": 100.75,
-    "dxy_1m_ago": 99.22,
+    "dxy_current": 100.85,
+    "dxy_1m_ago": 99.53,
     "dxy_trend": "strengthening",
-    "vix": 16.46,
-    "tlt_1m_change_pct": 0.4,
-    "hyg_1m_change_pct": 0.3,
+    "vix": 15.78,
+    "tlt_1m_change_pct": 0.6,
+    "hyg_1m_change_pct": 0.5,
     "macro_headlines": [
-      "Stock market gains minted nearly 1 million new millionaires in 2025, new UBS report says",
-      "Trump says 'everybody's profiting' from recent market rallies \u2014 but it\u2019s mostly the 1%",
-      "How high hopes for Biden\u2019s student-loan forgiveness plans cost borrowers",
-      "Damascus cafe blast kills 5, wounds 16, Syrian state news agency says - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Thursday",
-      "High-end camping and a capital raise: AutoCamp is banking on summer travel to fuel growth",
-      "Jeff Bezos' family office backed five AI startups in June",
-      "Iran's Revolutionary Guards say they killed Kurdish militants in northwest Iran - Reuters",
-      "Syrian foreign minister says Syria open to meeting Hezbollah, Lebanese state media reports - Reuters",
-      "Americans are paying record prices for steak. Here's why demand isn't cracking"
+      "NATO leaders to gather in Ankara, aiming to smooth over tensions with Trump - Reuters",
+      "NATO leaders including Trump to affirm 'ironclad commitment' to collective defence in Ankara, summit text says - Reuters",
+      "Khamenei lies in state in Tehran as Iran begins week of funeral ceremonies - Reuters",
+      "How does the Iran crisis compare with the 1979 oil shock? - Reuters",
+      "EXCLUSIVE: Iran exploring oil sales to Japan, buyers seek longer sanctions waiver, sources say - Reuters",
+      "Gulf oil exports jump in June on record UAE flows - Reuters",
+      "American Express and Chase move luxury lounge wars beyond the airport",
+      "US oil companies see big profit jump, gird for clash over pump prices with Trump - Reuters",
+      "What are the key challenges facing NATO? - Reuters",
+      "In the West Bank, Israeli settlers take over Palestinian's dream home - Reuters"
     ],
-    "geopolitical_headlines": [],
-    "central_bank_headlines": [],
-    "as_of": "2026-07-02 15:56 UTC"
+    "geopolitical_headlines": [
+      "Fed's Warsh says any balance sheet policy change won't be a surprise",
+      "I get 50 free days of eldercare through my job at Bank of America. It's eased the pressure of caring for my mom.",
+      "What Went on at This Meeting of Powerful Central Bankers Won\u2019t Ease Your Mind About an AI Bubble",
+      "Trump secured over $50 million in loan from Charles Schwab in 2025, ethics filing shows",
+      "Halifax brand to be scrapped after 173 years",
+      "I had to plan ahead when I wanted money as a kid. My kids just press a button on their phone.",
+      "The Dan Ives era at Wedbush is over. These are some of the calls \u2014 and colorful fits \u2014 people will remember.",
+      "Canada celebrates its birthday as Mark Carney battles to keep it intact",
+      "Hiring worse than expected in June amid elevated inflation",
+      "Why are Man City breaking the bank for Anderson?"
+    ],
+    "central_bank_headlines": [
+      "Fed chairman says inflation risks are declining, predicts AI will create jobs",
+      "Kevin Warsh declines to hint at July Fed rate decision at Sintra",
+      "Fed's Warsh: Will decide on rate hike when policymakers 'shut the door' at next meeting",
+      "Bank of England holds rates steady amid signs of weakening economy",
+      "European Central Bank president Lagarde hosts central bank heads on Euro Matters podcast",
+      "Kevin Warsh makes his global debut at ECB forum alongside world\u2019s top central bankers",
+      "BOE\u2019s Bailey signals softening UK economy, no immediate rate cuts",
+      "Central banks plan policy framework overhaul to tackle inflation volatility"
+    ],
+    "as_of": "2026-07-03 15:37 UTC"
   },
-  "generated_at": "2026-07-02T15:56:42.530392"
+  "generated_at": "2026-07-03T15:37:51.783345"
 }
