@@ -108,50 +108,74 @@ async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> 
   } catch { return []; }
 }
 
-// Static sector + company map for known tickers
+// Static sector + company map — last-resort fallback only.
+// Primary source: logEntry?.fund_mandate?.sector (stored by pipeline at entry time).
 const TICKER_META: Record<string, { sector: string; company: string }> = {
   // Technology
-  NVDA:  { sector: "Technology",    company: "NVIDIA" },
-  AMD:   { sector: "Technology",    company: "AMD" },
-  SMCI:  { sector: "Technology",    company: "Super Micro" },
-  AAPL:  { sector: "Technology",    company: "Apple" },
-  MSFT:  { sector: "Technology",    company: "Microsoft" },
-  GOOGL: { sector: "Technology",    company: "Alphabet" },
-  META:  { sector: "Technology",    company: "Meta" },
-  // Consumer Discretionary
-  AMZN:  { sector: "Consumer Disc", company: "Amazon" },
-  NKE:   { sector: "Consumer Disc", company: "Nike" },
-  TSLA:  { sector: "Consumer Disc", company: "Tesla" },
+  NVDA:  { sector: "Technology",         company: "NVIDIA" },
+  AMD:   { sector: "Technology",         company: "AMD" },
+  SMCI:  { sector: "Technology",         company: "Super Micro" },
+  AAPL:  { sector: "Technology",         company: "Apple" },
+  MSFT:  { sector: "Technology",         company: "Microsoft" },
+  GOOGL: { sector: "Technology",         company: "Alphabet" },
+  META:  { sector: "Technology",         company: "Meta" },
+  ADBE:  { sector: "Technology",         company: "Adobe" },
+  CRM:   { sector: "Technology",         company: "Salesforce" },
+  CTSH:  { sector: "Technology",         company: "Cognizant" },
+  ACN:   { sector: "Technology",         company: "Accenture" },
+  // Financial Services
+  JPM:   { sector: "Financial Services", company: "JPMorgan Chase" },
+  V:     { sector: "Financial Services", company: "Visa" },
+  MA:    { sector: "Financial Services", company: "Mastercard" },
+  GS:    { sector: "Financial Services", company: "Goldman Sachs" },
+  BAC:   { sector: "Financial Services", company: "Bank of America" },
   // Healthcare
-  LLY:   { sector: "Healthcare",    company: "Eli Lilly" },
-  MRK:   { sector: "Healthcare",    company: "Merck" },
-  JNJ:   { sector: "Healthcare",    company: "Johnson & Johnson" },
-  ABBV:  { sector: "Healthcare",    company: "AbbVie" },
+  LLY:   { sector: "Healthcare",         company: "Eli Lilly" },
+  MRK:   { sector: "Healthcare",         company: "Merck" },
+  JNJ:   { sector: "Healthcare",         company: "Johnson & Johnson" },
+  ABBV:  { sector: "Healthcare",         company: "AbbVie" },
+  BSX:   { sector: "Healthcare",         company: "Boston Scientific" },
+  UNH:   { sector: "Healthcare",         company: "UnitedHealth" },
+  // Consumer Discretionary
+  AMZN:  { sector: "Consumer Disc",      company: "Amazon" },
+  NKE:   { sector: "Consumer Disc",      company: "Nike" },
+  TSLA:  { sector: "Consumer Disc",      company: "Tesla" },
+  DG:    { sector: "Consumer Disc",      company: "Dollar General" },
+  HD:    { sector: "Consumer Disc",      company: "Home Depot" },
+  LEN:   { sector: "Consumer Disc",      company: "Lennar" },
+  NFLX:  { sector: "Consumer Disc",      company: "Netflix" },
   // Consumer Staples
-  MKC:   { sector: "Consumer Stap", company: "McCormick" },
-  EL:    { sector: "Consumer Stap", company: "Estée Lauder" },
-  PG:    { sector: "Consumer Stap", company: "Procter & Gamble" },
-  KO:    { sector: "Consumer Stap", company: "Coca-Cola" },
+  MKC:   { sector: "Consumer Stap",      company: "McCormick" },
+  EL:    { sector: "Consumer Stap",      company: "Estée Lauder" },
+  PG:    { sector: "Consumer Stap",      company: "P&G" },
+  KO:    { sector: "Consumer Stap",      company: "Coca-Cola" },
+  // Energy
+  CVX:   { sector: "Energy",             company: "Chevron" },
+  XOM:   { sector: "Energy",             company: "ExxonMobil" },
+  OXY:   { sector: "Energy",             company: "Occidental" },
+  // Communications
+  VZ:    { sector: "Communications",     company: "Verizon" },
+  T:     { sector: "Communications",     company: "AT&T" },
+  GOOGL: { sector: "Communications",     company: "Alphabet" },
+  // Industrials / Aerospace
+  LUV:   { sector: "Industrials",        company: "Southwest Air" },
+  RKLB:  { sector: "Industrials",        company: "Rocket Lab" },
   // Materials
-  AMCR:  { sector: "Materials",     company: "Amcor" },
-  // Industrials
-  LUV:   { sector: "Industrials",   company: "Southwest Air" },
-  // Retail
-  DG:    { sector: "Consumer Disc", company: "Dollar General" },
-  HD:    { sector: "Consumer Disc", company: "Home Depot" },
-  // Homebuilders
-  LEN:   { sector: "Consumer Disc", company: "Lennar" },
+  AMCR:  { sector: "Materials",          company: "Amcor" },
 };
 
 const SECTOR_COLORS: Record<string, string> = {
-  "Technology":    "#0EA5E9",
-  "Consumer Disc": "#10B981",
-  "Healthcare":    "#8B5CF6",
-  "Consumer Stap": "#F59E0B",
-  "Materials":     "#06B6D4",
-  "Industrials":   "#F97316",
-  "Cash":          "#374151",
-  "Other":         "#6B7280",
+  "Technology":         "#0EA5E9",
+  "Financial Services": "#3B82F6",
+  "Healthcare":         "#8B5CF6",
+  "Consumer Disc":      "#10B981",
+  "Consumer Stap":      "#F59E0B",
+  "Energy":             "#EF4444",
+  "Communications":     "#EC4899",
+  "Industrials":        "#F97316",
+  "Materials":          "#06B6D4",
+  "Cash":               "#374151",
+  "Other":              "#6B7280",
 };
 
 export async function GET() {
@@ -182,13 +206,17 @@ export async function GET() {
       const ticker      = p.symbol as string;
       const meta        = TICKER_META[ticker] ?? { sector: "Other", company: ticker };
       const logEntry    = positionsLog?.[ticker];
+      // Sector priority: direct top-level field (never set today) → fund_mandate.sector
+      // (stored by pipeline at entry) → TICKER_META → "Other"
+      const resolvedSector: string =
+        logEntry?.sector ?? logEntry?.fund_mandate?.sector ?? meta.sector;
       const sc          = scorecardMap[ticker];
       const marketValue = Math.abs(parseFloat(p.market_value));
       const unrealisedPct = parseFloat(p.unrealized_plpc) * 100;
       return {
         ticker,
-        company:       logEntry?.company ?? meta.company,
-        sector:        logEntry?.sector  ?? meta.sector,
+        company:       logEntry?.company ?? logEntry?.company_info?.hq?.split(",")[0] ?? meta.company,
+        sector:        resolvedSector,
         direction:     p.side === "short" ? "short" : "long",
         entry_price:   parseFloat(p.avg_entry_price),
         current_price: parseFloat(p.current_price),
@@ -226,7 +254,7 @@ export async function GET() {
     positions = Object.values(positionsLog).map((p: any) => ({
       ticker:        p.ticker ?? "—",
       company:       p.company ?? TICKER_META[p.ticker]?.company ?? p.ticker,
-      sector:        p.sector  ?? TICKER_META[p.ticker]?.sector  ?? "—",
+      sector:        p.sector ?? p.fund_mandate?.sector ?? TICKER_META[p.ticker]?.sector ?? "—",
       direction:     (p.direction ?? "long").toLowerCase(),
       entry_price:   p.entry_price ?? 0,
       current_price: p.current_price ?? p.entry_price ?? 0,
