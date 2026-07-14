@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 import requests  # type: ignore[import-untyped]
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 from utils.data_fetcher import (
     fetch_finnhub_analyst_ratings,
@@ -559,7 +559,7 @@ def _load_macro_context() -> str:
 
 
 def _analyse_with_llm(raw_data: dict) -> dict:
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     macro_context = _load_macro_context()
 
     holdings_str = _format_holdings_summary(raw_data["fund_holdings"])

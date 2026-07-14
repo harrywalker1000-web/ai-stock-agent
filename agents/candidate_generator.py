@@ -36,7 +36,7 @@ from typing import Any
 import pandas as pd
 import yfinance as yf
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 import agents.memory_agent as memory
 from utils.logger import get_logger
@@ -680,7 +680,7 @@ def _generate_summary(
     """
     Lightweight GPT-4o-mini call to produce a plain-language generation_summary.
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
 
     regime = macro.get("regime", "UNKNOWN")
     top_sectors = sector.get("top_sectors", [])

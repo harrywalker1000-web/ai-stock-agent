@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 load_dotenv()
 
@@ -643,7 +643,7 @@ Return ONLY valid JSON:
   }}
 }}"""
 
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     try:
         resp = client.chat.completions.create(
             model="gpt-4o",

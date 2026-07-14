@@ -16,7 +16,7 @@ from datetime import datetime
 from typing import Any
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 import agents.memory_agent as memory
 from utils.data_fetcher import (
@@ -268,7 +268,7 @@ def _analyse_with_llm(raw_data: dict) -> dict:
     and narrative generation. The LLM is given only real data — it must not
     invent figures.
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     confidence = _compute_macro_confidence(raw_data)
 
     # Fund performance context — helps macro agent understand if past regime calls were accurate

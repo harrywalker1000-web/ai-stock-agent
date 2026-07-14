@@ -16,7 +16,7 @@ from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 import agents.memory_agent as memory
 from utils.data_fetcher import fetch_price_history_multi, fetch_finnhub_market_news, fetch_news_headlines
@@ -366,7 +366,7 @@ def _format_etf_table(etf_stats: dict, etf_map: dict) -> str:
 
 
 def _analyse_with_llm(raw_data: dict) -> dict:
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     macro_context = _load_macro_context()
 
     sector_table = _format_etf_table(raw_data["etf_stats"], raw_data["sector_etfs"])
@@ -484,7 +484,7 @@ Rank sectors by attractiveness, but ONLY put sectors with medium/high confidence
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
     logger.info("Sector Agent: sending data to GPT-4o-mini")
-    response = OpenAI(api_key=os.environ["OPENAI_API_KEY"]).chat.completions.create(
+    response = get_llm_client().chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_prompt},

@@ -34,7 +34,7 @@ from datetime import datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 import agents.memory_agent as memory
 from utils.logger import get_logger
@@ -395,7 +395,7 @@ def _deliberate_with_llm(
     One LLM call — receives the top qualifying scorecards and produces
     position_decisions[] with action + rationale for each.
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     today = datetime.utcnow().date().isoformat()
 
     def _f(v):
@@ -1251,7 +1251,7 @@ def _run_debate_round(
 
     contested = to_debate
 
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     sc_index = {sc["ticker"]: sc for sc in scorecards}
 
     for sc in contested:
@@ -1298,7 +1298,7 @@ def construct_portfolio_allocation(
     if not phase_b_decisions and not open_positions:
         return {"target_weights": {}, "rebalancing": {}, "reasoning": "No positions to construct."}
 
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     today = datetime.utcnow().date().isoformat()
 
     sc_map = {sc["ticker"]: sc for sc in (scorecards or [])}
@@ -1605,7 +1605,7 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
     """Short single call for the overall portfolio narrative."""
     if not decisions:
         return "No positions initiated today."
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
     acting = [d for d in decisions if d.get("action") not in ("skip",)]
 
     # Build rich per-ticker context so the LLM can write specific, data-driven prose

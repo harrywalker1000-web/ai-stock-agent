@@ -29,7 +29,7 @@ from pathlib import Path
 import requests  # type: ignore[import-untyped]
 import yfinance as yf
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client, llm_available
 
 from utils.data_fetcher import (
     fetch_fmp_income_statement,
@@ -722,10 +722,9 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
 
 def _suggest_peers_llm(ticker: str, company_name: str, sector: str, industry: str) -> list[str]:
     """Ask GPT-4o-mini for the real sector competitors when Finnhub gives bad results."""
-    key = os.environ.get("OPENAI_API_KEY")
-    if not key:
+    if not llm_available():
         return []
-    client = OpenAI(api_key=key)
+    client = get_llm_client()
     prompt = (
         f"List 4-5 publicly traded companies that are the REAL direct competitors of "
         f"{company_name or ticker} ({sector} / {industry}). "
@@ -865,7 +864,7 @@ def _score_with_llm(
     fcf_positive, leverage_vs_peers, default_risk, margin_trend,
     thesis_intact / thesis_drift_notes (portfolio_review mode only).
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
 
     def _fmt(val, pct=False, mult=100):
         if val is None:
@@ -1092,7 +1091,7 @@ def _framework_with_llm(
     Forward projections use ONLY analyst consensus data from Yahoo Finance if available;
     otherwise marks the field null with source="unavailable".
     """
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
 
     def _fmt_bn(val: float | None) -> str:
         if val is None:

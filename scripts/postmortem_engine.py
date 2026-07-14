@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 load_dotenv()
 
@@ -57,8 +57,8 @@ def _save_json(path: Path, data) -> None:
         json.dump(data, f, indent=2)
 
 
-def _openai_client() -> OpenAI:
-    return OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+def _openai_client():
+    return get_llm_client()
 
 
 # ---------------------------------------------------------------------------

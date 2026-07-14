@@ -35,7 +35,7 @@ import ta.volatility
 import ta.volume
 import yfinance as yf
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 import agents.memory_agent as memory
 from utils.logger import get_logger
@@ -618,7 +618,7 @@ def _analyse_with_llm(
     outcome_history: list[dict] | None = None,
 ) -> dict:
     """Single GPT-4o-mini call for quant/technical scoring and narrative."""
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
 
     def _f(v, pct=False):
         if v is None:

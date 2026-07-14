@@ -27,7 +27,7 @@ from pathlib import Path
 
 import yfinance as yf
 from dotenv import load_dotenv
-from openai import OpenAI
+from utils.llm_client import get_llm_client
 
 try:
     import finnhub as _finnhub_lib
@@ -401,7 +401,7 @@ def _analyse_with_llm(
     fmp_data: dict | None = None,
 ) -> dict:
     """Single GPT-4o-mini call for sentiment scoring and narrative."""
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = get_llm_client()
 
     def _f(v):
         return "N/A" if v is None else str(v)

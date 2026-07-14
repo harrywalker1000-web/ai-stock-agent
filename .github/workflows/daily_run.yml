@@ -58,7 +58,9 @@ jobs:
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
-          # LLM
+          # LLM — Anthropic is primary (pipeline uses Anthropic-first wrapper);
+          # OPENAI_API_KEY kept as fallback but no longer required.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Pipeline config
           PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || '' }}
