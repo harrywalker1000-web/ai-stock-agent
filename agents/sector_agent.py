@@ -483,7 +483,7 @@ Populate signal_confidence for each sector from the pre-computed block above.
 Rank sectors by attractiveness, but ONLY put sectors with medium/high confidence in top_sectors.
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
-    logger.info("Sector Agent: sending data to GPT-4o-mini")
+    logger.info("Sector Agent: sending data to LLM")
     response = get_llm_client().chat.completions.create(
         model="gpt-4o-mini",
         messages=[

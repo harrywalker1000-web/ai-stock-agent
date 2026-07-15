@@ -642,7 +642,7 @@ Prioritise catalysts that are:
 
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
-    logger.info("News Agent: sending data to GPT-4o-mini")
+    logger.info("News Agent: sending data to LLM")
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[

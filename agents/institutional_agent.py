@@ -804,7 +804,7 @@ INSTRUCTIONS:
 
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
-    logger.info("Institutional Agent: sending data to GPT-4o-mini")
+    logger.info("Institutional Agent: sending data to LLM")
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[

@@ -362,7 +362,7 @@ Data as of: {raw_data.get('as_of')}
 Populate signal_confidence using the pre-computed values above, adding your confidence_note.
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
-    logger.info("Macro Agent: sending data to GPT-4o-mini for analysis")
+    logger.info("Macro Agent: sending data to LLM for analysis")
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[

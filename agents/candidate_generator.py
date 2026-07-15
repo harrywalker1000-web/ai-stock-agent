@@ -831,7 +831,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
                 len(new_tickers), len(candidates), variety_pct, new_cutoff_days)
 
     # Generate LLM summary
-    logger.info("Generating summary via GPT-4o-mini...")
+    logger.info("Generating summary via LLM...")
     generation_summary = _generate_summary(candidates, macro, sector)
 
     # Build output

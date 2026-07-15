@@ -16,6 +16,14 @@ Model mapping:
 
 from __future__ import annotations
 import os
+import re
+
+
+def _strip_json_fence(text: str) -> str:
+    """Remove ```json ... ``` or ``` ... ``` markdown fences Claude sometimes adds."""
+    text = text.strip()
+    match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?```$", text, re.DOTALL)
+    return match.group(1).strip() if match else text
 
 
 # ---------------------------------------------------------------------------
@@ -83,7 +91,12 @@ class _AnthropicCompletions:
 
         ac = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
         result = ac.messages.create(**create_kwargs)
-        return _CompatResponse(result.content[0].text)
+        text = result.content[0].text
+        # Claude sometimes wraps JSON in ```json fences despite being told not to.
+        # Strip them so agents can json.loads() directly without crashing.
+        if response_format and response_format.get("type") == "json_object":
+            text = _strip_json_fence(text)
+        return _CompatResponse(text)
 
 
 class _AnthropicChat:
