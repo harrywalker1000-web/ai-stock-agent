@@ -20,10 +20,18 @@ import re
 
 
 def _strip_json_fence(text: str) -> str:
-    """Remove ```json ... ``` or ``` ... ``` markdown fences Claude sometimes adds."""
+    """Remove ```json ... ``` or ``` ... ``` markdown fences Claude sometimes adds.
+    Also handles fences that don't close cleanly (truncated response)."""
     text = text.strip()
-    match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?```$", text, re.DOTALL)
-    return match.group(1).strip() if match else text
+    # Closed fence: ```json\n...\n```
+    match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?```\s*$", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    # Unclosed fence (truncated): ```json\n...  — take everything after opening line
+    match = re.match(r"^```(?:json)?\s*\n(.*)", text, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    return text
 
 
 # ---------------------------------------------------------------------------
@@ -62,7 +70,7 @@ class _AnthropicCompletions:
         self,
         model: str = "gpt-4o-mini",
         messages: list | None = None,
-        max_tokens: int = 1024,
+        max_tokens: int = 4096,
         temperature: float = 0.2,
         response_format: dict | None = None,  # ignored — Claude follows JSON prompts
         **kwargs,
