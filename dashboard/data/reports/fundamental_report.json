@@ -7,7 +7,7 @@
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 26 (char 1825)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcqFDxqrGQYHLcSh9PP'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -47,16 +47,15 @@
       ],
       "data_confidence": {
         "level": "medium",
-        "sources_count": 4,
+        "sources_count": 3,
         "sources_used": [
           "yfinance",
           "alpha_vantage",
-          "sec_edgar",
-          "fmp"
+          "sec_edgar"
         ],
         "conflicts_count": 2
       },
-      "market_cap": 1204373422080,
+      "market_cap": 1192328953856,
       "beta": 1.802,
       "current_ratio": 1.941,
       "avg_daily_volume": 47956381,
@@ -70,741 +69,7 @@
       "candidate_score": 4.0,
       "candidate_signals": [
         "fresh_catalyst",
-        "dislocation_screen(-26%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "INTC",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 38 column 26 (char 1990)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 57031999488,
-          "sec_edgar_value": 54228000000.0,
-          "diff_pct": 4.9,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": -2.09,
-          "sec_edgar_value": 0.4,
-          "diff_pct": 119.1,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 428815646720,
-      "beta": 2.187,
-      "current_ratio": 1.604,
-      "avg_daily_volume": 130005529,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": -5.7,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 4.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "dislocation_screen(-35%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "XOM",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 35 column 26 (char 1896)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [],
-      "data_confidence": {
-        "level": "high",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "fmp"
-        ],
-        "conflicts_count": 0
-      },
-      "market_cap": 652995395584,
-      "beta": 0.162,
-      "current_ratio": 1.036,
-      "avg_daily_volume": 16896849,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": -6.7,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 3.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "WDC",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 5 (char 2189)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 11777000448,
-          "sec_edgar_value": 6255000000.0,
-          "diff_pct": 46.9,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps_ttm",
-          "yfinance_value": 16.73,
-          "alpha_vantage_value": 15.57,
-          "diff_pct": 6.9,
-          "conservative_value": 15.57,
-          "resolution": "alpha_vantage used (conservative)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 15.57,
-          "sec_edgar_value": -5.37,
-          "diff_pct": 134.5,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 159284510720,
-      "beta": 2.166,
-      "current_ratio": 1.49,
-      "avg_daily_volume": 8482216,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": -20.3,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-29%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "LITE",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 36 column 26 (char 2048)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 2488399872,
-          "sec_edgar_value": 243200000.0,
-          "diff_pct": 90.2,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 5.67,
-          "sec_edgar_value": -1.93,
-          "diff_pct": 134.0,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 48674791424,
-      "beta": 1.482,
-      "current_ratio": 1.137,
-      "avg_daily_volume": 5542193,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": -1.3,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-26%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "LRCX",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 43 column 26 (char 2184)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 21681844224,
-          "sec_edgar_value": 1115946000.0,
-          "diff_pct": 94.9,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 4.88,
-          "sec_edgar_value": 3.32,
-          "diff_pct": 32.0,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 327712112640,
-      "beta": 1.805,
-      "current_ratio": 2.536,
-      "avg_daily_volume": 11413050,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 2.3,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-36%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "AMZN",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 39 column 5 (char 1922)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 742775980032,
-          "sec_edgar_value": 574785000000.0,
-          "diff_pct": 22.6,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 8.36,
-          "sec_edgar_value": 2.9,
-          "diff_pct": 65.3,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 574785000000.0,
-          "fmp_value": 716924000000,
-          "diff_pct": 24.7,
-          "conservative_value": 574785000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 2449017405440,
-      "beta": 1.461,
-      "current_ratio": 1.177,
-      "avg_daily_volume": 48233329,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 11.7,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "CRM",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 26 (char 1929)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 42829000704,
-          "sec_edgar_value": 1511167000.0,
-          "diff_pct": 96.5,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 8.62,
-          "sec_edgar_value": 4.2,
-          "diff_pct": 51.3,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 150818848768,
-      "beta": 1.178,
-      "current_ratio": 0.786,
-      "avg_daily_volume": 14978898,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 9.8,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "LMT",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 41 column 26 (char 2005)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 77013999616,
-          "sec_edgar_value": 67571000000.0,
-          "diff_pct": 12.3,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 67571000000.0,
-          "fmp_value": 75057000000,
-          "diff_pct": 11.1,
-          "conservative_value": 67571000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 133369364480,
-      "beta": 0.113,
-      "current_ratio": 1.193,
-      "avg_daily_volume": 1294065,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 4.4,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "SNDK",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 35 column 3 (char 2320)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 13184000000,
-          "sec_edgar_value": 6086000000.0,
-          "diff_pct": 53.8,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps_ttm",
-          "yfinance_value": 29.27,
-          "alpha_vantage_value": 25.1,
-          "diff_pct": 14.2,
-          "conservative_value": 25.1,
-          "resolution": "alpha_vantage used (conservative)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 25.1,
-          "sec_edgar_value": -14.78,
-          "diff_pct": 158.9,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 152976719872,
-      "beta": null,
-      "current_ratio": 4.782,
-      "avg_daily_volume": 13565944,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 9.9,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-49%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "AMAT",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 26 (char 2046)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 29024000000,
-          "sec_edgar_value": 14698000000.0,
-          "diff_pct": 49.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 10.63,
-          "sec_edgar_value": 8.11,
-          "diff_pct": 23.7,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 361536028672,
-      "beta": 1.567,
-      "current_ratio": 2.508,
-      "avg_daily_volume": 9647124,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 3.2,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-35%_1m)",
+        "dislocation_screen(-27%_1m)",
         "macro_tailwind"
       ]
     },
@@ -815,7 +80,7 @@
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 39 column 5 (char 2192)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcqhqMvB1i7MP45BV44'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -851,28 +116,19 @@
           "sec_edgar_value": -12.33,
           "diff_pct": 51.5,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 803000000.0,
-          "fmp_value": 1944000000,
-          "diff_pct": 142.1,
-          "conservative_value": 803000000.0,
-          "resolution": "yf_av used (conservative)"
         }
       ],
       "data_confidence": {
         "level": "medium",
-        "sources_count": 4,
+        "sources_count": 3,
         "sources_used": [
           "yfinance",
           "alpha_vantage",
-          "sec_edgar",
-          "fmp"
+          "sec_edgar"
         ],
-        "conflicts_count": 3
+        "conflicts_count": 2
       },
-      "market_cap": 21831180288,
+      "market_cap": 21688338432,
       "beta": 0.942,
       "current_ratio": 2.409,
       "avg_daily_volume": 7784340,
@@ -883,9 +139,213 @@
         "eps_growth_consistent": true,
         "fcf_positive": false
       },
-      "candidate_score": 2.5,
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "dislocation_screen(-22%_1m)",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "CVX",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcr6eJoqaf1eZzyuvNs'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 185740001280,
+          "sec_edgar_value": 200949000000.0,
+          "diff_pct": 8.2,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+          "yfinance_value": 5.74,
+          "sec_edgar_value": 11.36,
+          "diff_pct": 97.9,
+          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 3,
+        "sources_used": [
+          "yfinance",
+          "alpha_vantage",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 383760957440,
+      "beta": 0.488,
+      "current_ratio": 1.094,
+      "avg_daily_volume": 9222675,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": -7.9,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": false,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.5,
       "candidate_signals": [
         "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "XOM",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcrPECgYoyt2DWvJ717'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "alpha_vantage"
+        ],
+        "conflicts_count": 0
+      },
+      "market_cap": 654648803328,
+      "beta": 0.162,
+      "current_ratio": 1.036,
+      "avg_daily_volume": 16896849,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": -6.7,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": false,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "LLY",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcrq4Ddf4iLnbEhsCVV'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 72248999936,
+          "sec_edgar_value": 34124000000.0,
+          "diff_pct": 52.8,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 28.2,
+          "sec_edgar_value": 5.8,
+          "diff_pct": 79.4,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 3,
+        "sources_used": [
+          "yfinance",
+          "alpha_vantage",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 1094006079488,
+      "beta": 0.506,
+      "current_ratio": 1.497,
+      "avg_daily_volume": 3133306,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 31.7,
+        "above_20pct_threshold": true,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
         "macro_tailwind"
       ]
     },
@@ -896,7 +356,7 @@
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 5 (char 2143)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcsH8sFMXYrJG9cpoDp'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -952,7 +412,7 @@
         ],
         "conflicts_count": 3
       },
-      "market_cap": 91700985856,
+      "market_cap": 87661346816,
       "beta": 2.029,
       "current_ratio": 1.494,
       "avg_daily_volume": 5902385,
@@ -963,244 +423,20 @@
         "eps_growth_consistent": true,
         "fcf_positive": true
       },
-      "candidate_score": 2.5,
+      "candidate_score": 3.0,
       "candidate_signals": [
-        "dislocation_screen(-23%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "COHR",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 39 column 26 (char 1954)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 6602083840,
-          "sec_edgar_value": 827216000.0,
-          "diff_pct": 87.5,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 2.09,
-          "sec_edgar_value": -2.93,
-          "diff_pct": 240.2,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 45572227072,
-      "beta": 2.037,
-      "current_ratio": 3.05,
-      "avg_daily_volume": 5780808,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 20.5,
-        "above_20pct_threshold": true,
-        "eps_growth_consistent": true,
-        "fcf_positive": false
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-40%_1m)",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "ORCL",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 35 column 26 (char 1946)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 67356999680,
-          "sec_edgar_value": 52961000000.0,
-          "diff_pct": 21.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 5.83,
-          "sec_edgar_value": 3.71,
-          "diff_pct": 36.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 2
-      },
-      "market_cap": 342343974912,
-      "beta": 1.712,
-      "current_ratio": 1.115,
-      "avg_daily_volume": 30506347,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 10.5,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": false
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "MU",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 38 column 26 (char 2222)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 90273996800,
-          "sec_edgar_value": 12399000000.0,
-          "diff_pct": 86.3,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps_ttm",
-          "yfinance_value": 44.23,
-          "alpha_vantage_value": 40.29,
-          "diff_pct": 8.9,
-          "conservative_value": 40.29,
-          "resolution": "alpha_vantage used (conservative)"
-        },
-        {
-          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-          "yfinance_value": 40.29,
-          "sec_edgar_value": -5.34,
-          "diff_pct": 113.3,
-          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 902723928064,
-      "beta": 2.142,
-      "current_ratio": 3.425,
-      "avg_daily_volume": 52691573,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 6.7,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "dislocation_screen(-30%_1m)",
+        "dislocation_screen(-25%_1m)",
         "macro_tailwind"
       ]
     },
     {
       "ticker": "UNH",
       "fundamental_score": 50,
-      "direction": "SHORT",
+      "direction": "LONG",
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 38 column 26 (char 1844)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcsiY62q74Z9Nb55So7'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -1236,161 +472,6 @@
           "sec_edgar_value": 23.86,
           "diff_pct": 79.5,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 371622000000.0,
-          "fmp_value": 447567000000,
-          "diff_pct": 20.4,
-          "conservative_value": 371622000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 386297364480,
-      "beta": 0.633,
-      "current_ratio": 0.777,
-      "avg_daily_volume": 6542185,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 11.4,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "GS",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 36 column 26 (char 2223)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 67569999872,
-          "fmp_value": 125097000000,
-          "diff_pct": 85.1,
-          "conservative_value": 67569999872,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "fmp"
-        ],
-        "conflicts_count": 1
-      },
-      "market_cap": 292948279296,
-      "beta": 1.292,
-      "current_ratio": 2.567,
-      "avg_daily_volume": 2155431,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 7.2,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": true,
-        "fcf_positive": false
-      },
-      "candidate_score": 2.5,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "GLW",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 40 column 26 (char 2064)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 16963999744,
-          "sec_edgar_value": 12588000000.0,
-          "diff_pct": 25.8,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps_ttm",
-          "yfinance_value": 2.08,
-          "alpha_vantage_value": 1.83,
-          "diff_pct": 12.0,
-          "conservative_value": 1.83,
-          "resolution": "alpha_vantage used (conservative)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 1.83,
-          "sec_edgar_value": 0.68,
-          "diff_pct": 62.8,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         }
       ],
       "data_confidence": {
@@ -1401,33 +482,34 @@
           "alpha_vantage",
           "sec_edgar"
         ],
-        "conflicts_count": 3
+        "conflicts_count": 2
       },
-      "market_cap": 109431463936,
-      "beta": null,
-      "current_ratio": 1.813,
-      "avg_daily_volume": 15291529,
+      "market_cap": 386751430656,
+      "beta": 0.633,
+      "current_ratio": 0.777,
+      "avg_daily_volume": 6542185,
       "current_price": null,
       "setup_checklist": {
-        "revenue_cagr_3yr": 3.3,
+        "revenue_cagr_3yr": 11.4,
         "above_20pct_threshold": false,
         "eps_growth_consistent": false,
         "fcf_positive": true
       },
-      "candidate_score": 2.5,
+      "candidate_score": 3.0,
       "candidate_signals": [
-        "dislocation_screen(-50%_1m)",
+        "fresh_catalyst",
+        "sector_momentum",
         "macro_tailwind"
       ]
     },
     {
-      "ticker": "RTX",
+      "ticker": "COIN",
       "fundamental_score": 50,
       "direction": "LONG",
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 38 column 5 (char 2093)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWctFCZMxnfQGYAY7fJk'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -1452,16 +534,89 @@
       "data_conflicts": [
         {
           "metric": "revenue (EDGAR override)",
-          "yfinance_value": 93499998208,
-          "sec_edgar_value": 67074000000.0,
-          "diff_pct": 28.3,
+          "yfinance_value": 6285964800,
+          "sec_edgar_value": 3108383000.0,
+          "diff_pct": 50.6,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+          "yfinance_value": 2.72,
+          "sec_edgar_value": 0.37,
+          "diff_pct": 86.4,
+          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 3,
+        "sources_used": [
+          "yfinance",
+          "alpha_vantage",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 43181219840,
+      "beta": 3.351,
+      "current_ratio": 2.141,
+      "avg_daily_volume": 8476611,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 31.0,
+        "above_20pct_threshold": true,
+        "eps_growth_consistent": false,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "JNJ",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcta29HqPc37anCN2cy'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 97929003008,
+          "sec_edgar_value": 85159000000.0,
+          "diff_pct": 13.0,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         },
         {
           "metric": "eps (EDGAR override)",
-          "yfinance_value": 5.68,
-          "sec_edgar_value": 2.23,
-          "diff_pct": 60.7,
+          "yfinance_value": 8.62,
+          "sec_edgar_value": 13.72,
+          "diff_pct": 59.2,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         }
       ],
@@ -1475,18 +630,583 @@
         ],
         "conflicts_count": 2
       },
-      "market_cap": 293804507136,
-      "beta": 0.298,
-      "current_ratio": 1.011,
-      "avg_daily_volume": 5443136,
+      "market_cap": 647202340864,
+      "beta": 0.235,
+      "current_ratio": 1.089,
+      "avg_daily_volume": 8305849,
       "current_price": null,
       "setup_checklist": {
-        "revenue_cagr_3yr": 9.7,
+        "revenue_cagr_3yr": 5.6,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": false,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "V",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcu19kJ9nQ2rPRGFTbP'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 43027001344,
+          "sec_edgar_value": 20609000000.0,
+          "diff_pct": 52.1,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 3,
+        "sources_used": [
+          "yfinance",
+          "alpha_vantage",
+          "sec_edgar"
+        ],
+        "conflicts_count": 1
+      },
+      "market_cap": 707496181760,
+      "beta": 0.754,
+      "current_ratio": 1.088,
+      "avg_daily_volume": 8254221,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 10.9,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "JPM",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcuSiswAaYxWGm9ougU'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 186328006656,
+          "sec_edgar_value": 158104000000.0,
+          "diff_pct": 15.1,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 23.33,
+          "sec_edgar_value": 16.23,
+          "diff_pct": 30.4,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 927007375360,
+      "beta": 0.982,
+      "current_ratio": null,
+      "avg_daily_volume": 9416183,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 12.5,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": false,
+        "fcf_positive": false
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "AMZN",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcuyWo4aiKnUPbfnDKP'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 742775980032,
+          "sec_edgar_value": 574785000000.0,
+          "diff_pct": 22.6,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 8.36,
+          "sec_edgar_value": 2.9,
+          "diff_pct": 65.3,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 2457246629888,
+      "beta": 1.461,
+      "current_ratio": 1.177,
+      "avg_daily_volume": 48233329,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 11.7,
         "above_20pct_threshold": false,
         "eps_growth_consistent": true,
         "fcf_positive": true
       },
       "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "META",
+      "fundamental_score": 50,
+      "direction": "SHORT",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcvNmn8fHUsb7NM2xrG'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
+          "yfinance_value": 214962995200,
+          "sec_edgar_value": 17928000000.0,
+          "diff_pct": 91.7,
+          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 27.47,
+          "sec_edgar_value": 14.87,
+          "diff_pct": 45.9,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 1490676350976,
+      "beta": 1.246,
+      "current_ratio": 2.348,
+      "avg_daily_volume": 18177588,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 19.9,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": false,
+        "fcf_positive": true
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "WMT",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcvoNNpiki26GgruFKA'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 725304999936,
+          "sec_edgar_value": 648125000000.0,
+          "diff_pct": 10.6,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 2.84,
+          "sec_edgar_value": 1.91,
+          "diff_pct": 32.7,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 904037728256,
+      "beta": 0.603,
+      "current_ratio": 0.771,
+      "avg_daily_volume": 22591006,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 5.3,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "GOOGL",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcw6GdD98YUxqS4cgz2'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 445865984000,
+          "sec_edgar_value": 307394000000.0,
+          "diff_pct": 31.1,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 19.92,
+          "sec_edgar_value": 5.8,
+          "diff_pct": 70.9,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 4073424683008,
+      "beta": 1.247,
+      "current_ratio": 2.724,
+      "avg_daily_volume": 33047168,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 12.5,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "MSFT",
+      "fundamental_score": 50,
+      "direction": "LONG",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcwXiKrLXB2faPvEpJU'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
+          "yfinance_value": 318272995328,
+          "sec_edgar_value": 13762000000.0,
+          "diff_pct": 95.7,
+          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
+        },
+        {
+          "metric": "eps (EDGAR override)",
+          "yfinance_value": 16.8,
+          "sec_edgar_value": 9.68,
+          "diff_pct": 42.4,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 2933148614656,
+      "beta": 1.13,
+      "current_ratio": 1.283,
+      "avg_daily_volume": 39089652,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 12.4,
+        "above_20pct_threshold": false,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ]
+    },
+    {
+      "ticker": "NVDA",
+      "fundamental_score": 50,
+      "direction": "SHORT",
+      "valuation_vs_peers": "Scoring unavailable",
+      "key_strengths": [],
+      "key_concerns": [
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcwz9ZESzeazVA96Nhn'}"
+      ],
+      "fundamental_summary": "Scoring could not be completed.",
+      "_data_sources": {
+        "fundamental_score": "live_api_only",
+        "direction": "live_api_only",
+        "dislocation_opportunity": "live_api_only",
+        "valuation_vs_peers": "live_api_only",
+        "key_strengths": "live_api_only",
+        "key_concerns": "live_api_only",
+        "historical_financials": "live_api",
+        "peer_comparables_multiples": "live_api",
+        "ownership_pct": "live_api",
+        "analyst_fwd_revenue": "yahoo_finance_consensus",
+        "analyst_fwd_eps": "yahoo_finance_consensus",
+        "company_info": "llm_knowledge_display_only",
+        "management_team": "llm_knowledge_display_only",
+        "analyst_rating_trend": "llm_knowledge_display_only",
+        "cap_table_holders": "llm_knowledge_display_only",
+        "market_analysis": "llm_knowledge_display_only",
+        "setup_checklist_narrative": "llm_knowledge_display_only"
+      },
+      "data_conflicts": [
+        {
+          "metric": "revenue (EDGAR override)",
+          "yfinance_value": 253491003392,
+          "sec_edgar_value": 60922000000.0,
+          "diff_pct": 76.0,
+          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+        },
+        {
+          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+          "yfinance_value": 6.54,
+          "sec_edgar_value": 1.19,
+          "diff_pct": 81.8,
+          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+        }
+      ],
+      "data_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources_used": [
+          "yfinance",
+          "sec_edgar"
+        ],
+        "conflicts_count": 2
+      },
+      "market_cap": 4641228062720,
+      "beta": 2.211,
+      "current_ratio": 3.441,
+      "avg_daily_volume": 154252880,
+      "current_price": null,
+      "setup_checklist": {
+        "revenue_cagr_3yr": 100.0,
+        "above_20pct_threshold": true,
+        "eps_growth_consistent": true,
+        "fcf_positive": true
+      },
+      "candidate_score": 2.0,
       "candidate_signals": [
         "fresh_catalyst",
         "macro_tailwind"
@@ -1499,7 +1219,7 @@
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 33 column 5 (char 2112)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcxK7aBHR5ik5xeTyss'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -1539,15 +1259,14 @@
       ],
       "data_confidence": {
         "level": "medium",
-        "sources_count": 3,
+        "sources_count": 2,
         "sources_used": [
           "yfinance",
-          "alpha_vantage",
           "sec_edgar"
         ],
         "conflicts_count": 2
       },
-      "market_cap": 167501676544,
+      "market_cap": 167733559296,
       "beta": 1.638,
       "current_ratio": 2.366,
       "avg_daily_volume": 22425781,
@@ -1558,20 +1277,20 @@
         "eps_growth_consistent": false,
         "fcf_positive": true
       },
-      "candidate_score": 2.5,
+      "candidate_score": 2.0,
       "candidate_signals": [
         "fresh_catalyst",
         "macro_tailwind"
       ]
     },
     {
-      "ticker": "V",
+      "ticker": "AMD",
       "fundamental_score": 50,
       "direction": "LONG",
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 42 column 26 (char 1998)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcxbyacHBf3NBU48B1c'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -1596,38 +1315,35 @@
       "data_conflicts": [
         {
           "metric": "revenue (EDGAR override)",
-          "yfinance_value": 43027001344,
-          "sec_edgar_value": 20609000000.0,
-          "diff_pct": 52.1,
+          "yfinance_value": 37454000128,
+          "sec_edgar_value": 22680000000.0,
+          "diff_pct": 39.4,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         },
         {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 20609000000.0,
-          "fmp_value": 40000000000,
-          "diff_pct": 94.1,
-          "conservative_value": 20609000000.0,
-          "resolution": "yf_av used (conservative)"
+          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+          "yfinance_value": 3.0,
+          "sec_edgar_value": 0.53,
+          "diff_pct": 82.3,
+          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
         }
       ],
       "data_confidence": {
         "level": "medium",
-        "sources_count": 4,
+        "sources_count": 2,
         "sources_used": [
           "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
+          "sec_edgar"
         ],
         "conflicts_count": 2
       },
-      "market_cap": 702323490816,
-      "beta": 0.754,
-      "current_ratio": 1.088,
-      "avg_daily_volume": 8254221,
+      "market_cap": 694835281920,
+      "beta": 2.469,
+      "current_ratio": 2.725,
+      "avg_daily_volume": 33252736,
       "current_price": null,
       "setup_checklist": {
-        "revenue_cagr_3yr": 10.9,
+        "revenue_cagr_3yr": 13.6,
         "above_20pct_threshold": false,
         "eps_growth_consistent": true,
         "fcf_positive": true
@@ -1639,13 +1355,13 @@
       ]
     },
     {
-      "ticker": "JPM",
+      "ticker": "PLTR",
       "fundamental_score": 50,
       "direction": "LONG",
       "valuation_vs_peers": "Scoring unavailable",
       "key_strengths": [],
       "key_concerns": [
-        "LLM error: Unterminated string starting at: line 35 column 26 (char 1969)"
+        "LLM error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdWcy3dvrR7k8Uo9a5Snj'}"
       ],
       "fundamental_summary": "Scoring could not be completed.",
       "_data_sources": {
@@ -1670,209 +1386,37 @@
       "data_conflicts": [
         {
           "metric": "revenue (EDGAR override)",
-          "yfinance_value": 186328006656,
-          "sec_edgar_value": 158104000000.0,
-          "diff_pct": 15.1,
+          "yfinance_value": 5224174080,
+          "sec_edgar_value": 2225012000.0,
+          "diff_pct": 57.4,
           "resolution": "sec_edgar used (ground truth \u2014 filed document)"
         },
         {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 23.33,
-          "sec_edgar_value": 16.23,
-          "diff_pct": 30.4,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 158104000000.0,
-          "fmp_value": 279745000000,
-          "diff_pct": 76.9,
-          "conservative_value": 158104000000.0,
-          "resolution": "yf_av used (conservative)"
+          "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+          "yfinance_value": 0.89,
+          "sec_edgar_value": 0.09,
+          "diff_pct": 89.9,
+          "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
         }
       ],
       "data_confidence": {
         "level": "medium",
-        "sources_count": 4,
+        "sources_count": 2,
         "sources_used": [
           "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
+          "sec_edgar"
         ],
-        "conflicts_count": 3
+        "conflicts_count": 2
       },
-      "market_cap": 930516172800,
-      "beta": 0.982,
-      "current_ratio": 0.5237872854571897,
-      "avg_daily_volume": 9416183,
+      "market_cap": 298489315328,
+      "beta": 1.562,
+      "current_ratio": 6.907,
+      "avg_daily_volume": 41710465,
       "current_price": null,
       "setup_checklist": {
-        "revenue_cagr_3yr": 12.5,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
-        "fcf_positive": false
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "GOOGL",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Unterminated string starting at: line 38 column 5 (char 2204)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR override)",
-          "yfinance_value": 445865984000,
-          "sec_edgar_value": 307394000000.0,
-          "diff_pct": 31.1,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 19.92,
-          "sec_edgar_value": 5.8,
-          "diff_pct": 70.9,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 307394000000.0,
-          "fmp_value": 402963000000,
-          "diff_pct": 31.1,
-          "conservative_value": 307394000000.0,
-          "resolution": "yf_av used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 4067859628032,
-      "beta": 1.247,
-      "current_ratio": 2.724,
-      "avg_daily_volume": 33047168,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 12.5,
-        "above_20pct_threshold": false,
+        "revenue_cagr_3yr": 32.9,
+        "above_20pct_threshold": true,
         "eps_growth_consistent": true,
-        "fcf_positive": true
-      },
-      "candidate_score": 2.0,
-      "candidate_signals": [
-        "fresh_catalyst",
-        "macro_tailwind"
-      ]
-    },
-    {
-      "ticker": "META",
-      "fundamental_score": 50,
-      "direction": "LONG",
-      "valuation_vs_peers": "Scoring unavailable",
-      "key_strengths": [],
-      "key_concerns": [
-        "LLM error: Expecting value: line 38 column 117 (char 2204)"
-      ],
-      "fundamental_summary": "Scoring could not be completed.",
-      "_data_sources": {
-        "fundamental_score": "live_api_only",
-        "direction": "live_api_only",
-        "dislocation_opportunity": "live_api_only",
-        "valuation_vs_peers": "live_api_only",
-        "key_strengths": "live_api_only",
-        "key_concerns": "live_api_only",
-        "historical_financials": "live_api",
-        "peer_comparables_multiples": "live_api",
-        "ownership_pct": "live_api",
-        "analyst_fwd_revenue": "yahoo_finance_consensus",
-        "analyst_fwd_eps": "yahoo_finance_consensus",
-        "company_info": "llm_knowledge_display_only",
-        "management_team": "llm_knowledge_display_only",
-        "analyst_rating_trend": "llm_knowledge_display_only",
-        "cap_table_holders": "llm_knowledge_display_only",
-        "market_analysis": "llm_knowledge_display_only",
-        "setup_checklist_narrative": "llm_knowledge_display_only"
-      },
-      "data_conflicts": [
-        {
-          "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
-          "yfinance_value": 214962995200,
-          "sec_edgar_value": 17928000000.0,
-          "diff_pct": 91.7,
-          "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
-        },
-        {
-          "metric": "eps (EDGAR override)",
-          "yfinance_value": 27.47,
-          "sec_edgar_value": 14.87,
-          "diff_pct": 45.9,
-          "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-        },
-        {
-          "metric": "revenue_ttm (fmp vs reconciled)",
-          "yf_av_value": 214962995200,
-          "fmp_value": 200966000000,
-          "diff_pct": 6.5,
-          "conservative_value": 200966000000,
-          "resolution": "fmp used (conservative)"
-        }
-      ],
-      "data_confidence": {
-        "level": "medium",
-        "sources_count": 4,
-        "sources_used": [
-          "yfinance",
-          "alpha_vantage",
-          "sec_edgar",
-          "fmp"
-        ],
-        "conflicts_count": 3
-      },
-      "market_cap": 1488836100096,
-      "beta": 1.246,
-      "current_ratio": 2.348,
-      "avg_daily_volume": 18177588,
-      "current_price": null,
-      "setup_checklist": {
-        "revenue_cagr_3yr": 19.9,
-        "above_20pct_threshold": false,
-        "eps_growth_consistent": false,
         "fcf_positive": true
       },
       "candidate_score": 2.0,
@@ -1882,9 +1426,9 @@
       ]
     }
   ],
-  "total_analysed": 25,
+  "total_analysed": 20,
   "macro_regime": "NEUTRAL",
   "av_calls_used": 25,
   "fmp_enabled": true,
-  "generated_at": "2026-07-29 14:29 UTC"
+  "generated_at": "2026-07-29 15:55 UTC"
 }
