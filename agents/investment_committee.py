@@ -970,7 +970,7 @@ def _build_analyst_data_block(agent_name: str, ticker: str, fund_map: dict, quan
 
 
 def _debate_one_ticker(
-    client: OpenAI,
+    client,
     sc: dict,
     fund_map: dict,
     quant_map: dict,

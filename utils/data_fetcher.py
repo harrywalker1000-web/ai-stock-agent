@@ -414,7 +414,8 @@ def fetch_fmp_key_metrics(ticker: str, limit: int = 4) -> list[dict]:
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
-        logger.error("FMP key metrics failed for %s: %s", ticker, exc)
+        # FMP free tier returns 402 Payment Required for this endpoint — expected, not a bug.
+        logger.debug("FMP key metrics unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 
@@ -431,7 +432,8 @@ def fetch_fmp_analyst_estimates(ticker: str, limit: int = 8) -> list[dict]:
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
-        logger.error("FMP analyst estimates failed for %s: %s", ticker, exc)
+        # FMP free tier returns 402 Payment Required for this endpoint — expected, not a bug.
+        logger.debug("FMP analyst estimates unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 
@@ -469,7 +471,8 @@ def fetch_fmp_upgrades_downgrades(ticker: str, limit: int = 20) -> list[dict]:
             logger.debug("FMP upgrades/downgrades: no data for %s (free tier limitation)", ticker)
         return data or []
     except Exception as exc:
-        logger.error("FMP upgrades/downgrades failed for %s: %s", ticker, exc)
+        # FMP free tier returns 404/402 for this endpoint — expected, not a bug.
+        logger.debug("FMP upgrades/downgrades unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 
@@ -489,7 +492,8 @@ def fetch_fmp_institutional_holders(ticker: str) -> list[dict]:
             logger.debug("FMP institutional holders: no data for %s (free tier limitation)", ticker)
         return data or []
     except Exception as exc:
-        logger.error("FMP institutional holders failed for %s: %s", ticker, exc)
+        # FMP free tier returns 402/404 for this endpoint — expected, not a bug.
+        logger.debug("FMP institutional holders unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 
@@ -530,7 +534,8 @@ def fetch_fmp_revenue_segments(ticker: str) -> list[dict]:
         ]
         return segments
     except Exception as exc:
-        logger.error("FMP revenue segments failed for %s: %s", ticker, exc)
+        # FMP free tier returns 402 Payment Required for this endpoint — expected, not a bug.
+        logger.debug("FMP revenue segments unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 

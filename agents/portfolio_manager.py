@@ -337,6 +337,22 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
 
 
 # ---------------------------------------------------------------------------
+# Resilience helper — one agent's exception must never abort the whole
+# daily run. Every report-consuming step downstream already reads these
+# dicts via .get(...) with defaults (see investment_committee._load_report),
+# so returning a safe fallback here lets the pipeline degrade gracefully
+# instead of crashing before trades can be placed.
+# ---------------------------------------------------------------------------
+
+def _safe_run(step_name: str, fn, *args, fallback=None, **kwargs):
+    try:
+        return fn(*args, **kwargs)
+    except Exception as exc:
+        logger.error("%s failed: %s — pipeline continues with partial data", step_name, exc, exc_info=True)
+        return fallback if fallback is not None else {"error": str(exc)}
+
+
+# ---------------------------------------------------------------------------
 # Phase A — Portfolio Review
 # ---------------------------------------------------------------------------
 
@@ -365,23 +381,23 @@ def run_phase_a() -> dict:
     # --- Always run Macro first (fast, sets regime context for the day) ---
     from agents import macro_agent
     logger.info("Phase A: running Macro Agent...")
-    results["macro"] = macro_agent.run()
+    results["macro"] = _safe_run("Phase A: Macro Agent", macro_agent.run)
 
     # --- News Agent (all modes — catches overnight catalysts on held positions) ---
     # Cheap: one API call batch. Essential: a held position could have had an FDA rejection,
     # earnings miss, or regulatory action overnight. Must know before the Quant review.
     from agents import news_agent
     logger.info("Phase A: running News Agent (catching overnight catalysts)...")
-    results["news"] = news_agent.run()
+    results["news"] = _safe_run("Phase A: News Agent", news_agent.run)
 
     # --- Candidate Generator: portfolio_review fast-path (just passes held tickers through) ---
     from agents import candidate_generator
-    candidate_generator.run(mode="portfolio_review", held_tickers=held_tickers)
+    _safe_run("Phase A: Candidate Generator", candidate_generator.run, mode="portfolio_review", held_tickers=held_tickers)
 
     # --- Quant Agent on held tickers (always in all modes) ---
     from agents import quant_agent
     logger.info("Phase A: running Quant Agent on %d held tickers...", len(held_tickers))
-    results["quant"] = quant_agent.run(mode="portfolio_review")
+    results["quant"] = _safe_run("Phase A: Quant Agent", quant_agent.run, mode="portfolio_review")
 
     # --- Sentiment Agent (Standard / Full / Auto) ---
     # Sentiment changes daily (analyst upgrades, short interest) — worth running
@@ -389,7 +405,7 @@ def run_phase_a() -> dict:
     if PHASE_A_MODE in ("Standard", "Full", "Auto"):
         from agents import sentiment_agent
         logger.info("Phase A: running Sentiment Agent on held tickers...")
-        results["sentiment"] = sentiment_agent.run(mode="portfolio_review")
+        results["sentiment"] = _safe_run("Phase A: Sentiment Agent", sentiment_agent.run, mode="portfolio_review")
 
     # --- Fundamental Analyst ---
     # Full: always. Auto: only if any held ticker has earnings ≤ 3 days out.
@@ -397,14 +413,14 @@ def run_phase_a() -> dict:
     if PHASE_A_MODE == "Full":
         from agents import fundamental_analyst
         logger.info("Phase A: running Fundamental Analyst on held tickers...")
-        results["fundamental"] = fundamental_analyst.run(mode="portfolio_review")
+        results["fundamental"] = _safe_run("Phase A: Fundamental Analyst", fundamental_analyst.run, mode="portfolio_review")
     elif PHASE_A_MODE == "Auto":
         near_earnings = _tickers_with_near_earnings(held_tickers, days=3)
         results["auto_near_earnings"] = near_earnings
         if near_earnings:
             logger.info("Phase A (Auto): earnings ≤3 days for %s — running Fundamental Analyst", near_earnings)
             from agents import fundamental_analyst
-            results["fundamental"] = fundamental_analyst.run(mode="portfolio_review")
+            results["fundamental"] = _safe_run("Phase A: Fundamental Analyst", fundamental_analyst.run, mode="portfolio_review")
         else:
             logger.info("Phase A (Auto): no earnings within 3 days — Fundamental Analyst skipped")
 
@@ -415,12 +431,15 @@ def run_phase_a() -> dict:
     if live_portfolio and live_portfolio["is_leveraged"]:
         logger.warning("LEVERAGE DETECTED: exposure $%.0f vs equity $%.0f (%.2fx) — passing hard constraint to committee",
                        live_portfolio["total_exposure"], live_portfolio["equity"], live_portfolio["leverage_ratio"])
-    results["committee"] = investment_committee.run(mode="portfolio_review", held_tickers=held_tickers, live_portfolio=live_portfolio)
+    results["committee"] = _safe_run(
+        "Phase A: Investment Committee", investment_committee.run,
+        mode="portfolio_review", held_tickers=held_tickers, live_portfolio=live_portfolio,
+    )
 
     # --- Trade Executor: implement hold/increase/decrease/exit decisions ---
     from agents import trade_executor
     logger.info("Phase A: Executor implementing Committee decisions...")
-    results["executor"] = trade_executor.run(mode="portfolio_review")
+    results["executor"] = _safe_run("Phase A: Trade Executor", trade_executor.run, mode="portfolio_review")
 
     results["elapsed_sec"] = round(time.time() - t0, 1)
     logger.info("Phase A complete in %.0fs | %d positions reviewed",
@@ -474,26 +493,26 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     if not macro_already_ran:
         from agents import macro_agent
         logger.info("Phase B: Macro Agent...")
-        results["macro"] = macro_agent.run()
+        results["macro"] = _safe_run("Phase B: Macro Agent", macro_agent.run)
     else:
         logger.info("Phase B: Macro already ran in Phase A — reusing report")
 
     from agents import sector_agent
     logger.info("Phase B: Sector Agent...")
-    results["sector"] = sector_agent.run()
+    results["sector"] = _safe_run("Phase B: Sector Agent", sector_agent.run)
 
     from agents import institutional_agent
     logger.info("Phase B: Institutional Agent...")
-    results["institutional"] = institutional_agent.run()
+    results["institutional"] = _safe_run("Phase B: Institutional Agent", institutional_agent.run)
 
     from agents import news_agent
     logger.info("Phase B: News Agent...")
-    results["news"] = news_agent.run()
+    results["news"] = _safe_run("Phase B: News Agent", news_agent.run)
 
     # --- Phase 2: Candidate Generator ---
     from agents import candidate_generator
     logger.info("Phase B: Candidate Generator...")
-    results["candidates"] = candidate_generator.run(mode="new_opportunities")
+    results["candidates"] = _safe_run("Phase B: Candidate Generator", candidate_generator.run, mode="new_opportunities", fallback={})
     n_candidates = results["candidates"].get("total_candidates", 0)
     logger.info("Phase B: %d candidates selected", n_candidates)
 
@@ -505,16 +524,16 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     # --- Phase 3: Deep Analysis ---
     from agents import fundamental_analyst
     logger.info("Phase B: Fundamental Analyst...")
-    results["fundamental"] = fundamental_analyst.run(mode="new_opportunities")
+    results["fundamental"] = _safe_run("Phase B: Fundamental Analyst", fundamental_analyst.run, mode="new_opportunities")
 
     from agents import quant_agent
     logger.info("Phase B: Quant Agent...")
-    results["quant"] = quant_agent.run(mode="new_opportunities")
+    results["quant"] = _safe_run("Phase B: Quant Agent", quant_agent.run, mode="new_opportunities")
 
     if PHASE_A_MODE != "Lite":
         from agents import sentiment_agent
         logger.info("Phase B: Sentiment Agent (mode=%s)...", PHASE_A_MODE)
-        results["sentiment"] = sentiment_agent.run(mode="new_opportunities")
+        results["sentiment"] = _safe_run("Phase B: Sentiment Agent", sentiment_agent.run, mode="new_opportunities")
     else:
         logger.info("Phase B: Sentiment Agent skipped (LITE mode — set ANALYSIS_MODE=Standard or Full to enable)")
 
@@ -525,19 +544,25 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
         logger.info("Phase B: Passing %d Phase A exits to committee as same-day cooldown: %s",
                     len(phase_a_exits), phase_a_exits)
     live_portfolio_b = _fetch_live_portfolio()
-    results["committee"] = investment_committee.run(mode="new_opportunities", exited_today=phase_a_exits, live_portfolio=live_portfolio_b)
+    results["committee"] = _safe_run(
+        "Phase B: Investment Committee", investment_committee.run,
+        mode="new_opportunities", exited_today=phase_a_exits, live_portfolio=live_portfolio_b,
+    )
 
     # --- Phase 4b: Portfolio Construction ---
     # The committee deliberated on action + conviction. Now a separate LLM call
     # sees the ENTIRE book — held positions + new entries together — and sets
     # final target weights for everything simultaneously.
     logger.info("Phase B: Portfolio Construction — setting final weights with full portfolio view...")
-    results["construction"] = _run_portfolio_construction(results["committee"], phase_a_decisions=phase_a_decisions or [])
+    results["construction"] = _safe_run(
+        "Phase B: Portfolio Construction", _run_portfolio_construction,
+        results["committee"], phase_a_decisions=phase_a_decisions or [],
+    )
 
     # --- Phase 5: Trade Executor ---
     from agents import trade_executor
     logger.info("Phase B: Executor implementing new entries...")
-    results["executor"] = trade_executor.run(mode="new_opportunities")
+    results["executor"] = _safe_run("Phase B: Trade Executor", trade_executor.run, mode="new_opportunities")
 
     results["elapsed_sec"] = round(time.time() - t0, 1)
     logger.info("Phase B complete in %.0fs", results["elapsed_sec"])

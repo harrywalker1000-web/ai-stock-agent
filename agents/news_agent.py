@@ -640,6 +640,11 @@ Prioritise catalysts that are:
 3. Pre-earnings positioning (3-5 days before announcement)
 4. Any unusual Reddit spikes worth flagging
 
+OUTPUT SIZE LIMIT (important — your response must fit in one message):
+- fresh_catalysts: at most 20, the most actionable only.
+- stale_catalysts: at most 10 — summarise the rest, don't enumerate every one.
+- Keep every string field concise (one sentence).
+
 Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
 
     logger.info("News Agent: sending data to LLM")
@@ -650,10 +655,30 @@ Return ONLY valid JSON. No markdown, no explanation outside the JSON."""
             {"role": "user", "content": user_prompt},
         ],
         temperature=0.2,
+        max_tokens=8192,
         response_format={"type": "json_object"},
     )
 
-    result = json.loads(response.choices[0].message.content or "{}")
+    raw_content = response.choices[0].message.content or "{}"
+    try:
+        result = json.loads(raw_content)
+    except json.JSONDecodeError as exc:
+        logger.error(
+            "News Agent: LLM returned unparseable JSON (%s) — falling back to empty analysis "
+            "so the pipeline continues. Raw tail: %r",
+            exc, raw_content[-300:],
+        )
+        result = {
+            "fresh_catalysts": [],
+            "stale_catalysts": [],
+            "upcoming_events": [],
+            "reddit_unusual": [],
+            "top_catalyst_tickers": [],
+            "news_summary": "News Agent LLM response failed to parse this run — no catalysts identified.",
+            "confidence": 0,
+            "parse_error": str(exc),
+        }
+
     logger.info(
         "News Agent: identified %d fresh catalysts, %d upcoming events, %d stale",
         len(result.get("fresh_catalysts", [])),
