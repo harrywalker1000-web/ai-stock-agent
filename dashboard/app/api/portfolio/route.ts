@@ -156,7 +156,6 @@ const TICKER_META: Record<string, { sector: string; company: string }> = {
   // Communications
   VZ:    { sector: "Communications",     company: "Verizon" },
   T:     { sector: "Communications",     company: "AT&T" },
-  GOOGL: { sector: "Communications",     company: "Alphabet" },
   // Industrials / Aerospace
   LUV:   { sector: "Industrials",        company: "Southwest Air" },
   RKLB:  { sector: "Industrials",        company: "Rocket Lab" },
