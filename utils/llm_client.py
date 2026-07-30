@@ -1,14 +1,15 @@
 """
-Shared LLM client — Anthropic-first with OpenAI fallback.
+Shared LLM client — switchable between Anthropic Claude and OpenAI.
 
 Drop-in replacement for `OpenAI()`: exposes the same
 `client.chat.completions.create()` interface so all agents work unchanged.
 
-Priority:
-  1. Anthropic Claude (ANTHROPIC_API_KEY) — preferred; no quota issues
-  2. OpenAI (OPENAI_API_KEY) — fallback if Anthropic key absent
+Provider selection (set LLM_PROVIDER to switch — no code changes needed):
+  LLM_PROVIDER=openai     → force OpenAI (requires OPENAI_API_KEY)
+  LLM_PROVIDER=anthropic  → force Anthropic (requires ANTHROPIC_API_KEY)
+  unset / anything else   → auto: prefer Anthropic, fall back to OpenAI
 
-Model mapping:
+Model mapping (Anthropic path only — OpenAI path uses the model name as-is):
   gpt-4o-mini  → claude-haiku-4-5-20251001
   gpt-4o       → claude-sonnet-5
   anything else → claude-haiku-4-5-20251001
@@ -123,19 +124,39 @@ class AnthropicCompatClient:
 # Public factory
 # ---------------------------------------------------------------------------
 
+def _openai_client(key: str):
+    from openai import OpenAI  # only import if actually needed
+    return OpenAI(api_key=key)
+
+
 def get_llm_client() -> AnthropicCompatClient | object:
     """
     Return an LLM client with a `client.chat.completions.create()` interface.
-    Prefers Anthropic when ANTHROPIC_API_KEY is set; falls back to OpenAI.
-    Raises ValueError if neither key is available.
+
+    LLM_PROVIDER env var forces a specific provider ("openai" or "anthropic").
+    Otherwise auto-selects: Anthropic if ANTHROPIC_API_KEY is set, else OpenAI.
+    Raises ValueError if the selected provider's key is missing.
     """
+    provider = os.environ.get("LLM_PROVIDER", "").strip().lower()
+
+    if provider == "openai":
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        if not openai_key:
+            raise ValueError("LLM_PROVIDER=openai but OPENAI_API_KEY is not set.")
+        return _openai_client(openai_key)
+
+    if provider == "anthropic":
+        if not os.environ.get("ANTHROPIC_API_KEY"):
+            raise ValueError("LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set.")
+        return AnthropicCompatClient()
+
+    # Auto (LLM_PROVIDER unset): prefer Anthropic, fall back to OpenAI
     if os.environ.get("ANTHROPIC_API_KEY"):
         return AnthropicCompatClient()
 
     openai_key = os.environ.get("OPENAI_API_KEY")
     if openai_key:
-        from openai import OpenAI  # only import if actually needed
-        return OpenAI(api_key=openai_key)
+        return _openai_client(openai_key)
 
     raise ValueError(
         "No LLM API key found. Set ANTHROPIC_API_KEY (preferred) or OPENAI_API_KEY."
