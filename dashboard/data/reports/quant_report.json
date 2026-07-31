@@ -1,10 +1,22 @@
 {
   "quant_analyses": [
     {
-      "ticker": "META",
-      "quant_score": 50,
+      "ticker": "TSLA",
+      "quant_score": 82,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 90,
+      "trend": "downtrend",
+      "rsi_14": 30.3,
+      "macd_signal": "bearish",
+      "volume_trend": "neutral",
+      "support": null,
+      "resistance": 409.28,
+      "key_patterns": [
+        "bearish_ma_stack",
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
         "level": "high",
         "sources_count": 3,
@@ -17,293 +29,172 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVHu7ZthfPSGMFn6qWv'}",
-      "mean_reversion_score": 75,
-      "forward_bias": "mean_reversion_long",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "Despite the current downtrend and bearish indicators, TSLA shows strong mean reversion potential due to oversold conditions and extreme dislocation from its moving averages. In the next 5-10 days, a bounce towards resistance at $409.28 is likely.",
       "mean_reversion_signals": [
-        "RSI oversold (31.2)",
-        "Price 16% below SMA200",
+        "RSI oversold (30.3)",
+        "Price 25% below SMA200 \u2014 extreme dislocation",
         "Within 5% of 52W low \u2014 near floor",
-        "At/below lower Bollinger Band (BB%=-0.11)",
+        "Declining volume on selloff \u2014 selling exhaustion",
         "Stochastic oversold"
       ],
-      "entry_price": null,
-      "current_price": 532.98,
-      "pnl_pct": null,
-      "ret_1m": -0.1304,
-      "ret_3m": -0.1282,
-      "ret_6m": -0.2768,
-      "week52_high": 793.65,
-      "week52_low": 519.78,
-      "pct_from_52w_high": -32.8,
-      "high_52w": 793.65,
-      "low_52w": 519.78,
+      "current_price": 307.65,
+      "ret_1m": -0.2181,
+      "ret_3m": -0.2128,
+      "ret_6m": -0.2852,
+      "week52_high": 498.83,
+      "week52_low": 297.38,
+      "pct_from_52w_high": -38.3,
+      "high_52w": 498.83,
+      "low_52w": 297.38,
       "indicators": {
-        "rsi_14": 31.2,
+        "rsi_14": 30.3,
         "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 5.2,
-        "bb_pct": -0.113,
-        "volume_ratio": 1.2,
-        "obv_trend": "down",
-        "sma_50": 602.78,
-        "sma_200": 634.34,
-        "cross_signal": null,
-        "current_price": 532.98,
-        "ret_1w": -0.1045,
-        "ret_1m": -0.1304,
-        "ret_3m": -0.1282,
-        "ret_6m": -0.2768,
-        "week52_high": 793.65,
-        "week52_low": 519.78,
-        "pct_from_52w_high": -32.8,
-        "atr_14": 25.63,
-        "atr_pct": 4.81
-      },
-      "key_levels": {
-        "support": 540.18,
-        "resistance": 605.81,
-        "support_levels": [
-          540.18
-        ],
-        "resistance_levels": [
-          605.81,
-          624.4,
-          642.4
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "ACN",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVHwLWq54YtA9zUJm5P'}",
-      "mean_reversion_score": 15,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Price 21% below SMA200"
-      ],
-      "entry_price": 127.429833,
-      "current_price": 163.24,
-      "pnl_pct": 28.1,
-      "ret_1m": 0.2599,
-      "ret_3m": -0.0756,
-      "ret_6m": -0.3622,
-      "week52_high": 285.21,
-      "week52_low": 116.75,
-      "pct_from_52w_high": -42.8,
-      "high_52w": 285.21,
-      "low_52w": 116.75,
-      "indicators": {
-        "rsi_14": 60.9,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 71.7,
-        "bb_pct": 0.941,
-        "volume_ratio": 0.42,
-        "obv_trend": "up",
-        "sma_50": 153.3,
-        "sma_200": 207.81,
-        "cross_signal": null,
-        "current_price": 163.24,
-        "ret_1w": 0.1106,
-        "ret_1m": 0.2599,
-        "ret_3m": -0.0756,
-        "ret_6m": -0.3622,
-        "week52_high": 285.21,
-        "week52_low": 116.75,
-        "pct_from_52w_high": -42.8,
-        "atr_14": 8.32,
-        "atr_pct": 5.09
-      },
-      "key_levels": {
-        "support": 153.97,
-        "resistance": 181.72,
-        "support_levels": [
-          153.97,
-          120.33,
-          116.75
-        ],
-        "resistance_levels": [
-          181.72,
-          182.59,
-          195.65
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "AKAM",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVHxQkpZ9nmzqRtBME1'}",
-      "mean_reversion_score": 15,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Declining volume on selloff \u2014 selling exhaustion"
-      ],
-      "entry_price": 113.67,
-      "current_price": 111.78,
-      "pnl_pct": -1.66,
-      "ret_1m": -0.0092,
-      "ret_3m": 0.0854,
-      "ret_6m": 0.1251,
-      "week52_high": 165.45,
-      "week52_low": 69.78,
-      "pct_from_52w_high": -32.4,
-      "high_52w": 165.45,
-      "low_52w": 69.78,
-      "indicators": {
-        "rsi_14": 39.8,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 22.4,
-        "bb_pct": 0.207,
-        "volume_ratio": 0.26,
-        "obv_trend": "down",
-        "sma_50": 129.09,
-        "sma_200": 104.91,
-        "cross_signal": null,
-        "current_price": 111.78,
-        "ret_1w": -0.0312,
-        "ret_1m": -0.0092,
-        "ret_3m": 0.0854,
-        "ret_6m": 0.1251,
-        "week52_high": 165.45,
-        "week52_low": 69.78,
-        "pct_from_52w_high": -32.4,
-        "atr_14": 5.87,
-        "atr_pct": 5.26
-      },
-      "key_levels": {
-        "support": 108.84,
-        "resistance": 118.17,
-        "support_levels": [
-          108.84,
-          108.69,
-          88.5
-        ],
-        "resistance_levels": [
-          118.17,
-          131.08,
-          164.8
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "CTSH",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVHycC8Y91MJ7kpfuWc'}",
-      "mean_reversion_score": 15,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Price 17% below SMA200"
-      ],
-      "entry_price": 42.15,
-      "current_price": 52.83,
-      "pnl_pct": 25.34,
-      "ret_1m": 0.2865,
-      "ret_3m": 0.0058,
-      "ret_6m": -0.3514,
-      "week52_high": 85.98,
-      "week52_low": 37.08,
-      "pct_from_52w_high": -38.5,
-      "high_52w": 85.98,
-      "low_52w": 37.08,
-      "indicators": {
-        "rsi_14": 64.7,
-        "macd_bullish": true,
         "macd_histogram_expanding": true,
-        "stoch_k": 72.7,
-        "bb_pct": 1.028,
-        "volume_ratio": 0.43,
-        "obv_trend": "up",
-        "sma_50": 47.46,
-        "sma_200": 63.53,
+        "stoch_k": 9.4,
+        "bb_pct": 0.164,
+        "volume_ratio": 0.51,
+        "obv_trend": "down",
+        "sma_50": 390.69,
+        "sma_200": 411.58,
         "cross_signal": null,
-        "current_price": 52.83,
-        "ret_1w": 0.1625,
-        "ret_1m": 0.2865,
-        "ret_3m": 0.0058,
-        "ret_6m": -0.3514,
-        "week52_high": 85.98,
-        "week52_low": 37.08,
-        "pct_from_52w_high": -38.5,
-        "atr_14": 2.61,
-        "atr_pct": 4.94
+        "current_price": 307.65,
+        "ret_1w": -0.0051,
+        "ret_1m": -0.2181,
+        "ret_3m": -0.2128,
+        "ret_6m": -0.2852,
+        "week52_high": 498.83,
+        "week52_low": 297.38,
+        "pct_from_52w_high": -38.3,
+        "atr_14": 16.83,
+        "atr_pct": 5.47
       },
       "key_levels": {
-        "support": 45.16,
-        "resistance": 57.65,
-        "support_levels": [
-          45.16,
-          42.12,
-          37.08
-        ],
+        "support": null,
+        "resistance": 409.28,
+        "support_levels": [],
         "resistance_levels": [
-          57.65,
-          61.45,
-          62.6
+          409.28,
+          432.86,
+          445.6
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 8.25,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "fresh_catalyst",
+        "unusual_calls(9.7x_vol_oi)",
+        "dislocation_screen(-27%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "NVDA",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 0,
+      "trend": "downtrend",
+      "rsi_14": 44.3,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 199.34,
+      "resistance": 213.99,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "price_action",
+          "momentum_oscillators"
+        ],
+        "conflicts": [
+          "volume diverging from price direction"
+        ],
+        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
+      },
+      "data_conflicts": [
+        "volume diverging from price direction"
+      ],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting.",
+      "quant_summary": "The current technical setup shows a downtrend with lower highs and lower lows, indicating continued bearish momentum. In the next 5-10 days, NVDA is likely to face resistance at $213.99 while struggling to maintain above key support at $199.34.",
+      "mean_reversion_signals": [],
+      "current_price": 196.29,
+      "ret_1m": 0.0075,
+      "ret_3m": -0.0097,
+      "ret_6m": 0.0282,
+      "week52_high": 236.26,
+      "week52_low": 163.85,
+      "pct_from_52w_high": -16.9,
+      "high_52w": 236.26,
+      "low_52w": 163.85,
+      "indicators": {
+        "rsi_14": 44.3,
+        "macd_bullish": false,
+        "macd_histogram_expanding": false,
+        "stoch_k": 25.8,
+        "bb_pct": 0.24,
+        "volume_ratio": 0.42,
+        "obv_trend": "down",
+        "sma_50": 206.03,
+        "sma_200": 192.91,
+        "cross_signal": null,
+        "current_price": 196.29,
+        "ret_1w": -0.0011,
+        "ret_1m": 0.0075,
+        "ret_3m": -0.0097,
+        "ret_6m": 0.0282,
+        "week52_high": 236.26,
+        "week52_low": 163.85,
+        "pct_from_52w_high": -16.9,
+        "atr_14": 7.34,
+        "atr_pct": 3.74
+      },
+      "key_levels": {
+        "support": 199.34,
+        "resistance": 213.99,
+        "support_levels": [
+          199.34,
+          197.97,
+          194.51
+        ],
+        "resistance_levels": [
+          213.99,
+          214.39,
+          216.58
+        ]
+      },
+      "candidate_score": 5.5,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade",
+        "unusual_calls(6.5x_vol_oi)",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "CVX",
-      "quant_score": 50,
+      "quant_score": 82,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 65.2,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 180.4,
+      "resistance": 192.37,
+      "key_patterns": [
+        "bullish_ma_stack",
+        "higher_highs_higher_lows"
+      ],
       "signal_confidence": {
         "level": "high",
         "sources_count": 3,
@@ -316,42 +207,38 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJ19xdXkD4QeB3i1UE'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a strong bullish momentum with price above key moving averages and confirming volume trends. In the next 5-10 days, CVX is likely to continue its upward trajectory, targeting resistance levels around $192.37.",
       "mean_reversion_signals": [],
-      "entry_price": 172.292632,
-      "current_price": 190.61,
-      "pnl_pct": 10.63,
-      "ret_1m": 0.1504,
-      "ret_3m": -0.0049,
-      "ret_6m": 0.1346,
+      "current_price": 194.84,
+      "ret_1m": 0.1515,
+      "ret_3m": 0.0314,
+      "ret_6m": 0.1223,
       "week52_high": 212.76,
       "week52_low": 143.75,
-      "pct_from_52w_high": -10.4,
+      "pct_from_52w_high": -8.4,
       "high_52w": 212.76,
       "low_52w": 143.75,
       "indicators": {
-        "rsi_14": 59.4,
+        "rsi_14": 65.2,
         "macd_bullish": true,
         "macd_histogram_expanding": false,
-        "stoch_k": 63.0,
-        "bb_pct": 0.704,
-        "volume_ratio": 0.28,
+        "stoch_k": 85.1,
+        "bb_pct": 0.803,
+        "volume_ratio": 0.48,
         "obv_trend": "up",
-        "sma_50": 182.72,
-        "sma_200": 173.1,
+        "sma_50": 182.71,
+        "sma_200": 173.34,
         "cross_signal": null,
-        "current_price": 190.61,
-        "ret_1w": -0.0215,
-        "ret_1m": 0.1504,
-        "ret_3m": -0.0049,
-        "ret_6m": 0.1346,
+        "current_price": 194.84,
+        "ret_1w": 0.0254,
+        "ret_1m": 0.1515,
+        "ret_3m": 0.0314,
+        "ret_6m": 0.1223,
         "week52_high": 212.76,
         "week52_low": 143.75,
-        "pct_from_52w_high": -10.4,
-        "atr_14": 4.03,
+        "pct_from_52w_high": -8.4,
+        "atr_14": 4.11,
         "atr_pct": 2.11
       },
       "key_levels": {
@@ -368,88 +255,371 @@
           197.69
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "JPM",
-      "quant_score": 50,
+      "ticker": "XOM",
+      "quant_score": 82,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 59.6,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 144.71,
+      "resistance": 154.64,
+      "key_patterns": [
+        "bullish_ma_stack",
+        "higher_highs_higher_lows"
+      ],
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "high",
+        "sources_count": 3,
         "sources": [
           "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "XOM is currently in an uptrend, supported by bullish momentum indicators and a strong volume trend. Given the technical setup, the price is likely to continue rising towards the resistance level of $154.64 over the next 5-10 days.",
+      "mean_reversion_signals": [],
+      "current_price": 153.88,
+      "ret_1m": 0.1224,
+      "ret_3m": 0.0142,
+      "ret_6m": 0.1029,
+      "week52_high": 175.22,
+      "week52_low": 102.27,
+      "pct_from_52w_high": -12.2,
+      "high_52w": 175.22,
+      "low_52w": 102.27,
+      "indicators": {
+        "rsi_14": 59.6,
+        "macd_bullish": true,
+        "macd_histogram_expanding": false,
+        "stoch_k": 69.5,
+        "bb_pct": 0.703,
+        "volume_ratio": 0.41,
+        "obv_trend": "up",
+        "sma_50": 146.36,
+        "sma_200": 138.02,
+        "cross_signal": null,
+        "current_price": 153.88,
+        "ret_1w": -0.0058,
+        "ret_1m": 0.1224,
+        "ret_3m": 0.0142,
+        "ret_6m": 0.1029,
+        "week52_high": 175.22,
+        "week52_low": 102.27,
+        "pct_from_52w_high": -12.2,
+        "atr_14": 3.73,
+        "atr_pct": 2.42
+      },
+      "key_levels": {
+        "support": 144.71,
+        "resistance": 154.64,
+        "support_levels": [
+          144.71,
+          142.95,
+          141.01
+        ],
+        "resistance_levels": [
+          154.64,
+          154.91,
+          163.68
+        ]
+      },
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "UNH",
+      "quant_score": 47,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 25,
+      "trend": "sideways",
+      "rsi_14": 50.6,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 414.37,
+      "resistance": 414.16,
+      "key_patterns": [
+        "bullish_ma_stack",
+        "higher_highs_higher_lows",
+        "consolidation"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
           "volume"
         ],
         "conflicts": [
           "RSI bullish but MACD bearish"
         ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: RSI bullish but MACD bearish"
+        "confidence_note": "1/3 signal sources confirming; conflicts: RSI bullish but MACD bearish"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJ2yMCFujE8Ze7qSPD'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 329.14,
-      "current_price": 348.2,
-      "pnl_pct": 5.79,
-      "ret_1m": 0.047,
-      "ret_3m": 0.1167,
-      "ret_6m": 0.1473,
-      "week52_high": 359.3,
-      "week52_low": 276.43,
-      "pct_from_52w_high": -3.1,
-      "high_52w": 359.3,
-      "low_52w": 276.43,
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a potential for a bounce given the oversold conditions and bullish patterns, despite current bearish momentum signals. In the next 5-10 days, UNH is likely to experience upward movement towards resistance levels.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion",
+        "Stochastic oversold"
+      ],
+      "current_price": 420.15,
+      "ret_1m": -0.0122,
+      "ret_3m": 0.1458,
+      "ret_6m": 0.4841,
+      "week52_high": 461.62,
+      "week52_low": 228.48,
+      "pct_from_52w_high": -9.0,
+      "high_52w": 461.62,
+      "low_52w": 228.48,
       "indicators": {
-        "rsi_14": 58.2,
+        "rsi_14": 50.6,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 66.9,
-        "bb_pct": 0.671,
-        "volume_ratio": 0.22,
-        "obv_trend": "up",
-        "sma_50": 325.63,
-        "sma_200": 309.04,
+        "stoch_k": 17.6,
+        "bb_pct": 0.274,
+        "volume_ratio": 0.2,
+        "obv_trend": "down",
+        "sma_50": 409.52,
+        "sma_200": 341.51,
         "cross_signal": null,
-        "current_price": 348.2,
-        "ret_1w": -0.0142,
-        "ret_1m": 0.047,
-        "ret_3m": 0.1167,
-        "ret_6m": 0.1473,
-        "week52_high": 359.3,
-        "week52_low": 276.43,
-        "pct_from_52w_high": -3.1,
-        "atr_14": 7.44,
-        "atr_pct": 2.14
+        "current_price": 420.15,
+        "ret_1w": 0.006,
+        "ret_1m": -0.0122,
+        "ret_3m": 0.1458,
+        "ret_6m": 0.4841,
+        "week52_high": 461.62,
+        "week52_low": 228.48,
+        "pct_from_52w_high": -9.0,
+        "atr_14": 12.02,
+        "atr_pct": 2.86
       },
       "key_levels": {
-        "support": 325.75,
-        "resistance": 341.91,
+        "support": 414.37,
+        "resistance": 414.16,
         "support_levels": [
-          325.75,
-          323.55,
-          302.9
+          414.37,
+          398.59,
+          372.59
         ],
         "resistance_levels": [
-          341.91,
-          351.24
+          414.16,
+          461.62
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "LLY",
-      "quant_score": 50,
+      "ticker": "VRT",
+      "quant_score": 32,
+      "direction": "SHORT",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 5,
+      "trend": "downtrend",
+      "rsi_14": 35.0,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 313.61,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3,
+        "sources": [
+          "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a continuation of the downtrend, with momentum indicators showing bearish signals. In the next 5-10 days, VRT is likely to face further downward pressure, making a short position more favorable.",
+      "mean_reversion_signals": [],
+      "current_price": 242.06,
+      "ret_1m": -0.1946,
+      "ret_3m": -0.2626,
+      "ret_6m": 0.3007,
+      "week52_high": 379.86,
+      "week52_low": 118.57,
+      "pct_from_52w_high": -36.3,
+      "high_52w": 379.86,
+      "low_52w": 118.57,
+      "indicators": {
+        "rsi_14": 35.0,
+        "macd_bullish": false,
+        "macd_histogram_expanding": false,
+        "stoch_k": 22.0,
+        "bb_pct": 0.067,
+        "volume_ratio": 0.93,
+        "obv_trend": "down",
+        "sma_50": 305.73,
+        "sma_200": 246.24,
+        "cross_signal": null,
+        "current_price": 242.06,
+        "ret_1w": -0.1583,
+        "ret_1m": -0.1946,
+        "ret_3m": -0.2626,
+        "ret_6m": 0.3007,
+        "week52_high": 379.86,
+        "week52_low": 118.57,
+        "pct_from_52w_high": -36.3,
+        "atr_14": 21.61,
+        "atr_pct": 8.93
+      },
+      "key_levels": {
+        "support": null,
+        "resistance": 313.61,
+        "support_levels": [],
+        "resistance_levels": [
+          313.61,
+          338.88,
+          345.11
+        ]
+      },
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "dislocation_screen(-27%_1m)",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "META",
+      "quant_score": 62,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 53,
+      "trend": "downtrend",
+      "rsi_14": 35.3,
+      "macd_signal": "bearish",
+      "volume_trend": "neutral",
+      "support": 556.49,
+      "resistance": 605.81,
+      "key_patterns": [
+        "bearish_ma_stack"
+      ],
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3,
+        "sources": [
+          "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "Despite the current downtrend and bearish indicators, the oversold conditions and mean reversion signals suggest a potential bounce in the next 5-10 days. Watch for a reversal as the price approaches key support at $556.49.",
+      "mean_reversion_signals": [
+        "Price 13% below SMA200",
+        "Within 15% of 52W low",
+        "Declining volume on selloff \u2014 selling exhaustion",
+        "At/below lower Bollinger Band (BB%=0.03)",
+        "Stochastic oversold"
+      ],
+      "current_price": 548.48,
+      "ret_1m": -0.059,
+      "ret_3m": -0.0982,
+      "ret_6m": -0.2331,
+      "week52_high": 793.65,
+      "week52_low": 519.78,
+      "pct_from_52w_high": -30.9,
+      "high_52w": 793.65,
+      "low_52w": 519.78,
+      "indicators": {
+        "rsi_14": 35.3,
+        "macd_bullish": false,
+        "macd_histogram_expanding": false,
+        "stoch_k": 14.8,
+        "bb_pct": 0.028,
+        "volume_ratio": 0.66,
+        "obv_trend": "down",
+        "sma_50": 601.83,
+        "sma_200": 633.54,
+        "cross_signal": null,
+        "current_price": 548.48,
+        "ret_1w": -0.0764,
+        "ret_1m": -0.059,
+        "ret_3m": -0.0982,
+        "ret_6m": -0.2331,
+        "week52_high": 793.65,
+        "week52_low": 519.78,
+        "pct_from_52w_high": -30.9,
+        "atr_14": 25.15,
+        "atr_pct": 4.59
+      },
+      "key_levels": {
+        "support": 556.49,
+        "resistance": 605.81,
+        "support_levels": [
+          556.49,
+          540.18
+        ],
+        "resistance_levels": [
+          605.81,
+          624.4,
+          642.4
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "AAPL",
+      "quant_score": 32,
+      "direction": "SHORT",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 20,
+      "trend": "downtrend",
+      "rsi_14": 39.9,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 287.38,
+      "resistance": 302.42,
+      "key_patterns": [
+        "higher_highs_higher_lows"
+      ],
       "signal_confidence": {
         "level": "low",
         "sources_count": 1,
@@ -462,516 +632,494 @@
         "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJ4Mh5GeaAQ3zzJxhb'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 1151.363333,
-      "current_price": 1157.6,
-      "pnl_pct": 0.54,
-      "ret_1m": -0.0286,
-      "ret_3m": 0.2407,
-      "ret_6m": 0.1342,
-      "week52_high": 1249.45,
-      "week52_low": 619.4,
-      "pct_from_52w_high": -7.4,
-      "high_52w": 1249.45,
-      "low_52w": 619.4,
-      "indicators": {
-        "rsi_14": 47.3,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 23.8,
-        "bb_pct": 0.195,
-        "volume_ratio": 0.47,
-        "obv_trend": "up",
-        "sma_50": 1144.83,
-        "sma_200": 1021.05,
-        "cross_signal": null,
-        "current_price": 1157.6,
-        "ret_1w": -0.0321,
-        "ret_1m": -0.0286,
-        "ret_3m": 0.2407,
-        "ret_6m": 0.1342,
-        "week52_high": 1249.45,
-        "week52_low": 619.4,
-        "pct_from_52w_high": -7.4,
-        "atr_14": 36.25,
-        "atr_pct": 3.13
-      },
-      "key_levels": {
-        "support": 1134.4,
-        "resistance": 1149.1,
-        "support_levels": [
-          1134.4,
-          1079.22,
-          1052.15
-        ],
-        "resistance_levels": [
-          1149.1,
-          1182.73,
-          1249.45
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "LYB",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_action",
-          "momentum_oscillators"
-        ],
-        "conflicts": [
-          "volume diverging from price direction"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJ5wCJeQQiYSruRj9p'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 52.913137,
-      "current_price": 59.87,
-      "pnl_pct": 13.15,
-      "ret_1m": 0.1386,
-      "ret_3m": -0.1891,
-      "ret_6m": 0.2257,
-      "week52_high": 83.07,
-      "week52_low": 39.52,
-      "pct_from_52w_high": -27.9,
-      "high_52w": 83.07,
-      "low_52w": 39.52,
-      "indicators": {
-        "rsi_14": 51.4,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 32.7,
-        "bb_pct": 0.659,
-        "volume_ratio": 0.18,
-        "obv_trend": "down",
-        "sma_50": 61.16,
-        "sma_200": 57.17,
-        "cross_signal": null,
-        "current_price": 59.87,
-        "ret_1w": -0.0075,
-        "ret_1m": 0.1386,
-        "ret_3m": -0.1891,
-        "ret_6m": 0.2257,
-        "week52_high": 83.07,
-        "week52_low": 39.52,
-        "pct_from_52w_high": -27.9,
-        "atr_14": 2.19,
-        "atr_pct": 3.66
-      },
-      "key_levels": {
-        "support": 51.98,
-        "resistance": 64.98,
-        "support_levels": [
-          51.98
-        ],
-        "resistance_levels": [
-          64.98,
-          67.91,
-          77.62
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "NOW",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJ7ceh7H9UnxeRkKD7'}",
-      "mean_reversion_score": 8,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "AAPL is currently in a downtrend with bearish momentum signals and a low mean reversion score, indicating that the price is likely to continue its downward trajectory in the next 5-10 days. The key level to watch is the support at $287.38, which, if broken, could lead to further declines.",
       "mean_reversion_signals": [
-        "Price 13% below SMA200"
-      ],
-      "entry_price": 105.67,
-      "current_price": 108.57,
-      "pnl_pct": 2.74,
-      "ret_1m": 0.0262,
-      "ret_3m": 0.2294,
-      "ret_6m": -0.0699,
-      "week52_high": 198.61,
-      "week52_low": 81.24,
-      "pct_from_52w_high": -45.3,
-      "high_52w": 198.61,
-      "low_52w": 81.24,
-      "indicators": {
-        "rsi_14": 54.0,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 63.5,
-        "bb_pct": 0.641,
-        "volume_ratio": 0.63,
-        "obv_trend": "up",
-        "sma_50": 105.41,
-        "sma_200": 125.28,
-        "cross_signal": null,
-        "current_price": 108.57,
-        "ret_1w": 0.0991,
-        "ret_1m": 0.0262,
-        "ret_3m": 0.2294,
-        "ret_6m": -0.0699,
-        "week52_high": 198.61,
-        "week52_low": 81.24,
-        "pct_from_52w_high": -45.3,
-        "atr_14": 6.82,
-        "atr_pct": 6.28
-      },
-      "key_levels": {
-        "support": 91.53,
-        "resistance": 110.83,
-        "support_levels": [
-          91.53,
-          89.39,
-          85.44
-        ],
-        "resistance_levels": [
-          110.83,
-          113.79,
-          139.2
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "NVDA",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJAQpoenXuoKKLi8oc'}",
-      "mean_reversion_score": 30,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Declining volume on selloff \u2014 selling exhaustion",
+        "At/below lower Bollinger Band (BB%=-0.03)",
         "Stochastic oversold"
       ],
-      "entry_price": 194.36,
-      "current_price": 193.18,
-      "pnl_pct": -0.61,
-      "ret_1m": -0.0223,
-      "ret_3m": -0.0309,
-      "ret_6m": 0.0047,
-      "week52_high": 236.26,
-      "week52_low": 163.85,
-      "pct_from_52w_high": -18.2,
-      "high_52w": 236.26,
-      "low_52w": 163.85,
+      "current_price": 301.96,
+      "ret_1m": -0.0216,
+      "ret_3m": 0.0789,
+      "ret_6m": 0.1659,
+      "week52_high": 344.57,
+      "week52_low": 200.7,
+      "pct_from_52w_high": -12.4,
+      "high_52w": 344.57,
+      "low_52w": 200.7,
       "indicators": {
-        "rsi_14": 41.3,
+        "rsi_14": 39.9,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 13.0,
-        "bb_pct": 0.138,
-        "volume_ratio": 0.44,
-        "obv_trend": "down",
-        "sma_50": 206.48,
-        "sma_200": 192.86,
+        "stoch_k": 3.7,
+        "bb_pct": -0.027,
+        "volume_ratio": 1.22,
+        "obv_trend": "up",
+        "sma_50": 309.36,
+        "sma_200": 277.63,
         "cross_signal": null,
-        "current_price": 193.18,
-        "ret_1w": -0.066,
-        "ret_1m": -0.0223,
-        "ret_3m": -0.0309,
-        "ret_6m": 0.0047,
-        "week52_high": 236.26,
-        "week52_low": 163.85,
-        "pct_from_52w_high": -18.2,
-        "atr_14": 7.51,
-        "atr_pct": 3.89
+        "current_price": 301.96,
+        "ret_1w": -0.1037,
+        "ret_1m": -0.0216,
+        "ret_3m": 0.0789,
+        "ret_6m": 0.1659,
+        "week52_high": 344.57,
+        "week52_low": 200.7,
+        "pct_from_52w_high": -12.4,
+        "atr_14": 9.85,
+        "atr_pct": 3.26
       },
       "key_levels": {
-        "support": 194.51,
-        "resistance": 213.99,
+        "support": 287.38,
+        "resistance": 302.42,
         "support_levels": [
-          194.51,
-          189.8,
-          164.08
+          287.38,
+          273.75,
+          264.83
         ],
         "resistance_levels": [
-          213.99,
-          214.39,
-          216.58
+          302.42,
+          317.4,
+          334.99
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "PG",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
+      "ticker": "SNDK",
+      "quant_score": 36,
+      "direction": "SHORT",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 0,
+      "trend": "downtrend",
+      "rsi_14": 40.9,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 1600.0,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
         "level": "medium",
         "sources_count": 2,
         "sources": [
-          "price_action",
+          "volume",
           "momentum_oscillators"
         ],
-        "conflicts": [
-          "volume diverging from price direction"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJBwrNDGBxcNcLxHAS'}",
-      "mean_reversion_score": 20,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Within 15% of 52W low",
-        "At/below lower Bollinger Band (BB%=-0.08)"
-      ],
-      "entry_price": 148.5,
-      "current_price": 143.01,
-      "pnl_pct": -3.7,
-      "ret_1m": -0.0227,
-      "ret_3m": -0.0204,
-      "ret_6m": -0.0316,
-      "week52_high": 164.77,
-      "week52_low": 134.62,
-      "pct_from_52w_high": -13.2,
-      "high_52w": 164.77,
-      "low_52w": 134.62,
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a continuation of the downtrend, with momentum showing bearish signals. In the next 5-10 days, SNDK is likely to face downward pressure, potentially testing lower levels.",
+      "mean_reversion_signals": [],
+      "current_price": 1221.57,
+      "ret_1m": -0.3,
+      "ret_3m": 0.0291,
+      "ret_6m": 1.1199,
+      "week52_high": 2354.39,
+      "week52_low": 40.1,
+      "pct_from_52w_high": -48.1,
+      "high_52w": 2354.39,
+      "low_52w": 40.1,
       "indicators": {
-        "rsi_14": 41.5,
+        "rsi_14": 40.9,
         "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 20.9,
-        "bb_pct": -0.078,
-        "volume_ratio": 0.43,
-        "obv_trend": "up",
-        "sma_50": 146.27,
-        "sma_200": 145.85,
-        "cross_signal": "golden_cross",
-        "current_price": 143.01,
-        "ret_1w": -0.0298,
-        "ret_1m": -0.0227,
-        "ret_3m": -0.0204,
-        "ret_6m": -0.0316,
-        "week52_high": 164.77,
-        "week52_low": 134.62,
-        "pct_from_52w_high": -13.2,
-        "atr_14": 3.63,
-        "atr_pct": 2.54
+        "macd_histogram_expanding": true,
+        "stoch_k": 27.4,
+        "bb_pct": 0.204,
+        "volume_ratio": 0.93,
+        "obv_trend": "down",
+        "sma_50": 1709.35,
+        "sma_200": 843.12,
+        "cross_signal": null,
+        "current_price": 1221.57,
+        "ret_1w": -0.0443,
+        "ret_1m": -0.3,
+        "ret_3m": 0.0291,
+        "ret_6m": 1.1199,
+        "week52_high": 2354.39,
+        "week52_low": 40.1,
+        "pct_from_52w_high": -48.1,
+        "atr_14": 198.44,
+        "atr_pct": 16.24
       },
       "key_levels": {
-        "support": 143.59,
-        "resistance": 144.76,
-        "support_levels": [
-          143.59,
-          143.1,
-          140.11
-        ],
+        "support": null,
+        "resistance": 1600.0,
+        "support_levels": [],
         "resistance_levels": [
-          144.76,
-          147.44,
-          151.29
+          1600.0,
+          1696.37,
+          1861.0
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-46%_1m)",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "PLTR",
-      "quant_score": 50,
+      "ticker": "MU",
+      "quant_score": 42,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 43.8,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 804.0,
+      "resistance": 818.54,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
-        "level": "high",
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a downtrend with lower highs and lower lows, suggesting continued bearish momentum. However, with signs of selling exhaustion, a potential bounce could occur in the next 5-10 days, but caution is warranted given the overall weak mean reversion score.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 826.74,
+      "ret_1m": -0.1524,
+      "ret_3m": 0.525,
+      "ret_6m": 0.9939,
+      "week52_high": 1254.81,
+      "week52_low": 103.21,
+      "pct_from_52w_high": -34.1,
+      "high_52w": 1254.81,
+      "low_52w": 103.21,
+      "indicators": {
+        "rsi_14": 43.8,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 32.4,
+        "bb_pct": 0.187,
+        "volume_ratio": 0.75,
+        "obv_trend": "down",
+        "sma_50": 964.83,
+        "sma_200": 517.96,
+        "cross_signal": null,
+        "current_price": 826.74,
+        "ret_1w": -0.0816,
+        "ret_1m": -0.1524,
+        "ret_3m": 0.525,
+        "ret_6m": 0.9939,
+        "week52_high": 1254.81,
+        "week52_low": 103.21,
+        "pct_from_52w_high": -34.1,
+        "atr_14": 90.54,
+        "atr_pct": 10.95
+      },
+      "key_levels": {
+        "support": 804.0,
+        "resistance": 818.54,
+        "support_levels": [
+          804.0,
+          652.11,
+          311.44
+        ],
+        "resistance_levels": [
+          818.54,
+          1011.77,
+          1089.12
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-28%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "GLW",
+      "quant_score": 32,
+      "direction": "SHORT",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 38.5,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 176.48,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a continuation of the downtrend, with bearish momentum signals and a low mean reversion score. In the next 5-10 days, GLW is likely to face further selling pressure, making a short position more favorable.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 139.01,
+      "ret_1m": -0.2936,
+      "ret_3m": -0.1203,
+      "ret_6m": 0.3509,
+      "week52_high": 271.78,
+      "week52_low": 60.78,
+      "pct_from_52w_high": -48.9,
+      "high_52w": 271.78,
+      "low_52w": 60.78,
+      "indicators": {
+        "rsi_14": 38.5,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 30.9,
+        "bb_pct": 0.239,
+        "volume_ratio": 0.51,
+        "obv_trend": "down",
+        "sma_50": 182.46,
+        "sma_200": 134.98,
+        "cross_signal": null,
+        "current_price": 139.01,
+        "ret_1w": -0.0304,
+        "ret_1m": -0.2936,
+        "ret_3m": -0.1203,
+        "ret_6m": 0.3509,
+        "week52_high": 271.78,
+        "week52_low": 60.78,
+        "pct_from_52w_high": -48.9,
+        "atr_14": 14.7,
+        "atr_pct": 10.57
+      },
+      "key_levels": {
+        "support": null,
+        "resistance": 176.48,
+        "support_levels": [],
+        "resistance_levels": [
+          176.48,
+          178.81,
+          208.57
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-45%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "COHR",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 39.4,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 255.14,
+      "resistance": 327.78,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a downtrend with lower highs and lower lows, suggesting continued bearish momentum. However, the oversold conditions may lead to a potential bounce in the next 5-10 days, albeit with low confidence.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 259.23,
+      "ret_1m": -0.2224,
+      "ret_3m": -0.2133,
+      "ret_6m": 0.2217,
+      "week52_high": 440.0,
+      "week52_low": 84.35,
+      "pct_from_52w_high": -41.1,
+      "high_52w": 440.0,
+      "low_52w": 84.35,
+      "indicators": {
+        "rsi_14": 39.4,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 36.0,
+        "bb_pct": 0.229,
+        "volume_ratio": 0.61,
+        "obv_trend": "down",
+        "sma_50": 347.35,
+        "sma_200": 254.93,
+        "cross_signal": null,
+        "current_price": 259.23,
+        "ret_1w": -0.0445,
+        "ret_1m": -0.2224,
+        "ret_3m": -0.2133,
+        "ret_6m": 0.2217,
+        "week52_high": 440.0,
+        "week52_low": 84.35,
+        "pct_from_52w_high": -41.1,
+        "atr_14": 29.3,
+        "atr_pct": 11.3
+      },
+      "key_levels": {
+        "support": 255.14,
+        "resistance": 327.78,
+        "support_levels": [
+          255.14
+        ],
+        "resistance_levels": [
+          327.78,
+          364.8,
+          413.0
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-34%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "PSKY",
+      "quant_score": 82,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 95,
+      "trend": "downtrend",
+      "rsi_14": 25.1,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 10.39,
+      "key_patterns": [
+        "bearish_ma_stack",
+        "lower_highs_lower_lows",
+        "oversold_potential_reversal"
+      ],
+      "signal_confidence": {
+        "level": "medium",
         "sources_count": 3,
         "sources": [
           "price_action",
           "volume",
           "momentum_oscillators"
         ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
+        "conflicts": [
+          "RSI oversold while in bearish MA stack \u2014 potential falling knife"
+        ],
+        "confidence_note": "3/3 signal sources confirming; conflicts: RSI oversold while in bearish MA stack \u2014 potential falling knife"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJCyMkdhJh2F2oi3oA'}",
-      "mean_reversion_score": 55,
-      "forward_bias": "watch_for_reversal",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "PSKY is currently in a downtrend but shows strong mean reversion potential due to oversold conditions and declining volume on selloff. In the next 5-10 days, a bounce towards the resistance level of $10.39 is likely as the stock attempts to recover from its extreme dislocation.",
       "mean_reversion_signals": [
-        "Price 21% below SMA200",
-        "Within 15% of 52W low",
+        "RSI oversold (25.1)",
+        "Price 34% below SMA200 \u2014 extreme dislocation",
+        "Within 5% of 52W low \u2014 near floor",
         "Declining volume on selloff \u2014 selling exhaustion",
         "Stochastic oversold"
       ],
-      "entry_price": 126.59,
-      "current_price": 121.31,
-      "pnl_pct": -4.17,
-      "ret_1m": -0.0352,
-      "ret_3m": -0.128,
-      "ret_6m": -0.2012,
-      "week52_high": 207.52,
-      "week52_low": 106.37,
-      "pct_from_52w_high": -41.5,
-      "high_52w": 207.52,
-      "low_52w": 106.37,
+      "current_price": 7.74,
+      "ret_1m": -0.2555,
+      "ret_3m": -0.2992,
+      "ret_6m": -0.3031,
+      "week52_high": 20.57,
+      "week52_low": 7.66,
+      "pct_from_52w_high": -62.4,
+      "high_52w": 20.57,
+      "low_52w": 7.66,
       "indicators": {
-        "rsi_14": 42.4,
+        "rsi_14": 25.1,
         "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 18.0,
-        "bb_pct": 0.057,
+        "macd_histogram_expanding": true,
+        "stoch_k": 4.2,
+        "bb_pct": 0.115,
         "volume_ratio": 0.3,
         "obv_trend": "down",
-        "sma_50": 130.94,
-        "sma_200": 153.16,
+        "sma_50": 9.67,
+        "sma_200": 11.66,
         "cross_signal": null,
-        "current_price": 121.31,
-        "ret_1w": -0.0131,
-        "ret_1m": -0.0352,
-        "ret_3m": -0.128,
-        "ret_6m": -0.2012,
-        "week52_high": 207.52,
-        "week52_low": 106.37,
-        "pct_from_52w_high": -41.5,
-        "atr_14": 6.72,
-        "atr_pct": 5.54
+        "current_price": 7.74,
+        "ret_1w": -0.0367,
+        "ret_1m": -0.2555,
+        "ret_3m": -0.2992,
+        "ret_6m": -0.3031,
+        "week52_high": 20.57,
+        "week52_low": 7.66,
+        "pct_from_52w_high": -62.4,
+        "atr_14": 0.35,
+        "atr_pct": 4.56
       },
       "key_levels": {
-        "support": 122.68,
-        "resistance": 136.1,
-        "support_levels": [
-          122.68,
-          122.64,
-          106.37
-        ],
+        "support": null,
+        "resistance": 10.39,
+        "support_levels": [],
         "resistance_levels": [
-          136.1,
-          136.88,
-          138.9
+          10.39,
+          10.97,
+          11.12
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "V",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_action",
-          "volume"
-        ],
-        "conflicts": [
-          "RSI bullish but MACD bearish"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: RSI bullish but MACD bearish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJEcqEVVS4Q2E6fKcR'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 346.556,
-      "current_price": 361.83,
-      "pnl_pct": 4.41,
-      "ret_1m": 0.0306,
-      "ret_3m": 0.0993,
-      "ret_6m": 0.095,
-      "week52_high": 373.97,
-      "week52_low": 293.28,
-      "pct_from_52w_high": -3.2,
-      "high_52w": 373.97,
-      "low_52w": 293.28,
-      "indicators": {
-        "rsi_14": 58.8,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 52.3,
-        "bb_pct": 0.693,
-        "volume_ratio": 0.4,
-        "obv_trend": "up",
-        "sma_50": 339.63,
-        "sma_200": 329.32,
-        "cross_signal": null,
-        "current_price": 361.83,
-        "ret_1w": 0.0171,
-        "ret_1m": 0.0306,
-        "ret_3m": 0.0993,
-        "ret_6m": 0.095,
-        "week52_high": 373.97,
-        "week52_low": 293.28,
-        "pct_from_52w_high": -3.2,
-        "atr_14": 8.3,
-        "atr_pct": 2.3
-      },
-      "key_levels": {
-        "support": 348.5,
-        "resistance": 365.02,
-        "support_levels": [
-          348.5,
-          315.51,
-          309.0
-        ],
-        "resistance_levels": [
-          365.02,
-          365.14
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-21%_1m)",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "MSFT",
-      "quant_score": 50,
+      "quant_score": 76,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 74.2,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 409.58,
+      "resistance": 466.32,
+      "key_patterns": [
+        "higher_highs_higher_lows",
+        "overbought_extended"
+      ],
       "signal_confidence": {
         "level": "high",
         "sources_count": 3,
@@ -984,43 +1132,39 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJFrFXoUWU5FgoPSiy'}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "The technical setup indicates a strong bullish momentum with the price above key moving averages and positive volume trends. In the next 5-10 days, MSFT is likely to continue its upward trajectory, targeting the resistance level at $466.32.",
       "mean_reversion_signals": [],
-      "entry_price": 394.804444,
-      "current_price": 446.3,
-      "pnl_pct": 13.04,
-      "ret_1m": 0.1614,
-      "ret_3m": 0.0968,
-      "ret_6m": 0.0341,
+      "current_price": 462.99,
+      "ret_1m": 0.1857,
+      "ret_3m": 0.1196,
+      "ret_6m": 0.0808,
       "week52_high": 551.05,
       "week52_low": 349.2,
-      "pct_from_52w_high": -19.0,
+      "pct_from_52w_high": -16.0,
       "high_52w": 551.05,
       "low_52w": 349.2,
       "indicators": {
-        "rsi_14": 70.8,
+        "rsi_14": 74.2,
         "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 92.1,
-        "bb_pct": 1.485,
-        "volume_ratio": 1.92,
+        "macd_histogram_expanding": true,
+        "stoch_k": 98.5,
+        "bb_pct": 1.289,
+        "volume_ratio": 0.78,
         "obv_trend": "up",
-        "sma_50": 398.33,
-        "sma_200": 432.46,
+        "sma_50": 399.35,
+        "sma_200": 432.25,
         "cross_signal": null,
-        "current_price": 446.3,
-        "ret_1w": 0.1692,
-        "ret_1m": 0.1614,
-        "ret_3m": 0.0968,
-        "ret_6m": 0.0341,
+        "current_price": 462.99,
+        "ret_1w": 0.1899,
+        "ret_1m": 0.1857,
+        "ret_3m": 0.1196,
+        "ret_6m": 0.0808,
         "week52_high": 551.05,
         "week52_low": 349.2,
-        "pct_from_52w_high": -19.0,
-        "atr_14": 15.44,
-        "atr_pct": 3.46
+        "pct_from_52w_high": -16.0,
+        "atr_14": 15.82,
+        "atr_pct": 3.42
       },
       "key_levels": {
         "support": 409.58,
@@ -1034,87 +1178,262 @@
           466.32
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "ORCL",
-      "quant_score": 50,
+      "ticker": "INTC",
+      "quant_score": 42,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 41.1,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 89.59,
+      "resistance": 126.64,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
         "level": "medium",
         "sources_count": 2,
         "sources": [
-          "price_action",
-          "volume"
+          "volume",
+          "momentum_oscillators"
         ],
-        "conflicts": [
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: RSI bearish but MACD bullish"
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'}, 'request_id': 'req_011CdYVJH4BMq74uXeigfn5D'}",
-      "mean_reversion_score": 50,
-      "forward_bias": "watch_for_reversal",
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "INTC is currently in a downtrend with a mean reversion score indicating a weak potential for a bounce. Given the neutral macro regime and the bearish momentum signals, the price is likely to remain under pressure in the next 5-10 days.",
       "mean_reversion_signals": [
-        "Price 31% below SMA200 \u2014 extreme dislocation",
-        "Within 15% of 52W low",
         "Declining volume on selloff \u2014 selling exhaustion"
       ],
-      "entry_price": 143.763806,
-      "current_price": 125.59,
-      "pnl_pct": -12.64,
-      "ret_1m": -0.1156,
-      "ret_3m": -0.2191,
-      "ret_6m": -0.2517,
-      "week52_high": 341.82,
-      "week52_low": 114.5,
-      "pct_from_52w_high": -63.3,
-      "high_52w": 341.82,
-      "low_52w": 114.5,
+      "current_price": 91.74,
+      "ret_1m": -0.2377,
+      "ret_3m": -0.0791,
+      "ret_6m": 0.9742,
+      "week52_high": 142.35,
+      "week52_low": 18.97,
+      "pct_from_52w_high": -35.6,
+      "high_52w": 142.35,
+      "low_52w": 18.97,
       "indicators": {
-        "rsi_14": 40.0,
-        "macd_bullish": true,
+        "rsi_14": 41.1,
+        "macd_bullish": false,
         "macd_histogram_expanding": true,
-        "stoch_k": 44.1,
-        "bb_pct": 0.401,
-        "volume_ratio": 0.5,
+        "stoch_k": 35.8,
+        "bb_pct": 0.274,
+        "volume_ratio": 0.51,
         "obv_trend": "down",
-        "sma_50": 165.47,
-        "sma_200": 182.81,
+        "sma_50": 112.84,
+        "sma_200": 67.04,
         "cross_signal": null,
-        "current_price": 125.59,
-        "ret_1w": 0.0922,
-        "ret_1m": -0.1156,
-        "ret_3m": -0.2191,
-        "ret_6m": -0.2517,
-        "week52_high": 341.82,
-        "week52_low": 114.5,
-        "pct_from_52w_high": -63.3,
-        "atr_14": 7.81,
-        "atr_pct": 6.22
+        "current_price": 91.74,
+        "ret_1w": 0.0008,
+        "ret_1m": -0.2377,
+        "ret_3m": -0.0791,
+        "ret_6m": 0.9742,
+        "week52_high": 142.35,
+        "week52_low": 18.97,
+        "pct_from_52w_high": -35.6,
+        "atr_14": 8.55,
+        "atr_pct": 9.32
       },
       "key_levels": {
-        "support": null,
-        "resistance": 148.55,
-        "support_levels": [],
+        "support": 89.59,
+        "resistance": 126.64,
+        "support_levels": [
+          89.59
+        ],
         "resistance_levels": [
-          148.55,
-          188.52,
-          200.01
+          126.64,
+          132.75,
+          141.45
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-34%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "LRCX",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 45.2,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 302.53,
+      "resistance": 438.5,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "LRCX is currently in a downtrend with a mean reversion score indicating potential for a bounce, but the overall momentum remains weak. In the next 5-10 days, price may attempt to stabilize around the support level of $302.53, but significant upward movement is uncertain given the bearish indicators.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 300.33,
+      "ret_1m": -0.1454,
+      "ret_3m": 0.1707,
+      "ret_6m": 0.2889,
+      "week52_high": 438.5,
+      "week52_low": 90.44,
+      "pct_from_52w_high": -31.5,
+      "high_52w": 438.5,
+      "low_52w": 90.44,
+      "indicators": {
+        "rsi_14": 45.2,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 46.7,
+        "bb_pct": 0.336,
+        "volume_ratio": 0.51,
+        "obv_trend": "down",
+        "sma_50": 337.98,
+        "sma_200": 240.83,
+        "cross_signal": null,
+        "current_price": 300.33,
+        "ret_1w": 0.0299,
+        "ret_1m": -0.1454,
+        "ret_3m": 0.1707,
+        "ret_6m": 0.2889,
+        "week52_high": 438.5,
+        "week52_low": 90.44,
+        "pct_from_52w_high": -31.5,
+        "atr_14": 27.5,
+        "atr_pct": 9.16
+      },
+      "key_levels": {
+        "support": 302.53,
+        "resistance": 438.5,
+        "support_levels": [
+          302.53,
+          298.65,
+          263.52
+        ],
+        "resistance_levels": [
+          438.5
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-31%_1m)",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "AMAT",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 46.0,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 513.22,
+      "resistance": 739.67,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+      "quant_summary": "AMAT is currently in a downtrend with a mean reversion score indicating weak potential for a bounce. Given the bearish momentum and lack of strong support, the price is likely to remain under pressure in the next 5-10 days.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 512.69,
+      "ret_1m": -0.1498,
+      "ret_3m": 0.3193,
+      "ret_6m": 0.5946,
+      "week52_high": 739.67,
+      "week52_low": 153.78,
+      "pct_from_52w_high": -30.7,
+      "high_52w": 739.67,
+      "low_52w": 153.78,
+      "indicators": {
+        "rsi_14": 46.0,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 42.9,
+        "bb_pct": 0.295,
+        "volume_ratio": 0.39,
+        "obv_trend": "down",
+        "sma_50": 543.67,
+        "sma_200": 372.99,
+        "cross_signal": null,
+        "current_price": 512.69,
+        "ret_1w": -0.0081,
+        "ret_1m": -0.1498,
+        "ret_3m": 0.3193,
+        "ret_6m": 0.5946,
+        "week52_high": 739.67,
+        "week52_low": 153.78,
+        "pct_from_52w_high": -30.7,
+        "atr_14": 43.86,
+        "atr_pct": 8.55
+      },
+      "key_levels": {
+        "support": 513.22,
+        "resistance": 739.67,
+        "support_levels": [
+          513.22,
+          396.88,
+          376.6
+        ],
+        "resistance_levels": [
+          739.67
+        ]
+      },
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "dislocation_screen(-29%_1m)",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     }
   ],
-  "total_analysed": 15,
+  "total_analysed": 17,
   "macro_regime": "NEUTRAL",
   "pattern_history_loaded": true,
-  "generated_at": "2026-07-30 15:36 UTC"
+  "generated_at": "2026-07-31 16:17 UTC"
 }

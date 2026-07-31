@@ -3,75 +3,89 @@
   "interest_rate_direction": "stable",
   "inflation_trend": "falling",
   "favoured_themes": [
-    "Defensive equities and healthcare (Humana earnings beat)",
-    "Long-duration bonds (TLT weakness may present entry)",
-    "USD strength plays (DXY at 101.46)",
-    "Selective high-yield exposure (HYG resilience at -0.58% 1M)"
+    "AI technology",
+    "defensive stocks",
+    "consumer spending"
   ],
   "avoid_themes": [
-    "Leveraged long-duration fixed income (TLT -3.66% 1M signals duration risk)",
-    "Emerging market currencies (strong USD headwind)",
-    "Shipping and logistics (Red Sea disruption risk from Houthi fees)"
+    "high-yield bonds",
+    "emerging markets",
+    "energy stocks"
   ],
   "geopolitical_risks": [
-    "Middle East escalation: Oil +7% on airstrikes; potential supply shock if sustained",
-    "Red Sea shipping disruption: Houthis considering transit fees; impacts global trade costs and shipping equities",
-    "Iran-linked activity: Norwegian teen conviction signals elevated regional tension; potential for asymmetric attacks on Western interests",
-    "Israel elections uncertainty: Political instability may increase regional volatility"
+    "Iran conflict escalation",
+    "US-China trade tensions"
   ],
-  "macro_summary": "The macro environment remains NEUTRAL across all three independent sources (FRED, yfinance, newsapi_finnhub), supported by falling CPI (332.57 vs 333.98), positive GDP growth (+1.41% QoQ to $31,865.7B), and stable Fed Funds Rate at 3.63%. However, the yield curve remains inverted at +0.34% (10Y-2Y), signalling persistent recession risk despite current growth. Market signals are mixed: VIX at 19.81 reflects contained fear, but TLT weakness (-3.66% 1M) and geopolitical headlines (Middle East airstrikes, Red Sea disruptions) introduce tactical headwinds. No source conflicts detected; all three sources align on NEUTRAL regime.",
+  "macro_summary": "The current macro environment shows a stable interest rate at 3.63% with a falling inflation trend indicated by a decrease in CPI from 333.98 to 332.57. However, there is a conflict in signals with FRED and yfinance_market indicating a NEUTRAL stance, while newsapi_finnhub suggests a RISK-OFF sentiment due to geopolitical tensions, particularly related to Iran. This divergence leads to a low confidence level in the overall market assessment.",
   "signal_confidence": {
-    "level": "high",
+    "level": "low",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [
-      "All 3 sources agree: NEUTRAL regime",
-      "Inflation falling (CPI 332.57 vs 333.98)",
-      "GDP growth positive (+1.41% QoQ)",
-      "VIX below panic threshold (19.81 < 25)",
-      "No major central bank policy shifts signalled"
+    "agreements": [],
+    "conflicts": [
+      "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "conflicts": [],
-    "confidence_note": "High confidence: all three independent data sources align on NEUTRAL regime with no conflicts; macro fundamentals (growth, inflation, rates) are internally consistent, though inverted yield curve and geopolitical risks warrant tactical caution."
+    "confidence_note": "The conflicting signals from different sources contribute to a low confidence level for downstream agents."
   },
-  "confidence": 82,
+  "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.65,
-    "us_2y_yield": 4.31,
-    "yield_curve_spread": 0.34,
+    "us_10y_yield": 4.67,
+    "us_2y_yield": 4.22,
+    "yield_curve_spread": 0.45,
     "cpi_latest": 332.57,
     "cpi_prev": 333.98,
     "cpi_trend": "falling",
-    "pce_latest": 131.527,
-    "gdp_latest": 31865.7,
-    "gdp_prev": 31422.5,
-    "gdp_growth": 1.41,
-    "dxy_current": 101.46,
-    "dxy_1m_ago": 101.11,
-    "dxy_trend": "strengthening",
-    "vix": 19.81,
-    "tlt_1m_change_pct": -3.66,
-    "hyg_1m_change_pct": -0.58,
+    "pce_latest": 131.392,
+    "gdp_latest": 32475.2,
+    "gdp_prev": 31865.7,
+    "gdp_growth": 1.91,
+    "dxy_current": 100.07,
+    "dxy_1m_ago": 101.19,
+    "dxy_trend": "weakening",
+    "vix": 17.8,
+    "tlt_1m_change_pct": -4.67,
+    "hyg_1m_change_pct": -0.33,
     "macro_headlines": [
-      "Oil jumps nearly 7% on escalating Middle East airstrikes - Reuters",
-      "FIFA is embroiled in a $20 billion World Cup controversy. Here's what's going on",
-      "Humana tops quarterly estimates, maintains profit outlook as medical costs stay in line",
-      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
-      "We're exiting our position in a household products giant after a soft quarter",
-      "EXCLUSIVE: US military may require some troops in Mideast to surrender cell phones, sources say - Reuters",
-      "Norwegian teen found guilty in UK murder plot tied to Iran-linked group - Reuters",
-      "YES Network, MSG Networks to exit Gotham app for DAZN streaming service",
-      "EXCLUSIVE: Yemen's Houthis considering fees for ships sailing through Red Sea, sources say - Reuters",
-      "Israeli elections: how they work and who is in the race - Reuters"
+      "Microsoft shares are surging. Here\u2019s how to still make money, says Mike Khouw",
+      "GM to launch new in-vehicle AI system later this year",
+      "Jim Cramer's top 10 things to watch in the stock market Friday",
+      "34-year-old CEO bet on AI video 5 years before ChatGPT\u2014convincing Mark Cuban to invest was the easy part",
+      "New York sues Kalshi, says prediction market is running 'illegal gambling operation'",
+      "The Tech Download: Anduril CEO Brian Schimpf talks AI in warfare and manufacturing push",
+      "Trump convenes Cabinet at Camp David amid simmering Iran war - Reuters",
+      "Illicit Iranian gambling network helped pull off a $4 billion sanctions dodge - Reuters",
+      "Man suspected of spying on UK military base for Iran arrested in Cyprus - Reuters",
+      "British Airways-owner IAG trims capacity outlook; jet fuel bill eases - Reuters"
     ],
-    "geopolitical_headlines": [],
-    "central_bank_headlines": [],
-    "as_of": "2026-07-29 15:35 UTC"
+    "geopolitical_headlines": [
+      "The economy slowed a bit -- but Americans continued to spend",
+      "This Ultra-Compact INIU Charger Brings 10,000mAh and 45W Fast Charging to 3 Devices, Then Slides Back Into Your Pocket",
+      "Why do parts of England and Wales keep falling into drought?",
+      "Fed to issue interest rate decision as gas prices rise",
+      "Oil prices surge after Trump vows retaliation for Iranian attack",
+      "Carolina Cloud pays SOFR on unused prepaid credits",
+      "Jamie Dimon says his stockbroker father taught him to invest with a \u2018brutally hard\u2019 childhood game",
+      "Donate to GrapheneOS",
+      "This Startup Wants to Build the Weirdest-Looking Passenger Jet Since the Concorde. The U.S. Government Just Invested $3 Billion In It.",
+      "Market moves and 'a good family fight:' top takeaways from the July Fed meeting"
+    ],
+    "central_bank_headlines": [
+      "Major central banks steer a cautious hiking path",
+      "US Dollar Price Forecast: Fed Holds Rates, Markets Turn to PCE and BoE Decision",
+      "Bank of England keeps interest rates at 3.75% for fifth time this year",
+      "US dollar finds footing after Fed hold and Iran air strikes",
+      "Gold holds steady ahead of Fed's rate decision",
+      "Bank of England keeps key rate at 3.75% for the fifth time this year",
+      "US dollar slips against yen as focus shifts to inflation data",
+      "Out of the Rubble"
+    ],
+    "as_of": "2026-07-31 15:48 UTC"
   },
-  "generated_at": "2026-07-29T15:35:08.797035"
+  "generated_at": "2026-07-31T15:48:55.218043"
 }
