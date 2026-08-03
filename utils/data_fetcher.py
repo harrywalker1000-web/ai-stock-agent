@@ -442,7 +442,8 @@ def fetch_fmp_price_targets(ticker: str) -> list[dict]:
     Return aggregated analyst price target summary from FMP.
     Returns single-element list with fields: lastMonthCount, lastMonthAvgPriceTarget,
     lastQuarterCount, lastQuarterAvgPriceTarget, lastYearAvgPriceTarget, allTimeAvgPriceTarget.
-    Note: per-analyst targets (/price-target) require a paid FMP plan; this endpoint is free.
+    Note: FMP now returns 402 Payment Required for this endpoint on the free tier
+    (it was free when this was written) — expected, not a bug. Caller degrades gracefully.
     """
     logger.debug("FMP price target summary: %s", ticker)
     try:
@@ -451,7 +452,7 @@ def fetch_fmp_price_targets(ticker: str) -> list[dict]:
         resp.raise_for_status()
         return resp.json() or []
     except Exception as exc:
-        logger.error("FMP price targets failed for %s: %s", ticker, exc)
+        logger.debug("FMP price targets unavailable for %s (likely free-tier limit): %s", ticker, exc)
         return []
 
 

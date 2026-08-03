@@ -13,6 +13,7 @@ Reddit (PRAW): optional — skipped gracefully if REDDIT_CLIENT_ID='skip_for_now
 import json
 import os
 import pathlib
+import time
 from datetime import datetime, timedelta
 
 import yfinance as yf
@@ -179,11 +180,21 @@ def _score_freshness(published_str: str) -> tuple[str, int]:
 
 
 def _fetch_company_catalysts(tickers: list[str]) -> list[dict]:
-    """Scan Finnhub and NewsAPI for fresh company-specific catalysts."""
-    catalysts = []
+    """Scan Finnhub and NewsAPI for fresh company-specific catalysts.
 
-    for ticker in tickers:
+    Finnhub free tier caps at 60 calls/minute — paced with a short sleep so a
+    45-ticker scan can't burst past that and start 429ing.
+    NewsAPI free (Developer) tier caps at 50 calls/12h, which can't sustain a
+    per-ticker call across the full watchlist — scoped to a small subset so
+    cross-source confirmation still runs without exhausting the daily quota.
+    """
+    catalysts = []
+    newsapi_tickers = set(tickers[:15])
+
+    for i, ticker in enumerate(tickers):
         # Finnhub company news
+        if i > 0:
+            time.sleep(1.1)
         articles = fetch_finnhub_company_news(ticker, days_back=7)
         for article in articles[:5]:
             headline = article.get("headline", "")
@@ -206,7 +217,9 @@ def _fetch_company_catalysts(tickers: list[str]) -> list[dict]:
                     "url": article.get("url", ""),
                 })
 
-        # NewsAPI company-specific search
+        # NewsAPI company-specific search — scoped subset only (see docstring)
+        if ticker not in newsapi_tickers:
+            continue
         news_articles = fetch_news_headlines(f'"{ticker}" stock', days_back=5, page_size=5)
         for article in news_articles[:3]:
             headline = article.get("title", "")
