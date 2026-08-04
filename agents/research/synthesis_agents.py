@@ -1,6 +1,10 @@
 """
 AI synthesis agents for ad-hoc research reports.
-Uses Claude Haiku 4.5 for all section narratives, Sonnet 4.6 for Investment Committee.
+Uses a cheap tier for all section narratives, a stronger tier for Investment Committee.
+Routes through utils.llm_client so LLM_PROVIDER (openai/anthropic) is respected —
+this used to call the Anthropic SDK directly, which meant it broke every section
+whenever Anthropic credits ran out even after the rest of the pipeline had switched
+providers via LLM_PROVIDER.
 STRICT RULE: AI receives structured JSON only. AI writes narratives only. Never numbers.
 """
 
@@ -12,14 +16,38 @@ import threading
 from typing import Any
 
 import anthropic
+import openai
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from utils.logger import get_logger
+from utils.llm_client import get_llm_client
 
 logger = get_logger(__name__)
 
-HAIKU_MODEL  = "claude-haiku-4-5-20251001"
-SONNET_MODEL = "claude-sonnet-4-6"
+
+def _active_provider() -> str:
+    """Best-effort label for which provider get_llm_client() will actually use."""
+    provider = os.environ.get("LLM_PROVIDER", "").strip().lower()
+    if provider in ("openai", "anthropic"):
+        return provider
+    return "anthropic" if os.environ.get("ANTHROPIC_API_KEY") else "openai"
+
+
+# Logical routing names passed to get_llm_client() — it maps these to the right
+# underlying model for whichever provider LLM_PROVIDER selects. Always use these
+# two values (not a literal Claude/GPT model name) when calling _call_llm().
+_HAIKU_ROUTE  = "gpt-4o-mini"
+_SONNET_ROUTE = "gpt-4o"
+
+# Display-only labels for "source" tags shown in the report — resolved once at
+# import time to whichever model will actually serve the request, so the report
+# never claims a vendor that isn't the one that ran.
+if _active_provider() == "openai":
+    HAIKU_MODEL  = "gpt-4o-mini"
+    SONNET_MODEL = "gpt-4o"
+else:
+    HAIKU_MODEL  = "claude-haiku-4-5-20251001"
+    SONNET_MODEL = "claude-sonnet-5"
 
 # ---------------------------------------------------------------------------
 # Per-pipeline API error tracking (thread-safe, reset at pipeline start)
@@ -44,69 +72,76 @@ def _record_error(error_type: str, message: str, model: str = "") -> None:
     with _error_lock:
         # Only record the first (most significant) error — subsequent calls
         # may fail for the same reason and we don't want to overwrite detail.
-        if "anthropic" not in _api_errors:
-            _api_errors["anthropic"] = {
-                "type":    error_type,
-                "message": message[:300],
-                "model":   model,
+        if "llm" not in _api_errors:
+            _api_errors["llm"] = {
+                "type":     error_type,
+                "message":  message[:300],
+                "model":    model,
+                "provider": _active_provider(),
             }
 
 
-def _get_client() -> anthropic.Anthropic:
-    key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not key:
-        raise EnvironmentError("ANTHROPIC_API_KEY not set")
-    return anthropic.Anthropic(api_key=key)
+def _get_client():
+    return get_llm_client()
 
 
-def _call_claude(model: str, prompt: str, max_tokens: int = 1000) -> str:
-    """Base call to Claude. Returns text content or empty string on error.
-    Classifies specific error types into _api_errors for pipeline-level reporting.
+def _call_llm(route_model: str, prompt: str, max_tokens: int = 1000) -> str:
+    """Base LLM call. route_model must be _HAIKU_ROUTE or _SONNET_ROUTE — get_llm_client()
+    resolves it to the right model for whichever provider LLM_PROVIDER selects.
+    Returns text content or empty string on error. Classifies specific error types
+    into _api_errors for pipeline-level reporting.
     """
+    display_model = HAIKU_MODEL if route_model == _HAIKU_ROUTE else SONNET_MODEL
     try:
         client = _get_client()
-        msg = client.messages.create(
-            model=model,
+        msg = client.chat.completions.create(
+            model=route_model,
             max_tokens=max_tokens,
             messages=[{"role": "user", "content": prompt}],
         )
-        return msg.content[0].text.strip() if msg.content else ""
+        choice = msg.choices[0] if msg.choices else None
+        return (choice.message.content or "").strip() if choice else ""
     except EnvironmentError as exc:
-        _record_error("missing_key", str(exc), model)
-        logger.error("Anthropic API key missing (%s): %s", model, exc)
+        _record_error("missing_key", str(exc), display_model)
+        logger.error("LLM API key missing (%s): %s", display_model, exc)
         return ""
-    except anthropic.RateLimitError as exc:
-        _record_error("rate_limit", str(exc), model)
-        logger.error("Anthropic rate limit (%s): %s", model, exc)
-        return ""
-    except anthropic.AuthenticationError as exc:
-        _record_error("invalid_key", str(exc), model)
-        logger.error("Anthropic auth error (%s): %s", model, exc)
-        return ""
-    except anthropic.APIStatusError as exc:
-        if exc.status_code in (402, 403):
-            _record_error("billing", f"HTTP {exc.status_code} — credit balance may be exhausted", model)
-        elif exc.status_code == 529:
-            _record_error("overloaded", "Anthropic API is temporarily overloaded (529)", model)
+    except (anthropic.RateLimitError, openai.RateLimitError) as exc:
+        body = getattr(exc, "body", None) or {}
+        code = (body.get("error") or {}).get("code") if isinstance(body, dict) else None
+        if code == "insufficient_quota":
+            _record_error("billing", "Account has no credits (insufficient_quota)", display_model)
         else:
-            _record_error("api_error", f"HTTP {exc.status_code}: {exc.message}", model)
-        logger.error("Anthropic APIStatusError %d (%s): %s", exc.status_code, model, exc)
+            _record_error("rate_limit", str(exc), display_model)
+        logger.error("LLM rate limit (%s): %s", display_model, exc)
         return ""
-    except anthropic.APIConnectionError as exc:
-        _record_error("connection", "Could not connect to Anthropic API — check network", model)
-        logger.error("Anthropic connection error (%s): %s", model, exc)
+    except (anthropic.AuthenticationError, openai.AuthenticationError) as exc:
+        _record_error("invalid_key", str(exc), display_model)
+        logger.error("LLM auth error (%s): %s", display_model, exc)
+        return ""
+    except (anthropic.APIStatusError, openai.APIStatusError) as exc:
+        if exc.status_code in (402, 403):
+            _record_error("billing", f"HTTP {exc.status_code} — credit balance may be exhausted", display_model)
+        elif exc.status_code == 529:
+            _record_error("overloaded", "API is temporarily overloaded (529)", display_model)
+        else:
+            _record_error("api_error", f"HTTP {exc.status_code}: {exc.message}", display_model)
+        logger.error("LLM APIStatusError %d (%s): %s", exc.status_code, display_model, exc)
+        return ""
+    except (anthropic.APIConnectionError, openai.APIConnectionError) as exc:
+        _record_error("connection", "Could not connect to the LLM API — check network", display_model)
+        logger.error("LLM connection error (%s): %s", display_model, exc)
         return ""
     except Exception as exc:
-        logger.error("Claude call failed (%s): %s", model, exc)
+        logger.error("LLM call failed (%s): %s", display_model, exc)
         return ""
 
 
 def _haiku(prompt: str, max_tokens: int = 1000) -> str:
-    return _call_claude(HAIKU_MODEL, prompt, max_tokens)
+    return _call_llm(_HAIKU_ROUTE, prompt, max_tokens)
 
 
 def _sonnet(prompt: str, max_tokens: int = 2000) -> str:
-    return _call_claude(SONNET_MODEL, prompt, max_tokens)
+    return _call_llm(_SONNET_ROUTE, prompt, max_tokens)
 
 
 def _ai_tag(text: str, model: str = HAIKU_MODEL) -> dict:

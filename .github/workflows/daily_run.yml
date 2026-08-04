@@ -104,6 +104,11 @@ jobs:
           git add data/memory/pattern_history.json || true
           git add dashboard/data/reports/
           git add dashboard/data/memory/
+          # Pipeline-auto deep-dive reports (generated for every debated/entered
+          # candidate) — previously never committed, so they were generated every
+          # run and immediately discarded; dashboard never saw them.
+          git add data/adhoc_reports/
+          git add dashboard/data/adhoc_reports/
           # Only commit and push if there are staged changes.
           # Retry push up to 3 times in case another workflow pushed between our rebase and push.
           if git diff --cached --quiet; then

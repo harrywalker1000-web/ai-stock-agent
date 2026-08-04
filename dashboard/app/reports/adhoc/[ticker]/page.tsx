@@ -2235,7 +2235,7 @@ export default function AdhocTickerPage() {
   const [activeSection, setActiveSection] = useState("s1");
   const [livePeers, setLivePeers] = useState<any[]>([]);
   const [tavilyBannerDismissed, setTavilyBannerDismissed] = useState(false);
-  const [anthropicBannerDismissed, setAnthropicBannerDismissed] = useState(false);
+  const [llmBannerDismissed, setLlmBannerDismissed] = useState(false);
   const [brandMode, setBrandMode] = useState(false);
   const [lightMode, setLightMode] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -2373,8 +2373,8 @@ export default function AdhocTickerPage() {
   const currentPrice = fv(report.current_price ?? s1.current_price);
   const mandatePassed = mandate.passed ?? fv(s1.mandate_passed) ?? false;
   const tavilyQuotaExceeded: boolean = !!(report as any).tavily_quota_exceeded;
-  const anthropicError: { type?: string; message?: string; model?: string } | null =
-    (report as any).api_errors?.anthropic ?? null;
+  const llmError: { type?: string; message?: string; model?: string; provider?: string } | null =
+    (report as any).api_errors?.llm ?? (report as any).api_errors?.anthropic ?? null;
 
   // Compute next monthly reset date (1st of the month after generated_at)
   const tavilyResetDate = (() => {
@@ -2385,14 +2385,17 @@ export default function AdhocTickerPage() {
     } catch { return "the 1st of next month"; }
   })();
 
-  const anthropicErrorMeta: Record<string, { label: string; detail: string; color: string; border: string; bg: string }> = {
-    missing_key:  { label: "API Key Missing",           detail: "ANTHROPIC_API_KEY is not set in your environment. All AI narrative sections are blank. Set the key and re-run the pipeline.", color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
-    invalid_key:  { label: "Invalid API Key",            detail: "Anthropic rejected the API key. Check that ANTHROPIC_API_KEY is correct and active in your Anthropic console.", color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
-    rate_limit:   { label: "Rate Limit Hit",             detail: "Too many requests were sent to the Anthropic API in a short window. Wait a few minutes, then re-run the pipeline.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
-    billing:      { label: "Credit Balance Exhausted",   detail: "The Anthropic account may be out of credits. All AI narrative sections are blank. Top up credits at console.anthropic.com and re-run.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
-    overloaded:   { label: "API Temporarily Overloaded", detail: "Anthropic returned a 529 overload error. This is transient — wait a few minutes and re-run the pipeline.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
-    connection:   { label: "Connection Error",           detail: "Could not reach the Anthropic API. Check your network connection and re-run.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
-    api_error:    { label: "Anthropic API Error",        detail: "An unexpected Anthropic API error occurred. AI narrative sections may be incomplete. Check logs for details.", color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+  // provider comes from api_errors.llm.provider (falls back to "anthropic" for
+  // older cached reports generated before the LLM_PROVIDER switch existed)
+  const llmProviderLabel = llmError?.provider === "openai" ? "OpenAI" : "Anthropic";
+  const llmErrorMeta: Record<string, { label: string; detail: string; color: string; border: string; bg: string }> = {
+    missing_key:  { label: "API Key Missing",           detail: `${llmProviderLabel === "OpenAI" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY"} is not set in your environment. All AI narrative sections are blank. Set the key and re-run the pipeline.`, color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
+    invalid_key:  { label: "Invalid API Key",            detail: `${llmProviderLabel} rejected the API key. Check that it is correct and active in your ${llmProviderLabel} console.`, color: "#F87171", border: "#EF444440", bg: "#EF44440A" },
+    rate_limit:   { label: "Rate Limit Hit",             detail: `Too many requests were sent to the ${llmProviderLabel} API in a short window. Wait a few minutes, then re-run the pipeline.`, color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    billing:      { label: "Credit Balance Exhausted",   detail: `The ${llmProviderLabel} account may be out of credits. All AI narrative sections are blank. Top up credits at ${llmProviderLabel === "OpenAI" ? "platform.openai.com/settings/billing" : "console.anthropic.com"} and re-run.`, color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    overloaded:   { label: "API Temporarily Overloaded", detail: `${llmProviderLabel} returned an overload error. This is transient — wait a few minutes and re-run the pipeline.`, color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    connection:   { label: "Connection Error",           detail: `Could not reach the ${llmProviderLabel} API. Check your network connection and re-run.`, color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
+    api_error:    { label: `${llmProviderLabel} API Error`, detail: `An unexpected ${llmProviderLabel} API error occurred. AI narrative sections may be incomplete. Check logs for details.`, color: "#FCD34D", border: "#F59E0B40", bg: "#F59E0B0A" },
   };
 
   const cssVars = {
@@ -2599,9 +2602,9 @@ export default function AdhocTickerPage() {
             </div>
           )}
 
-          {/* ── Anthropic API error banner ────────────────────────────────── */}
-          {anthropicError && !anthropicBannerDismissed && (() => {
-            const meta = anthropicErrorMeta[anthropicError.type ?? "api_error"] ?? anthropicErrorMeta["api_error"];
+          {/* ── LLM API error banner ────────────────────────────────── */}
+          {llmError && !llmBannerDismissed && (() => {
+            const meta = llmErrorMeta[llmError.type ?? "api_error"] ?? llmErrorMeta["api_error"];
             return (
               <div
                 className="mb-4 flex items-start gap-4 rounded-2xl border px-5 py-4"
@@ -2612,19 +2615,19 @@ export default function AdhocTickerPage() {
                 </svg>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold mb-1" style={{ color: meta.color }}>
-                    Anthropic AI — {meta.label}
+                    {llmProviderLabel} AI — {meta.label}
                   </p>
                   <p className="text-xs leading-relaxed" style={{ color: meta.color, opacity: 0.75 }}>
                     {meta.detail}
                   </p>
-                  {anthropicError.message && (
+                  {llmError.message && (
                     <p className="text-[10px] mt-1.5 font-mono text-[#475569] break-all">
-                      {anthropicError.message}
+                      {llmError.message}
                     </p>
                   )}
                 </div>
                 <button
-                  onClick={() => setAnthropicBannerDismissed(true)}
+                  onClick={() => setLlmBannerDismissed(true)}
                   className="shrink-0 text-[#475569] hover:text-[#94A3B8] transition-colors mt-0.5 cursor-pointer"
                   aria-label="Dismiss"
                 >
