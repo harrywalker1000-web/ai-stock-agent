@@ -109,14 +109,14 @@ export async function DELETE(req: NextRequest) {
 
 export async function GET() {
   const adhocDir = getAdhocDir();
-  const reports: unknown[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reports: any[] = [];
 
   try {
     if (fs.existsSync(adhocDir)) {
-      const files = fs.readdirSync(adhocDir)
-        .filter((f) => f.endsWith(".json"))
-        .sort()
-        .reverse();
+      // Directory order is arbitrary — real chronological sort happens below,
+      // by the report's own `date` field, once each file has been parsed.
+      const files = fs.readdirSync(adhocDir).filter((f) => f.endsWith(".json"));
 
       for (const file of files) {
         try {
@@ -159,6 +159,10 @@ export async function GET() {
   } catch {
     // no reports directory
   }
+
+  // Newest first, by the report's own date — not filename/directory order, which
+  // sorts alphabetically by ticker and has nothing to do with chronology.
+  reports.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
   return NextResponse.json(reports);
 }
