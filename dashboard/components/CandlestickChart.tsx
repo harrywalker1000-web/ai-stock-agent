@@ -10,9 +10,10 @@ type TF = (typeof TIMEFRAMES)[number];
 interface Props {
   ticker: string;
   entryPrice?: number;
+  currentPrice?: number;
 }
 
-export default function CandlestickChart({ ticker, entryPrice }: Props) {
+export default function CandlestickChart({ ticker, entryPrice, currentPrice }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<unknown>(null);
   const seriesRef = useRef<unknown>(null);
@@ -83,6 +84,13 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
           upColor: "#10B981", downColor: "#EF4444",
           borderUpColor: "#10B981", borderDownColor: "#EF4444",
           wickUpColor: "#10B981", wickDownColor: "#EF4444",
+          // The library's automatic last-bar price line reflects whatever the most
+          // recent loaded candle is — history endpoints (Yahoo) can lag the live
+          // quote by a day or more, which reads as a wrong "current price". We draw
+          // our own "Current" line below from the same live source as the rest of
+          // the page instead, so suppress the default one to avoid two conflicting
+          // numbers on screen.
+          priceLineVisible: false,
         };
         if (typeof lc.CandlestickSeries !== "undefined") {
           // v5
@@ -92,8 +100,8 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
           series = chart.addCandlestickSeries(seriesOpts);
         }
 
+        const LineStyle = lc.LineStyle;
         if (entryPrice) {
-          const LineStyle = lc.LineStyle;
           (series as { createPriceLine: (o: unknown) => void }).createPriceLine({
             price: entryPrice,
             color: "#F59E0B",
@@ -101,6 +109,16 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
             lineStyle: LineStyle?.Dashed ?? 2,
             axisLabelVisible: true,
             title: "Entry",
+          });
+        }
+        if (currentPrice) {
+          (series as { createPriceLine: (o: unknown) => void }).createPriceLine({
+            price: currentPrice,
+            color: "#10B981",
+            lineWidth: 1,
+            lineStyle: LineStyle?.Dashed ?? 2,
+            axisLabelVisible: true,
+            title: "Current",
           });
         }
 
@@ -130,7 +148,7 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
       loadedTfRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticker, entryPrice]);
+  }, [ticker, entryPrice, currentPrice]);
 
   useEffect(() => {
     if (tf !== loadedTfRef.current && seriesRef.current) {
@@ -141,9 +159,15 @@ export default function CandlestickChart({ ticker, entryPrice }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-          <span className="text-xs text-[#6B7280]">Dotted = entry price</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
+            <span className="text-xs text-[#6B7280]">Entry</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+            <span className="text-xs text-[#6B7280]">Current</span>
+          </div>
         </div>
         <div className="flex gap-1">
           {TIMEFRAMES.map((t) => (
