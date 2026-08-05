@@ -167,6 +167,26 @@ def _strip_code_fences(raw: str) -> str:
     return raw
 
 
+def _agent_context_block(data: dict) -> str:
+    """
+    Optional cross-agent + portfolio context, set by report_synthesis.py when
+    this report is being generated for a position that actually received
+    capital (data["_agent_digest"] / data["_portfolio_context"]). Absent for
+    the manual "Run Analysis" path, which is unaffected by this — data.get()
+    on a missing key just returns None and this contributes nothing.
+    """
+    digest = data.get("_agent_digest")
+    portfolio = data.get("_portfolio_context")
+    if not digest and not portfolio:
+        return ""
+    parts = []
+    if digest:
+        parts.append(digest)
+    if portfolio:
+        parts.append(portfolio)
+    return "\n\n" + "\n\n".join(parts) + "\n"
+
+
 # ---------------------------------------------------------------------------
 # Section 2: Company Overview narrative
 # ---------------------------------------------------------------------------
@@ -200,7 +220,7 @@ def synthesize_company_overview(data: dict) -> dict:
 
     prompt = f"""Here is the structured data for a company:
 
-{json.dumps(structured, indent=2)}
+{json.dumps(structured, indent=2)}{_agent_context_block(data)}
 
 Based ONLY on the data above, write a 3-paragraph company overview for a hedge fund investment pitch:
 
@@ -314,7 +334,7 @@ def synthesize_competitive_moat(data: dict) -> dict:
     prompt = f"""You are a senior equity analyst writing the Competitive Moat section of a research report on {ticker} ({company_name}).
 
 CONTEXT DATA (use this as a starting point):
-{json.dumps(structured, indent=2)}
+{json.dumps(structured, indent=2)}{_agent_context_block(data)}
 
 Your job: give a direct, opinionated verdict on whether {ticker} has a real competitive moat, and exactly what it is.
 
@@ -421,7 +441,7 @@ def synthesize_industry_macro(data: dict) -> dict:
     prompt = f"""You are a sector analyst writing the Industry & Market Context section of a research report on {ticker} ({company_name}).
 
 CONTEXT DATA:
-{json.dumps(structured, indent=2)}
+{json.dumps(structured, indent=2)}{_agent_context_block(data)}
 
 Use the data above as a starting point, and use your own knowledge of {ticker} ({company_name}) to enrich the answer — especially for tailwinds and headwinds where you MUST be company-specific.
 
@@ -524,7 +544,7 @@ def synthesize_risk_register(data: dict) -> dict:
 
 Here is the structured data:
 
-{json.dumps(structured, indent=2)}
+{json.dumps(structured, indent=2)}{_agent_context_block(data)}
 
 Based ONLY on the data above, respond with ONLY a valid JSON array — no preamble, no markdown fences.
 

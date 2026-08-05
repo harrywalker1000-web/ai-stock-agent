@@ -564,9 +564,58 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     logger.info("Phase B: Executor implementing new entries...")
     results["executor"] = _safe_run("Phase B: Trade Executor", trade_executor.run, mode="new_opportunities")
 
+    # --- Phase 6: Deep-dive research for positions that actually received capital ---
+    # Must run here, not inside investment_committee.py — Portfolio Construction
+    # (Phase 4b, above) can still downgrade an enter_long/enter_short to skip if it
+    # doesn't get funded, and the executor can still fail the order (e.g.
+    # insufficient buying power). Reading committee_report.json now gets the final,
+    # patched decisions; cross-checking against open_positions confirms the trade
+    # actually filled before we spend Tavily quota on it.
+    results["deep_research"] = _safe_run(
+        "Phase B: Deep-Dive Research", _generate_entered_position_reports,
+    )
+
     results["elapsed_sec"] = round(time.time() - t0, 1)
     logger.info("Phase B complete in %.0fs", results["elapsed_sec"])
     return results
+
+
+def _generate_entered_position_reports() -> dict:
+    """
+    Generates the agent-attributed deep-dive report (see report_synthesis.py)
+    for every ticker confirmed as a newly-entered position this run — real
+    capital placed, real position held, not just a committee decision that may
+    have been downgraded or failed to fill.
+    """
+    from agents import report_synthesis
+
+    committee_report_path = ROOT / "data" / "reports" / "committee_report.json"
+    cr = _load_json(committee_report_path, default={})
+    decisions = cr.get("position_decisions", [])
+    entered_decisions = [d for d in decisions if d.get("action") in ("enter_long", "enter_short")]
+    if not entered_decisions:
+        return {"generated": [], "skipped_unfilled": []}
+
+    open_positions = memory.get_open_positions()
+    generated, skipped = [], []
+    for decision in entered_decisions:
+        ticker = decision.get("ticker", "")
+        if ticker not in open_positions:
+            # Decided to enter, but not actually held — construction downgraded it
+            # after this list was cached, or the order failed at execution.
+            logger.warning(
+                "%s: committee decided %s but no open position found — "
+                "skipping deep-dive report (order likely didn't fill)",
+                ticker, decision.get("action"),
+            )
+            skipped.append(ticker)
+            continue
+        report = report_synthesis.generate_entered_position_report(ticker, decision)
+        if report:
+            generated.append(ticker)
+
+    logger.info("Deep-dive research: %d generated, %d skipped (unfilled)", len(generated), len(skipped))
+    return {"generated": generated, "skipped_unfilled": skipped}
 
 
 # ---------------------------------------------------------------------------

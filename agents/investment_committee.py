@@ -301,12 +301,16 @@ def _build_scorecard(
     return scorecards
 
 
-def _build_portfolio_context(open_positions: dict) -> str:
+def build_portfolio_context(open_positions: dict) -> str:
     """
     Build a rich portfolio context block for LLM prompts.
     Shows direction, size, conviction, days held, sector, and entry thesis for every
     open position, plus sector exposure totals. Replaces the sparse ticker list
     so the committee knows the full book state when making new decisions.
+
+    Public (no leading underscore) — also reused by report_synthesis.py so the
+    entered-position deep-dive report threads in the same portfolio awareness
+    the committee itself used when making the decision.
     """
     if not open_positions:
         return "CURRENT BOOK: No open positions."
@@ -574,7 +578,7 @@ def _deliberate_with_llm(
         candidate_blocks.append(block)
 
     n_open = len(open_positions)
-    portfolio_context_block = _build_portfolio_context(open_positions)
+    portfolio_context_block = build_portfolio_context(open_positions)
 
     # Risk snapshot block — injected from portfolio_risk_snapshot.json
     risk_snapshot_block = ""
@@ -1989,64 +1993,15 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
         if framework_fields:
             memory.enrich_position_framework(ticker_d, framework_fields)
 
-    # ── Post-decision: stamp committee conviction onto pre-generated adhoc reports ──
-    # The full research synthesis was already generated before deliberation.
-    # Here we just overwrite the conviction field so the position page shows the
-    # committee's operative number rather than the research analyst's independent view.
-    # For tickers that didn't get a pre-deliberation report (beyond top-10 cap),
-    # generate the report now using the same pipeline data.
-    entered_tickers = [d["ticker"] for d in decisions if d.get("action") in ("enter_long", "enter_short")]
-    if entered_tickers:
-        try:
-            import sys as _sys
-            from pathlib import Path as _Path
-            _scripts_dir = str(_Path(__file__).resolve().parent.parent / "scripts")
-            if _scripts_dir not in _sys.path:
-                _sys.path.insert(0, _scripts_dir)
-            from adhoc_report import generate_from_pipeline_data as _gen_research
-            _adhoc_dir = _Path(__file__).resolve().parent.parent / "data" / "adhoc_reports"
-            _date_str_out = datetime.utcnow().date().isoformat()
-            news_path = REPORTS_DIR / "news_report.json"
-            news_report: dict = {}
-            if news_path.exists():
-                with open(news_path) as _nf:
-                    news_report = json.load(_nf)
-            _decision_map = {d["ticker"]: d for d in decisions if d.get("action") in ("enter_long", "enter_short")}
-            for _ticker_e in entered_tickers:
-                _d = _decision_map.get(_ticker_e, {})
-                _direction = "LONG" if _d.get("action") == "enter_long" else "SHORT"
-                _conv = _d.get("conviction")
-
-                if _ticker_e in adhoc_by_ticker:
-                    # Report already exists — stamp committee conviction and re-save
-                    _report = adhoc_by_ticker[_ticker_e]
-                    if _report.get("s7_recommendation") is None:
-                        _report["s7_recommendation"] = {}
-                    _report["s7_recommendation"]["conviction"] = _conv
-                    _report["s7_recommendation"]["direction"] = _direction
-                    _report["s7_recommendation"]["committee_rationale"] = _d.get("investment_thesis", "")
-                    if _d.get("key_risks") and not _report["s7_recommendation"].get("key_risks"):
-                        _report["s7_recommendation"]["key_risks"] = _d["key_risks"]
-                    _report["conviction"] = _conv
-                    _report["direction"] = _direction
-                    _out_path = _adhoc_dir / f"{_ticker_e}_{_date_str_out}.json"
-                    with open(_out_path, "w") as _f:
-                        json.dump(_report, _f, indent=2)
-                    logger.info("Stamped committee conviction %s onto pre-generated adhoc report for %s", _conv, _ticker_e)
-                else:
-                    # No pre-deliberation report exists — generate now with committee conviction
-                    try:
-                        _gen_research(
-                            _ticker_e, fundamental, quant, sentiment, macro, news_report,
-                            committee_conviction=_conv,
-                            committee_direction=_direction,
-                            committee_decision=_d,
-                        )
-                        logger.info("Post-decision research report generated for %s (conviction=%s)", _ticker_e, _conv)
-                    except Exception as _exc:
-                        logger.warning("Post-decision research report failed for %s: %s", _ticker_e, _exc)
-        except Exception as _import_exc:
-            logger.warning("Could not process adhoc research reports: %s", _import_exc)
+    # Deep-dive report generation for entered positions intentionally does NOT
+    # happen here anymore. `decisions` at this point is PRE-Portfolio-Construction —
+    # construct_portfolio_allocation() (called later, from portfolio_manager.py's
+    # _run_portfolio_construction) can still downgrade an enter_long/enter_short to
+    # skip if it doesn't get funded, and trade_executor can still fail the order
+    # after that (e.g. insufficient buying power). Generating an expensive,
+    # Tavily-backed report here risked doing it for tickers that never actually
+    # received capital. See agents/report_synthesis.py, called from
+    # portfolio_manager.run_phase_b() after trade_executor confirms fills.
 
     # Portfolio allocation summary (exclude skips and non-sizing decisions)
     sizing_decisions = [d for d in decisions if d.get("action") not in ("skip", "hold") and d.get("size_pct")]
