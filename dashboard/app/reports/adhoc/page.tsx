@@ -18,6 +18,23 @@ interface ReportPreview {
   source?: string;
 }
 
+function formatDayLabel(dateStr: string): string {
+  if (!dateStr) return "Unknown date";
+  try {
+    const d = new Date(`${dateStr}T00:00:00`);
+    if (Number.isNaN(d.getTime())) return dateStr;
+    const fmt = (x: Date) => x.toISOString().slice(0, 10);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (fmt(d) === fmt(today)) return "Today";
+    if (fmt(d) === fmt(yesterday)) return "Yesterday";
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" });
+  } catch {
+    return dateStr;
+  }
+}
+
 const DIRECTION_STYLE: Record<string, string> = {
   BUY:  "text-[#10B981] bg-[#10B981]/10",
   HOLD: "text-[#F59E0B] bg-[#F59E0B]/10",
@@ -146,6 +163,19 @@ export default function AdhocInputPage() {
   const [seenReports, setSeenReports] = useState<Set<string>>(new Set());
   const [tab, setTab]             = useState<"manual" | "pipeline">("manual");
   const [deletedFiles, setDeletedFiles] = useState<Set<string>>(new Set());
+  // Day-group folders: dates in this set have their DEFAULT open/closed state
+  // flipped. Default is "most recent day open, older days closed" — toggling
+  // a day just XORs it against that default, so we don't need to know the
+  // full date list up front to seed initial state.
+  const [toggledDays, setToggledDays] = useState<Set<string>>(new Set());
+  const toggleDay = (date: string) => {
+    setToggledDays((prev) => {
+      const next = new Set(prev);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  };
 
   useEffect(() => {
     // Restore queued state — only expire if >20 min old; let progress poller handle completion
@@ -540,12 +570,52 @@ export default function AdhocInputPage() {
                 )}
               </div>
 
-              {/* Active tab content */}
-              {activeReports.length > 0 ? (
-                <div className="space-y-2">
-                  {activeReports.map((r) => <ReportRow key={r.filename ?? `${r.ticker}_${r.date}`} r={r} />)}
-                </div>
-              ) : (
+              {/* Active tab content — grouped into day "folders" (API already
+                  sorts activeReports newest-first, so contiguous same-date
+                  runs group correctly without re-sorting) */}
+              {activeReports.length > 0 ? (() => {
+                const dayGroups: { date: string; reports: ReportPreview[] }[] = [];
+                for (const r of activeReports) {
+                  const last = dayGroups[dayGroups.length - 1];
+                  if (last && last.date === r.date) last.reports.push(r);
+                  else dayGroups.push({ date: r.date, reports: [r] });
+                }
+                return (
+                  <div className="space-y-1">
+                    {dayGroups.map(({ date, reports }, idx) => {
+                      const isMostRecent = idx === 0;
+                      const isExpanded = toggledDays.has(date) ? !isMostRecent : isMostRecent;
+                      return (
+                        <div key={date || `unknown-${idx}`}>
+                          <button
+                            onClick={() => toggleDay(date)}
+                            className="w-full flex items-center gap-2 py-2 text-left cursor-pointer group/day"
+                          >
+                            <svg
+                              className={`w-3 h-3 text-[#6B7280] transition-transform shrink-0 ${isExpanded ? "rotate-90" : ""}`}
+                              viewBox="0 0 16 16" fill="currentColor"
+                            >
+                              <path d="M6 4l4 4-4 4V4z" />
+                            </svg>
+                            <span className="text-xs font-semibold text-[#9CA3AF] group-hover/day:text-[#E8EDF2] transition-colors whitespace-nowrap">
+                              {formatDayLabel(date)}
+                            </span>
+                            <span className="text-[10px] text-[#4B5563] whitespace-nowrap">
+                              ({reports.length})
+                            </span>
+                            <div className="flex-1 border-t border-white/05 ml-1" />
+                          </button>
+                          {isExpanded && (
+                            <div className="space-y-2 mb-3">
+                              {reports.map((r) => <ReportRow key={r.filename ?? `${r.ticker}_${r.date}`} r={r} />)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })() : (
                 <p className="text-xs text-[#4B5563] text-center py-8">
                   {tab === "manual"
                     ? "No manual research yet — run an analysis above."

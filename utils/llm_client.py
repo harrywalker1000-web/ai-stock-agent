@@ -5,9 +5,17 @@ Drop-in replacement for `OpenAI()`: exposes the same
 `client.chat.completions.create()` interface so all agents work unchanged.
 
 Provider selection (set LLM_PROVIDER to switch — no code changes needed):
-  LLM_PROVIDER=openai     → force OpenAI (requires OPENAI_API_KEY)
-  LLM_PROVIDER=anthropic  → force Anthropic (requires ANTHROPIC_API_KEY)
-  unset / anything else   → auto: prefer Anthropic, fall back to OpenAI
+  LLM_PROVIDER=openai     → force OpenAI only (requires OPENAI_API_KEY)
+  LLM_PROVIDER=anthropic  → force Anthropic only (requires ANTHROPIC_API_KEY)
+  unset (both keys present) → auto: try Anthropic first on every call; if that
+                               call errors for any reason (no credit, rate
+                               limit, auth, connection), transparently retry
+                               the SAME call on OpenAI instead. This is a
+                               live per-call fallback, not a one-time choice
+                               made at startup — so it keeps using Anthropic
+                               as long as it keeps working, and only spills
+                               over to OpenAI for the calls that actually fail.
+  unset (one key present)   → use whichever key is set
 
 Model mapping (Anthropic path only — OpenAI path uses the model name as-is):
   gpt-4o-mini  → claude-haiku-4-5-20251001
@@ -120,6 +128,41 @@ class AnthropicCompatClient:
         self.chat = _AnthropicChat()
 
 
+class _FallbackCompletions:
+    """Tries Anthropic first; on ANY failure (no credit, rate limit, auth,
+    connection — anything), retries the identical call against OpenAI instead.
+    Only used in auto mode when both keys are present. A failed call never
+    raises to the caller unless OpenAI also fails."""
+
+    def __init__(self, openai_key: str) -> None:
+        self._anthropic = _AnthropicCompletions()
+        self._openai_key = openai_key
+
+    def create(self, **kwargs) -> _CompatResponse:
+        try:
+            return self._anthropic.create(**kwargs)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Anthropic call failed (%s) — falling back to OpenAI for this request",
+                exc,
+            )
+            return _openai_client(self._openai_key).chat.completions.create(**kwargs)
+
+
+class _FallbackChat:
+    def __init__(self, openai_key: str) -> None:
+        self.completions = _FallbackCompletions(openai_key)
+
+
+class FallbackCompatClient:
+    """Tries Anthropic per-call, transparently falling back to OpenAI whenever
+    an individual Anthropic call fails (e.g. out of credit)."""
+
+    def __init__(self, openai_key: str) -> None:
+        self.chat = _FallbackChat(openai_key)
+
+
 # ---------------------------------------------------------------------------
 # Public factory
 # ---------------------------------------------------------------------------
@@ -129,12 +172,15 @@ def _openai_client(key: str):
     return OpenAI(api_key=key)
 
 
-def get_llm_client() -> AnthropicCompatClient | object:
+def get_llm_client() -> AnthropicCompatClient | FallbackCompatClient | object:
     """
     Return an LLM client with a `client.chat.completions.create()` interface.
 
-    LLM_PROVIDER env var forces a specific provider ("openai" or "anthropic").
-    Otherwise auto-selects: Anthropic if ANTHROPIC_API_KEY is set, else OpenAI.
+    LLM_PROVIDER env var hard-forces a specific provider ("openai" or
+    "anthropic") — no fallback, used when you want to pin to one provider on
+    purpose. Left unset with both keys present, every call tries Anthropic
+    first and falls back to OpenAI automatically if that specific call fails
+    (e.g. Anthropic credit runs out mid-day) — see FallbackCompatClient.
     Raises ValueError if the selected provider's key is missing.
     """
     provider = os.environ.get("LLM_PROVIDER", "").strip().lower()
@@ -150,11 +196,13 @@ def get_llm_client() -> AnthropicCompatClient | object:
             raise ValueError("LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is not set.")
         return AnthropicCompatClient()
 
-    # Auto (LLM_PROVIDER unset): prefer Anthropic, fall back to OpenAI
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return AnthropicCompatClient()
-
+    # Auto (LLM_PROVIDER unset): try Anthropic per-call, fall back to OpenAI
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY")
     openai_key = os.environ.get("OPENAI_API_KEY")
+    if anthropic_key and openai_key:
+        return FallbackCompatClient(openai_key)
+    if anthropic_key:
+        return AnthropicCompatClient()
     if openai_key:
         return _openai_client(openai_key)
 
