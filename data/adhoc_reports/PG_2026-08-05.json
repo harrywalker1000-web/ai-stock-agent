@@ -1,10 +1,10 @@
 {
-  "ticker": "BA",
-  "company_name": "The Boeing Company",
-  "generated_at": "2026-08-05T16:32:30.692411Z",
+  "ticker": "PG",
+  "company_name": "PG",
+  "generated_at": "2026-08-05T16:33:39.732743Z",
   "mandate": {
-    "passed": true,
-    "recommendation": "PROCEED",
+    "passed": false,
+    "recommendation": "BLOCK",
     "checks": [
       {
         "name": "Asset class: Common equity or ADR",
@@ -20,14 +20,14 @@
       },
       {
         "name": "Market cap \u2265 $200M USD",
-        "passed": true,
-        "detail": "Market cap: $188.5B",
+        "passed": false,
+        "detail": "Market cap: unavailable",
         "source": "yfinance"
       },
       {
         "name": "Avg daily volume \u2265 500K shares",
         "passed": true,
-        "detail": "Avg daily volume: 6.6M shares/day",
+        "detail": "Avg daily volume: 8.9M shares/day",
         "source": "yfinance"
       },
       {
@@ -39,7 +39,7 @@
       {
         "name": "Float \u2265 10%",
         "passed": true,
-        "detail": "Float: 96.0% (758M of 790M shares)",
+        "detail": "Float data unavailable \u2014 assumed compliant",
         "source": "yfinance"
       },
       {
@@ -56,12 +56,12 @@
       }
     ],
     "setup_type": "Unclassified",
-    "failure_reason": null,
-    "ticker": "BA"
+    "failure_reason": "Market cap \u2265 $200M USD",
+    "ticker": "PG"
   },
   "brand_colors": {
-    "primary": "#003DA5",
-    "secondary": "#C4D600",
+    "primary": "#E03C31",
+    "secondary": "#A2A3A5",
     "on_brand_text": "light",
     "confidence": "certain",
     "source": "claude-haiku-4-5-20251001 [AI brand knowledge]",
@@ -72,11 +72,11 @@
   "sections": {
     "s1_cover": {
       "section": "cover",
-      "ticker": "BA",
+      "ticker": "PG",
       "company_name": {
-        "value": "The Boeing Company",
+        "value": null,
         "source": "yfinance/FMP",
-        "status": "ok"
+        "status": "na"
       },
       "exchange": {
         "value": "NYQ",
@@ -84,12 +84,12 @@
         "status": "ok"
       },
       "sector": {
-        "value": "Industrials",
+        "value": "Consumer Defensive",
         "source": "yfinance/FMP",
         "status": "ok"
       },
       "industry": {
-        "value": "Aerospace & Defense",
+        "value": "Household & Personal Products",
         "source": "yfinance/FMP",
         "status": "ok"
       },
@@ -109,80 +109,80 @@
         "status": "ok"
       },
       "current_price": {
-        "value": 238.45,
+        "value": 145.71,
         "source": "yfinance",
         "status": "ok"
       },
       "market_cap": {
-        "value": 188463742976,
-        "source": "yfinance",
-        "status": "ok"
+        "value": null,
+        "source": "FMP",
+        "status": "na"
       },
       "52w_high": {
-        "value": 254.35,
+        "value": 167.25,
         "source": "yfinance",
         "status": "ok"
       },
       "52w_low": {
-        "value": 176.77,
+        "value": 137.62,
         "source": "yfinance",
         "status": "ok"
       },
       "shares_outstanding": {
-        "value": 790370020,
+        "value": null,
         "source": "yfinance",
-        "status": "ok"
+        "status": "na"
       },
       "float_shares": {
-        "value": 758478590,
+        "value": 2373701688,
         "source": "yfinance",
         "status": "ok"
       },
       "short_pct_float": {
-        "value": 0.02,
+        "value": 0.99,
         "source": "yfinance",
         "status": "ok"
       },
       "returns": {
         "1m": {
-          "value": 6.0,
+          "value": -1.08,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "3m": {
-          "value": 3.71,
+          "value": -0.75,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "6m": {
-          "value": 1.06,
+          "value": -5.72,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "1y": {
-          "value": 5.96,
+          "value": -1.88,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "ytd": {
-          "value": 4.69,
+          "value": 5.05,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         }
       },
       "analyst_targets": {
         "bear": {
-          "value": 246.0,
+          "value": 145.0,
           "source": "yfinance",
           "status": "ok"
         },
         "base": {
-          "value": 273.34616,
+          "value": 160.69565,
           "source": "yfinance",
           "status": "ok"
         },
         "bull": {
-          "value": 300.0,
+          "value": 186.0,
           "source": "yfinance",
           "status": "ok"
         },
@@ -192,22 +192,22 @@
           "status": "ok"
         },
         "rec_mean_score": {
-          "value": 1.60714,
+          "value": 2.12,
           "source": "yfinance",
           "status": "ok"
         },
         "num_analysts": {
-          "value": 26,
+          "value": 23,
           "source": "yfinance",
           "status": "ok"
         }
       },
       "pt_upside_pct": {
-        "value": 14.6,
+        "value": 10.3,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
-      "mandate_status": "PROCEED",
+      "mandate_status": "BLOCK",
       "setup_type": "Unclassified",
       "recommendation": {
         "value": null,
@@ -228,27 +228,27 @@
         "reason": "pending \u2014 filled after Section 12"
       },
       "report_date": {
-        "value": "2026-08-05 16:32 UTC",
+        "value": "2026-08-05 16:33 UTC",
         "source": "system",
         "status": "ok"
       },
       "data_coverage": {
-        "value": "Full",
+        "value": "Partial",
         "source": "system [CALCULATED]",
         "status": "ok"
       },
-      "fetched_at": "2026-08-05T16:32:30.692411Z",
+      "fetched_at": "2026-08-05T16:33:39.732743Z",
       "company_image": null
     },
     "s2_overview": {
       "section": "overview",
       "company_name": {
-        "value": "The Boeing Company",
+        "value": null,
         "source": "FMP/yfinance",
-        "status": "ok"
+        "status": "na"
       },
       "ticker": {
-        "value": "BA",
+        "value": "PG",
         "source": "system",
         "status": "ok"
       },
@@ -258,12 +258,12 @@
         "status": "ok"
       },
       "sector": {
-        "value": "Industrials",
+        "value": "Consumer Defensive",
         "source": "yfinance/FMP",
         "status": "ok"
       },
       "industry": {
-        "value": "Aerospace & Defense",
+        "value": "Household & Personal Products",
         "source": "yfinance/FMP",
         "status": "ok"
       },
@@ -293,9 +293,9 @@
         "status": "na"
       },
       "market_cap": {
-        "value": 188463742976,
-        "source": "yfinance",
-        "status": "ok"
+        "value": null,
+        "source": "FMP",
+        "status": "na"
       },
       "revenue_cagr_3y": {
         "value": null,
@@ -322,7 +322,7 @@
       },
       "tavily_sources": [],
       "ai_narrative": {
-        "value": "The Boeing Company is a leading aerospace and defense manufacturer, specializing in the design, development, production, sales, and support of commercial jetliners, military aircraft, satellites, missile defense systems, and human space flight technologies. Operating through three primary segments\u2014Commercial Airplanes, Defense, Space & Security, and Global Services\u2014the company caters to a diverse range of passenger and cargo needs via its commercial offerings, while also engaging in advanced military and defense solutions.\n\nBoeing operates on a global scale, providing its products and services to various entities including commercial airlines, government defense agencies, and space exploration sectors. Its customer base spans multiple continents, encompassing major airlines and military organizations, which underscores its pivotal role within the international aerospace and defense arenas. Currently, information regarding specific geographic operational details and key customers is not available.\n\nStrategically, Boeing is focused on leveraging its strengths in innovative technology and high revenue growth to enhance its competitive positioning. The company is likely to pursue initiatives that address the growing demands for commercial air travel while responding to defense modernization requirements. Its near-term direction appears to target sustained market momentum amid a complex macroeconomic environment, aligning with an overall bullish sentiment reflected in recent analyses.",
+        "value": "The Procter & Gamble Company (PG) is a leading provider of branded consumer packaged goods globally, operating through five primary segments: Beauty; Grooming; Health Care; Fabric & Home Care; and Baby, Feminine & Family Care. Its diverse portfolio includes well-known brands such as Head & Shoulders, Pantene, Gillette, Crest, and Olay, offering a wide range of products from personal care to household items.\n\nWhile the specific geographic reach and key customer demographics are not detailed, PG is known for its extensive global operations, likely catering to various consumer segments across different countries. The company has a reputation for meeting the evolving needs of consumers, focusing on quality and innovation in household and personal care products.\n\nStrategically, Procter & Gamble aims to bolster its market position through continuous product innovation and by enhancing brand loyalty among consumers. The current market sentiment indicates a moderately bullish outlook, though the company must navigate challenges related to balance sheet health and uncertain macroeconomic conditions. As it seeks growth, maintaining robust profitability while addressing potential risks will be critical in the near term.",
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
       },
@@ -339,26 +339,26 @@
     },
     "s3_news": {
       "section": "news_catalysts",
-      "ticker": "BA",
+      "ticker": "PG",
       "upcoming_earnings": [
         {
           "date": {
-            "value": "2026-10-27",
+            "value": "2026-10-22",
             "source": "Finnhub",
             "status": "ok"
           },
           "quarter": {
-            "value": "Q3 2026",
+            "value": "Q1 2027",
             "source": "Finnhub",
             "status": "ok"
           },
           "eps_estimate": {
-            "value": -0.1258,
+            "value": 1.9582,
             "source": "Finnhub",
             "status": "ok"
           },
           "revenue_estimate": {
-            "value": 25771977717,
+            "value": 23525809121,
             "source": "Finnhub",
             "status": "ok"
           },
@@ -377,44 +377,17 @@
             "status": "na"
           },
           "eps_actual": {
-            "value": -0.76,
+            "value": 1.43,
             "source": "yfinance",
             "status": "ok"
           },
           "eps_estimate": {
-            "value": -0.31472,
+            "value": 1.40817,
             "source": "yfinance",
             "status": "ok"
           },
           "surprise_pct": {
-            "value": -141.48,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "beat": {
-            "value": false,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "eps_actual": {
-            "value": -0.2,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "eps_estimate": {
-            "value": -0.67243,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "surprise_pct": {
-            "value": 70.26,
+            "value": 1.55,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -431,17 +404,17 @@
             "status": "na"
           },
           "eps_actual": {
-            "value": 9.92,
+            "value": 1.59,
             "source": "yfinance",
             "status": "ok"
           },
           "eps_estimate": {
-            "value": -0.40902,
+            "value": 1.55547,
             "source": "yfinance",
             "status": "ok"
           },
           "surprise_pct": {
-            "value": 2525.31,
+            "value": 2.22,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -458,22 +431,49 @@
             "status": "na"
           },
           "eps_actual": {
-            "value": -7.47,
+            "value": 1.88,
             "source": "yfinance",
             "status": "ok"
           },
           "eps_estimate": {
-            "value": -2.37563,
+            "value": 1.85685,
             "source": "yfinance",
             "status": "ok"
           },
           "surprise_pct": {
-            "value": -214.44,
+            "value": 1.25,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "beat": {
-            "value": false,
+            "value": true,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": 1.99,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": 1.89677,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": 4.92,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": true,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           }
@@ -488,7 +488,7 @@
       "press_releases": [
         {
           "date": {
-            "value": "2026-07-28",
+            "value": "2026-07-29",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -498,14 +498,14 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026049929/",
+            "value": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000097/",
             "source": "SEC EDGAR",
             "status": "ok"
           }
         },
         {
           "date": {
-            "value": "2026-04-22",
+            "value": "2026-07-29",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -515,14 +515,14 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026026391/",
+            "value": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000094/",
             "source": "SEC EDGAR",
             "status": "ok"
           }
         },
         {
           "date": {
-            "value": "2026-04-17",
+            "value": "2026-07-29",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -532,14 +532,14 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026025684/",
+            "value": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000093/",
             "source": "SEC EDGAR",
             "status": "ok"
           }
         },
         {
           "date": {
-            "value": "2026-01-27",
+            "value": "2026-07-14",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -549,14 +549,14 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/",
+            "value": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000082/",
             "source": "SEC EDGAR",
             "status": "ok"
           }
         },
         {
           "date": {
-            "value": "2025-12-08",
+            "value": "2026-04-24",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -566,7 +566,7 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828025055825/",
+            "value": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000057/",
             "source": "SEC EDGAR",
             "status": "ok"
           }
@@ -575,7 +575,7 @@
       "news_feed": [
         {
           "headline": {
-            "value": "GE Aerospace Talks Less About The Shortage It Still Has",
+            "value": "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -590,19 +590,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=f3a2611d0526a6a1a7b627d804260dbe69d4c9676ed0344307133fe3f621dbde",
+            "value": "https://finnhub.io/api/news?id=2d312a4c39ce66f09b7990f40c5c45d3cdf5657901d68f224d8e2b1b32046402",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The constraint management once pointed to for a fall in shop visit volume now sits inside the growth case, and the raised guidance now rests on working through it.",
+            "value": "Kaplan joins Stagwell's Board of Directors as the company builds on significant new business momentum and accelerated growth led by digital transformation NEW YORK CITY, NY / ACCESS Newswire / August ",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014 but Passengers Still Won\u2019t Board One Until 2027",
+            "value": "Dividends vs. an Annuity: Which Turns $675,000 Into More Monthly Income for Life?",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -617,154 +617,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=309bd27c60de717db399860fab996b434dae32264c8149ae3099e0c240b21485",
+            "value": "https://finnhub.io/api/news?id=bccb2c1b68ad383e4caedda432b8139db37db17d83898169bb7534530ed6d896",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The Federal Aviation Administration certified Boeing Co.\u2019s 737 Max 7 on Monday, clearing the smallest jet in the bestselling family for passenger service after nearly a decade of delays and safety rev",
+            "value": "Annuity payouts are the most competitive they have been in years, which makes the timing of this comparison unusually consequential for anyone sitting on a $675,000 nest egg and trying to decide which",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "As airlines struggle, their suppliers are flying high",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-05",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=7d5e014e7b1e2ae25af66a825d82d52e1d4636cc4d5a2b7b0702c8369e5e6620",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "It is a great time to be in the business of air travel \u2014 provided you are not actually an airline. Companies that supply and maintain aircraft...",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-05",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=dc811b640f404d5d99979ef5cad9760ec0a0eaa12f398453832b8ca99df30b41",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "(Bloomberg) -- Last summer, about 80 government officials and industry executives gathered in Washington to answer a key question: How would the US aluminum supply chain hold up in the event of a majo",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "'Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks' - Bloomberg",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Benzinga",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-05",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=4c06713a22838c0fcb5563fa4d3673a40697d4abf89eaa71841cc43925908751",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "https://www.bloomberg.com/news/articles/2026-08-05/iran-war-exposes-us-military-aluminum-risk-shown-in-pentagon-war-game",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Lumen Technologies (LUMN) Appoints John M. Hinshaw To Its Board",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-05",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=77f0e5e1ed8723cb16fae88cb5904f1f7430f6d17647e9a3a9f9143a14dfd821",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Lumen Technologies (NYSE:LUMN) has appointed John M. Hinshaw to its Board of Directors. Hinshaw brings executive experience from HSBC, Hewlett-Packard, Boeing, and Verizon Wireless. The appointment in",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "TransDigm Group Incorporated Q3 2026 Earnings Call Summary",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-05",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=00c1e7779cf9d87c1a23626310ec11a1989d089a21fa4c608795e0cab43fbcdd",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Moby summary of TransDigm Group Incorporated's Q3 2026 earnings call",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Albany International Q2 Earnings Call Highlights",
+            "value": "How Much Do You Really Need Invested to Replace a $100,000 Salary With Dividends?",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -779,19 +644,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=f37de2f5840312dc38159ca97a4e55cda3060330601a6ac996a30eafc8ef3f24",
+            "value": "https://finnhub.io/api/news?id=760ff458c72ca13720f443f594d6629cbea45237b6d479e30ca7d32fe7bf3512",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "Albany International (NYSE:AIN) reported second-quarter revenue growth and its strongest adjusted EBITDA performance in two years, driven by higher production rates in its Engineered Composites busine",
+            "value": "Replacing a six-figure salary with dividends is a math problem first, and the capital requirement swings by more than a million dollars depending on one variable most investors treat as an afterthough",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "The $280 Million Reason Boeing Missed\u2014and Why Wall Street Shrugged It Off",
+            "value": "Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -806,19 +671,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=349ba0a33e1fdca5181c4e6596a27de9f7e465f2ef1ef05887df37ada05b6c09",
+            "value": "https://finnhub.io/api/news?id=3926e9dc5d18ca5d7eba50d5f5b2c47c6606a6f55e5b993c63bc575c6d95e94f",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The global aerospace sector is currently characterized by a stark contrast between rising commercial fleet demand and friction in legacy fixed-price defense manufacturing. As airlines use aging airfra",
+            "value": "Procter & Gamble (NYSE:PG) agreed to acquire Thorne, a science-focused wellness supplements company. The transaction values Thorne at US$3.8b and expands PG into premium health and wellness categories",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "Boeing's 737 MAX 7 Was Supposed to Be Flying in 2019. The FAA Certified It Monday.",
+            "value": "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -833,127 +698,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=8404c34a2f242f07bde16535d4d8c1c813d9858a7f633db838054fd9dc189bdd",
+            "value": "https://finnhub.io/api/news?id=6d72615301424669ae480d5a0b0ce38af98ece033508a9828fde36fa78c3c985",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The approval arrived seven years late. The cash it unlocks could start arriving much sooner.",
+            "value": "So how does the new deal stack up to P&G\u2019s biggest deals ever?",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "Boeing's Finished Flight Test Counts Most For A Different Jet",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-04",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=784effbe600c2437be8b05a2ac81e09090aeca601005dbba40515140b70993ff",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Monday's approval was already telegraphed, the rare double upgrade beside it was not, and the finished flight test frees engineering capacity for a different program entirely.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Boeing Company Stock Outlook: Is Wall Street Bullish or Bearish?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-04",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=8a74b86ade075abb5ba8cd797d90bf2e0bbe940225f98077d795d6d7ccd1c75e",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Boeing Company has lagged behind the broader market over the past year, yet analysts remain highly bullish about the stock\u2019s prospects.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "BNP Paribas Upgrades Boeing (BA)",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Fintel",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-04",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=e1088e011b297e8a0bfc38d26787671e2a01547e1baf603481291a8f10dfccc9",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "SpaceX Is Stuffing Its Rockets With Starlink \u2014 And Everyone Else Is Getting Shut Out",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Benzinga",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-08-04",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=8f957af450929bd9875d3359eff2f4962f98e4cef4b045e23d2f3ba0e2ba2747",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "SpaceX&#39;s satellite fleet is its biggest customer, with Starlink missions delivering the majority of revenue and making up nearly 80% of its flights.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Dow Cracks 53,000 As Amazon Joins The $3T Club And Oil Does The Heavy Lifting",
+            "value": "Which dow jones stocks are moving on Tuesday?",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -968,19 +725,46 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=6aa225722f9d10b6934442e08d2764c7997e495035ea2c2d0447f896a15e8132",
+            "value": "https://finnhub.io/api/news?id=483f966e3fec03d644b725993e1e9c6afeda8b616f07640dda8da731c09bf0d0",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The Dow printed a fresh record above 53,000 as a sharp slide in crude oil handed the tape a broad rally and Amazon quietly became the second US company ever to cross the three-trillion-dollar market c",
+            "value": "Curious about the dow jones stocks that are in motion on Tuesday? Join us as we explore the top movers within the dow jones index during today's session.",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "Boeing (BA) Wins FAA Approval For 737 MAX 7 After Years Of Review",
+            "value": "VDC: The 2026 Staples Rotation Is Real, But GLP-1s Are Eating The Aisle, Hold",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "SeekingAlpha",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=a61988bbace530db25cd15b2db3575194c6fe707c2933eb10bf032aa805cda67",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Vanguard Consumer Staples ETF (VDC) rated Hold: full valuation, 2.1% yield, GLP-1 demand headwinds, and pricey top holdings\u00e2\u0080\u0094see the key risks now.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -995,19 +779,208 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=7a5028004e1a0c8fcd75795e0d4702d65e314c30f3de668e6d4605be3932b93c",
+            "value": "https://finnhub.io/api/news?id=e6e3b2f7baa58878f94d269e7934e2ad5938b6dcae12f81b5ae04a14699962fa",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The FAA has certified the Boeing 737 MAX 7, the smallest member of the MAX family. This is the first new aircraft certification for Boeing since the MAX crashes and follows a lengthy regulatory review",
+            "value": "The acquisition bolsters P&G's presence in the premium wellness space.",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "Hundreds Of Companies Bid To Build Trump's Security Wall",
+            "value": "L Catterton Announces Sale of Thorne to The Procter & Gamble Company for $3.8 Billion",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=0400e03d3dd5b863ca9a502ad6707ed1da36e0217caf9db247af55effaa291f0",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "L Catterton, the largest global consumer-focused investment firm, today announced that it has signed a definitive agreement to sell Thorne, a leader in science-backed health and wellness solutions, to",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "P&G to acquire supplement brand Thorne for $3.8 billion",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=91609ab5e78012793d99cc722e4b992456148aec8b0fe303c8068c4807005233",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The deal, set to close later this year, would add Thorne to P&G's existing supplements portfolio that includes Metamucil, Align Probiotic, and New Chapter",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Procter & Gamble to acquire Thorne for $3.8 billion, CEO says",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=ebd59b105c2fde14584e840f9d28bed27747c8acff92673613254ec36de6dc24",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Investing.com -- Procter & Gamble Co. reached an agreement to acquire supplement maker Thorne for $3.8 billion, with the deal set to be announced later today.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "P&G Reportedly Set To Acquire Thorne In A $3.8B Deal \u2013 CEO Jejurikar Says Firm Is \u2018Really Happy With The Asset\u2019",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=d391eb45135b45a88967e3ae3acf9e636a60771e5b5d6c1f0355ff149dbbdb09",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Thorne went public in late 2021 at a $525 million valuation but was taken private by asset manager L Catterton in 2023 in a $680 million transaction.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Thorne Enters into Definitive Agreement to Be Acquired by Procter & Gamble",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=86d5da13456ec47f85cb8e4cda599ad180ab7840d43aeb0cb70ae217cf4be50e",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Thorne, the leader in science-backed health and wellness solutions, today announced that it has entered into a definitive agreement to be acquired by The Procter & Gamble Company (NYSE: PG).",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Dog Days On The Dow: No Buys With Weak Watching",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "SeekingAlpha",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=04576ca58975816aa2a19ca8c3259f336a17133729ba02f3b79baa03bf7bacab",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Dow Dogs look overvalued but analysts see 18%\u00e2\u0080\u009355% gains by Aug 2027; only 21/30 have safer dividends.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Worried About the Market? Hide Out in These 3 High-Yielding Dividend Stocks",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=2f17c436ccb132e1b73f9bd2eecd873b7220f3c45c3cad2b092524488623165d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "These relatively safe dividend stocks offer yields of more than 3%.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Procter & Gamble To Acquire Thorne From L Catterton's Flagship Fund; Deal Anticipated To Close Later In 2026",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -1022,19 +995,19 @@
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=cc793f48f748b5429f6892803b548124c91890610f7c61ee30dcd030eea3eb00",
+            "value": "https://finnhub.io/api/news?id=a2d89fba72656516c0a7dbc91a6c1006d46e12d059718950d1a736efe0a4c171",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "",
+            "value": "Thorne, the leader in science-backed health and wellness solutions, today announced that it has entered into a definitive agreement to be acquired by The Procter &amp; Gamble Company (NYSE:PG).The tra",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "US aviation giant Boeing granted certification for 737-7",
+            "value": "Are Wall Street Analysts Bullish on Procter & Gamble Stock?",
             "source": "Finnhub",
             "status": "ok"
           },
@@ -1044,71 +1017,98 @@
             "status": "ok"
           },
           "date": {
-            "value": "2026-08-03",
+            "value": "2026-08-04",
             "source": "Finnhub",
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=85eb1ef952ed6de2769d00927f81cbc8479b9be547f5c1f302bd7e805372e1ee",
+            "value": "https://finnhub.io/api/news?id=aab8125b5fc3eb1ce0b98080ec6db22dafe782bab982445c92c9e5bb1c680cf2",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "US aviation giant Boeing has received certification from the Federal Aviation Administration (FAA) for its new 737 aircraft, the company said on Monday. The smallest and longest-range member of the 73",
+            "value": "Procter & Gamble has underperformed the broader market over the past year, though analysts remain moderately optimistic on its future potential.",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "FAA certifies Boeing 737 Max 7",
+            "value": "Procter & Gamble will acquire supplements brand Thorne, CEO says",
             "source": "Finnhub",
             "status": "ok"
           },
           "source": {
-            "value": "Yahoo",
+            "value": "CNBC",
             "source": "Finnhub",
             "status": "ok"
           },
           "date": {
-            "value": "2026-08-03",
+            "value": "2026-08-04",
             "source": "Finnhub",
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=20adcdfbf76fde4bd315bbe7136b74ffdfcb6cb7e7336724a474ee2ab8fe8b6b",
+            "value": "https://finnhub.io/api/news?id=7e04573dc753898c61092517be79f805d559238999041bbac6e833541169d6bc",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "The FAA\u2019s nod boosted the beleaguered aerospace firm\u2019s push to restore its once-sterling reputation.",
+            "value": "Procter & Gamble Chairman and CEO Shailesh Jejurikar joins 'Squawk on the Street' to discuss the company's quarterly earnings, its acquisition of supplements brand Thorne, and more.",
             "source": "Finnhub",
             "status": "ok"
           }
         },
         {
           "headline": {
-            "value": "S&P500, Nasdaq End Higher, Dow Hits Record High On Strong Mag 7 Performance And Falling Oil Prices \u2014 BA, XOM, CVX, HOOD, AMD In Focus",
+            "value": "Procter & Gamble will acquire supplements brand Thorne for $3.8 billion, CEO tells CNBC",
             "source": "Finnhub",
             "status": "ok"
           },
           "source": {
-            "value": "Yahoo",
+            "value": "CNBC",
             "source": "Finnhub",
             "status": "ok"
           },
           "date": {
-            "value": "2026-08-03",
+            "value": "2026-08-04",
             "source": "Finnhub",
             "status": "ok"
           },
           "url": {
-            "value": "https://finnhub.io/api/news?id=21a8590f6d2010e6e8223254f11feaad3911e64771949d86120f223002fc1ed7",
+            "value": "https://finnhub.io/api/news?id=437d189eece5fab20c536cfda56da968f93b54dd36207c7a24d615993346cef3",
             "source": "Finnhub",
             "status": "ok"
           },
           "summary": {
-            "value": "International Brent crude futures fell 4.73% to end at $83.77 a barrel after Trump canceled plans to attack Iran.",
+            "value": "P&G CEO Shailesh Jejurikar said the acquisition is a play to grow the company's health business on CNBC's \"Squawk on the Street.\"",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "If I Could Only Own 3 Dividend Investments For The Next 10 Years",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "SeekingAlpha",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=e11b69897e65133d2a8c22c19e6003cd7f55833afb26c9e690ebc1a0a75fc9ab",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Charlie Munger once extolled the virtues of investing in a concentrated handful of high-conviction investment ideas.",
             "source": "Finnhub",
             "status": "ok"
           }
@@ -1123,18 +1123,17 @@
       "ai_news_synthesis": null,
       "ai_catalyst_assessment": null,
       "ai_synthesis": {
-        "value": "The most significant recent development for Boeing is the FAA's certification of the 737 Max 7, which has been delayed for nearly a decade, as reported in the headline 'Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014but Passengers Still Won\u2019t Board One Until 2027'. This certification is expected to unlock cash flows and enhance Boeing's competitive position in the aircraft market. However, the operational readiness is delayed until 2027, impacting immediate cash generation from this new model.\nAdditionally, Boeing's financial outlook appears mixed, as reflected in the article 'The $280 Million Reason Boeing Missed\u2014 and Why Wall Street Shrugged It Off', highlighting issues in the aerospace sector that affect Boeing's revenue potential. Despite the challenges, analysts remain bullish on Boeing's stock prospects, suggesting a potential upside once operational issues are resolved.",
+        "value": "The most significant recent development for Procter & Gamble (PG) is its agreement to acquire Thorne, a science-focused wellness supplements company, for $3.8 billion. This acquisition, as highlighted in multiple articles such as 'Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion' and 'Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio,' represents a strategic move for PG as it aims to strengthen its position in the premium health and wellness sector, expanding beyond its traditional consumer products. This aligns with market trends that favor health-focused investments, potentially improving PG's growth trajectory in a competitive landscape.",
         "near_term_catalysts": [
-          "Upcoming Q3 earnings report on October 27, 2026",
-          "Potential impact of 737 Max certification soon"
+          "PG earnings report on July 29, 2026",
+          "Thorne acquisition deal closing later this year"
         ],
         "medium_term_catalysts": [
-          "Continuation of revenue growth in Q4 2026",
-          "Further upgrades or analyst reports expected"
+          "PG earnings report on October 22, 2026"
         ],
         "key_risk_events": [
-          "Ongoing delays in new aircraft models",
-          "Missed earnings estimates raising investor concerns"
+          "Market volatility affecting stock valuations",
+          "Potential integration challenges post-Thorne acquisition"
         ],
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
@@ -1146,37 +1145,37 @@
         {
           "label": "2025",
           "date": {
-            "value": "2025-12-31",
+            "value": "2025-06-30",
             "source": "yfinance",
             "status": "ok"
           },
           "revenue": {
-            "value": 89463000000.0,
+            "value": 84284000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "revenue_yoy": {
-            "value": 34.5,
+            "value": 0.3,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "gross_profit": {
-            "value": 4289000000.0,
+            "value": 43120000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "gross_margin": {
-            "value": 4.8,
+            "value": 51.2,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "ebitda": {
-            "value": 7359000000.0,
+            "value": 23921000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 8.2,
+            "value": 28.4,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1191,32 +1190,32 @@
             "status": "na"
           },
           "net_income": {
-            "value": 2235000000.0,
+            "value": 15974000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "net_margin": {
-            "value": 2.5,
+            "value": 19.0,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "eps_diluted": {
-            "value": 2.48,
+            "value": 6.51,
             "source": "yfinance",
             "status": "ok"
           },
           "fcf": {
-            "value": -1886000000.0,
+            "value": 14044000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "operating_cf": {
-            "value": 1065000000.0,
+            "value": 17817000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "capex": {
-            "value": -2951000000.0,
+            "value": -3773000000.0,
             "source": "yfinance",
             "status": "ok"
           },
@@ -1226,27 +1225,27 @@
             "status": "na"
           },
           "total_debt": {
-            "value": 54433000000.0,
+            "value": 35463000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "equity": {
-            "value": 5454000000.0,
+            "value": 52012000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "cash": {
-            "value": 10921000000.0,
+            "value": 9556000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "de_ratio": {
-            "value": 9.98,
+            "value": 0.68,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "current_ratio": {
-            "value": 1.19,
+            "value": 0.7,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1269,37 +1268,37 @@
         {
           "label": "2024",
           "date": {
-            "value": "2024-12-31",
+            "value": "2024-06-30",
             "source": "yfinance",
             "status": "ok"
           },
           "revenue": {
-            "value": 66517000000.0,
+            "value": 84039000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "revenue_yoy": {
-            "value": -14.5,
+            "value": 2.5,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "gross_profit": {
-            "value": -1991000000.0,
+            "value": 43191000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "gross_margin": {
-            "value": -3.0,
+            "value": 51.4,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "ebitda": {
-            "value": -7649000000.0,
+            "value": 22582000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": -11.5,
+            "value": 26.9,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1314,32 +1313,32 @@
             "status": "na"
           },
           "net_income": {
-            "value": -11817000000.0,
+            "value": 14879000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "net_margin": {
-            "value": -17.8,
+            "value": 17.7,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "eps_diluted": {
-            "value": -18.36,
+            "value": 6.02,
             "source": "yfinance",
             "status": "ok"
           },
           "fcf": {
-            "value": -14398000000.0,
+            "value": 16524000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "operating_cf": {
-            "value": -12080000000.0,
+            "value": 19846000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "capex": {
-            "value": -2318000000.0,
+            "value": -3322000000.0,
             "source": "yfinance",
             "status": "ok"
           },
@@ -1349,27 +1348,27 @@
             "status": "na"
           },
           "total_debt": {
-            "value": 54188000000.0,
+            "value": 33369000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "equity": {
-            "value": -3908000000.0,
+            "value": 50286000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "cash": {
-            "value": 13801000000.0,
+            "value": 9482000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "de_ratio": {
-            "value": -13.87,
+            "value": 0.66,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "current_ratio": {
-            "value": 1.32,
+            "value": 0.73,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1392,37 +1391,37 @@
         {
           "label": "2023",
           "date": {
-            "value": "2023-12-31",
+            "value": "2023-06-30",
             "source": "yfinance",
             "status": "ok"
           },
           "revenue": {
-            "value": 77794000000.0,
+            "value": 82006000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "revenue_yoy": {
-            "value": 16.8,
+            "value": 2.3,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "gross_profit": {
-            "value": 7724000000.0,
+            "value": 39246000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "gross_margin": {
-            "value": 9.9,
+            "value": 47.9,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "ebitda": {
-            "value": 2315000000.0,
+            "value": 21823000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 3.0,
+            "value": 26.6,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1437,32 +1436,32 @@
             "status": "na"
           },
           "net_income": {
-            "value": -2222000000.0,
+            "value": 14653000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "net_margin": {
-            "value": -2.9,
+            "value": 17.9,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "eps_diluted": {
-            "value": -3.67,
+            "value": 5.9,
             "source": "yfinance",
             "status": "ok"
           },
           "fcf": {
-            "value": 4433000000.0,
+            "value": 13786000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "operating_cf": {
-            "value": 5960000000.0,
+            "value": 16848000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "capex": {
-            "value": -1527000000.0,
+            "value": -3062000000.0,
             "source": "yfinance",
             "status": "ok"
           },
@@ -1472,27 +1471,27 @@
             "status": "na"
           },
           "total_debt": {
-            "value": 52603000000.0,
+            "value": 35424000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "equity": {
-            "value": -17233000000.0,
+            "value": 46777000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "cash": {
-            "value": 12691000000.0,
+            "value": 8246000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "de_ratio": {
-            "value": -3.05,
+            "value": 0.76,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "current_ratio": {
-            "value": 1.14,
+            "value": 0.63,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1515,12 +1514,12 @@
         {
           "label": "2022",
           "date": {
-            "value": "2022-12-31",
+            "value": "2022-06-30",
             "source": "yfinance",
             "status": "ok"
           },
           "revenue": {
-            "value": 66608000000.0,
+            "value": 80187000000.0,
             "source": "yfinance",
             "status": "ok"
           },
@@ -1530,22 +1529,22 @@
             "status": "na"
           },
           "gross_profit": {
-            "value": 3530000000.0,
+            "value": 38030000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "gross_margin": {
-            "value": 5.3,
+            "value": 47.4,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "ebitda": {
-            "value": -482000000.0,
+            "value": 21241000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": -0.7,
+            "value": 26.5,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1560,32 +1559,32 @@
             "status": "na"
           },
           "net_income": {
-            "value": -4935000000.0,
+            "value": 14742000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "net_margin": {
-            "value": -7.4,
+            "value": 18.4,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "eps_diluted": {
-            "value": -8.3,
+            "value": null,
             "source": "yfinance",
-            "status": "ok"
+            "status": "na"
           },
           "fcf": {
-            "value": 2290000000.0,
+            "value": 13567000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "operating_cf": {
-            "value": 3512000000.0,
+            "value": 16723000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "capex": {
-            "value": -1222000000.0,
+            "value": -3156000000.0,
             "source": "yfinance",
             "status": "ok"
           },
@@ -1595,27 +1594,27 @@
             "status": "na"
           },
           "total_debt": {
-            "value": 57277000000.0,
+            "value": 32293000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "equity": {
-            "value": -15883000000.0,
+            "value": 46589000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "cash": {
-            "value": 14614000000.0,
+            "value": 7214000000.0,
             "source": "yfinance",
             "status": "ok"
           },
           "de_ratio": {
-            "value": -3.61,
+            "value": 0.69,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
           "current_ratio": {
-            "value": 1.22,
+            "value": 0.65,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           },
@@ -1644,28 +1643,28 @@
       },
       "dividend_history": [
         {
-          "year": "2020",
-          "dps": 2.055,
+          "year": "2026",
+          "dps": 3.235,
           "source": "yfinance"
         },
         {
-          "year": "2019",
-          "dps": 8.22,
+          "year": "2025",
+          "dps": 4.178,
           "source": "yfinance"
         },
         {
-          "year": "2018",
-          "dps": 6.84,
+          "year": "2024",
+          "dps": 3.962,
           "source": "yfinance"
         },
         {
-          "year": "2017",
-          "dps": 5.68,
+          "year": "2023",
+          "dps": 3.736,
           "source": "yfinance"
         },
         {
-          "year": "2016",
-          "dps": 4.36,
+          "year": "2022",
+          "dps": 3.609,
           "source": "yfinance"
         }
       ],
@@ -1674,8 +1673,8 @@
     },
     "s4b_drivers": {
       "section": "revenue_growth_drivers",
-      "ticker": "BA",
-      "company_name": "The Boeing Company",
+      "ticker": "PG",
+      "company_name": "PG",
       "recent_revenue_growth_pct": {
         "value": null,
         "source": "FMP/yfinance [CALCULATED]",
@@ -1685,94 +1684,94 @@
       "analyst_search_results": [],
       "news_headlines": [
         {
-          "headline": "GE Aerospace Talks Less About The Shortage It Still Has",
-          "summary": "The constraint management once pointed to for a fall in shop visit volume now sits inside the growth case, and the raised guidance now rests on working through it."
+          "headline": "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors",
+          "summary": "Kaplan joins Stagwell's Board of Directors as the company builds on significant new business momentum and accelerated growth led by digital transformation NEW YORK CITY, NY / ACCESS Newswire / August "
         },
         {
-          "headline": "Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014 but Passengers Still Won\u2019t Board One Until 2027",
-          "summary": "The Federal Aviation Administration certified Boeing Co.\u2019s 737 Max 7 on Monday, clearing the smallest jet in the bestselling family for passenger service after nearly a decade of delays and safety rev"
+          "headline": "Dividends vs. an Annuity: Which Turns $675,000 Into More Monthly Income for Life?",
+          "summary": "Annuity payouts are the most competitive they have been in years, which makes the timing of this comparison unusually consequential for anyone sitting on a $675,000 nest egg and trying to decide which"
         },
         {
-          "headline": "As airlines struggle, their suppliers are flying high",
-          "summary": "It is a great time to be in the business of air travel \u2014 provided you are not actually an airline. Companies that supply and maintain aircraft..."
+          "headline": "How Much Do You Really Need Invested to Replace a $100,000 Salary With Dividends?",
+          "summary": "Replacing a six-figure salary with dividends is a math problem first, and the capital requirement swings by more than a million dollars depending on one variable most investors treat as an afterthough"
         },
         {
-          "headline": "Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks",
-          "summary": "(Bloomberg) -- Last summer, about 80 government officials and industry executives gathered in Washington to answer a key question: How would the US aluminum supply chain hold up in the event of a majo"
+          "headline": "Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion",
+          "summary": "Procter & Gamble (NYSE:PG) agreed to acquire Thorne, a science-focused wellness supplements company. The transaction values Thorne at US$3.8b and expands PG into premium health and wellness categories"
         },
         {
-          "headline": "'Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks' - Bloomberg",
-          "summary": "https://www.bloomberg.com/news/articles/2026-08-05/iran-war-exposes-us-military-aluminum-risk-shown-in-pentagon-war-game"
+          "headline": "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
+          "summary": "So how does the new deal stack up to P&G\u2019s biggest deals ever?"
         },
         {
-          "headline": "Lumen Technologies (LUMN) Appoints John M. Hinshaw To Its Board",
-          "summary": "Lumen Technologies (NYSE:LUMN) has appointed John M. Hinshaw to its Board of Directors. Hinshaw brings executive experience from HSBC, Hewlett-Packard, Boeing, and Verizon Wireless. The appointment in"
+          "headline": "Which dow jones stocks are moving on Tuesday?",
+          "summary": "Curious about the dow jones stocks that are in motion on Tuesday? Join us as we explore the top movers within the dow jones index during today's session."
         },
         {
-          "headline": "TransDigm Group Incorporated Q3 2026 Earnings Call Summary",
-          "summary": "Moby summary of TransDigm Group Incorporated's Q3 2026 earnings call"
+          "headline": "VDC: The 2026 Staples Rotation Is Real, But GLP-1s Are Eating The Aisle, Hold",
+          "summary": "Vanguard Consumer Staples ETF (VDC) rated Hold: full valuation, 2.1% yield, GLP-1 demand headwinds, and pricey top holdings\u00e2\u0080\u0094see the key risks now."
         },
         {
-          "headline": "Albany International Q2 Earnings Call Highlights",
-          "summary": "Albany International (NYSE:AIN) reported second-quarter revenue growth and its strongest adjusted EBITDA performance in two years, driven by higher production rates in its Engineered Composites busine"
+          "headline": "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio",
+          "summary": "The acquisition bolsters P&G's presence in the premium wellness space."
         },
         {
-          "headline": "The $280 Million Reason Boeing Missed\u2014and Why Wall Street Shrugged It Off",
-          "summary": "The global aerospace sector is currently characterized by a stark contrast between rising commercial fleet demand and friction in legacy fixed-price defense manufacturing. As airlines use aging airfra"
+          "headline": "L Catterton Announces Sale of Thorne to The Procter & Gamble Company for $3.8 Billion",
+          "summary": "L Catterton, the largest global consumer-focused investment firm, today announced that it has signed a definitive agreement to sell Thorne, a leader in science-backed health and wellness solutions, to"
         },
         {
-          "headline": "Boeing's 737 MAX 7 Was Supposed to Be Flying in 2019. The FAA Certified It Monday.",
-          "summary": "The approval arrived seven years late. The cash it unlocks could start arriving much sooner."
+          "headline": "P&G to acquire supplement brand Thorne for $3.8 billion",
+          "summary": "The deal, set to close later this year, would add Thorne to P&G's existing supplements portfolio that includes Metamucil, Align Probiotic, and New Chapter"
         },
         {
-          "headline": "Boeing's Finished Flight Test Counts Most For A Different Jet",
-          "summary": "Monday's approval was already telegraphed, the rare double upgrade beside it was not, and the finished flight test frees engineering capacity for a different program entirely."
+          "headline": "Procter & Gamble to acquire Thorne for $3.8 billion, CEO says",
+          "summary": "Investing.com -- Procter & Gamble Co. reached an agreement to acquire supplement maker Thorne for $3.8 billion, with the deal set to be announced later today."
         },
         {
-          "headline": "Boeing Company Stock Outlook: Is Wall Street Bullish or Bearish?",
-          "summary": "Boeing Company has lagged behind the broader market over the past year, yet analysts remain highly bullish about the stock\u2019s prospects."
+          "headline": "P&G Reportedly Set To Acquire Thorne In A $3.8B Deal \u2013 CEO Jejurikar Says Firm Is \u2018Really Happy With The Asset\u2019",
+          "summary": "Thorne went public in late 2021 at a $525 million valuation but was taken private by asset manager L Catterton in 2023 in a $680 million transaction."
         },
         {
-          "headline": "BNP Paribas Upgrades Boeing (BA)",
-          "summary": ""
+          "headline": "Thorne Enters into Definitive Agreement to Be Acquired by Procter & Gamble",
+          "summary": "Thorne, the leader in science-backed health and wellness solutions, today announced that it has entered into a definitive agreement to be acquired by The Procter & Gamble Company (NYSE: PG)."
         },
         {
-          "headline": "SpaceX Is Stuffing Its Rockets With Starlink \u2014 And Everyone Else Is Getting Shut Out",
-          "summary": "SpaceX&#39;s satellite fleet is its biggest customer, with Starlink missions delivering the majority of revenue and making up nearly 80% of its flights."
+          "headline": "Dog Days On The Dow: No Buys With Weak Watching",
+          "summary": "Dow Dogs look overvalued but analysts see 18%\u00e2\u0080\u009355% gains by Aug 2027; only 21/30 have safer dividends."
         },
         {
-          "headline": "Dow Cracks 53,000 As Amazon Joins The $3T Club And Oil Does The Heavy Lifting",
-          "summary": "The Dow printed a fresh record above 53,000 as a sharp slide in crude oil handed the tape a broad rally and Amazon quietly became the second US company ever to cross the three-trillion-dollar market c"
+          "headline": "Worried About the Market? Hide Out in These 3 High-Yielding Dividend Stocks",
+          "summary": "These relatively safe dividend stocks offer yields of more than 3%."
         }
       ],
       "drivers": [
         {
-          "name": "737 MAX Fleet Expansion",
-          "mechanism": "The recent FAA certification of the 737 MAX 7 allows Boeing to increase its commercial jetliner deliveries, which directly boosts revenue from the Commercial Airplanes segment.",
+          "name": "Strategic Acquisition of Thorne",
+          "mechanism": "The $3.8 billion acquisition of Thorne allows P&G to expand its personal health care portfolio, tapping into the growing market for wellness and supplements.",
           "evidence": null,
           "evidence_source": null,
-          "category": "volume"
+          "category": "m_and_a"
         },
         {
-          "name": "Defense Contracts Growth",
-          "mechanism": "Increased government defense spending on military aircraft and systems is driving higher sales in Boeing's Defense, Space & Security segment.",
-          "evidence": null,
-          "evidence_source": null,
-          "category": "geographic"
-        },
-        {
-          "name": "Service and Maintenance Revenue",
-          "mechanism": "Boeing's Global Services segment capitalizes on ongoing demand for maintenance, repair, and overhaul services from airlines, providing a steady revenue stream.",
+          "name": "Diverse Brand Portfolio Growth",
+          "mechanism": "P&G's extensive range of brands across beauty, grooming, and health care segments enables cross-selling opportunities and attracts a broad customer base.",
           "evidence": null,
           "evidence_source": null,
           "category": "product"
         },
         {
-          "name": "Space Exploration Ventures",
-          "mechanism": "Boeing's involvement in satellites and space exploration leads to long-term contracts that enhance its revenue stability in the evolving aerospace market.",
+          "name": "Innovations in Personal Care",
+          "mechanism": "New product innovations in the personal care segment, such as advanced formulations and sustainability initiatives, can attract new customers and drive revenue growth.",
           "evidence": null,
           "evidence_source": null,
-          "category": "m_and_a"
+          "category": "product"
+        },
+        {
+          "name": "Expansion of E-commerce Channels",
+          "mechanism": "Increasing investments in e-commerce and online marketing strategies improve customer accessibility and drive sales, particularly in the wake of growing digital trends.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "geographic"
         }
       ],
       "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 derived from FMP financial filings + business description",
@@ -1783,42 +1782,42 @@
       "skip": false,
       "analyst_estimates": {
         "eps_current_fy": {
-          "value": -1.13057,
+          "value": 7.00942,
           "source": "yfinance",
           "status": "ok"
         },
         "eps_next_fy": {
-          "value": 4.20416,
+          "value": 7.4101,
           "source": "yfinance",
           "status": "ok"
         },
         "eps_growth_cur": {
-          "value": -195.0,
+          "value": 1.7,
           "source": "yfinance",
           "status": "ok"
         },
         "eps_growth_next": {
-          "value": 471.9,
+          "value": 5.7,
           "source": "yfinance",
           "status": "ok"
         },
         "rev_current_fy": {
-          "value": 97697311060.0,
+          "value": 88732772220.0,
           "source": "yfinance",
           "status": "ok"
         },
         "rev_next_fy": {
-          "value": 112744443900.0,
+          "value": 91448977790.0,
           "source": "yfinance",
           "status": "ok"
         },
         "rev_growth_cur": {
-          "value": 9.2,
+          "value": 1.9,
           "source": "yfinance",
           "status": "ok"
         },
         "rev_growth_next": {
-          "value": 15.4,
+          "value": 3.1,
           "source": "yfinance",
           "status": "ok"
         }
@@ -1830,7 +1829,7 @@
           "status": "ok"
         },
         "beta": {
-          "value": 1.221,
+          "value": 0.377,
           "source": "yfinance",
           "status": "ok"
         },
@@ -1840,7 +1839,7 @@
           "status": "ok"
         },
         "cost_of_equity": {
-          "value": 11.42,
+          "value": 6.77,
           "source": "CAPM [CALCULATED]",
           "status": "ok"
         },
@@ -1855,17 +1854,17 @@
           "status": "ok"
         },
         "weight_equity": {
-          "value": 100.0,
+          "value": 95.0,
           "source": "yfinance/FMP [CALCULATED]",
           "status": "ok"
         },
         "weight_debt": {
-          "value": 0.0,
+          "value": 5.0,
           "source": "FMP [CALCULATED]",
           "status": "ok"
         },
         "wacc": {
-          "value": 11.42,
+          "value": 6.66,
           "source": "CAPM [CALCULATED]",
           "status": "ok"
         }
@@ -1874,12 +1873,12 @@
         {
           "year": "FY Current",
           "value": {
-            "value": 97697311060.0,
+            "value": 88732772220.0,
             "source": "yfinance analyst consensus",
             "status": "ok"
           },
           "growth": {
-            "value": 9.2,
+            "value": 1.9,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           }
@@ -1887,12 +1886,12 @@
         {
           "year": "FY +1",
           "value": {
-            "value": 112744443900.0,
+            "value": 91448977790.0,
             "source": "yfinance analyst consensus",
             "status": "ok"
           },
           "growth": {
-            "value": 15.4,
+            "value": 3.1,
             "source": "yfinance [CALCULATED]",
             "status": "ok"
           }
@@ -1900,7 +1899,7 @@
         {
           "year": "FY +2 (est)",
           "value": {
-            "value": 122750513296,
+            "value": 93922672639,
             "source": "yfinance extrapolated [CALCULATED]",
             "status": "ok"
           },
@@ -1922,17 +1921,16 @@
         "status": "ok"
       },
       "terminal_multiple": {
-        "value": 15.8,
+        "value": 16.4,
         "source": "yfinance peers median EV/EBITDA [CALCULATED]",
         "status": "ok"
       },
       "peer_ev_ebitda_used": {
         "value": [
-          15.781,
-          12.772,
-          20.403,
-          16.352,
-          13.379
+          16.154,
+          19.638,
+          12.649,
+          16.597
         ],
         "source": "yfinance",
         "status": "ok"
@@ -1963,7 +1961,7 @@
         "status": "na"
       },
       "current_price": {
-        "value": 238.45,
+        "value": 145.705,
         "source": "yfinance",
         "status": "ok"
       },
@@ -1990,7 +1988,7 @@
     "s6_valuation": {
       "section": "valuation_metrics",
       "pe_ttm": {
-        "value": 86.08303,
+        "value": 21.943525,
         "source": "yfinance",
         "status": "ok"
       },
@@ -2010,17 +2008,17 @@
         "status": "na"
       },
       "ev_ebitda": {
-        "value": -74.666,
+        "value": 15.902,
         "source": "yfinance",
         "status": "ok"
       },
       "dividend_yield": {
-        "value": null,
+        "value": 294.0,
         "source": "yfinance",
-        "status": "na"
+        "status": "ok"
       },
       "beta": {
-        "value": 1.221,
+        "value": 0.377,
         "source": "yfinance",
         "status": "ok"
       },
@@ -2040,17 +2038,17 @@
         "status": "na"
       },
       "52w_high": {
-        "value": 254.35,
+        "value": 167.25,
         "source": "yfinance",
         "status": "ok"
       },
       "52w_low": {
-        "value": 176.77,
+        "value": 137.62,
         "source": "yfinance",
         "status": "ok"
       },
       "pct_from_52w_high": {
-        "value": -5.43,
+        "value": -11.54,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
@@ -2062,310 +2060,310 @@
       "peer_table": [
         {
           "symbol": {
-            "value": "LMT",
+            "value": "CL",
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "company_name": {
-            "value": "Lockheed Martin Corporation",
+            "value": "CL",
             "source": "FMP",
             "status": "ok"
           },
           "pe": {
-            "value": 21.465694,
+            "value": 36.503937,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pe_fwd": {
-            "value": 17.789198,
+            "value": 22.614525,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ev_ebitda": {
-            "value": 15.781,
+            "value": 16.154,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ps": {
-            "value": 1.7439065,
+            "value": 3.511848,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pb": {
-            "value": 15.265069,
+            "value": 313.24326,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 0.12569,
+            "value": 0.23676,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "net_margin": {
-            "value": 0.08163,
+            "value": 0.096829996,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "revenue_growth": {
-            "value": 0.105,
+            "value": 0.049,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "debt_to_equity": {
-            "value": 234.238,
+            "value": 1388.163,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "market_cap": {
-            "value": 134305218560.0,
+            "value": 73913860096.0,
             "source": "yfinance/FMP",
             "status": "ok"
           }
         },
         {
           "symbol": {
-            "value": "NOC",
+            "value": "CHD",
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "company_name": {
-            "value": "NOC",
+            "value": "CHD",
             "source": "FMP",
             "status": "ok"
           },
           "pe": {
-            "value": 17.634382,
+            "value": 32.550632,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pe_fwd": {
-            "value": 18.218887,
+            "value": 25.462791,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ev_ebitda": {
-            "value": 12.772,
+            "value": 19.638,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ps": {
-            "value": 1.8363165,
+            "value": 3.916905,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pb": {
-            "value": 4.4041133,
+            "value": 5.610036,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 0.16915001,
+            "value": 0.2175,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "net_margin": {
-            "value": 0.104820006,
+            "value": 0.119569995,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "revenue_growth": {
-            "value": 0.051,
+            "value": 0.016,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "debt_to_equity": {
-            "value": 95.348,
+            "value": 55.851,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "market_cap": {
-            "value": 78763286528.0,
+            "value": 24398792704.0,
             "source": "yfinance/FMP",
             "status": "ok"
           }
         },
         {
           "symbol": {
-            "value": "RTX",
+            "value": "KMB",
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "company_name": {
-            "value": "RTX Corporation",
+            "value": "Kimberly-Clark Corporation",
             "source": "FMP",
             "status": "ok"
           },
           "pe": {
-            "value": 38.531467,
+            "value": 21.887573,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pe_fwd": {
-            "value": 28.162283,
+            "value": 14.683971,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ev_ebitda": {
-            "value": 20.403,
+            "value": 12.649,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ps": {
-            "value": 3.1769614,
+            "value": 2.2244976,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pb": {
-            "value": 4.4781275,
+            "value": 20.508224,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 0.17,
+            "value": 0.2024,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "net_margin": {
-            "value": 0.08276,
+            "value": 0.12798999,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "revenue_growth": {
-            "value": 0.145,
+            "value": 0.027,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "debt_to_equity": {
-            "value": 57.02,
+            "value": 371.264,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "market_cap": {
-            "value": 297045884928.0,
+            "value": 36835422208.0,
             "source": "yfinance/FMP",
             "status": "ok"
           }
         },
         {
           "symbol": {
-            "value": "GD",
+            "value": "UNVR",
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "company_name": {
-            "value": "General Dynamics Corporation",
+            "value": "UNVR",
             "source": "FMP",
             "status": "ok"
           },
           "pe": {
-            "value": 23.35601,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           },
           "pe_fwd": {
-            "value": 20.690083,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           },
           "ev_ebitda": {
-            "value": 16.352,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           },
           "ps": {
-            "value": 1.8878736,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           },
           "pb": {
-            "value": 3.855035,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           },
           "ebitda_margin": {
-            "value": 0.12091,
+            "value": null,
             "source": "FMP [CALCULATED]",
-            "status": "ok"
+            "status": "na"
           },
           "net_margin": {
-            "value": 0.08179,
+            "value": null,
             "source": "FMP [CALCULATED]",
-            "status": "ok"
+            "status": "na"
           },
           "revenue_growth": {
-            "value": 0.081,
+            "value": null,
             "source": "FMP [CALCULATED]",
-            "status": "ok"
+            "status": "na"
           },
           "debt_to_equity": {
-            "value": 35.335,
+            "value": null,
             "source": "FMP [CALCULATED]",
-            "status": "ok"
+            "status": "na"
           },
           "market_cap": {
-            "value": 103570636800.0,
+            "value": null,
             "source": "yfinance/FMP",
-            "status": "ok"
+            "status": "na"
           }
         },
         {
           "symbol": {
-            "value": "HII",
+            "value": "WPC",
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "company_name": {
-            "value": "HII",
+            "value": "W. P. Carey Inc.",
             "source": "FMP",
             "status": "ok"
           },
           "pe": {
-            "value": 19.173811,
+            "value": 24.582191,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pe_fwd": {
-            "value": 15.61747,
+            "value": 20.72943,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ev_ebitda": {
-            "value": 13.379,
+            "value": 16.597,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ps": {
-            "value": 0.9626855,
+            "value": 8.982584,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "pb": {
-            "value": 2.4644246,
+            "value": 1.8855236,
             "source": "yfinance/FMP",
             "status": "ok"
           },
           "ebitda_margin": {
-            "value": 0.08874,
+            "value": 0.83773005,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "net_margin": {
-            "value": 0.05013,
+            "value": 0.35761002,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "revenue_growth": {
-            "value": 0.109,
+            "value": 0.184,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "debt_to_equity": {
-            "value": 55.252,
+            "value": 101.882,
             "source": "FMP [CALCULATED]",
             "status": "ok"
           },
           "market_cap": {
-            "value": 12693009408.0,
+            "value": 16352004096.0,
             "source": "yfinance/FMP",
             "status": "ok"
           }
@@ -2376,129 +2374,129 @@
     "s7_technicals": {
       "section": "technicals",
       "rsi": {
-        "value": 64.5,
+        "value": 47.6,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "macd_line": {
-        "value": 2.9844,
+        "value": -0.3088,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "macd_signal": {
-        "value": -0.1337,
+        "value": -0.0876,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "macd_hist": {
-        "value": 3.1181,
+        "value": -0.2213,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "sma_50": {
-        "value": 219.87,
+        "value": 146.6,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "sma_200": {
-        "value": 218.72,
+        "value": 145.89,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "pct_from_sma50": {
-        "value": 8.45,
+        "value": -0.61,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "pct_from_sma200": {
-        "value": 9.02,
+        "value": -0.13,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "bb_upper": {
-        "value": 236.73,
+        "value": 150.24,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "bb_lower": {
-        "value": 199.21,
+        "value": 143.49,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "bb_position": {
-        "value": 104.6,
+        "value": 32.8,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "atr_pct": {
-        "value": 3.36,
+        "value": 2.54,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "support": {
-        "value": 204.8,
+        "value": 139.15,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "resistance": {
-        "value": 252.15,
+        "value": 164.72,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "trend_signal": {
-        "value": "Strong Uptrend",
+        "value": "Strong Downtrend",
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "pct_from_52w_high": {
-        "value": -5.43,
+        "value": -11.54,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "volume_vs_20d_avg": {
-        "value": 0.38,
+        "value": 0.52,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "current_price": {
-        "value": 238.45,
+        "value": 145.705,
         "source": "yfinance",
         "status": "ok"
       },
       "quant_score": {
-        "value": 70,
+        "value": 35,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "quant_score_detail": {
-        "rsi": "+15 RSI 64 \u2014 ideal entry zone (40-65)",
-        "above_sma50": "+15 Price ($238.45) > SMA50 ($219.87) \u2014 medium-term uptrend intact",
-        "above_sma200": "+15 Price > SMA200 ($218.72) \u2014 in long-term uptrend",
-        "macd": "+15 MACD (2.9844) > Signal (-0.1337) \u2014 bullish momentum",
-        "bollinger": "0 BB position 105% \u2014 near/above upper band (overbought)",
-        "52w_proximity": "+10 -5.4% from 52w high \u2014 near highs, strong momentum",
-        "volume": "0 Volume 0.4x 20d avg \u2014 weak, low conviction move"
+        "rsi": "+15 RSI 48 \u2014 ideal entry zone (40-65)",
+        "above_sma50": "0 Price ($145.71) < SMA50 ($146.60) \u2014 below medium-term trend",
+        "above_sma200": "0 Price < SMA200 ($145.89) \u2014 below long-term trend",
+        "macd": "0 MACD (-0.3088) < Signal (-0.0876) \u2014 bearish momentum",
+        "bollinger": "+10 BB position 33% \u2014 not at upper band extreme",
+        "52w_proximity": "+10 -11.5% from 52w high \u2014 near highs, strong momentum",
+        "volume": "0 Volume 0.5x 20d avg \u2014 weak, low conviction move"
       },
-      "trend_context": "Strong Uptrend \u2014 good entry setup",
-      "ai_chart_pattern": "Ascending Triangle",
-      "ai_pattern_evidence": "The price has been making higher lows while approaching a flat resistance level around 252.15, indicating an ascending triangle formation. Additionally, the strong trend signal supports this bullish pattern.",
-      "ai_pattern_invalidation": "A break below the support level of 204.8 would invalidate the ascending triangle pattern.",
-      "ai_momentum_read": "The MACD line at 2.9844 above the signal line of -0.1337 suggests strong bullish momentum. Meanwhile, the RSI at 64.5 indicates that the stock is approaching overbought territory, which could imply a need for caution due to potential price pullbacks.",
-      "ai_key_levels": "The crucial support level at 204.8 serves as a safety net, while the resistance at 252.15 is pivotal for confirming continued upward movement. These levels are significant for traders looking to position around key areas of supply and demand.",
-      "ai_volume_narrative": "With the volume ratio at 0.38 compared to the 20-day average, it suggests that there is a lack of conviction behind recent price moves. This may indicate that the current rise is not supported by strong buying interest, which could lead to volatility if the upward momentum stalls.",
-      "ai_entry_explanation": "The quant entry score of 70 indicates a favorable setup for entering, reflecting a strong trend. However, the RSI of 64.5 suggests that chasing the trade right now may not be optimal, and waiting for a pullback to the SMA50 of 219.87 could present a better entry opportunity.",
-      "ai_outlook_4_8w": "The technical picture suggests that BA might continue to test resistance levels in the near term, but overbought signals indicate a possible consolidation or pullback could occur within the next few weeks.",
+      "trend_context": "Strong Downtrend \u2014 poor entry timing despite trend",
+      "ai_chart_pattern": "Downtrend Channel",
+      "ai_pattern_evidence": "The price has been experiencing lower highs and lower lows, typically indicative of a downtrend channel. This is supported by the current trend signal of 'Strong Downtrend'.",
+      "ai_pattern_invalidation": "A break above the recent resistance at 146.6 (the 50-day SMA) would invalidate the downtrend pattern.",
+      "ai_momentum_read": "The MACD is showing bearish momentum with a MACD line at -0.3088 below the signal line at -0.0876, indicating ongoing selling pressure. The RSI at 47.6 suggests that the stock is neither overbought nor oversold, which supports the continuation of the downtrend.",
+      "ai_key_levels": "Key support is identified at 139.15, and any fall below this level could signal further downside risk. Resistance at 164.72 remains significant for potential reversals, especially if the downward pressure does not resolve.",
+      "ai_volume_narrative": "The volume is currently at only 52% of the 20-day average, indicating a lack of conviction behind recent price moves. This reduced volume suggests that sellers are not fully engaged, which could hint at a potential reversal if buyers step back in soon.",
+      "ai_entry_explanation": "The quant entry score of 35 indicates a poor entry setup due to low momentum and bearish trend characteristics. Though the trend is defined as strongly downward, the low score suggests that entering now could be chasing a downtrend, making it better to wait for a clear reversal signal or a pullback to safer levels.",
+      "ai_outlook_4_8w": "In the next 4-8 weeks, the technical indicators suggest continued downward pressure unless a strong reversal signal emerges. Watch closely for signs of a bullish divergence or increased volume that could indicate a potential turnaround.",
       "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 yfinance technical indicators"
     },
     "s8_competitive": {
       "section": "competitive_moat",
       "sector": {
-        "value": "Industrials",
+        "value": "Consumer Defensive",
         "source": "yfinance/FMP",
         "status": "ok"
       },
       "industry": {
-        "value": "Aerospace & Defense",
+        "value": "Household & Personal Products",
         "source": "yfinance/FMP",
         "status": "ok"
       },
@@ -2509,14 +2507,14 @@
       },
       "tavily_excerpts": [],
       "recent_headlines": [
-        "GE Aerospace Talks Less About The Shortage It Still Has",
-        "Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014 but Passengers Still Won\u2019t Board One Until 2027",
-        "As airlines struggle, their suppliers are flying high",
-        "Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks",
-        "'Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks' - Bloomberg",
-        "Lumen Technologies (LUMN) Appoints John M. Hinshaw To Its Board",
-        "TransDigm Group Incorporated Q3 2026 Earnings Call Summary",
-        "Albany International Q2 Earnings Call Highlights"
+        "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors",
+        "Dividends vs. an Annuity: Which Turns $675,000 Into More Monthly Income for Life?",
+        "How Much Do You Really Need Invested to Replace a $100,000 Salary With Dividends?",
+        "Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion",
+        "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
+        "Which dow jones stocks are moving on Tuesday?",
+        "VDC: The 2026 Staples Rotation Is Real, But GLP-1s Are Eating The Aisle, Hold",
+        "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio"
       ],
       "moat_quant": {
         "returns_on_capital": {
@@ -2526,9 +2524,9 @@
           "source": "FMP key_metrics [CALCULATED]"
         },
         "pricing_power": {
-          "score": 2,
+          "score": 16,
           "label": "Pricing Power",
-          "value": "4.7% GM",
+          "value": "50.7% GM",
           "source": "yfinance [CALCULATED]"
         },
         "revenue_quality": {
@@ -2538,21 +2536,21 @@
           "source": "FMP [CALCULATED]"
         },
         "operating_efficiency": {
-          "score": 0,
+          "score": 16,
           "label": "Operating Efficiency",
-          "value": "-3.1% EBITDA Mgn",
+          "value": "27.2% EBITDA Mgn",
           "source": "yfinance [CALCULATED]"
         }
       },
       "ai_narrative": {
         "moat_rating": "Wide",
-        "narrative": "Boeing has a strong competitive moat fueled by its dominant position in the aerospace industry, including contracts with major airlines like American Airlines and government contracts with the U.S. Department of Defense. This position is bolstered by high switching costs and significant regulatory hurdles that new entrants face, making it difficult for competitors to replicate Boeing's scale and expertise.\n\nMoat drivers: Major contracts with American Airlines and the U.S. Department of Defense; market leader with 40% share in commercial aircraft deliveries.; Significant regulatory approvals; over 4,000 FAA regulations govern aircraft design, creating a barrier for new entrants.\n\nKey threats: Increasing competition from Airbus, which has a 40% market share and strong backing from European governments.; Emerging players like China\u2019s COMAC, backed by substantial government resources aiming for entry into the commercial market.",
+        "narrative": "PG has a strong competitive moat, primarily due to its extensive brand portfolio, including top brands like Tide, Pampers, and Gillette, which capture substantial market share in their respective categories. The company's investments in innovation and advertising help maintain brand loyalty, making it difficult for competitors to gain significant market traction.\n\nMoat drivers: PG's 20+ leading brands account for a substantial share of the consumer goods market, with over $76 billion in annual sales.; High brand loyalty leads to significant switching costs as consumers prefer established brands over new entrants.\n\nKey threats: Unilever invests heavily in sustainability, targeting younger demographics that may switch from PG brands.; Private label brands are gaining market share, particularly in grocery channels, posing a price-sensitive threat.",
         "competitive_differentiation_score": 13,
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
       },
-      "moat_score_total": 31,
-      "moat_score_label": "No Moat",
+      "moat_score_total": 61,
+      "moat_score_label": "Narrow Moat",
       "moat_dim5_score": 13,
       "subscriber_comparison": {
         "competitors": [],
@@ -2564,12 +2562,12 @@
     "s9_industry": {
       "section": "industry_macro",
       "sector": {
-        "value": "Industrials",
+        "value": "Consumer Defensive",
         "source": "yfinance/FMP",
         "status": "ok"
       },
       "industry": {
-        "value": "Aerospace & Defense",
+        "value": "Household & Personal Products",
         "source": "yfinance/FMP",
         "status": "ok"
       },
@@ -2595,20 +2593,20 @@
       },
       "tavily_excerpts": [],
       "ai_narrative": {
-        "value": "Boeing operates in the Aerospace & Defense sector, specifically focusing on commercial and military aircraft manufacturing. Currently, the recovery of airline travel and increasing defense budgets globally represent critical structural trends that are driving demand for new aircraft and advanced defense systems. Competitors like Airbus and Lockheed Martin are actively pursuing contracts with airlines and governments, placing pressure on Boeing to maintain its market position.\n\nCurrent macroeconomic factors, such as the stabilized interest rate at 3.63%, provide Boeing's customers with a less burdensome borrowing environment to finance aircraft purchases. However, the marginal GDP growth rate of 1.5% may dampen consumer demand for new air travel, impacting Boeing's commercial aircraft sales projections.",
-        "industry_overview": "Boeing operates in the Aerospace & Defense sector, specifically focusing on commercial and military aircraft manufacturing. Currently, the recovery of airline travel and increasing defense budgets globally represent critical structural trends that are driving demand for new aircraft and advanced defense systems. Competitors like Airbus and Lockheed Martin are actively pursuing contracts with airlines and governments, placing pressure on Boeing to maintain its market position.",
-        "competitive_dynamics": "Airbus is Boeing's primary competitor, holding approximately 44% of the commercial aircraft market share compared to Boeing's 40%. In the military aircraft segment, Lockheed Martin dominates with over 20% market share, leveraging its strong relationships with the U.S. Department of Defense, putting Boeing at a disadvantage in government contracts.",
+        "value": "Procter & Gamble operates in the competitive Household & Personal Products market, which is currently being shaped by the rising demand for sustainable products and increased private label growth. Competitors like Unilever and Johnson & Johnson are ramping up their sustainability initiatives, such as launching eco-friendly products, which could sway market share. Additionally, the trend of premiumization influences consumer spending, with brands like Est\u00e9e Lauder and L'Or\u00e9al diversifying their portfolios to capture higher margins.\n\nThe current macro environment, with the federal funds rate at 3.63% and relatively stable inflation, allows Procter & Gamble to manage its costs effectively, thereby supporting profitability. However, a GDP growth rate of 1.5% limits potential consumer spending power, which may depress demand for P&G\u2019s premium products.",
+        "industry_overview": "Procter & Gamble operates in the competitive Household & Personal Products market, which is currently being shaped by the rising demand for sustainable products and increased private label growth. Competitors like Unilever and Johnson & Johnson are ramping up their sustainability initiatives, such as launching eco-friendly products, which could sway market share. Additionally, the trend of premiumization influences consumer spending, with brands like Est\u00e9e Lauder and L'Or\u00e9al diversifying their portfolios to capture higher margins.",
+        "competitive_dynamics": "Procter & Gamble commands a significant market presence with approximately 16% market share in the household products category, competing directly with Unilever (about 15%) and Colgate-Palmolive (approximately 10%). While P&G has a strong brand loyalty and extensive product range, Unilever is gaining traction with its commitment to sustainability and innovative product launches, highlighting P&G's need to evolve its offerings to maintain competitiveness.",
         "ipo_and_event_risk": null,
-        "macro_context": "Current macroeconomic factors, such as the stabilized interest rate at 3.63%, provide Boeing's customers with a less burdensome borrowing environment to finance aircraft purchases. However, the marginal GDP growth rate of 1.5% may dampen consumer demand for new air travel, impacting Boeing's commercial aircraft sales projections.",
+        "macro_context": "The current macro environment, with the federal funds rate at 3.63% and relatively stable inflation, allows Procter & Gamble to manage its costs effectively, thereby supporting profitability. However, a GDP growth rate of 1.5% limits potential consumer spending power, which may depress demand for P&G\u2019s premium products.",
         "tailwinds": [
-          "Boeing recently received a contract for 100 737 MAX aircraft from Ryanair, valued at $10 billion, enhancing their order book significantly compared to competitors like Airbus which only captured a portion of the low-cost carrier market. This contract positions Boeing to benefit from increasing demand in the low-cost carrier segment.",
-          "The shift towards sustainable aviation fuels (SAF) is a significant opportunity for Boeing, which has committed to having its aircraft capable of operating on 100% SAF by 2030. This positions Boeing favorably in meeting regulatory demands and sustainability goals that are becoming increasingly important for airlines.",
-          "Boeing's defense segment is expected to benefit from the increased U.S. military budget, which is projected to rise by 5% year-over-year. As a key supplier for military jets and systems, Boeing stands to gain from this uptick in defense spending, particularly in lucrative contracts for next-generation military aircraft."
+          "The recent launch of a new eco-friendly product line under the 'Herbal Essences' brand, aligning with the sustainability trend, could capitalize on the estimated $150 billion global green beauty market, boosting P&G's competitiveness against brands like Unilever. This product line could increase sales by an estimated 5-7% over the next two years.",
+          "Procter & Gamble's strong gross margin of 50.7% supports robust profitability, providing the company with a competitive advantage over peers, particularly as it can invest more in marketing and innovation to further capture market share.",
+          "The company's focus on digital transformation has led to a 30% increase in direct-to-consumer sales in the past year, tapping into the growing e-commerce segment, which is expected to continue growing as consumers favor online shopping."
         ],
         "headwinds": [
-          "Boeing's high debt-to-equity ratio of 790.88 is a significant concern, exposing the company to increased financial risk, especially during periods of rising interest rates. Should interest rates climb further, Boeing may face elevated costs of capital, threatening profitability and investment capacity.",
-          "The ongoing supply chain disruptions have led to delays in aircraft deliveries, impacting Boeing's revenue recognition and customer satisfaction. With a backlog of over 4,000 orders, any further delays could lead to cancellations and lost contracts, adversely affecting future cash flows.",
-          "Increased competition from Airbus, especially in the wide-body aircraft segment, poses a threat as Airbus has been aggressively capturing market share through innovative pricing strategies and superior product offerings. If Boeing cannot match these competitive pressures, it risks a further decline in its market position and profitability."
+          "P&G's current ratio of 0.68 indicates potential liquidity concerns, which could become significant if a recession materializes, leading to a tighter credit environment and stifled operational flexibility. If liquidity challenges arise, share prices may be pressured due to investor concerns over financial health.",
+          "With a debt-to-equity ratio of 62.86, Procter & Gamble faces heightened financial risk, particularly in an economic downturn, as rising interest rates could lead to increased debt servicing costs, potentially limiting capital expenses and investment opportunities.",
+          "As consumers shift towards value-oriented shopping behaviors, particularly in a slower economy, P&G might see a decline in demand for its premium-priced products, risking a loss of market share to lower-cost competitors like store brands."
         ],
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
@@ -2617,7 +2615,7 @@
     "s10_institutional": {
       "section": "institutional_activity",
       "institutional_pct": {
-        "value": 75.0,
+        "value": 71.6,
         "source": "yfinance",
         "status": "ok"
       },
@@ -2634,7 +2632,7 @@
             "status": "ok"
           },
           "shares": {
-            "value": 58192341,
+            "value": 187029747,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2644,34 +2642,7 @@
             "status": "na"
           },
           "value": {
-            "value": 13875963533,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-03-31",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        },
-        {
-          "holder": {
-            "value": "FMR, LLC",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 56876382,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 13562173114,
+            "value": 27251169629,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2688,7 +2659,7 @@
             "status": "ok"
           },
           "shares": {
-            "value": 51005657,
+            "value": 151049902,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2698,7 +2669,7 @@
             "status": "na"
           },
           "value": {
-            "value": 12162298755,
+            "value": 22008726247,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2715,7 +2686,7 @@
             "status": "ok"
           },
           "shares": {
-            "value": 37424293,
+            "value": 101250847,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2725,7 +2696,7 @@
             "status": "na"
           },
           "value": {
-            "value": 8923822551,
+            "value": 14752754847,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2737,12 +2708,12 @@
         },
         {
           "holder": {
-            "value": "Newport Trust Company, LLC",
+            "value": "Geode Capital Management, LLC",
             "source": "yfinance",
             "status": "ok"
           },
           "shares": {
-            "value": 28664824,
+            "value": 64403372,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2752,7 +2723,34 @@
             "status": "na"
           },
           "value": {
-            "value": 6835127195,
+            "value": 9383893435,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Vanguard Portfolio Management LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 62847265,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 9157160861,
             "source": "yfinance",
             "status": "ok"
           },
@@ -2766,7 +2764,7 @@
       "insider_trades": [
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2790,11 +2788,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006514/0001225208-26-006514-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000077/0000080424-26-000077-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2818,11 +2816,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006513/0001225208-26-006513-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000076/0000080424-26-000076-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2846,11 +2844,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006512/0001225208-26-006512-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000074/0000080424-26-000074-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2874,11 +2872,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006511/0001225208-26-006511-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000073/0000080424-26-000073-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2902,11 +2900,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006510/0001225208-26-006510-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000072/0000080424-26-000072-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-06-10",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2930,16 +2928,16 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006509/0001225208-26-006509-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000071/0000080424-26-000071-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-03-19",
             "source": "SEC EDGAR",
             "status": "ok"
           },
           "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "value": "4/A [Amend]  - Statement of changes in beneficial ownership of securities",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2958,11 +2956,11 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006508/0001225208-26-006508-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000034/0000080424-26-000034-index.htm"
         },
         {
           "date": {
-            "value": "2026-07-06",
+            "value": "2026-03-11",
             "source": "SEC EDGAR",
             "status": "ok"
           },
@@ -2986,22 +2984,22 @@
             "source": "SEC EDGAR",
             "status": "na"
           },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006507/0001225208-26-006507-index.htm"
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/80424/000008042426000033/0000080424-26-000033-index.htm"
         }
       ],
       "analyst_ratings": {
         "buy_count": {
-          "value": 124,
+          "value": 87,
           "source": "Finnhub",
           "status": "ok"
         },
         "hold_count": {
-          "value": 24,
+          "value": 54,
           "source": "Finnhub",
           "status": "ok"
         },
         "sell_count": {
-          "value": 0,
+          "value": 4,
           "source": "Finnhub",
           "status": "ok"
         },
@@ -3011,29 +3009,29 @@
           "status": "ok"
         },
         "total_ratings": {
-          "value": 148,
+          "value": 145,
           "source": "Finnhub",
           "status": "ok"
         }
       },
       "analyst_price_targets": {
         "mean": {
-          "value": 273.34616,
+          "value": 160.69565,
           "source": "yfinance",
           "status": "ok"
         },
         "high": {
-          "value": 300.0,
+          "value": 186.0,
           "source": "yfinance",
           "status": "ok"
         },
         "low": {
-          "value": 246.0,
+          "value": 145.0,
           "source": "yfinance",
           "status": "ok"
         },
         "num_analysts": {
-          "value": 26,
+          "value": 23,
           "source": "yfinance",
           "status": "ok"
         }
@@ -3046,7 +3044,7 @@
         "source": "FMP",
         "status": "na"
       },
-      "company_name": "The Boeing Company",
+      "company_name": null,
       "employees": {
         "value": null,
         "source": "FMP/yfinance",
@@ -3074,17 +3072,17 @@
       "section": "risk_register",
       "financials_snapshot": {
         "pe_ttm": {
-          "value": 86.08303,
+          "value": 21.943525,
           "source": "yfinance",
           "status": "ok"
         },
         "ev_ebitda": {
-          "value": -74.666,
+          "value": 15.902,
           "source": "yfinance",
           "status": "ok"
         },
         "debt_to_equity": {
-          "value": 790.875,
+          "value": 62.857,
           "source": "yfinance",
           "status": "ok"
         },
@@ -3094,24 +3092,24 @@
           "status": "na"
         },
         "beta": {
-          "value": 1.221,
+          "value": 0.377,
           "source": "yfinance",
           "status": "ok"
         }
       },
       "technicals_snapshot": {
         "rsi": {
-          "value": 64.5,
+          "value": 47.6,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "trend": {
-          "value": "Strong Uptrend",
+          "value": "Strong Downtrend",
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
         "pct_from_52w_high": {
-          "value": -5.43,
+          "value": -11.54,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         }
@@ -3134,67 +3132,67 @@
         }
       },
       "recent_headlines": [
-        "GE Aerospace Talks Less About The Shortage It Still Has",
-        "Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014 but Passengers Still Won\u2019t Board One Until 2027",
-        "As airlines struggle, their suppliers are flying high",
-        "Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks",
-        "'Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks' - Bloomberg",
-        "Lumen Technologies (LUMN) Appoints John M. Hinshaw To Its Board",
-        "TransDigm Group Incorporated Q3 2026 Earnings Call Summary",
-        "Albany International Q2 Earnings Call Highlights",
-        "The $280 Million Reason Boeing Missed\u2014and Why Wall Street Shrugged It Off",
-        "Boeing's 737 MAX 7 Was Supposed to Be Flying in 2019. The FAA Certified It Monday."
+        "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors",
+        "Dividends vs. an Annuity: Which Turns $675,000 Into More Monthly Income for Life?",
+        "How Much Do You Really Need Invested to Replace a $100,000 Salary With Dividends?",
+        "Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion",
+        "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
+        "Which dow jones stocks are moving on Tuesday?",
+        "VDC: The 2026 Staples Rotation Is Real, But GLP-1s Are Eating The Aisle, Hold",
+        "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio",
+        "L Catterton Announces Sale of Thorne to The Procter & Gamble Company for $3.8 Billion",
+        "P&G to acquire supplement brand Thorne for $3.8 billion"
       ],
       "ai_risk_register": {
         "risks": [
           {
-            "name": "Overvalued P/E Ratio",
+            "name": "High Debt-to-Equity Ratio",
+            "category": "Financial",
+            "mechanism": "PG's debt-to-equity ratio of 62.86 indicates significant leverage, raising concerns about financial stability and potential cash flow issues, especially in a downturn.",
+            "likelihood": "High",
+            "impact": "High"
+          },
+          {
+            "name": "Weak Current Ratio",
+            "category": "Financial",
+            "mechanism": "With a current ratio of 0.68, PG faces potential liquidity issues, indicating that its short-term liabilities exceed its short-term assets, which could affect operational flexibility.",
+            "likelihood": "High",
+            "impact": "Medium"
+          },
+          {
+            "name": "Strong Downtrend in Technicals",
+            "category": "Technical",
+            "mechanism": "The strong downtrend indicator suggests a lack of momentum and ongoing price weakness, increasing the risk of further declines in valuation.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          },
+          {
+            "name": "Potential Revenue Growth Concerns",
             "category": "Valuation",
-            "mechanism": "BA's P/E ratio is 86.08, significantly higher than the peer average of 38.60, indicating a stretched valuation amidst high leverage.",
-            "likelihood": "High",
+            "mechanism": "Lack of reported revenue growth raises questions about PG's ability to expand its market share and maintain profitability, particularly given the high valuation multiples.",
+            "likelihood": "Medium",
             "impact": "High"
           },
           {
-            "name": "Excessive Debt Levels",
+            "name": "Stagnant Profit Margins",
             "category": "Financial",
-            "mechanism": "BA has a debt-to-equity ratio of 790.88, suggesting an unsustainable level of leverage that could compromise financial stability.",
-            "likelihood": "High",
-            "impact": "High"
-          },
-          {
-            "name": "Weak Profit Margins",
-            "category": "Financial",
-            "mechanism": "With profit margins at only 2.59%, BA is at risk of profitability issues if expenses rise or revenues decline.",
+            "mechanism": "While profit margins are currently 18.44%, any declines or stagnation could further constrain PG's financial performance, especially with high operational costs.",
             "likelihood": "Medium",
             "impact": "Medium"
           },
           {
-            "name": "Regulatory Delays Impacting Growth",
-            "category": "Regulatory",
-            "mechanism": "Boeing's 737 Max 7 certification delays, taking nearly a decade, highlight regulatory risks that can hinder operational growth.",
-            "likelihood": "Medium",
-            "impact": "High"
-          },
-          {
-            "name": "Market Uncertainty from Recent Headlines",
+            "name": "Uncertain Macro Environment",
             "category": "Macro",
-            "mechanism": "Recent headlines signal challenges in the aerospace industry, suggesting market sentiment may quickly turn negative affecting BA's share price.",
+            "mechanism": "The neutral macro regime combined with conflicting risk signals introduces uncertainty, leading to potential volatility in PG's stock performance under varying economic conditions.",
             "likelihood": "Medium",
             "impact": "Medium"
           },
           {
-            "name": "Possible Earnings Miss",
-            "category": "Execution",
-            "mechanism": "The reported $280 million earnings miss reflects potential operational inefficiencies that could lead to further market skepticism.",
+            "name": "Limited Analyst Confidence",
+            "category": "Competitive",
+            "mechanism": "The low signal confidence from sentiment analysis suggests that analyst optimism may not be reflected in market performance, potentially leading to negative sentiment shifts.",
             "likelihood": "Medium",
-            "impact": "Medium"
-          },
-          {
-            "name": "Rising Interest Rate Environment",
-            "category": "Macro",
-            "mechanism": "With a 10-year yield at 4.7%, a rise in borrowing costs could adversely affect Boeing's financial metrics and growth prospects.",
-            "likelihood": "Medium",
-            "impact": "High"
+            "impact": "Low"
           }
         ],
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
@@ -3204,7 +3202,7 @@
     "s12_scenarios": {
       "section": "scenario_analysis",
       "current_price": {
-        "value": 238.45,
+        "value": 145.705,
         "source": "yfinance",
         "status": "ok"
       },
@@ -3220,12 +3218,12 @@
       },
       "bear": {
         "price_target": {
-          "value": 246.0,
+          "value": 145.0,
           "source": "min(FMP DCF, analyst PT low, our DCF x 0.85) [CALCULATED]",
           "status": "ok"
         },
         "upside_pct": {
-          "value": 3.2,
+          "value": -0.5,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
@@ -3237,12 +3235,12 @@
       },
       "base": {
         "price_target": {
-          "value": 273.35,
+          "value": 160.7,
           "source": "yfinance analyst PT mean",
           "status": "ok"
         },
         "upside_pct": {
-          "value": 14.6,
+          "value": 10.3,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
@@ -3254,12 +3252,12 @@
       },
       "bull": {
         "price_target": {
-          "value": 300.0,
+          "value": 186.0,
           "source": "yfinance analyst PT high",
           "status": "ok"
         },
         "upside_pct": {
-          "value": 25.8,
+          "value": 27.7,
           "source": "yfinance [CALCULATED]",
           "status": "ok"
         },
@@ -3270,12 +3268,12 @@
         }
       },
       "probability_weighted_return": {
-        "value": 14.6,
+        "value": 11.9,
         "source": "FMP/yfinance [CALCULATED]",
         "status": "ok"
       },
       "base_return_pct": {
-        "value": 14.6,
+        "value": 10.3,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       }
@@ -3283,7 +3281,7 @@
     "s13_sentiment": {
       "section": "sentiment",
       "short_interest_pct": {
-        "value": 0.02,
+        "value": 0.99,
         "source": "yfinance",
         "status": "ok"
       },
@@ -3294,108 +3292,108 @@
       },
       "news_items": [
         {
-          "headline": "GE Aerospace Talks Less About The Shortage It Still Has",
-          "summary": "The constraint management once pointed to for a fall in shop visit volume now sits inside the growth case, and the raised guidance now rests on workin",
-          "date": "1785943654"
+          "headline": "Stagwell (STGW) Appoints Beth J. Kaplan to Board of Directors",
+          "summary": "Kaplan joins Stagwell's Board of Directors as the company builds on significant new business momentum and accelerated growth led by digital transforma",
+          "date": "1785934800"
         },
         {
-          "headline": "Boeing\u2019s Smallest 737 Max Finally Wins FAA Certification After a Decade of Delays\u2014 but Passengers Still Won\u2019t Board One Until 2027",
-          "summary": "The Federal Aviation Administration certified Boeing Co.\u2019s 737 Max 7 on Monday, clearing the smallest jet in the bestselling family for passenger serv",
-          "date": "1785936670"
+          "headline": "Dividends vs. an Annuity: Which Turns $675,000 Into More Monthly Income for Life?",
+          "summary": "Annuity payouts are the most competitive they have been in years, which makes the timing of this comparison unusually consequential for anyone sitting",
+          "date": "1785921004"
         },
         {
-          "headline": "As airlines struggle, their suppliers are flying high",
-          "summary": "It is a great time to be in the business of air travel \u2014 provided you are not actually an airline. Companies that supply and maintain aircraft...",
-          "date": "1785928755"
+          "headline": "How Much Do You Really Need Invested to Replace a $100,000 Salary With Dividends?",
+          "summary": "Replacing a six-figure salary with dividends is a math problem first, and the capital requirement swings by more than a million dollars depending on o",
+          "date": "1785887008"
         },
         {
-          "headline": "Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks",
-          "summary": "(Bloomberg) -- Last summer, about 80 government officials and industry executives gathered in Washington to answer a key question: How would the US al",
-          "date": "1785924021"
+          "headline": "Procter & Gamble (PG) Agrees To Buy Thorne For $3.8 Billion",
+          "summary": "Procter & Gamble (NYSE:PG) agreed to acquire Thorne, a science-focused wellness supplements company. The transaction values Thorne at US$3.8b and expa",
+          "date": "1785881407"
         },
         {
-          "headline": "'Pentagon War Game Exposed a Critical US Aluminum Risk Months Before Iran Attacks' - Bloomberg",
-          "summary": "https://www.bloomberg.com/news/articles/2026-08-05/iran-war-exposes-us-military-aluminum-risk-shown-in-pentagon-war-game",
-          "date": "1785910849"
+          "headline": "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
+          "summary": "So how does the new deal stack up to P&G\u2019s biggest deals ever?",
+          "date": "1785873243"
         },
         {
-          "headline": "Lumen Technologies (LUMN) Appoints John M. Hinshaw To Its Board",
-          "summary": "Lumen Technologies (NYSE:LUMN) has appointed John M. Hinshaw to its Board of Directors. Hinshaw brings executive experience from HSBC, Hewlett-Packard",
-          "date": "1785904076"
+          "headline": "Which dow jones stocks are moving on Tuesday?",
+          "summary": "Curious about the dow jones stocks that are in motion on Tuesday? Join us as we explore the top movers within the dow jones index during today's sessi",
+          "date": "1785870604"
         },
         {
-          "headline": "TransDigm Group Incorporated Q3 2026 Earnings Call Summary",
-          "summary": "Moby summary of TransDigm Group Incorporated's Q3 2026 earnings call",
-          "date": "1785896141"
+          "headline": "VDC: The 2026 Staples Rotation Is Real, But GLP-1s Are Eating The Aisle, Hold",
+          "summary": "Vanguard Consumer Staples ETF (VDC) rated Hold: full valuation, 2.1% yield, GLP-1 demand headwinds, and pricey top holdings\u00e2\u0080\u0094see the key risks now.",
+          "date": "1785866808"
         },
         {
-          "headline": "Albany International Q2 Earnings Call Highlights",
-          "summary": "Albany International (NYSE:AIN) reported second-quarter revenue growth and its strongest adjusted EBITDA performance in two years, driven by higher pr",
-          "date": "1785873842"
+          "headline": "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio",
+          "summary": "The acquisition bolsters P&G's presence in the premium wellness space.",
+          "date": "1785866667"
         },
         {
-          "headline": "The $280 Million Reason Boeing Missed\u2014and Why Wall Street Shrugged It Off",
-          "summary": "The global aerospace sector is currently characterized by a stark contrast between rising commercial fleet demand and friction in legacy fixed-price d",
-          "date": "1785865167"
+          "headline": "L Catterton Announces Sale of Thorne to The Procter & Gamble Company for $3.8 Billion",
+          "summary": "L Catterton, the largest global consumer-focused investment firm, today announced that it has signed a definitive agreement to sell Thorne, a leader i",
+          "date": "1785865500"
         },
         {
-          "headline": "Boeing's 737 MAX 7 Was Supposed to Be Flying in 2019. The FAA Certified It Monday.",
-          "summary": "The approval arrived seven years late. The cash it unlocks could start arriving much sooner.",
-          "date": "1785865080"
+          "headline": "P&G to acquire supplement brand Thorne for $3.8 billion",
+          "summary": "The deal, set to close later this year, would add Thorne to P&G's existing supplements portfolio that includes Metamucil, Align Probiotic, and New Cha",
+          "date": "1785864695"
         },
         {
-          "headline": "Boeing's Finished Flight Test Counts Most For A Different Jet",
-          "summary": "Monday's approval was already telegraphed, the rare double upgrade beside it was not, and the finished flight test frees engineering capacity for a di",
-          "date": "1785860458"
+          "headline": "Procter & Gamble to acquire Thorne for $3.8 billion, CEO says",
+          "summary": "Investing.com -- Procter & Gamble Co. reached an agreement to acquire supplement maker Thorne for $3.8 billion, with the deal set to be announced late",
+          "date": "1785863709"
         },
         {
-          "headline": "Boeing Company Stock Outlook: Is Wall Street Bullish or Bearish?",
-          "summary": "Boeing Company has lagged behind the broader market over the past year, yet analysts remain highly bullish about the stock\u2019s prospects.",
-          "date": "1785853880"
+          "headline": "P&G Reportedly Set To Acquire Thorne In A $3.8B Deal \u2013 CEO Jejurikar Says Firm Is \u2018Really Happy With The Asset\u2019",
+          "summary": "Thorne went public in late 2021 at a $525 million valuation but was taken private by asset manager L Catterton in 2023 in a $680 million transaction.",
+          "date": "1785863238"
         },
         {
-          "headline": "BNP Paribas Upgrades Boeing (BA)",
-          "summary": "",
-          "date": "1785848455"
+          "headline": "Thorne Enters into Definitive Agreement to Be Acquired by Procter & Gamble",
+          "summary": "Thorne, the leader in science-backed health and wellness solutions, today announced that it has entered into a definitive agreement to be acquired by ",
+          "date": "1785862800"
         },
         {
-          "headline": "SpaceX Is Stuffing Its Rockets With Starlink \u2014 And Everyone Else Is Getting Shut Out",
-          "summary": "SpaceX&#39;s satellite fleet is its biggest customer, with Starlink missions delivering the majority of revenue and making up nearly 80% of its flight",
-          "date": "1785843641"
+          "headline": "Dog Days On The Dow: No Buys With Weak Watching",
+          "summary": "Dow Dogs look overvalued but analysts see 18%\u00e2\u0080\u009355% gains by Aug 2027; only 21/30 have safer dividends.",
+          "date": "1785859586"
         },
         {
-          "headline": "Dow Cracks 53,000 As Amazon Joins The $3T Club And Oil Does The Heavy Lifting",
-          "summary": "The Dow printed a fresh record above 53,000 as a sharp slide in crude oil handed the tape a broad rally and Amazon quietly became the second US compan",
-          "date": "1785830181"
+          "headline": "Worried About the Market? Hide Out in These 3 High-Yielding Dividend Stocks",
+          "summary": "These relatively safe dividend stocks offer yields of more than 3%.",
+          "date": "1785852715"
         },
         {
-          "headline": "Boeing (BA) Wins FAA Approval For 737 MAX 7 After Years Of Review",
-          "summary": "The FAA has certified the Boeing 737 MAX 7, the smallest member of the MAX family. This is the first new aircraft certification for Boeing since the M",
-          "date": "1785825057"
+          "headline": "Procter & Gamble To Acquire Thorne From L Catterton's Flagship Fund; Deal Anticipated To Close Later In 2026",
+          "summary": "Thorne, the leader in science-backed health and wellness solutions, today announced that it has entered into a definitive agreement to be acquired by ",
+          "date": "1785848694"
         },
         {
-          "headline": "Hundreds Of Companies Bid To Build Trump's Security Wall",
-          "summary": "",
-          "date": "1785823804"
+          "headline": "Are Wall Street Analysts Bullish on Procter & Gamble Stock?",
+          "summary": "Procter & Gamble has underperformed the broader market over the past year, though analysts remain moderately optimistic on its future potential.",
+          "date": "1785844984"
         },
         {
-          "headline": "US aviation giant Boeing granted certification for 737-7",
-          "summary": "US aviation giant Boeing has received certification from the Federal Aviation Administration (FAA) for its new 737 aircraft, the company said on Monda",
-          "date": "1785800909"
+          "headline": "Procter & Gamble will acquire supplements brand Thorne, CEO says",
+          "summary": "Procter & Gamble Chairman and CEO Shailesh Jejurikar joins 'Squawk on the Street' to discuss the company's quarterly earnings, its acquisition of supp",
+          "date": "1785843033"
         },
         {
-          "headline": "FAA certifies Boeing 737 Max 7",
-          "summary": "The FAA\u2019s nod boosted the beleaguered aerospace firm\u2019s push to restore its once-sterling reputation.",
-          "date": "1785795834"
+          "headline": "Procter & Gamble will acquire supplements brand Thorne for $3.8 billion, CEO tells CNBC",
+          "summary": "P&G CEO Shailesh Jejurikar said the acquisition is a play to grow the company's health business on CNBC's \"Squawk on the Street.\"",
+          "date": "1785842783"
         },
         {
-          "headline": "S&P500, Nasdaq End Higher, Dow Hits Record High On Strong Mag 7 Performance And Falling Oil Prices \u2014 BA, XOM, CVX, HOOD, AMD In Focus",
-          "summary": "International Brent crude futures fell 4.73% to end at $83.77 a barrel after Trump canceled plans to attack Iran.",
-          "date": "1785792790"
+          "headline": "If I Could Only Own 3 Dividend Investments For The Next 10 Years",
+          "summary": "Charlie Munger once extolled the virtues of investing in a concentrated handful of high-conviction investment ideas.",
+          "date": "1785832500"
         }
       ],
       "ai_sentiment": {
-        "value": "1. **OVERALL NEWS TONE:** Positive \u2014 The recent FAA certification of the Boeing 737 MAX 7 after years of delays signifies progress and a potential boost for Boeing's reputation and financial outlook.\n\n2. **DOMINANT THEMES:** a) Regulatory approvals (FAA certification of the 737 MAX 7), b) Boeing's financial performance and market outlook, c) Challenges faced by the aviation sector contrasted with supplier performance.\n\n3. **SENTIMENT SHIFT:** The tone is improving compared to the recent past, as the FAA approval represents a significant milestone that could enhance Boeing\u2019s market position and investor confidence.",
+        "value": "1. **OVERALL NEWS TONE:** Positive \u2014 The predominant focus on Procter & Gamble's significant acquisition of Thorne for $3.8 billion highlights the company's strategic growth in the wellness sector.\n\n2. **DOMINANT THEMES:** \n   - Acquisitions and expansions, particularly regarding P&G's purchase of Thorne.\n   - Interest in high-yield dividend investments and financial strategies.\n   - Market analysis and performance outlook for Procter & Gamble and other stocks.\n\n3. **SENTIMENT SHIFT:** The tone is improving, as the favorable acquisition news indicates a proactive growth strategy for P&G, offsetting previous underperformance concerns.",
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
       }
@@ -3403,12 +3401,12 @@
     "s14_differ": {
       "section": "where_we_differ",
       "current_price": {
-        "value": 238.45,
+        "value": 145.705,
         "source": "yfinance",
         "status": "ok"
       },
       "analyst_pt_mean": {
-        "value": 273.34616,
+        "value": 160.69565,
         "source": "yfinance",
         "status": "ok"
       },
@@ -3428,7 +3426,7 @@
         "status": "na"
       },
       "direction": {
-        "value": "PROCEED",
+        "value": "BLOCK",
         "source": "mandate_checker",
         "status": "ok"
       },
@@ -3438,7 +3436,7 @@
         "status": "na"
       },
       "ai_where_we_differ": {
-        "value": "Haz Capital's analysis of Boeing (BA) shows alignment with the market consensus in terms of the analyst rating, which is a \"buy\" based on 26 analysts. However, there is no provided DCF valuation from Haz Capital, leaving a gap in understanding how our implied value compares to the consensus price target of $273.35. The absence of a DCF analysis prevents us from identifying any specific assumptions that could explain a divergence.\n\nAdditionally, while the technical indicators reflect a \"Strong Uptrend\" with a relative strength index (RSI) of 64.5, which is generally favorable, this does not contradict the analyst consensus. It suggests that the market is optimistic about BA\u2019s potential, consistent with the buy rating. \n\nMoreover, the short interest percentage is notably low at 0.0002%, which indicates minimal bearish sentiment among investors, consistent with the optimistic outlook. Overall, there are no significant divergences from market consensus in our analysis based on the provided data points.",
+        "value": "Haz Capital's analysis of Procter & Gamble (PG) presents notable divergences from the market consensus. While the analyst consensus price target is $160.70, indicating a potential upside of approximately 10.3% from the current price of $145.71, we have not established a DCF fair value, leaving a gap in understanding the foundational assumptions driving this discrepancy.\n\nAdditionally, the technical indicators show an RSI of 47.6, suggesting that PG is neither overbought nor oversold, yet the broader trend indicates a \"Strong Downtrend.\" This contradicts the \"buy\" rating suggested by the analyst consensus, raising concerns about the sustainability of the bullish sentiment amidst a weakening technical landscape. \n\nLastly, the short interest stands at 0.99%, which is relatively low and does not significantly contrast with the analyst consensus. This suggests that investor sentiment remains stable, with minimal bearish positioning in the market. Overall, Haz Capital's analysis highlights the potential volatility within PG's current trend while aligning on growth expectations with the market consensus.",
         "source": "claude-haiku-4-5-20251001 [AI narrative]",
         "status": "ok"
       }
@@ -3462,15 +3460,15 @@
         },
         {
           "name": "Market cap \u2265 $200M USD",
-          "passed": true,
-          "detail": "Market cap: $188.5B",
+          "passed": false,
+          "detail": "Market cap: unavailable",
           "source": "yfinance",
           "category": "Mandate"
         },
         {
           "name": "Avg daily volume \u2265 500K shares",
           "passed": true,
-          "detail": "Avg daily volume: 6.6M shares/day",
+          "detail": "Avg daily volume: 8.9M shares/day",
           "source": "yfinance",
           "category": "Mandate"
         },
@@ -3484,7 +3482,7 @@
         {
           "name": "Float \u2265 10%",
           "passed": true,
-          "detail": "Float: 96.0% (758M of 790M shares)",
+          "detail": "Float data unavailable \u2014 assumed compliant",
           "source": "yfinance",
           "category": "Mandate"
         },
@@ -3526,14 +3524,14 @@
         {
           "name": "Debt-to-equity < 3",
           "passed": false,
-          "detail": "D/E: 790.88",
+          "detail": "D/E: 62.86",
           "source": "yfinance/FMP [CALCULATED]",
           "category": "Fundamental"
         },
         {
           "name": "P/E (TTM) below 50",
-          "passed": false,
-          "detail": "P/E TTM: 86.1",
+          "passed": true,
+          "detail": "P/E TTM: 21.9",
           "source": "yfinance",
           "category": "Fundamental"
         },
@@ -3554,14 +3552,14 @@
         {
           "name": "RSI not overbought (< 75)",
           "passed": true,
-          "detail": "RSI: 64.5",
+          "detail": "RSI: 47.6",
           "source": "yfinance [CALCULATED]",
           "category": "Technical"
         },
         {
           "name": "Trend signal Bullish or Neutral",
           "passed": false,
-          "detail": "Trend: Strong Uptrend",
+          "detail": "Trend: Strong Downtrend",
           "source": "yfinance [CALCULATED]",
           "category": "Technical"
         }
@@ -3576,31 +3574,31 @@
     },
     "s16_recommendation": {
       "direction": "BUY",
-      "conviction": 67,
+      "conviction": 66,
       "expected_return_12m": null,
       "position_size_pct": 2.0,
       "stop_loss_pct": null,
       "three_arguments": [
         {
-          "title": "Expected announcement of new defense con",
+          "title": "Launch of new sustainable product line",
           "data_point": "Committee deliberation",
-          "reasoning": "Expected announcement of new defense contracts"
+          "reasoning": "Launch of new sustainable product line"
         },
         {
-          "title": "Upcoming earnings report on 2026-08-12",
+          "title": "Upcoming earnings report on 2026-08-25",
           "data_point": "Committee deliberation",
-          "reasoning": "Upcoming earnings report on 2026-08-12"
+          "reasoning": "Upcoming earnings report on 2026-08-25"
         },
         {
           "title": "See committee narrative",
           "data_point": "Committee deliberation",
-          "reasoning": "Boeing is benefiting from a macro tailwind in the aerospace sector, with a significant revenue growth rate of 34.5%. The stock is currently trading 6.3% below its 52-week high, suggesting a potential "
+          "reasoning": "Procter & Gamble is trading 11.4% below its 52-week high, suggesting potential undervaluation. The company's strong market presence and commitment to sustainability align with consumer trends, providi"
         }
       ],
       "key_risks": [
-        "High P/E ratio may lead to valuation corrections if growth expectations are not met"
+        "High competition may pressure margins"
       ],
-      "committee_narrative": "Boeing is benefiting from a macro tailwind in the aerospace sector, with a significant revenue growth rate of 34.5%. The stock is currently trading 6.3% below its 52-week high, suggesting a potential entry point. The technical indicators show strong bullish momentum, and the upcoming defense contracts could serve as a catalyst for further growth. An exit condition would be if the stock drops below $230, indicating a failure to maintain support.",
+      "committee_narrative": "Procter & Gamble is trading 11.4% below its 52-week high, suggesting potential undervaluation. The company's strong market presence and commitment to sustainability align with consumer trends, providing a solid foundation for growth. The upcoming product launches could serve as catalysts for revenue growth. An exit condition would be if the stock falls below $135, indicating a failure to hold support.",
       "conviction_source": "Real Investment Committee decision \u2014 this is the actual decision that placed the trade, not a separately re-derived score."
     },
     "s17_reliability": {
@@ -3645,7 +3643,7 @@
         "status": "ok"
       },
       "api_fields_count": {
-        "value": 440,
+        "value": 425,
         "source": "system [CALCULATED]",
         "status": "ok"
       },
@@ -3655,7 +3653,7 @@
         "status": "ok"
       },
       "na_fields_count": {
-        "value": 98,
+        "value": 113,
         "source": "system [CALCULATED]",
         "status": "ok"
       },
@@ -3665,7 +3663,7 @@
         "status": "ok"
       },
       "coverage_pct": {
-        "value": 81.0,
+        "value": 78.3,
         "source": "system [CALCULATED]",
         "status": "ok"
       },
@@ -3675,12 +3673,12 @@
         "status": "ok"
       },
       "fetch_elapsed_sec": {
-        "value": 5.6,
+        "value": 5.7,
         "source": "system",
         "status": "ok"
       },
       "generated_at": {
-        "value": "2026-08-05T16:32:30.692411Z",
+        "value": "2026-08-05T16:33:39.732743Z",
         "source": "system",
         "status": "ok"
       }
@@ -3731,59 +3729,74 @@
     },
     "s_j_ma": {
       "section": "ma_track_record",
-      "company_name": "The Boeing Company",
+      "company_name": "",
       "ma_8k_filings": [],
       "ma_news_headlines": [
         {
-          "headline": "IBM Stock Alert: What to Know as IBM Acquires Quantum Computing Research Lab",
-          "date": 1784833118,
-          "url": "https://finnhub.io/api/news?id=b3079ee22e88350bb152c4aa125a1b3b1c70d14ad0eb35d5e054b865a631feb7"
+          "headline": "See how P&G's $3.8B deal for Thorne compares to its past acquisitions",
+          "date": 1785873243,
+          "url": "https://finnhub.io/api/news?id=6d72615301424669ae480d5a0b0ce38af98ece033508a9828fde36fa78c3c985"
         },
         {
-          "headline": "IBM acquires HRL Laboratories from Boeing and GM",
-          "date": 1784811986,
-          "url": "https://finnhub.io/api/news?id=7fe55816c47dab7142f68cf3084ecd1e3779c10ad222380b6d138b1536ea9910"
+          "headline": "Procter & Gamble to Acquire Thorne for $3.8B, Expanding Personal Health Care Portfolio",
+          "date": 1785866667,
+          "url": "https://finnhub.io/api/news?id=e6e3b2f7baa58878f94d269e7934e2ad5938b6dcae12f81b5ae04a14699962fa"
         },
         {
-          "headline": "IBM to Acquire HRL Laboratories to Power the Future of Quantum",
-          "date": 1784804400,
-          "url": "https://finnhub.io/api/news?id=52de622a51a1cf7a7218055abd7affb4ef42243604f7ee289993985dba8e343d"
+          "headline": "P&G to acquire supplement brand Thorne for $3.8 billion",
+          "date": 1785864695,
+          "url": "https://finnhub.io/api/news?id=91609ab5e78012793d99cc722e4b992456148aec8b0fe303c8068c4807005233"
         },
         {
-          "headline": "GE Aerospace Receives Order From National Airlines To Acquire One GE90-110B, Six CF6-80C2 Engines For Boeing 777F/747F Cargo Jets",
-          "date": 1784798937,
-          "url": "https://finnhub.io/api/news?id=cb8abdaf2fbe0352ac141417d7b6518991c24a2948aad57396c71f6b13736b39"
+          "headline": "Procter & Gamble to acquire Thorne for $3.8 billion, CEO says",
+          "date": 1785863709,
+          "url": "https://finnhub.io/api/news?id=ebd59b105c2fde14584e840f9d28bed27747c8acff92673613254ec36de6dc24"
         },
         {
-          "headline": "IBM To Acquire R&D Firm HRL Laboratories From Boeing And General Motors; Financial Terms Not Disclosed",
-          "date": 1784790313,
-          "url": "https://finnhub.io/api/news?id=993d9e88056e96306d2003d81cabe45d8e649c320b56798c110802ba24af5f9c"
+          "headline": "P&G Reportedly Set To Acquire Thorne In A $3.8B Deal \u2013 CEO Jejurikar Says Firm Is \u2018Really Happy With The Asset\u2019",
+          "date": 1785863238,
+          "url": "https://finnhub.io/api/news?id=d391eb45135b45a88967e3ae3acf9e636a60771e5b5d6c1f0355ff149dbbdb09"
+        },
+        {
+          "headline": "Thorne Enters into Definitive Agreement to Be Acquired by Procter & Gamble",
+          "date": 1785862800,
+          "url": "https://finnhub.io/api/news?id=86d5da13456ec47f85cb8e4cda599ad180ab7840d43aeb0cb70ae217cf4be50e"
+        },
+        {
+          "headline": "Procter & Gamble To Acquire Thorne From L Catterton's Flagship Fund; Deal Anticipated To Close Later In 2026",
+          "date": 1785848694,
+          "url": "https://finnhub.io/api/news?id=a2d89fba72656516c0a7dbc91a6c1006d46e12d059718950d1a736efe0a4c171"
+        },
+        {
+          "headline": "Procter & Gamble will acquire supplements brand Thorne, CEO says",
+          "date": 1785843033,
+          "url": "https://finnhub.io/api/news?id=7e04573dc753898c61092517be79f805d559238999041bbac6e833541169d6bc"
         }
       ],
       "ma_search_results": [],
       "ai_events": [
         {
           "year": 2023,
-          "type": "Divestiture",
-          "target": "HRL Laboratories",
-          "deal_value": null,
-          "status": "Completed"
+          "type": "Acquisition",
+          "target": "Thorne",
+          "deal_value": "$3.8B",
+          "status": "Pending"
         }
       ],
-      "ai_narrative": "The Boeing Company's recent M&A activity includes the divestiture of HRL Laboratories to IBM and General Motors, illustrating a strategic shift towards focusing on core business competencies. This move indicates Boeing's willingness to streamline operations and possibly reallocate resources to areas that align more closely with its primary aerospace objectives.",
+      "ai_narrative": "Procter & Gamble is actively expanding its portfolio through strategic acquisitions, as evidenced by the recent $3.8 billion deal for Thorne, a supplement brand. This move illustrates P&G's focus on enhancing its personal health care offerings to meet evolving consumer demands.",
       "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily M&A search + SEC 8-K + Finnhub news",
       "ai_status": "ok"
     },
     "s_b_porter": {
       "section": "porter_five_forces",
-      "company_name": "The Boeing Company",
+      "company_name": null,
       "sector": {
-        "value": "Industrials",
+        "value": "Consumer Defensive",
         "source": "yfinance/FMP",
         "status": "ok"
       },
       "industry": {
-        "value": "Aerospace & Defense",
+        "value": "Household & Personal Products",
         "source": "yfinance/FMP",
         "status": "ok"
       },
@@ -3798,7 +3811,7 @@
         "status": "na"
       },
       "gross_margin_pct": {
-        "value": 4.7,
+        "value": 50.7,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
@@ -3833,7 +3846,7 @@
     },
     "s_c_sotp": {
       "section": "sotp_valuation",
-      "company_name": "The Boeing Company",
+      "company_name": "",
       "total_revenue": {
         "value": null,
         "source": "FMP",
@@ -3845,37 +3858,37 @@
         "status": "na"
       },
       "shares_outstanding": {
-        "value": 790370020.0,
+        "value": null,
         "source": "yfinance",
-        "status": "ok"
+        "status": "na"
       },
       "current_price": {
-        "value": 238.45,
+        "value": 145.705,
         "source": "yfinance",
         "status": "ok"
       },
       "market_cap": {
-        "value": 188463742976.0,
+        "value": null,
         "source": "yfinance/FMP",
-        "status": "ok"
+        "status": "na"
       },
       "subj_ev_ebitda": {
-        "value": -74.666,
+        "value": 15.902,
         "source": "yfinance",
         "status": "ok"
       },
       "subj_ev_rev": {
-        "value": 2.0050402,
+        "value": null,
         "source": "yfinance",
-        "status": "ok"
+        "status": "na"
       },
       "peer_median_ev_rev": {
-        "value": 1.84,
+        "value": 3.71,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
       "peer_median_ev_ebitda": {
-        "value": 15.78,
+        "value": 16.38,
         "source": "yfinance [CALCULATED]",
         "status": "ok"
       },
@@ -3909,94 +3922,104 @@
   "source": "pipeline_auto",
   "agent_digest": {
     "fundamental": {
-      "score": 45,
+      "score": 78,
       "direction": "LONG",
-      "summary": "BA has a revenue growth rate of 34.5%, significantly higher than peers. However, its P/E ratio of 86.12 is much higher than the peer average of 38.60, indicating a premium valuation amidst high leverage with a D/E of 790.88.",
+      "summary": "PG has a strong gross margin of 50.7% and a high ROE of 30.3%, indicating solid profitability. However, its current ratio of 0.68 and high D/E of 62.86 raise concerns about balance sheet health compared to peers.",
       "raw": {
-        "ticker": "BA",
-        "fundamental_score": 45,
+        "ticker": "PG",
+        "fundamental_score": 78,
         "direction": "LONG",
-        "valuation_vs_peers": "BA's P/E of 86.12 is significantly higher than the peer average of 38.60, indicating a premium valuation.",
-        "price_vs_intrinsic_value": "123.5% premium vs peer median P/E",
+        "valuation_vs_peers": "PG's P/E of 21.96 is below the peer average of 25.70, indicating a favorable valuation.",
+        "price_vs_intrinsic_value": "-14.2%",
         "dislocation_opportunity": false,
-        "pe_ratio": 86.12,
-        "pe_peer_average": 38.6,
-        "revenue_growth_yoy": 0.345,
-        "operating_margin": 0.0,
+        "pe_ratio": 21.96,
+        "pe_peer_average": 25.7,
+        "revenue_growth_yoy": null,
+        "operating_margin": 19.5,
         "roic": null,
-        "net_debt_ebitda": 8.39,
+        "net_debt_ebitda": null,
         "peers_used": [
-          "GE",
-          "RTX",
-          "LMT.TO",
-          "LMT",
-          "HWM"
+          "CL",
+          "KMB",
+          "CHD",
+          "CLX",
+          "REYN"
         ],
-        "setup_type": "Growth",
+        "setup_type": "Stable",
         "margin_trend": "Stable",
         "fcf_positive": true,
-        "leverage_vs_peers": "Higher",
+        "leverage_vs_peers": "Lower",
         "default_risk": "High",
         "key_strengths": [
-          "Revenue growth YoY of 34.5%"
+          "Gross margin of 50.7%",
+          "ROE of 30.3%"
         ],
         "key_concerns": [
-          "D/E of 790.88 indicating high leverage"
+          "Current ratio of 0.68",
+          "D/E of 62.86"
         ],
-        "fundamental_summary": "BA has a revenue growth rate of 34.5%, significantly higher than peers. However, its P/E ratio of 86.12 is much higher than the peer average of 38.60, indicating a premium valuation amidst high leverage with a D/E of 790.88.",
+        "fundamental_summary": "PG has a strong gross margin of 50.7% and a high ROE of 30.3%, indicating solid profitability. However, its current ratio of 0.68 and high D/E of 62.86 raise concerns about balance sheet health compared to peers.",
         "fund_mandate": {
           "asset_class": "Equity",
           "exchange": "NYSE",
-          "sector": "Industrials",
-          "market_cap_figure": "Mega Cap - $188.5B",
+          "sector": "Consumer Defensive",
+          "market_cap_figure": "Mega Cap",
           "avg_daily_volume_usd": null,
           "geography_flags": {
             "russia_exposure": false,
             "mongolia_exposure": false,
             "cambodia_exposure": false,
-            "exposure_detail": null
+            "exposure_detail": "Primarily North America and Europe"
           },
           "peps_check": {
-            "clean": null,
-            "notes": "Unverified \u2014 manual check required"
+            "clean": true,
+            "notes": "No significant issues reported."
           },
-          "setup_type": "Growth",
-          "float_pct": 96.0
+          "setup_type": "Stable",
+          "float_pct": null
         },
         "company_info": {
-          "hq": "Chicago, USA",
-          "employees": 140000,
-          "overview": "Boeing is a leading aerospace company and manufacturer of commercial jetliners, defense, space, and security systems. With a rich history in aviation, Boeing continues to innovate and lead in the aerospace sector.",
+          "hq": "Cincinnati, USA",
+          "employees": 97000,
+          "overview": "Procter & Gamble Co. is a leading consumer goods company known for its wide range of personal care and hygiene products. The company has a strong brand portfolio, including well-known names such as Tide, Pampers, and Gillette.",
           "revenue_segments": [
             {
-              "segment": "Commercial Airplanes",
-              "weight_pct": 60.0
+              "segment": "Beauty",
+              "weight_pct": 20.0
             },
             {
-              "segment": "Defense, Space & Security",
-              "weight_pct": 30.0
+              "segment": "Grooming",
+              "weight_pct": 15.0
             },
             {
-              "segment": "Global Services",
+              "segment": "Health Care",
               "weight_pct": 10.0
+            },
+            {
+              "segment": "Fabric & Home Care",
+              "weight_pct": 35.0
+            },
+            {
+              "segment": "Baby, Feminine & Family Care",
+              "weight_pct": 20.0
             }
           ],
           "geography_breakdown": [
             {
               "region": "North America",
-              "pct": 60.0
-            },
-            {
-              "region": "Asia",
-              "pct": 20.0
+              "pct": 45.0
             },
             {
               "region": "Europe",
+              "pct": 30.0
+            },
+            {
+              "region": "Asia Pacific",
               "pct": 15.0
             },
             {
-              "region": "Other",
-              "pct": 5.0
+              "region": "Latin America",
+              "pct": 10.0
             }
           ],
           "revenue_segments_source": "llm"
@@ -4004,210 +4027,206 @@
         "financial_snapshot": {
           "historical": [
             {
+              "year": "2026",
+              "revenue": null,
+              "ebitda": null,
+              "net_income": null
+            },
+            {
               "year": "2025",
-              "revenue": 89463000000.0,
-              "ebitda": -3463000000.0,
-              "net_income": 2235000000.0
+              "revenue": 84284000000.0,
+              "ebitda": 23298000000.0,
+              "net_income": 15974000000.0
             },
             {
               "year": "2024",
-              "revenue": 66517000000.0,
-              "ebitda": -8988000000.0,
-              "net_income": -11817000000.0
+              "revenue": 84039000000.0,
+              "ebitda": 22782000000.0,
+              "net_income": 14879000000.0
             },
             {
               "year": "2023",
-              "revenue": 77794000000.0,
-              "ebitda": 1040000000.0,
-              "net_income": -2222000000.0
-            },
-            {
-              "year": "2022",
-              "revenue": 66608000000.0,
-              "ebitda": -1530000000.0,
-              "net_income": -4935000000.0
+              "revenue": 82006000000.0,
+              "ebitda": 20848000000.0,
+              "net_income": 14653000000.0
             }
           ],
           "forward": [
             {
               "year": "0q",
-              "revenue": 24866169120.0,
+              "revenue": 22749226910.0,
               "ebitda": null,
-              "net_income": -0.14895,
+              "net_income": 1.88694,
               "source": "analyst consensus from Yahoo Finance"
             },
             {
               "year": "+1q",
-              "revenue": 26146656130.0,
+              "revenue": 22692120250.0,
               "ebitda": null,
-              "net_income": 0.00494,
+              "net_income": 1.88103,
               "source": "analyst consensus from Yahoo Finance"
             }
           ]
         },
         "comparables": [
           {
-            "ticker": "BA",
-            "company": "Boeing",
-            "revenue_bn": 77.8,
-            "gross_margin_pct": 4.7,
-            "ebitda_margin_pct": 3.0,
-            "net_margin_pct": 2.6,
-            "de_ratio": 7.91
+            "ticker": "PG",
+            "company": "Procter & Gamble Co.",
+            "revenue_bn": 84.0,
+            "gross_margin_pct": 50.7,
+            "ebitda_margin_pct": 22.5,
+            "net_margin_pct": 18.4,
+            "de_ratio": 0.63
           },
           {
-            "ticker": "GE",
-            "company": "General Electric",
-            "revenue_bn": 50.6,
-            "gross_margin_pct": 31.1,
-            "ebitda_margin_pct": 23.6,
-            "net_margin_pct": 17.7,
-            "de_ratio": 1.13
+            "ticker": "CL",
+            "company": "Colgate-Palmolive Company",
+            "revenue_bn": 21.0,
+            "gross_margin_pct": 60.4,
+            "ebitda_margin_pct": 24.0,
+            "net_margin_pct": 9.7,
+            "de_ratio": 13.88
           },
           {
-            "ticker": "RTX",
-            "company": "Raytheon Technologies",
-            "revenue_bn": 93.5,
-            "gross_margin_pct": 20.3,
-            "ebitda_margin_pct": 15.7,
-            "net_margin_pct": 8.3,
-            "de_ratio": 0.57
+            "ticker": "KMB",
+            "company": "Kimberly-Clark Corporation",
+            "revenue_bn": 16.6,
+            "gross_margin_pct": 37.1,
+            "ebitda_margin_pct": 22.6,
+            "net_margin_pct": 12.8,
+            "de_ratio": 3.71
           },
           {
-            "ticker": "LMT.TO",
-            "company": "Lockheed Martin (Toronto)",
-            "revenue_bn": null,
-            "gross_margin_pct": null,
-            "ebitda_margin_pct": null,
-            "net_margin_pct": null,
-            "de_ratio": null
+            "ticker": "CHD",
+            "company": "Church & Dwight Co., Inc.",
+            "revenue_bn": 6.2,
+            "gross_margin_pct": 45.6,
+            "ebitda_margin_pct": 21.1,
+            "net_margin_pct": 12.0,
+            "de_ratio": 0.56
           },
           {
-            "ticker": "LMT",
-            "company": "Lockheed Martin",
-            "revenue_bn": 77.0,
-            "gross_margin_pct": 11.8,
-            "ebitda_margin_pct": 15.0,
-            "net_margin_pct": 8.2,
-            "de_ratio": 2.34
+            "ticker": "CLX",
+            "company": "The Clorox Company",
+            "revenue_bn": 6.7,
+            "gross_margin_pct": 42.8,
+            "ebitda_margin_pct": 19.4,
+            "net_margin_pct": 8.7,
+            "de_ratio": 21.9
           },
           {
-            "ticker": "HWM",
-            "company": "Howmet Aerospace",
-            "revenue_bn": 8.6,
-            "gross_margin_pct": 35.0,
-            "ebitda_margin_pct": 31.2,
-            "net_margin_pct": 20.2,
-            "de_ratio": 0.88
+            "ticker": "REYN",
+            "company": "Reynolds Consumer Products Inc.",
+            "revenue_bn": 3.8,
+            "gross_margin_pct": 25.1,
+            "ebitda_margin_pct": 17.6,
+            "net_margin_pct": 9.1,
+            "de_ratio": 0.71
           }
         ],
         "market_analysis": {
-          "tam_usd": "The total addressable market for aerospace and defense is estimated to be around $800 billion, with Boeing holding a significant share in commercial aviation.",
-          "growth_rate": "The aerospace sector is projected to grow at a CAGR of approximately 3-5% over the next decade.",
-          "competition_intensity": "High",
-          "sector_trends": "The demand for commercial aircraft is rebounding post-pandemic, while defense spending remains robust.",
-          "macro_factors": "Global supply chain disruptions and geopolitical tensions are impacting production timelines and costs."
+          "tam_usd": "The total addressable market for consumer goods is estimated to be over $1 trillion globally, with significant growth potential in emerging markets.",
+          "growth_rate": "The sector is expected to grow at a CAGR of 4-6% over the next five years.",
+          "competition_intensity": "Medium",
+          "sector_trends": "There is a growing trend towards sustainability and eco-friendly products in the consumer goods sector.",
+          "macro_factors": "Inflationary pressures and supply chain disruptions continue to impact consumer spending and product availability."
         },
         "quality_of_earnings": {
           "moat": "Wide",
           "competitive_advantages": [
             "Strong brand recognition",
-            "Extensive R&D capabilities",
-            "Long-term government contracts"
+            "Extensive distribution network",
+            "Robust R&D capabilities"
           ],
-          "barriers_to_entry": "High capital requirements and regulatory hurdles make it difficult for new entrants to compete in the aerospace sector.",
-          "sustainability": "Boeing is investing in sustainable aviation technologies, which may enhance its long-term viability."
+          "barriers_to_entry": "High due to established brand loyalty and significant marketing expenditures required.",
+          "sustainability": "Procter & Gamble has committed to sustainability goals, including reducing plastic waste and improving product recyclability."
         },
         "management_team": {
-          "ceo": "David L. Calhoun - CEO of Boeing since January 2020, with extensive experience in the aerospace and defense sectors.",
-          "track_record": "Calhoun has a solid track record in managing large organizations and navigating complex challenges.",
+          "ceo": "Jon Moeller - CEO since 2021, previously served as CFO and COO, with a strong background in finance and operations.",
+          "track_record": "The management team has a solid track record of delivering consistent revenue growth and shareholder returns.",
           "red_flags": null
         },
         "analyst_rating_history": {
-          "current_consensus": "Hold",
+          "current_consensus": "Buy",
           "num_analysts": null,
           "avg_target_price": null,
           "implied_upside_pct": null,
           "trend_24m": "Stable",
-          "summary": "Analysts are cautious due to ongoing operational challenges but see potential for recovery."
+          "summary": "Analysts remain optimistic about Procter & Gamble's ability to navigate market challenges and continue delivering growth."
         },
         "cap_table": {
-          "institutional_pct": 75.0,
+          "institutional_pct": 71.6,
           "insider_pct": 0.1,
-          "float_pct": 96.0,
+          "float_pct": null,
           "major_holders": [
             {
               "name": "Vanguard Group",
-              "pct": 8.5
+              "pct": 8.0
             },
             {
-              "name": "BlackRock",
-              "pct": 7.2
-            },
-            {
-              "name": "State Street",
-              "pct": 5.9
+              "name": "BlackRock, Inc.",
+              "pct": 7.5
             }
           ]
         },
         "setup_checklist": {
-          "setup_type": "Growth",
-          "revenue_cagr_3yr": 10.3,
+          "setup_type": "Stable",
+          "revenue_cagr_3yr": NaN,
           "above_20pct_threshold": false,
           "margin_trend": "Stable",
-          "sustainability_assessment": "Revenue grew from $66.6B in 2022 to $77.8B in 2023, indicating a positive trend. Operating margin improved from -2.3% in 2022 to 1.3% in 2023. FCF is positive at $2.2B.",
-          "tam_room_to_grow": "$800 billion market, Boeing holds approximately 10% share, with a growth rate of 3-5% expected.",
+          "sustainability_assessment": "Revenue grew from $82.0B in 2023 to $84.2B in 2025; operating margin stable at ~22.5%; FCF positive at $15.9B in 2025.",
+          "tam_room_to_grow": "The consumer goods market is approximately $1 trillion, with PG holding a significant share. The company is expected to grow at a rate of 4-6% annually.",
           "eps_growth_consistent": false,
           "fcf_positive": true,
-          "leverage_vs_peers": "Higher",
+          "leverage_vs_peers": "Lower",
           "default_risk": "High",
           "upcoming_catalysts": [
-            "Earnings \u2014 Q3 FY2023 results on October 25, consensus EPS $0.01",
-            "New aircraft delivery announcement \u2014 expected in November",
-            "Defense contract award \u2014 anticipated decision in December"
+            "Earnings \u2014 Q1 FY2026 results (~October 2023), consensus EPS $1.89",
+            "Product launch \u2014 New eco-friendly product line (~November 2023)",
+            "Investor Day \u2014 Strategic growth initiatives presentation (~December 2023)"
           ],
           "key_risks": [
             {
-              "risk": "Supply chain disruptions",
-              "mechanism": "Ongoing global supply chain issues affecting production timelines.",
-              "category": "Operational"
-            },
-            {
-              "risk": "Regulatory scrutiny",
-              "mechanism": "Increased FAA oversight following past incidents may delay approvals.",
-              "category": "Regulatory"
-            },
-            {
               "risk": "Rising input costs",
-              "mechanism": "Inflation in raw materials impacting margins.",
+              "mechanism": "Commodity prices for raw materials increasing, impacting margins.",
               "category": "Financial"
             },
             {
-              "risk": "Geopolitical tensions",
-              "mechanism": "Conflicts affecting defense contracts and international sales.",
-              "category": "Macro"
+              "risk": "Regulatory scrutiny",
+              "mechanism": "Increased regulations on consumer goods affecting product formulations.",
+              "category": "Regulatory"
             },
             {
-              "risk": "Competition from emerging players",
-              "mechanism": "New entrants in the aerospace market could capture market share.",
+              "risk": "Market share loss",
+              "mechanism": "Increased competition from private label brands eroding market share.",
               "category": "Competitive"
+            },
+            {
+              "risk": "Supply chain disruptions",
+              "mechanism": "Ongoing global supply chain issues affecting product availability.",
+              "category": "Operational"
+            },
+            {
+              "risk": "Changing consumer preferences",
+              "mechanism": "Shift towards sustainable products impacting traditional product lines.",
+              "category": "Macro"
             }
           ],
           "moat_strength": "Wide",
-          "near_term_catalyst": "Q3 earnings on October 25 \u2014 consensus EPS $0.01"
+          "near_term_catalyst": "Q1 earnings on October 20 \u2014 consensus EPS $1.89"
         },
         "valuation": {
           "methodology": "P/S",
           "analyst_consensus_target": null,
-          "implied_multiples": "BA's P/E of 86.12 is significantly higher than the peer average of 38.60, indicating a premium valuation.",
-          "cheap_vs_peers": "expensive",
-          "near_term_upside_pct": null
+          "implied_multiples": "PG's P/E of 21.96 is below the peer average of 25.70, indicating a favorable valuation.",
+          "cheap_vs_peers": "cheap",
+          "near_term_upside_pct": "5-10%"
         },
-        "market_timing": "Current market conditions suggest cautious optimism, with potential for positive movement around upcoming earnings.",
+        "market_timing": "Current market signals suggest a stable outlook for PG, with positive momentum leading into the upcoming earnings report.",
         "investment_thesis_bullets": [
-          "Revenue increased from $66.6B in 2022 to $77.8B in 2023, showing growth.",
-          "Compared to peers, BA's margins are lower, indicating room for improvement.",
-          "Boeing's strong brand and government contracts provide a competitive edge."
+          "Revenue of $84.0B indicates strong market presence.",
+          "PG's P/E of 21.96 is below the peer average of 25.70, suggesting undervaluation.",
+          "The company's commitment to sustainability aligns with growing consumer trends."
         ],
         "_data_sources": {
           "fundamental_score": "live_api_only",
@@ -4230,18 +4249,11 @@
         },
         "data_conflicts": [
           {
-            "metric": "revenue (EDGAR override)",
-            "yfinance_value": 93994999808,
-            "sec_edgar_value": 77794000000.0,
-            "diff_pct": 17.2,
+            "metric": "eps (EDGAR override)",
+            "yfinance_value": 6.64,
+            "sec_edgar_value": 6.02,
+            "diff_pct": 9.3,
             "resolution": "sec_edgar used (ground truth \u2014 filed document)"
-          },
-          {
-            "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-            "yfinance_value": 2.77,
-            "sec_edgar_value": -3.67,
-            "diff_pct": 232.5,
-            "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
           }
         ],
         "data_confidence": {
@@ -4251,12 +4263,12 @@
             "yfinance",
             "sec_edgar"
           ],
-          "conflicts_count": 2
+          "conflicts_count": 1
         },
-        "market_cap": 188546727936,
-        "beta": 1.221,
-        "current_ratio": 1.138,
-        "avg_daily_volume": 6563716,
+        "market_cap": null,
+        "beta": 0.377,
+        "current_ratio": 0.677,
+        "avg_daily_volume": 8893360,
         "current_price": null,
         "candidate_score": 2.0,
         "candidate_signals": [
@@ -4266,83 +4278,87 @@
       }
     },
     "quant": {
-      "score": 82,
+      "score": 42,
       "direction": "LONG",
-      "summary": "The technical setup indicates a strong bullish momentum with price above key moving averages and a bullish MACD signal. In the next 5-10 days, BA is likely to continue its upward trajectory, targeting resistance levels around $236.45.",
+      "summary": "The technical setup indicates a sideways trend with a potential for a bounce due to the proximity to support levels. However, the low mean reversion score suggests that momentum may continue to be weak, leading to uncertainty in the next 5-10 days.",
       "raw": {
-        "ticker": "BA",
-        "quant_score": 82,
+        "ticker": "PG",
+        "quant_score": 42,
         "direction": "LONG",
-        "trade_type": "momentum",
-        "forward_bias": "bullish",
-        "mean_reversion_score": 0,
-        "trend": "uptrend",
-        "rsi_14": 64.5,
-        "macd_signal": "bullish",
-        "volume_trend": "accumulation",
-        "support": 221.04,
-        "resistance": 236.45,
+        "trade_type": "mean_reversion",
+        "forward_bias": "neutral",
+        "mean_reversion_score": 10,
+        "trend": "sideways",
+        "rsi_14": 48.1,
+        "macd_signal": "bearish",
+        "volume_trend": "neutral",
+        "support": 143.59,
+        "resistance": 144.76,
         "key_patterns": [
-          "bullish_ma_stack"
+          "golden_cross",
+          "lower_highs_lower_lows",
+          "consolidation"
         ],
         "signal_confidence": {
-          "level": "high",
-          "sources_count": 3,
+          "level": "low",
+          "sources_count": 1,
           "sources": [
-            "price_action",
-            "volume",
             "momentum_oscillators"
           ],
-          "conflicts": [],
-          "confidence_note": "3/3 signal sources confirming"
+          "conflicts": [
+            "volume diverging from price direction"
+          ],
+          "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction"
         },
         "data_conflicts": [],
         "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
-        "quant_summary": "The technical setup indicates a strong bullish momentum with price above key moving averages and a bullish MACD signal. In the next 5-10 days, BA is likely to continue its upward trajectory, targeting resistance levels around $236.45.",
-        "mean_reversion_signals": [],
-        "current_price": 238.38,
-        "ret_1m": 0.0597,
-        "ret_3m": 0.0368,
-        "ret_6m": 0.0103,
-        "week52_high": 254.35,
-        "week52_low": 176.77,
-        "pct_from_52w_high": -6.3,
-        "high_52w": 254.35,
-        "low_52w": 176.77,
+        "quant_summary": "The technical setup indicates a sideways trend with a potential for a bounce due to the proximity to support levels. However, the low mean reversion score suggests that momentum may continue to be weak, leading to uncertainty in the next 5-10 days.",
+        "mean_reversion_signals": [
+          "Within 15% of 52W low"
+        ],
+        "current_price": 145.98,
+        "ret_1m": -0.009,
+        "ret_3m": -0.0056,
+        "ret_6m": -0.0554,
+        "week52_high": 164.77,
+        "week52_low": 134.62,
+        "pct_from_52w_high": -11.4,
+        "high_52w": 164.77,
+        "low_52w": 134.62,
         "indicators": {
-          "rsi_14": 64.5,
-          "macd_bullish": true,
+          "rsi_14": 48.1,
+          "macd_bullish": false,
           "macd_histogram_expanding": true,
-          "stoch_k": 98.0,
-          "bb_pct": 1.059,
-          "volume_ratio": 0.37,
+          "stoch_k": 42.9,
+          "bb_pct": 0.363,
+          "volume_ratio": 0.51,
           "obv_trend": "up",
-          "sma_50": 219.87,
-          "sma_200": 218.72,
-          "cross_signal": null,
-          "current_price": 238.38,
-          "ret_1w": 0.0792,
-          "ret_1m": 0.0597,
-          "ret_3m": 0.0368,
-          "ret_6m": 0.0103,
-          "week52_high": 254.35,
-          "week52_low": 176.77,
-          "pct_from_52w_high": -6.3,
-          "atr_14": 7.49,
-          "atr_pct": 3.14
+          "sma_50": 146.61,
+          "sma_200": 145.89,
+          "cross_signal": "golden_cross",
+          "current_price": 145.98,
+          "ret_1w": 0.014,
+          "ret_1m": -0.009,
+          "ret_3m": -0.0056,
+          "ret_6m": -0.0554,
+          "week52_high": 164.77,
+          "week52_low": 134.62,
+          "pct_from_52w_high": -11.4,
+          "atr_14": 3.59,
+          "atr_pct": 2.46
         },
         "key_levels": {
-          "support": 221.04,
-          "resistance": 236.45,
+          "support": 143.59,
+          "resistance": 144.76,
           "support_levels": [
-            221.04,
-            215.4,
-            214.0
+            143.59,
+            143.1,
+            140.2
           ],
           "resistance_levels": [
-            236.45,
-            237.48,
-            244.07
+            144.76,
+            147.44,
+            151.29
           ]
         },
         "candidate_score": 2.0,
@@ -4356,15 +4372,15 @@
     "sentiment": {
       "score": 72,
       "direction": "LONG",
-      "summary": "The current market sentiment for BA is moderately bullish, supported by a positive analyst consensus and a significant upside in price targets. However, the lack of recent news catalysts and low signal confidence suggest that this sentiment may be leading rather than reacting to recent price movements.",
+      "summary": "The overall market sentiment for PG is moderately bullish, supported by a positive analyst consensus and a reasonable upside in price targets. However, the low signal confidence indicates that the sentiment may be lagging behind recent price movements, suggesting caution in the current market environment.",
       "raw": {
-        "ticker": "BA",
+        "ticker": "PG",
         "sentiment_score": 72,
         "direction": "LONG",
         "analyst_consensus": "Buy",
-        "price_target_upside_pct": 14.5,
+        "price_target_upside_pct": 10.2,
         "news_sentiment": "neutral",
-        "short_interest_pct": 0.0,
+        "short_interest_pct": 1.0,
         "short_squeeze_risk": "low",
         "retail_euphoria_warning": false,
         "analyst_targets_stale": false,
@@ -4380,7 +4396,7 @@
           "conflicts": [],
           "confidence_note": "1/3 sources confirming"
         },
-        "sentiment_summary": "The current market sentiment for BA is moderately bullish, supported by a positive analyst consensus and a significant upside in price targets. However, the lack of recent news catalysts and low signal confidence suggest that this sentiment may be leading rather than reacting to recent price movements.",
+        "sentiment_summary": "The overall market sentiment for PG is moderately bullish, supported by a positive analyst consensus and a reasonable upside in price targets. However, the low signal confidence indicates that the sentiment may be lagging behind recent price movements, suggesting caution in the current market environment.",
         "fmp_analyst_signals": {
           "available": true,
           "avg_target_price": null,
@@ -4394,11 +4410,11 @@
         },
         "analyst_detail": {
           "yf_label": "Buy",
-          "yf_num_analysts": 26,
-          "fh_strong_buy": 13,
-          "fh_buy": 18,
-          "fh_hold": 6,
-          "fh_sell": 0,
+          "yf_num_analysts": 23,
+          "fh_strong_buy": 8,
+          "fh_buy": 13,
+          "fh_hold": 15,
+          "fh_sell": 1,
           "fh_strong_sell": 0,
           "fh_period": "2026-08-01"
         },
@@ -4412,15 +4428,15 @@
         },
         "reddit_detail": null,
         "price_targets": {
-          "current": 238.72,
-          "mean": 273.34616,
-          "high": 300.0,
-          "low": 246.0,
-          "upside_pct": 14.5
+          "current": 145.85,
+          "mean": 160.69565,
+          "high": 186.0,
+          "low": 145.0,
+          "upside_pct": 10.2
         },
         "short_interest": {
-          "ratio": 0.03,
-          "pct_float": 0.0002
+          "ratio": 2.34,
+          "pct_float": 0.0099
         },
         "candidate_score": 2.0,
         "candidate_signals": [

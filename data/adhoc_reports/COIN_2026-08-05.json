@@ -1,485 +1,4153 @@
 {
   "ticker": "COIN",
-  "company_name": "COIN",
-  "sector": "N/A",
-  "current_price": 150.73,
-  "market_cap": 39768137728,
-  "date": "2026-08-05",
-  "generated_at": "2026-08-05 11:17 UTC",
-  "cached": false,
-  "source": "pipeline_auto",
-  "mandate_pass": true,
-  "mandate_fail_reason": null,
-  "direction": "HOLD",
-  "conviction": 63,
-  "expected_return_12m": "5-10%",
-  "s1_mandate": {
-    "pass": true,
-    "fail_reason": null,
-    "setup_type": "Growth",
+  "company_name": "Coinbase Global, Inc.",
+  "generated_at": "2026-08-05T16:33:19.321667Z",
+  "mandate": {
+    "passed": true,
+    "recommendation": "PROCEED",
     "checks": [
       {
-        "item": "Asset class",
-        "pass": true,
-        "note": "Common stock on US exchange"
+        "name": "Asset class: Common equity or ADR",
+        "passed": true,
+        "detail": "Quote type: EQUITY",
+        "source": "yfinance"
       },
       {
-        "item": "Market cap \u2265 $200M",
-        "pass": true,
-        "note": "$39.77B"
+        "name": "Listed on supported exchange",
+        "passed": true,
+        "detail": "Exchange: NMS",
+        "source": "yfinance/FMP"
       },
       {
-        "item": "Avg daily volume \u2265 500K shares",
-        "pass": true,
-        "note": "8,644,616 shares/day"
+        "name": "Market cap \u2265 $200M USD",
+        "passed": true,
+        "detail": "Market cap: $39.9B",
+        "source": "yfinance"
       },
       {
-        "item": "No restricted geography exposure",
-        "pass": true,
-        "note": "no flags"
+        "name": "Avg daily volume \u2265 500K shares",
+        "passed": true,
+        "detail": "Avg daily volume: 8.6M shares/day",
+        "source": "yfinance"
       },
       {
-        "item": "PEPs / sanctions clear",
-        "pass": true,
-        "note": "{'clean': None, 'notes': 'Unverified \u2014 manual check required'}"
+        "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
+        "passed": true,
+        "detail": "No restricted geography exposure detected (country: United States)",
+        "source": "FMP/yfinance"
       },
       {
-        "item": "Float \u2265 10%",
-        "pass": true,
-        "note": "98.6%"
+        "name": "Float \u2265 10%",
+        "passed": true,
+        "detail": "Float: 98.6% (220M of 223M shares)",
+        "source": "yfinance"
       },
       {
-        "item": "Setup type identified",
-        "pass": true,
-        "note": "Growth"
-      }
-    ]
-  },
-  "s2_company": {
-    "background": {
-      "hq": "San Francisco, USA",
-      "employees": null,
-      "overview": "Coinbase is a leading cryptocurrency exchange platform that allows users to buy, sell, and store various cryptocurrencies. It aims to provide a secure and user-friendly experience for both retail and institutional investors.",
-      "revenue_segments": [
-        {
-          "segment": "fiscalYear",
-          "weight_pct": 100.0
-        }
-      ],
-      "geography_breakdown": [
-        {
-          "region": "North America",
-          "pct": 70.0
-        },
-        {
-          "region": "Europe",
-          "pct": 20.0
-        },
-        {
-          "region": "Asia",
-          "pct": 10.0
-        }
-      ],
-      "revenue_segments_source": "fmp"
-    },
-    "financial_snapshot": {
-      "historical": [
-        {
-          "year": "2025",
-          "revenue": 7181325000.0,
-          "ebitda": 1644573000.0,
-          "net_income": 1260327000.0
-        },
-        {
-          "year": "2024",
-          "revenue": 6564028000.0,
-          "ebitda": 2362953000.0,
-          "net_income": 2579066000.0
-        },
-        {
-          "year": "2023",
-          "revenue": 3108383000.0,
-          "ebitda": 85899000.0,
-          "net_income": 94871000.0
-        },
-        {
-          "year": "2022",
-          "revenue": 3194208000.0,
-          "ebitda": -1793225000.0,
-          "net_income": -2624949000.0
-        }
-      ],
-      "forward": [
-        {
-          "year": "0q",
-          "revenue": 1159702920.0,
-          "ebitda": null,
-          "net_income": -0.11441,
-          "source": "analyst consensus from Yahoo Finance"
-        },
-        {
-          "year": "+1q",
-          "revenue": 1336238480.0,
-          "ebitda": null,
-          "net_income": 0.22425,
-          "source": "analyst consensus from Yahoo Finance"
-        }
-      ]
-    },
-    "comparables": [
-      {
-        "ticker": "COIN",
-        "company": "Coinbase",
-        "revenue_bn": 3.1,
-        "gross_margin_pct": 85.8,
-        "ebitda_margin_pct": -10.9,
-        "net_margin_pct": -16.3,
-        "de_ratio": 0.51
+        "name": "No known PEP/sanctions flags in recent news",
+        "passed": true,
+        "detail": "No sanctions or PEP flags detected in last 30 days of news",
+        "source": "Finnhub news [keyword scan]"
       },
       {
-        "ticker": "MCO",
-        "company": "Moody's Corporation",
-        "revenue_bn": 8.2,
-        "gross_margin_pct": 75.0,
-        "ebitda_margin_pct": 52.5,
-        "net_margin_pct": 34.3,
-        "de_ratio": 2.41
-      },
-      {
-        "ticker": "ICE",
-        "company": "Intercontinental Exchange",
-        "revenue_bn": 10.6,
-        "gross_margin_pct": 100.0,
-        "ebitda_margin_pct": 55.6,
-        "net_margin_pct": 38.2,
-        "de_ratio": 0.69
-      },
-      {
-        "ticker": "NDAQ",
-        "company": "Nasdaq, Inc.",
-        "revenue_bn": 5.6,
-        "gross_margin_pct": 100.0,
-        "ebitda_margin_pct": 52.3,
-        "net_margin_pct": 35.0,
-        "de_ratio": 0.78
-      },
-      {
-        "ticker": "MSCI",
-        "company": "MSCI Inc.",
-        "revenue_bn": 3.3,
-        "gross_margin_pct": 83.0,
-        "ebitda_margin_pct": 59.3,
-        "net_margin_pct": 40.7,
-        "de_ratio": null
-      },
-      {
-        "ticker": "CBOE",
-        "company": "Cboe Global Markets",
-        "revenue_bn": 5.1,
-        "gross_margin_pct": 54.1,
-        "ebitda_margin_pct": 37.6,
-        "net_margin_pct": 26.7,
-        "de_ratio": 0.28
+        "name": "Setup type identifiable",
+        "passed": true,
+        "detail": "Insufficient revenue history \u2014 proceeding as Unclassified",
+        "source": "FMP [CALCULATED]"
       }
     ],
-    "market_analysis": {
-      "tam_usd": "The total addressable market for cryptocurrency exchanges is estimated to be in the hundreds of billions, with significant growth potential as adoption increases.",
-      "growth_rate": "The cryptocurrency market is expected to grow at a CAGR of around 20-30% over the next few years.",
-      "competition_intensity": "High",
-      "sector_trends": "The cryptocurrency sector is experiencing increased regulatory scrutiny and evolving market dynamics, which could impact growth.",
-      "macro_factors": "Macroeconomic factors such as inflation and interest rates can influence cryptocurrency adoption and trading volumes."
+    "setup_type": "Unclassified",
+    "failure_reason": null,
+    "ticker": "COIN"
+  },
+  "brand_colors": {
+    "primary": "#0052FF",
+    "secondary": "#1D1E21",
+    "on_brand_text": "light",
+    "confidence": "certain",
+    "source": "claude-haiku-4-5-20251001 [AI brand knowledge]",
+    "status": "ok"
+  },
+  "tavily_quota_exceeded": false,
+  "api_errors": {},
+  "sections": {
+    "s1_cover": {
+      "section": "cover",
+      "ticker": "COIN",
+      "company_name": {
+        "value": "Coinbase Global, Inc.",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "exchange": {
+        "value": "NMS",
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "sector": {
+        "value": "Financial Services",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Financial Data & Stock Exchanges",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "country": {
+        "value": "United States",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "ceo": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "currency": {
+        "value": "USD",
+        "source": "FMP/yfinance",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "market_cap": {
+        "value": 39942270976,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_high": {
+        "value": 402.16,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_low": {
+        "value": 139.11,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "shares_outstanding": {
+        "value": 222803032,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "float_shares": {
+        "value": 219723389,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "short_pct_float": {
+        "value": 11.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "returns": {
+        "1m": {
+          "value": -5.0,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "3m": {
+          "value": -23.52,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "6m": {
+          "value": -10.22,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "1y": {
+          "value": -50.13,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "ytd": {
+          "value": -36.0,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "analyst_targets": {
+        "bear": {
+          "value": 95.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "base": {
+          "value": 200.07138,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "bull": {
+          "value": 330.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "recommendation": {
+          "value": "buy",
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rec_mean_score": {
+          "value": 1.94118,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "num_analysts": {
+          "value": 29,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "pt_upside_pct": {
+        "value": 32.2,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "mandate_status": "PROCEED",
+      "setup_type": "Unclassified",
+      "recommendation": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na",
+        "reason": "pending \u2014 filled after all sections"
+      },
+      "conviction_score": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na",
+        "reason": "pending \u2014 filled after all sections"
+      },
+      "expected_return_12m": {
+        "value": null,
+        "source": "Scenario Analysis",
+        "status": "na",
+        "reason": "pending \u2014 filled after Section 12"
+      },
+      "report_date": {
+        "value": "2026-08-05 16:33 UTC",
+        "source": "system",
+        "status": "ok"
+      },
+      "data_coverage": {
+        "value": "Full",
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "fetched_at": "2026-08-05T16:33:19.321667Z",
+      "company_image": null
     },
-    "quality_of_earnings": {
-      "moat": "Narrow",
-      "competitive_advantages": [
-        "Strong brand recognition",
-        "User-friendly platform"
-      ],
-      "barriers_to_entry": "High due to regulatory requirements and the need for robust security measures.",
-      "sustainability": "Moderate, as the business is heavily reliant on transaction volumes which can be volatile."
+    "s2_overview": {
+      "section": "overview",
+      "company_name": {
+        "value": "Coinbase Global, Inc.",
+        "source": "FMP/yfinance",
+        "status": "ok"
+      },
+      "ticker": {
+        "value": "COIN",
+        "source": "system",
+        "status": "ok"
+      },
+      "exchange": {
+        "value": "NMS",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "sector": {
+        "value": "Financial Services",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Financial Data & Stock Exchanges",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "country": {
+        "value": "United States",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "ceo": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "employees": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "ipo_date": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "website": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "market_cap": {
+        "value": 39942270976,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "revenue_cagr_3y": {
+        "value": null,
+        "source": "FMP",
+        "status": "na",
+        "reason": "insufficient history"
+      },
+      "fmp_description": {
+        "value": null,
+        "source": "FMP [company text, not AI]",
+        "status": "na"
+      },
+      "revenue_segments": {
+        "value": null,
+        "source": "FMP Professional / Tavily",
+        "status": "na",
+        "reason": "Segment breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
+      },
+      "geo_segments": {
+        "value": null,
+        "source": "FMP Professional / Tavily",
+        "status": "na",
+        "reason": "Geographic breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
+      },
+      "tavily_sources": [],
+      "ai_narrative": {
+        "value": "Coinbase Global, Inc. operates a comprehensive platform for crypto assets, catering to both consumers and institutional clients. Its services include a primary financial account for individuals within the crypto economy, a brokerage platform that aggregates liquidity across the crypto marketplace for institutions, and a suite of products designed for developers to build onchain applications. Established in 2012, Coinbase has positioned itself as a leader in the rapidly evolving financial data and stock exchanges industry.\n\nThe company serves customers in the United States and internationally, positioning itself as a pivotal player in the global cryptocurrency market. Its customer base encompasses everyday consumers looking to engage in crypto trading as well as institutional investors seeking robust liquidity solutions. While specific geographical revenue breakdowns and customer demographics are not detailed, the broad international presence underscores its significance within the crypto ecosystem.\n\nCoinbase's strategic priorities revolve around enhancing user experience and expanding its range of products. Given the currently favorable valuation metrics and market sentiment indicators, the company is likely focused on navigating the market's fluctuations while capitalizing on potential growth opportunities. The emphasis on innovative solutions will be critical as the company strives to maintain its competitive edge in a diverse and dynamic landscape.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      },
+      "market_share_pct": null,
+      "competitive_rank": null,
+      "named_competitors": [],
+      "mktpos_source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily market share search",
+      "mktpos_status": "unavailable",
+      "brand_value": null,
+      "brand_rank": null,
+      "ranking_list": null,
+      "brand_source": null,
+      "brand_ai_source": null
     },
-    "management_team": {
-      "ceo": "Brian Armstrong - Co-founder and CEO of Coinbase, with a strong background in technology and finance.",
-      "track_record": "Brian has successfully led Coinbase through significant growth phases and has a solid understanding of the cryptocurrency landscape.",
-      "red_flags": null
-    },
-    "analyst_rating_history": {
-      "current_consensus": "Hold",
-      "num_analysts": null,
-      "avg_target_price": null,
-      "implied_upside_pct": null,
-      "trend_24m": "Stable",
-      "summary": "Analysts are cautious due to market volatility but see potential for recovery."
-    },
-    "cap_table": {
-      "institutional_pct": 68.3,
-      "insider_pct": 1.3,
-      "float_pct": 98.6,
-      "major_holders": [
+    "s3_news": {
+      "section": "news_catalysts",
+      "ticker": "COIN",
+      "upcoming_earnings": [
         {
-          "name": "Vanguard Group",
-          "pct": 7.5
+          "date": {
+            "value": "2026-10-28",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "quarter": {
+            "value": "Q3 2026",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": 0.4943,
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "revenue_estimate": {
+            "value": 1475940081,
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "timing": {
+            "value": "AMC",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        }
+      ],
+      "eps_history": [
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -1.36,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -0.2315,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": -487.47,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": false,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
         },
         {
-          "name": "BlackRock",
-          "pct": 6.8
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -1.49,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": 0.04436,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": -3458.88,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": false,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -2.49,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": 0.94,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": -364.89,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": false,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": 1.5,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": 1.13369,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": 32.31,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": true,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
         }
-      ]
-    }
-  },
-  "s3_setup": {
-    "setup_type": "Growth",
-    "checklist": [
-      {
-        "item": "setup_type",
-        "detail": "Growth",
-        "pass": true
+      ],
+      "ex_dividend": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na",
+        "reason": "no dividend or date unavailable"
       },
-      {
-        "item": "revenue_cagr_3yr",
-        "detail": "31.0",
-        "pass": true
+      "press_releases": [
+        {
+          "date": {
+            "value": "2026-07-30",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000087/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-07-23",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000080/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-07-09",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/1679788/000119312526299667/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000075/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-05-07",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000053/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        }
+      ],
+      "news_feed": [
+        {
+          "headline": {
+            "value": "Circle Internet Stock Falls on an Earnings Beat. It\u2019s the Crypto Slump.",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=255c7af4de652674af625129ad23633538df9618f988f8e9b78fb6760f9b1e0e",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=607e2b72e38ca6b3573194ab5bd21924a50f0858ed488b2b3556d88a774cb7ea",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "In the past week, Coinbase Global, Inc. reported second-quarter 2026 results showing revenue of US$1,220.07 million and a net loss of US$359.47 million, a sharp reversal from net income a year earlier",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Robinhood's UK Crypto Push: Growth Catalyst or Competitive Challenge?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=fed023bbe90ae61669dd8c85fb74ac0214b07b28b29263d989ed6c0750de2e7c",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "HOOD's UK crypto registration expands its reach, but limited permissions, fierce competition and regulatory hurdles may temper near-term gains.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=bb4173c99abf4a234e50088cdea05f34724f776bfee09db92c18571b2d0112a8",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Coinbase Global Inc. CEO Brian Armstrong has intensified his push for the CLARITY Act by pointing to the supposed priorities of millions of American voters ahead of an expected Senate vote. America Ne",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Circle Internet Stock Rises on Earnings as Profit Overcomes Crypto Slump",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=4908b7b551f693d2a1ca2a1011d548af7f62bb251799076aa2dd1893b62fdfa1",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Circle Revenue Misses Estimates as Crypto Markets Mired in Rout",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=3875d346089d1bc3967a501653ef96820310fd1967d01854d40212a1770b176c",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "(Bloomberg) -- Circle Internet Group Inc. reported second-quarter revenue that missed Wall Street expectations after circulation of its stablecoin USDC fell from a peak amid a protracted slide in cryp",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Crypto Weekly: Coinbase feels crypto squeeze, South Africa's new rules",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=9f9b2f725a3a55bea7037eee057b18ec08282acf4099c004e003437019ed715d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "STORY: From crypto giants feeling the squeeze to South Africa's new crypto rules...This is Crypto Weekly.:: Crypto Weekly:: Coinbase posts third straight quarterly lossCoinbase posted a third straight",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "SEC Is 'Ready, Willing And Able' To Replace CLARITY Act If It Fails, Bitwise's Matt Hougan Says",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Benzinga",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-05",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=61c21d3ba0ea9b9ce929c734d69f33c84eb3724ac6a45ccbcdd053336f36df4e",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Clarity Act odds fall to 27%, but Matt Hougan says SEC rulemaking can keep crypto regulation moving if Congress misses the deadline.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Coinbase (COIN) Keeps Circle Partnership Terms Unchanged As USDC Renewal Kicks In",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=180f38e2c56ef379974f7c3945442d76ec80b1cc95452ab32298540139f3c26d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Coinbase Global and Circle confirmed that their commercial partnership will renew automatically on the same terms. The update ends speculation that the USDC agreement might be renegotiated following C",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Hut 8 Corp (HUT) (Q2 2026) Earnings Call Highlights: $7. ...",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=4667cbadcb96e8c269d947b19cd00facc22f37f9a83572a29cc34ce6d3e43443",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Hut 8 Corp (HUT) reports 81% revenue growth and secures major investment-grade financing, despite a non-cash GAAP net loss from Bitcoin's decline.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Circle Faces Crypto Slump and New Competitor Ahead of Earnings",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=236660685e86986098b7d559370e95e952427cdac5ecbb472f0d1846f8e2d4dc",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The firm is hurting from a slowdown in the crypto market, and the announcement of a new competitor will further pressure the stock.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Meta Ads introduces stablecoin payment options",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=7d48ebc86f23435f6c4bf96ccacc98a0a2e1296b5ef047f33a030d4daa5ef3d8",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Following the demise of its ill-fated Libra experiment, the company is offering third-party cryptocurrency options for creators and advertisers.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Coinbase vs. CME Group: Which Crypto Stock Is the Better Buy Now?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=3f02f620686bc62a1bedf941833f86a39b733f195073f591d21b2159d9f757c2",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "CME Group leads Coinbase on valuation, price gains and near-term growth, even as both expand across crypto and global trading markets.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Did the Coldcard Hack Just Hand Spot Bitcoin ETFs Their Strongest Bull Case Yet?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Benzinga",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=438ea82a011d68dec239e8ca778a6343fd817dc35ba303dd57a171b18387d061",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The Coldcard hack is reshaping the Bitcoin custody debate; Bloomberg&#39;s Eric Balchunas says it could drive more investors to spot Bitcoin ETFs.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Investor Cathie Wood Buys Coinbase And Circle Stocks",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=af066813dcda2a6e5c36f33c7144865f3b497cfefb5b24fd2bcd8ba1d81bcfee",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Investor Cathie Wood bought $10 million U.S. worth of stock in cryptocurrency firms Coinbase Global (NASDAQ: $COIN)...",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Will J.P. Morgan's Earnings Move These ETFs?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Benzinga",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=f69b0cc285dec016ed7ce4ed9435f70175ecea1a23c56aa553de24dfd6f4616f",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Clarity Act May Get A Pre-Recess Vote; ARK Makes Crypto Buys",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=b8c09c3669e72f0e162fde55b0ca8394d76b440b857b8ef6595765e8f88e29bf",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Senate to try to fit in an initial vote on the Clarity Act, Majority Leader Thune said. Cathie Wood buys nearly $10 mil in Coinbase, Circle.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Coinbase, Circle, and MicroStrategy Forecasts \u2013 Crypto Equities Test Key Support Floors",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=5958fefb7123708347cbe3978509e6e4ff92521a99552bc88c877f5a38a6812a",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Crypto stocks continue to see lackluster behavior.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Crypto\u2019s Regulatory Reset Could Slip Into September Unless One Last Fight Is Resolved",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=d1e181a3ab4a65a5b5ea76f3b03ecbc2227dd1794236fc4bc75f2a17d820ffd7",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Timing is becoming an issue, with the bill still not on the Senate floor schedule, and any delay could push meaningful action into the August recess.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Circle Margins Shrink, But JPMorgan Still Expects the Stock To Double",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Benzinga",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-04",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=3382b4887833259639cf347ec6a7ebedecc54dfce848fc0bfefcc27b2c1384b9",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "JPMorgan signaled confidence in Circle and its stablecoin ecosystem despite softer trading activity and higher partner payouts.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        }
+      ],
+      "news_count": {
+        "value": 20,
+        "source": "Finnhub",
+        "status": "ok"
       },
-      {
-        "item": "above_20pct_threshold",
-        "detail": "True",
-        "pass": true
-      },
-      {
-        "item": "margin_trend",
-        "detail": "Contracting",
-        "pass": true
-      },
-      {
-        "item": "sustainability_assessment",
-        "detail": "Revenue grew from $3.1B in 2023 to an estimated $6.56B in 2024, but operating margin compressed from -10.9% to an expected 3.6% in 2024. FCF positive at $1.3B.",
-        "pass": true
-      },
-      {
-        "item": "tam_room_to_grow",
-        "detail": "$200-400bn market, COIN holds ~1-2% share and is gaining share against peers with a growth rate of 20-30%.",
-        "pass": true
-      },
-      {
-        "item": "eps_growth_consistent",
-        "detail": "False",
-        "pass": false
-      },
-      {
-        "item": "fcf_positive",
-        "detail": "True",
-        "pass": true
-      },
-      {
-        "item": "leverage_vs_peers",
-        "detail": "Lower",
-        "pass": true
-      },
-      {
-        "item": "default_risk",
-        "detail": "Low",
-        "pass": true
-      },
-      {
-        "item": "upcoming_catalysts",
-        "detail": "['Earnings \u2014 Q3 FY2023 results on November 8, consensus EPS $0.20', 'Product Launch \u2014 New trading features expected in Q4 2023', 'Regulatory Update \u2014 Anticipated guidance from SEC on crypto regulations (~December)']",
-        "pass": true
-      },
-      {
-        "item": "key_risks",
-        "detail": "[{'risk': 'Regulatory scrutiny on cryptocurrency exchanges', 'mechanism': 'Increased regulations could limit operational flexibility and impact revenue.', 'category': 'Regulatory'}, {'risk': 'Market volatility affecting trading volumes', 'mechanism': 'Significant price fluctuations can lead to decreased user activity and revenue.', 'category': 'Financial'}, {'risk': 'Competition from other exchanges', 'mechanism': \"Emerging platforms may capture market share, impacting COIN's growth.\", 'category': 'Competitive'}, {'risk': 'Technological risks including security breaches', 'mechanism': 'Cybersecurity threats could undermine user trust and lead to financial losses.', 'category': 'Operational'}, {'risk': 'Dependence on transaction fees', 'mechanism': 'A decline in trading activity can significantly impact revenue streams.', 'category': 'Financial'}]",
-        "pass": true
-      },
-      {
-        "item": "moat_strength",
-        "detail": "Narrow",
-        "pass": true
-      },
-      {
-        "item": "near_term_catalyst",
-        "detail": "Earnings on November 8 \u2014 consensus EPS $0.20 vs prior $0.15",
-        "pass": true
-      }
-    ]
-  },
-  "s4_valuation": {
-    "methodology": "P/S",
-    "analyst_consensus_target": null,
-    "implied_multiples": "COIN's P/S of 6.58 is below the peer average of 9.20, indicating a relative undervaluation.",
-    "cheap_vs_peers": "cheap",
-    "near_term_upside_pct": null,
-    "narrative": "COIN's P/S of 6.58 is below the peer average of 9.20, indicating a relative undervaluation. Price vs intrinsic: -24.5% discount vs peer median P/S."
-  },
-  "s5_timing": {
-    "macro_context": "The macro regime is neutral, which does not provide a strong directional bias for market timing.",
-    "technical_setup": "The RSI is at 43.6, indicating a potential for a mean reversion bounce, but the overall trend is downtrend. Current price is $150.73, which is -62.5% from the 52-week high of $402.16. Support is at $152.58 and resistance at $173.09.",
-    "recent_catalyst": null,
-    "downside_scenario": "If the timing is wrong, COIN could continue its downtrend, potentially breaking below the support level of $152.58, leading to further declines.",
-    "entry_verdict": "neutral",
-    "narrative": "Given the neutral macro context and current technical setup, the timing for entry is neutral. The absence of recent catalysts and the significant distance from the 52-week high suggest caution."
-  },
-  "s6_thesis": {
-    "narrative": "COIN is currently trading at $150.73, which is -62.5% from its 52-week high of $402.16. This significant price drop suggests a potential opportunity for entry, albeit with caution. The company's fundamentals show a growth setup with a P/E of 47.62 and a negative operating margin of -0.14%, indicating challenges in profitability. However, the low net debt/EBITDA ratio of -1.29 suggests financial stability. The revenue growth year-over-year is minimal at 0.09%, reflecting a need for stronger growth drivers. The bullish sentiment among analysts, despite the lack of specific news catalysts, indicates a belief in the company's long-term potential. The market position and potential sector tailwinds could provide upside if the company can improve its operational efficiency and capitalize on growth opportunities. The absence of recent catalysts means that any positive developments could act as a significant driver for price appreciation."
-  },
-  "s7_recommendation": {
-    "direction": "HOLD",
-    "conviction": 63,
-    "expected_return_12m": "5-10%",
-    "suggested_size_pct": 10,
-    "stop_loss_pct": 12.0,
-    "key_risks": [
-      "[Financial] Operating margin at -0.14% leaves limited buffer for profitability improvements.",
-      "[Competitive] High short interest at 11.4% indicates potential market skepticism.",
-      "[Operational] Minimal revenue growth YoY at 0.09% suggests challenges in scaling operations.",
-      "[Macro] Neutral macro regime provides no strong directional tailwind.",
-      "[Regulatory] Potential for increased scrutiny in the cryptocurrency sector could impact operations."
-    ]
-  },
-  "s8_news": {
-    "catalysts": [],
-    "count": 0
-  },
-  "s8_technical": {
-    "rsi_14": 43.6,
-    "macd_signal": "bearish",
-    "bb_position": null,
-    "atr_pct": null,
-    "obv_trend": null,
-    "support": 152.58,
-    "resistance": 173.09,
-    "trend": "downtrend",
-    "chart_pattern": null,
-    "forward_bias": "neutral",
-    "mean_reversion_score": 35,
-    "trade_type": "mean_reversion",
-    "quant_summary": "The current technical setup indicates a potential for a mean reversion bounce, although the overall trend remains bearish. In the next 5-10 days, COIN may experience a reversal towards the resistance level at $173.09, but caution is warranted given the downtrend and bearish momentum indicators.",
-    "quant_score": 48
-  },
-  "s9_sentiment": {
-    "analyst_consensus": "Buy",
-    "news_tone": null,
-    "short_interest_pct": 11.4,
-    "upgrade_momentum": null,
-    "sentiment_score": 76,
-    "sentiment_summary": "Current sentiment around COIN is bullish, driven by positive analyst consensus and a favorable news catalyst. The sentiment is leading, indicating that analysts see value despite the current price, suggesting a potential contrarian long opportunity.",
-    "contrarian_signal": true,
-    "retail_euphoria": false
-  },
-  "s10_institutional": {
-    "convergence_signals": [],
-    "fund_theses": [
-      {
-        "ticker": "COIN",
-        "funds": [
-          "Berkshire Hathaway",
-          "ARK Invest"
+      "tavily_sources": [],
+      "ai_news_synthesis": null,
+      "ai_catalyst_assessment": null,
+      "ai_synthesis": {
+        "value": "The most significant recent development for Coinbase Global (COIN) is its Q2 2026 results, which showed a revenue of $1.22 billion but a net loss of $359.47 million, leading to a stock decline of 10.2%. This sharp reversal from net income a year earlier indicates ongoing struggles amidst a challenging crypto market, as highlighted in recent articles like 'Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed'. The combination of financial losses and market pressures could affect investor confidence and the stock\u2019s outlook going forward.\nAdditionally, the push for regulatory clarity in the crypto sector is notable, as Coinbase's CEO emphasizes the need for the CLARITY Act in a time when crypto regulations are being debated. As stated in 'Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'', this act could greatly influence the future regulatory environment for cryptocurrency, potentially impacting Coinbase's business operations and affecting investors' sentiment about the stock.",
+        "near_term_catalysts": [
+          "Q3 2026 earnings announcement on October 28",
+          "CEO pushes for CLARITY Act"
         ],
-        "inferred_thesis": "growth",
-        "thesis_reasoning": "Both funds are known for investing in high-growth potential companies, and Coinbase fits this profile.",
-        "conviction": "high"
+        "medium_term_catalysts": [
+          "Renewal of Circle partnership terms",
+          "Potential changes in crypto regulations"
+        ],
+        "key_risk_events": [
+          "Ongoing losses despite high revenue",
+          "Increased competition in the crypto market"
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
       }
-    ],
-    "unusual_options": [],
-    "multi_fund_flag": false,
-    "source": "institutional_agent"
-  },
-  "s11_performance": {
-    "ret_1m": -0.0782,
-    "ret_3m": -0.2378,
-    "ret_6m": -0.161,
-    "ret_1yr": null,
-    "vs_spy_1yr": null,
-    "high_52w": 402.16,
-    "low_52w": 139.11,
-    "pct_from_high": -62.5
-  },
-  "s12_risk": {
-    "beta": 3.361,
-    "max_drawdown": null,
-    "volatility_pct": null,
-    "atr_pct": null,
-    "debt_to_equity": -1.29,
-    "current_ratio": 2.423,
-    "liquidity_risk": "low",
-    "geographic_concentration": null,
-    "data_conflicts": [
-      {
-        "metric": "revenue (EDGAR override)",
-        "yfinance_value": 6043752960,
-        "sec_edgar_value": 3108383000.0,
-        "diff_pct": 48.6,
-        "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+    },
+    "s4_financials": {
+      "section": "historical_financials",
+      "years": [
+        {
+          "label": "2025",
+          "date": {
+            "value": "2025-12-31",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 7181325000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": 9.4,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 5360105000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 74.6,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": 1795906000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 25.0,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "op_margin": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "net_income": {
+            "value": 1260327000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 17.6,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": 4.45,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": 2426383000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 2426383000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "capex": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "da": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "total_debt": {
+            "value": 7831459000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "equity": {
+            "value": 14793058000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 11285452000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": 0.53,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 2.34,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2024",
+          "date": {
+            "value": "2024-12-31",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 6564028000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": 111.2,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 4908731000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 74.8,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": 3150807000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 48.0,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "op_margin": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "net_income": {
+            "value": 2579066000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 39.3,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": 9.48,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": 3103935000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 3103935000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "capex": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "da": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "total_debt": {
+            "value": 4694138000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "equity": {
+            "value": 10276842000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 9308266000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": 0.46,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 2.28,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2023",
+          "date": {
+            "value": "2023-12-31",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 3108383000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": -2.7,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 1972833000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 63.5,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": 145563000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 4.7,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "op_margin": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "net_income": {
+            "value": 94871000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 3.1,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": 0.37,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": 673376000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 673376000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -63202000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "da": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "total_debt": {
+            "value": 2983778000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "equity": {
+            "value": 6281649000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 5139351000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": 0.47,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 2.07,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2022",
+          "date": {
+            "value": "2022-12-31",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 3194208000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          },
+          "gross_profit": {
+            "value": 2564328000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 80.3,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": -2821612000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": -88.3,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "op_margin": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "net_income": {
+            "value": -2624949000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": -82.2,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": -11.83,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": -1585419000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": -1585419000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -63971000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "da": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "total_debt": {
+            "value": 3489745000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "equity": {
+            "value": 5454557000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 4425021000.0,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": 0.64,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.07,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance [CALCULATED]",
+            "status": "na"
+          }
+        }
+      ],
+      "year_count": 4,
+      "currency": {
+        "value": "USD",
+        "source": "FMP",
+        "status": "ok"
       },
-      {
-        "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-        "yfinance_value": -3.88,
-        "sec_edgar_value": 0.37,
-        "diff_pct": 109.5,
-        "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+      "dividend_history": [],
+      "is_dividend_paying": false,
+      "data_coverage_note": "4 years of data available \u2014 company may be recently listed or free-tier API coverage is limited."
+    },
+    "s4b_drivers": {
+      "section": "revenue_growth_drivers",
+      "ticker": "COIN",
+      "company_name": "Coinbase Global, Inc.",
+      "recent_revenue_growth_pct": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
       },
-      {
-        "metric": "revenue_ttm (fmp vs reconciled)",
-        "yf_av_value": 3108383000.0,
-        "fmp_value": 7181325000,
-        "diff_pct": 131.0,
-        "conservative_value": 3108383000.0,
-        "resolution": "yf_av used (conservative)"
+      "earnings_search_results": [],
+      "analyst_search_results": [],
+      "news_headlines": [
+        {
+          "headline": "Circle Internet Stock Falls on an Earnings Beat. It\u2019s the Crypto Slump.",
+          "summary": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings."
+        },
+        {
+          "headline": "Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed",
+          "summary": "In the past week, Coinbase Global, Inc. reported second-quarter 2026 results showing revenue of US$1,220.07 million and a net loss of US$359.47 million, a sharp reversal from net income a year earlier"
+        },
+        {
+          "headline": "Robinhood's UK Crypto Push: Growth Catalyst or Competitive Challenge?",
+          "summary": "HOOD's UK crypto registration expands its reach, but limited permissions, fierce competition and regulatory hurdles may temper near-term gains."
+        },
+        {
+          "headline": "Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'",
+          "summary": "Coinbase Global Inc. CEO Brian Armstrong has intensified his push for the CLARITY Act by pointing to the supposed priorities of millions of American voters ahead of an expected Senate vote. America Ne"
+        },
+        {
+          "headline": "Circle Internet Stock Rises on Earnings as Profit Overcomes Crypto Slump",
+          "summary": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings."
+        },
+        {
+          "headline": "Circle Revenue Misses Estimates as Crypto Markets Mired in Rout",
+          "summary": "(Bloomberg) -- Circle Internet Group Inc. reported second-quarter revenue that missed Wall Street expectations after circulation of its stablecoin USDC fell from a peak amid a protracted slide in cryp"
+        },
+        {
+          "headline": "Crypto Weekly: Coinbase feels crypto squeeze, South Africa's new rules",
+          "summary": "STORY: From crypto giants feeling the squeeze to South Africa's new crypto rules...This is Crypto Weekly.:: Crypto Weekly:: Coinbase posts third straight quarterly lossCoinbase posted a third straight"
+        },
+        {
+          "headline": "SEC Is 'Ready, Willing And Able' To Replace CLARITY Act If It Fails, Bitwise's Matt Hougan Says",
+          "summary": "Clarity Act odds fall to 27%, but Matt Hougan says SEC rulemaking can keep crypto regulation moving if Congress misses the deadline."
+        },
+        {
+          "headline": "Coinbase (COIN) Keeps Circle Partnership Terms Unchanged As USDC Renewal Kicks In",
+          "summary": "Coinbase Global and Circle confirmed that their commercial partnership will renew automatically on the same terms. The update ends speculation that the USDC agreement might be renegotiated following C"
+        },
+        {
+          "headline": "Hut 8 Corp (HUT) (Q2 2026) Earnings Call Highlights: $7. ...",
+          "summary": "Hut 8 Corp (HUT) reports 81% revenue growth and secures major investment-grade financing, despite a non-cash GAAP net loss from Bitcoin's decline."
+        },
+        {
+          "headline": "Circle Faces Crypto Slump and New Competitor Ahead of Earnings",
+          "summary": "The firm is hurting from a slowdown in the crypto market, and the announcement of a new competitor will further pressure the stock."
+        },
+        {
+          "headline": "Meta Ads introduces stablecoin payment options",
+          "summary": "Following the demise of its ill-fated Libra experiment, the company is offering third-party cryptocurrency options for creators and advertisers."
+        },
+        {
+          "headline": "Coinbase vs. CME Group: Which Crypto Stock Is the Better Buy Now?",
+          "summary": "CME Group leads Coinbase on valuation, price gains and near-term growth, even as both expand across crypto and global trading markets."
+        },
+        {
+          "headline": "Did the Coldcard Hack Just Hand Spot Bitcoin ETFs Their Strongest Bull Case Yet?",
+          "summary": "The Coldcard hack is reshaping the Bitcoin custody debate; Bloomberg&#39;s Eric Balchunas says it could drive more investors to spot Bitcoin ETFs."
+        },
+        {
+          "headline": "Investor Cathie Wood Buys Coinbase And Circle Stocks",
+          "summary": "Investor Cathie Wood bought $10 million U.S. worth of stock in cryptocurrency firms Coinbase Global (NASDAQ: $COIN)..."
+        }
+      ],
+      "drivers": [
+        {
+          "name": "Institutional Brokerage Liquidity",
+          "mechanism": "The company's brokerage platform provides significant liquidity across the crypto marketplace, attracting large institutional clients and facilitating high-volume trades.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "volume"
+        },
+        {
+          "name": "Onchain Development Products",
+          "mechanism": "By offering a suite of products for developers to build onchain, Coinbase is diversifying its revenue streams and tapping into the growing demand for blockchain applications.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "product"
+        },
+        {
+          "name": "Consumer Crypto Accounts",
+          "mechanism": "Serving as the primary financial account for consumers in the crypto economy, Coinbase drives revenue through transaction fees and account-related services.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "volume"
+        },
+        {
+          "name": "Global Market Expansion",
+          "mechanism": "Coinbase's strategy to operate internationally allows for greater market penetration and customer acquisition in diverse regulatory environments.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "geographic"
+        }
+      ],
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 derived from FMP financial filings + business description",
+      "ai_status": "ok"
+    },
+    "s5_dcf": {
+      "section": "forward_dcf",
+      "skip": false,
+      "analyst_estimates": {
+        "eps_current_fy": {
+          "value": -1.75792,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_next_fy": {
+          "value": 3.26496,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_growth_cur": {
+          "value": -139.5,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_growth_next": {
+          "value": 285.7,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_current_fy": {
+          "value": 5413184280.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_next_fy": {
+          "value": 6892419750.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_growth_cur": {
+          "value": -24.6,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_growth_next": {
+          "value": 27.3,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "wacc_inputs": {
+        "risk_free_rate": {
+          "value": 4.7,
+          "source": "FRED DGS10",
+          "status": "ok"
+        },
+        "beta": {
+          "value": 3.361,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "mrp": {
+          "value": 5.5,
+          "source": "Damodaran (hardcoded \u2014 US LT ERP)",
+          "status": "ok"
+        },
+        "cost_of_equity": {
+          "value": 23.19,
+          "source": "CAPM [CALCULATED]",
+          "status": "ok"
+        },
+        "cost_of_debt": {
+          "value": 5.7,
+          "source": "FRED + 1% AA credit spread proxy [FMP interest expense = 0]",
+          "status": "ok"
+        },
+        "tax_rate": {
+          "value": 21.0,
+          "source": "FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "weight_equity": {
+          "value": 100.0,
+          "source": "yfinance/FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "weight_debt": {
+          "value": 0.0,
+          "source": "FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "wacc": {
+          "value": 23.19,
+          "source": "CAPM [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "revenue_projections": [
+        {
+          "year": "FY Current",
+          "value": {
+            "value": 5413184280.0,
+            "source": "yfinance analyst consensus",
+            "status": "ok"
+          },
+          "growth": {
+            "value": -24.6,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "year": "FY +1",
+          "value": {
+            "value": 6892419750.0,
+            "source": "yfinance analyst consensus",
+            "status": "ok"
+          },
+          "growth": {
+            "value": 27.3,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "year": "FY +2 (est)",
+          "value": {
+            "value": 7915254841,
+            "source": "yfinance extrapolated [CALCULATED]",
+            "status": "ok"
+          },
+          "growth": {
+            "value": null,
+            "source": "N/A \u2014 extrapolated only",
+            "status": "na"
+          }
+        }
+      ],
+      "fcf_margin_avg": {
+        "value": null,
+        "source": "FMP [CALCULATED] 3yr avg",
+        "status": "na"
+      },
+      "terminal_growth": {
+        "value": 2.35,
+        "source": "FRED DGS10 / 2 [CALCULATED]",
+        "status": "ok"
+      },
+      "terminal_multiple": {
+        "value": 11.5,
+        "source": "yfinance peers median EV/EBITDA [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_ev_ebitda_used": {
+        "value": [
+          14.809,
+          8.216
+        ],
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "pv_fcfs": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "pv_terminal": {
+        "value": null,
+        "source": "yfinance peers [CALCULATED]",
+        "status": "na"
+      },
+      "enterprise_value": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "net_debt": {
+        "value": null,
+        "source": "FMP [CALCULATED]",
+        "status": "na"
+      },
+      "implied_price": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "upside_pct": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "sensitivity_table": null,
+      "fmp_dcf_crosscheck": {
+        "implied_price": {
+          "value": null,
+          "source": "FMP free tier DCF",
+          "status": "na"
+        },
+        "date": {
+          "value": null,
+          "source": "FMP",
+          "status": "na"
+        },
+        "note": "FMP proprietary model \u2014 shown as cross-check only, not used in our calculation"
       }
-    ]
-  },
-  "s13_scenarios": {
-    "bull": {
-      "price_target": 195,
-      "upside_pct": 29.3,
-      "probability": 30,
-      "catalyst": "Improved operational efficiency and positive sector developments.",
-      "assumptions": "COIN successfully enhances profitability and capitalizes on sector growth."
     },
-    "base": {
-      "price_target": 165,
-      "upside_pct": 9.5,
-      "probability": 50,
-      "assumptions": "Steady operational performance with no significant negative or positive catalysts."
+    "s6_valuation": {
+      "section": "valuation_metrics",
+      "pe_ttm": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "pe_fwd": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "price_to_book": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "price_to_sales": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "ev_ebitda": {
+        "value": 52.222,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "dividend_yield": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "beta": {
+        "value": 3.361,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "fcf_yield": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "roic": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "roe": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "52w_high": {
+        "value": 402.16,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_low": {
+        "value": 139.11,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "pct_from_52w_high": {
+        "value": -60.91,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "setup_type": {
+        "value": "Unclassified",
+        "source": "mandate_checker [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_table": [
+        {
+          "symbol": {
+            "value": "GS",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "GS",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 16.569332,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 14.494052,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ps": {
+            "value": 4.6847982,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 2.9281678,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.31039,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.425,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 647.154,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 316551823360.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "BKNG",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "Booking Holdings Inc.",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 22.846497,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 16.593994,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 14.809,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 5.7479877,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": -18.362986,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.37483,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.22227,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.162,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "market_cap": {
+            "value": 159152291840.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "SBNY",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "Signature Bank",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 0.13157895,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 0.06484642,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ps": {
+            "value": 0.022855025,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 0.0073865578,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.51079,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.14,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "market_cap": {
+            "value": 59825336.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "PYPL",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "PayPal Holdings, Inc.",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 11.007562,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 10.054772,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 8.216,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 1.4596076,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 2.5325098,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.18917,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.14364,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.048,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 71.751,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 49813487616.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "SQ",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "SQ",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "pe_fwd": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ev_ebitda": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ps": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "pb": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ebitda_margin": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "net_margin": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "revenue_growth": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "debt_to_equity": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "market_cap": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          }
+        }
+      ],
+      "val_history": {}
     },
-    "bear": {
-      "price_target": 130,
-      "downside_pct": 13.7,
-      "probability": 20,
-      "trigger": "Continued operational inefficiencies and adverse regulatory developments.",
-      "assumptions": "Failure to improve margins and navigate regulatory challenges."
+    "s7_technicals": {
+      "section": "technicals",
+      "rsi": {
+        "value": 44.1,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_line": {
+        "value": -3.1306,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_signal": {
+        "value": -1.816,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_hist": {
+        "value": -1.3146,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "sma_50": {
+        "value": 161.93,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "sma_200": {
+        "value": 209.64,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_sma50": {
+        "value": -6.51,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_sma200": {
+        "value": -27.79,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_upper": {
+        "value": 174.56,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_lower": {
+        "value": 145.14,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_position": {
+        "value": 21.2,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "atr_pct": {
+        "value": 7.01,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "support": {
+        "value": 142.52,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "resistance": {
+        "value": 387.27,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "trend_signal": {
+        "value": "Strong Downtrend",
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_52w_high": {
+        "value": -60.91,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "volume_vs_20d_avg": {
+        "value": 0.41,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "quant_score": {
+        "value": 30,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "quant_score_detail": {
+        "rsi": "+15 RSI 44 \u2014 ideal entry zone (40-65)",
+        "above_sma50": "0 Price ($151.39) < SMA50 ($161.93) \u2014 below medium-term trend",
+        "above_sma200": "0 Price < SMA200 ($209.64) \u2014 below long-term trend",
+        "macd": "0 MACD (-3.1306) < Signal (-1.8160) \u2014 bearish momentum",
+        "bollinger": "+10 BB position 21% \u2014 not at upper band extreme",
+        "52w_proximity": "+5 -60.9% from 52w high \u2014 some runway but trend may be weak",
+        "volume": "0 Volume 0.4x 20d avg \u2014 weak, low conviction move"
+      },
+      "trend_context": "Strong Downtrend \u2014 poor entry timing despite trend",
+      "ai_chart_pattern": "Downtrend Channel",
+      "ai_pattern_evidence": "The price movement from 2022 to 2023 shows lower highs and lower lows, indicating a classic downtrend channel. Recent price activities also exhibit resistance near SMA50 and support near the defined level of 142.52.",
+      "ai_pattern_invalidation": "A break above the SMA50 at 161.93 would invalidate this downtrend pattern, signaling a potential trend reversal.",
+      "ai_momentum_read": "The MACD is strongly negative, with the MACD line at -3.1306 and the signal at -1.816, indicating bearish momentum. The RSI at 44.1 shows that the asset is not yet oversold, which aligns with the ongoing strong downtrend.",
+      "ai_key_levels": "The key support level is at 142.52, which is crucial to watch during declines, while resistance is starkly distant at 387.27. Currently, the price is far from resistance, emphasizing the strength of the downtrend.",
+      "ai_volume_narrative": "With a volume ratio of 0.41 compared to the 20-day average, this indicates weak buying interest and a lack of conviction behind recent price movements, suggesting that recent declines could continue without robust volume support.",
+      "ai_entry_explanation": "The quant entry score of 30 reflects a challenging entry timing. This low score suggests that despite the clearly defined downtrend, market conditions are unfavorable, and entering now could mean chasing the price rather than finding a better entry point after a pullback.",
+      "ai_outlook_4_8w": "The technical indicators suggest continued challenges for COIN in the coming 4-8 weeks, especially if the price remains beneath the SMA50. A sustained move under 142.52 could signal further downside momentum.",
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 yfinance technical indicators"
+    },
+    "s8_competitive": {
+      "section": "competitive_moat",
+      "sector": {
+        "value": "Financial Services",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Financial Data & Stock Exchanges",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance/FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "tavily_excerpts": [],
+      "recent_headlines": [
+        "Circle Internet Stock Falls on an Earnings Beat. It\u2019s the Crypto Slump.",
+        "Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed",
+        "Robinhood's UK Crypto Push: Growth Catalyst or Competitive Challenge?",
+        "Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'",
+        "Circle Internet Stock Rises on Earnings as Profit Overcomes Crypto Slump",
+        "Circle Revenue Misses Estimates as Crypto Markets Mired in Rout",
+        "Crypto Weekly: Coinbase feels crypto squeeze, South Africa's new rules",
+        "SEC Is 'Ready, Willing And Able' To Replace CLARITY Act If It Fails, Bitwise's Matt Hougan Says"
+      ],
+      "moat_quant": {
+        "returns_on_capital": {
+          "score": 8,
+          "label": "Returns on Capital",
+          "value": null,
+          "source": "FMP key_metrics [CALCULATED]"
+        },
+        "pricing_power": {
+          "score": 20,
+          "label": "Pricing Power",
+          "value": "85.8% GM",
+          "source": "yfinance [CALCULATED]"
+        },
+        "revenue_quality": {
+          "score": 8,
+          "label": "Revenue Quality",
+          "value": null,
+          "source": "FMP [CALCULATED]"
+        },
+        "operating_efficiency": {
+          "score": 8,
+          "label": "Operating Efficiency",
+          "value": "11.6% EBITDA Mgn",
+          "source": "yfinance [CALCULATED]"
+        }
+      },
+      "ai_narrative": {
+        "moat_rating": "Narrow",
+        "narrative": "Coinbase has a solid, but narrow competitive moat characterized by its leading brand recognition in the crypto space and an extensive user base of over 108 million verified users. Competitors can replicate its services, but the established trust and regulatory compliance it has garnered in the U.S. market are hard to match.\n\nMoat drivers: Over 108 million verified users enhancing network effects and liquidity on its platform; Strong brand trust in the U.S. cryptocurrency market facilitates customer retention\n\nKey threats: Binance, with a global reach and lower fees, poses significant competitive pressure; Robinhood's expansion into crypto challenges Coinbase's market share among younger investors",
+        "competitive_differentiation_score": 13,
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      },
+      "moat_score_total": 57,
+      "moat_score_label": "Narrow Moat",
+      "moat_dim5_score": 13,
+      "subscriber_comparison": {
+        "competitors": [],
+        "unit": "millions",
+        "source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily subscriber data",
+        "status": "not_applicable"
+      }
+    },
+    "s9_industry": {
+      "section": "industry_macro",
+      "sector": {
+        "value": "Financial Services",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Financial Data & Stock Exchanges",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "risk_free_rate": {
+        "value": 4.7,
+        "source": "FRED DGS10",
+        "status": "ok"
+      },
+      "fed_funds_rate": {
+        "value": 3.63,
+        "source": "FRED FEDFUNDS",
+        "status": "ok"
+      },
+      "gdp_growth": {
+        "value": 1.5,
+        "source": "FRED GDP",
+        "status": "ok"
+      },
+      "unemployment": {
+        "value": 4.2,
+        "source": "FRED UNRATE",
+        "status": "ok"
+      },
+      "tavily_excerpts": [],
+      "ai_narrative": {
+        "value": "Coinbase operates within the cryptocurrency exchange market, serving both retail and institutional clients. A significant trend shaping this market is the increasing institutional adoption of cryptocurrency, with firms like BlackRock and Fidelity entering the space, pushing for ETFs that could democratize access to digital assets. Additionally, the ongoing regulatory developments in the U.S. emphasize compliance, with Coinbase working to meet stringent standards as competitors like Kraken face scrutiny, impacting market dynamics.\n\nThe stable federal funds rate of 3.63% has implications for COIN's operational costs, as the company's reliance on borrowing may incur higher expenses, thus impacting profitability. Additionally, the macroeconomic conditions, like a GDP growth of only 1.5%, could suppress consumer spending in cryptocurrency, slowing down the demand for COIN's trading services.",
+        "industry_overview": "Coinbase operates within the cryptocurrency exchange market, serving both retail and institutional clients. A significant trend shaping this market is the increasing institutional adoption of cryptocurrency, with firms like BlackRock and Fidelity entering the space, pushing for ETFs that could democratize access to digital assets. Additionally, the ongoing regulatory developments in the U.S. emphasize compliance, with Coinbase working to meet stringent standards as competitors like Kraken face scrutiny, impacting market dynamics.",
+        "competitive_dynamics": "Coinbase is one of the leading cryptocurrency exchanges with a significant market share of approximately 11% as of 2023. Competitors such as Binance dominate with a 60% market share and also offer broader product offerings that extend beyond trading, including staking and lending, which poses a challenge to Coinbase's growth if it cannot diversify its services adequately.",
+        "ipo_and_event_risk": null,
+        "macro_context": "The stable federal funds rate of 3.63% has implications for COIN's operational costs, as the company's reliance on borrowing may incur higher expenses, thus impacting profitability. Additionally, the macroeconomic conditions, like a GDP growth of only 1.5%, could suppress consumer spending in cryptocurrency, slowing down the demand for COIN's trading services.",
+        "tailwinds": [
+          "The launch of numerous cryptocurrency ETFs, if approved, could significantly increase retail and institutional investment in crypto. This shift also presents a substantial opportunity for Coinbase as it has already positioned itself as a compliant platform for such products, potentially increasing its market share and revenue from asset management services.",
+          "Coinbase's gross margin of 85.8% is among the highest in the sector, allowing it to maintain profitability in a challenging market. As competitors struggle with margins, COIN can leverage its efficiency to attract more users and institutions seeking reliable platforms.",
+          "The expanding NFT market, projected to be a $13.6 billion industry by 2027, provides an opportunity for Coinbase to diversify its offering. By deepening its engagement in NFTs through marketplaces and partnerships, it can capture growth segments that traditional exchanges may overlook."
+        ],
+        "headwinds": [
+          "The SEC's ongoing legal scrutiny may lead to costly compliance measures for Coinbase, which can negatively impact its operating margins. With a current operating margin of -13.9%, further legal challenges could exacerbate financial losses and diminish investor confidence.",
+          "With the recent downturn in crypto prices and a revenue growth decline of 17.3%, Coinbase faces the risk of reduced trading volumes. If market sentiment does not recover, this could lead to significant revenue shortfalls, affecting COIN's valuation and ability to attract new users.",
+          "Rising competition from decentralized finance (DeFi) platforms could siphon off market share from centralized exchanges like Coinbase. Currently, platforms like Uniswap are gaining traction, which may pressure COIN's trading volume and revenue streams if they cannot innovate and offer competitive services."
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s10_institutional": {
+      "section": "institutional_activity",
+      "institutional_pct": {
+        "value": 68.3,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "insider_pct": {
+        "value": 1.3,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "top_holders": [
+        {
+          "holder": {
+            "value": "Blackrock Inc.",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 16745406,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 2535421983,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Vanguard Capital Management LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 14130021,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 2139426531,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Vanguard Portfolio Management LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 9488390,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 1436637164,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "State Street Corporation",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 9360220,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 1417230944,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Geode Capital Management, LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 6130020,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 928146350,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        }
+      ],
+      "insider_trades": [
+        {
+          "date": {
+            "value": "2026-07-31",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000089/0001679788-26-000089-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000122768826000008/0001227688-26-000008-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000077/0001679788-26-000077-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000076/0001679788-26-000076-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000073/0001679788-26-000073-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000072/0001679788-26-000072-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000071/0001679788-26-000071-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-06-18",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/1679788/000167978826000070/0001679788-26-000070-index.htm"
+        }
+      ],
+      "analyst_ratings": {
+        "buy_count": {
+          "value": 119,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "hold_count": {
+          "value": 44,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "sell_count": {
+          "value": 12,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "consensus": {
+          "value": "Buy",
+          "source": "Finnhub [CALCULATED]",
+          "status": "ok"
+        },
+        "total_ratings": {
+          "value": 175,
+          "source": "Finnhub",
+          "status": "ok"
+        }
+      },
+      "analyst_price_targets": {
+        "mean": {
+          "value": 200.07138,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "high": {
+          "value": 330.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "low": {
+          "value": 95.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "num_analysts": {
+          "value": 29,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      }
+    },
+    "s10b_management": {
+      "section": "management_governance",
+      "ceo_name": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "company_name": "Coinbase Global, Inc.",
+      "employees": {
+        "value": null,
+        "source": "FMP/yfinance",
+        "status": "na"
+      },
+      "ipo_date": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "executives": [],
+      "mgmt_search_results": [],
+      "ai_ceo_profile": "Limited public information.",
+      "ai_board_assessment": {
+        "total_members": null,
+        "independent_pct": null,
+        "governance_flag": "No red flags identified"
+      },
+      "ai_tenure_note": null,
+      "ai_leadership_style": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 FMP profile + Tavily management search",
+      "ai_status": "ok"
+    },
+    "s11_risks": {
+      "section": "risk_register",
+      "financials_snapshot": {
+        "pe_ttm": {
+          "value": null,
+          "source": "yfinance",
+          "status": "na"
+        },
+        "ev_ebitda": {
+          "value": 52.222,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "debt_to_equity": {
+          "value": 50.982,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "current_ratio": {
+          "value": null,
+          "source": "FMP [CALCULATED]",
+          "status": "na"
+        },
+        "beta": {
+          "value": 3.361,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "technicals_snapshot": {
+        "rsi": {
+          "value": 44.1,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "trend": {
+          "value": "Strong Downtrend",
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "pct_from_52w_high": {
+          "value": -60.91,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "macro_snapshot": {
+        "risk_free_rate": {
+          "value": 4.7,
+          "source": "FRED DGS10",
+          "status": "ok"
+        },
+        "fed_funds_rate": {
+          "value": 3.63,
+          "source": "FRED FEDFUNDS",
+          "status": "ok"
+        },
+        "gdp_growth": {
+          "value": 1.5,
+          "source": "FRED GDP",
+          "status": "ok"
+        }
+      },
+      "recent_headlines": [
+        "Circle Internet Stock Falls on an Earnings Beat. It\u2019s the Crypto Slump.",
+        "Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed",
+        "Robinhood's UK Crypto Push: Growth Catalyst or Competitive Challenge?",
+        "Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'",
+        "Circle Internet Stock Rises on Earnings as Profit Overcomes Crypto Slump",
+        "Circle Revenue Misses Estimates as Crypto Markets Mired in Rout",
+        "Crypto Weekly: Coinbase feels crypto squeeze, South Africa's new rules",
+        "SEC Is 'Ready, Willing And Able' To Replace CLARITY Act If It Fails, Bitwise's Matt Hougan Says",
+        "Coinbase (COIN) Keeps Circle Partnership Terms Unchanged As USDC Renewal Kicks In",
+        "Hut 8 Corp (HUT) (Q2 2026) Earnings Call Highlights: $7. ..."
+      ],
+      "ai_risk_register": {
+        "risks": [
+          {
+            "name": "Negative Profit Margins",
+            "category": "Financial",
+            "mechanism": "The company has a profit margin of -0.16344, indicating it is currently losing money and struggling to become profitable.",
+            "likelihood": "High",
+            "impact": "High"
+          },
+          {
+            "name": "High Valuation Relative to Peers",
+            "category": "Valuation",
+            "mechanism": "COIN's EV/EBITDA of 52.222 suggests an overvaluation compared to industry norms, signaling potential price corrections.",
+            "likelihood": "Medium",
+            "impact": "High"
+          },
+          {
+            "name": "Decreasing Share Price Momentum",
+            "category": "Technical",
+            "mechanism": "The stock is in a 'Strong Downtrend' and is down 60.91% from its 52-week high, indicating persistent selling pressure.",
+            "likelihood": "High",
+            "impact": "Medium"
+          },
+          {
+            "name": "High Debt Levels",
+            "category": "Financial",
+            "mechanism": "A debt-to-equity ratio of 50.982 suggests high leverage, which increases the company's financial risk and can restrict future growth.",
+            "likelihood": "Medium",
+            "impact": "High"
+          },
+          {
+            "name": "Increasing Regulatory Uncertainty",
+            "category": "Regulatory",
+            "mechanism": "Headlines about the SEC being 'ready, willing and able' to replace the CLARITY Act indicate potential regulatory headwinds that could impact COIN's operations.",
+            "likelihood": "High",
+            "impact": "Medium"
+          },
+          {
+            "name": "Low Revenue Growth Visibility",
+            "category": "Financial",
+            "mechanism": "The absence of revenue growth information limits understanding of the company\u2019s ability to expand its top line amid a challenging market.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          },
+          {
+            "name": "High Beta Indicates Volatility",
+            "category": "Macro",
+            "mechanism": "A beta of 3.361 signifies significant volatility, posing risks during uncertain market conditions which can affect investor sentiment.",
+            "likelihood": "High",
+            "impact": "Medium"
+          }
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s12_scenarios": {
+      "section": "scenario_analysis",
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "dcf_implied": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "fmp_dcf_price": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "bear": {
+        "price_target": {
+          "value": 95.0,
+          "source": "min(FMP DCF, analyst PT low, our DCF x 0.85) [CALCULATED]",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": -37.2,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 25,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "base": {
+        "price_target": {
+          "value": 200.07,
+          "source": "yfinance analyst PT mean",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": 32.2,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 50,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "bull": {
+        "price_target": {
+          "value": 330.0,
+          "source": "yfinance analyst PT high",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": 118.0,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 25,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "probability_weighted_return": {
+        "value": 36.3,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "base_return_pct": {
+        "value": 32.2,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      }
+    },
+    "s13_sentiment": {
+      "section": "sentiment",
+      "short_interest_pct": {
+        "value": 11.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_consensus": {
+        "value": "Buy",
+        "source": "Finnhub [CALCULATED]",
+        "status": "ok"
+      },
+      "news_items": [
+        {
+          "headline": "Circle Internet Stock Falls on an Earnings Beat. It\u2019s the Crypto Slump.",
+          "summary": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings.",
+          "date": "1785944520"
+        },
+        {
+          "headline": "Coinbase Global (COIN) Is Down 10.2% After Q2 Loss and Cathie Wood Buying - What's Changed",
+          "summary": "In the past week, Coinbase Global, Inc. reported second-quarter 2026 results showing revenue of US$1,220.07 million and a net loss of US$359.47 millio",
+          "date": "1785939125"
+        },
+        {
+          "headline": "Robinhood's UK Crypto Push: Growth Catalyst or Competitive Challenge?",
+          "summary": "HOOD's UK crypto registration expands its reach, but limited permissions, fierce competition and regulatory hurdles may temper near-term gains.",
+          "date": "1785936720"
+        },
+        {
+          "headline": "Coinbase CEO Says America Needs CLARITY Act: 'It's a Win for the Future of America'",
+          "summary": "Coinbase Global Inc. CEO Brian Armstrong has intensified his push for the CLARITY Act by pointing to the supposed priorities of millions of American v",
+          "date": "1785931266"
+        },
+        {
+          "headline": "Circle Internet Stock Rises on Earnings as Profit Overcomes Crypto Slump",
+          "summary": "Circle Internet stock advances after the company posts better-than-expected second-quarter earnings.",
+          "date": "1785925500"
+        },
+        {
+          "headline": "Circle Revenue Misses Estimates as Crypto Markets Mired in Rout",
+          "summary": "(Bloomberg) -- Circle Internet Group Inc. reported second-quarter revenue that missed Wall Street expectations after circulation of its stablecoin USD",
+          "date": "1785924653"
+        },
+        {
+          "headline": "Crypto Weekly: Coinbase feels crypto squeeze, South Africa's new rules",
+          "summary": "STORY: From crypto giants feeling the squeeze to South Africa's new crypto rules...This is Crypto Weekly.:: Crypto Weekly:: Coinbase posts third strai",
+          "date": "1785921263"
+        },
+        {
+          "headline": "SEC Is 'Ready, Willing And Able' To Replace CLARITY Act If It Fails, Bitwise's Matt Hougan Says",
+          "summary": "Clarity Act odds fall to 27%, but Matt Hougan says SEC rulemaking can keep crypto regulation moving if Congress misses the deadline.",
+          "date": "1785914540"
+        },
+        {
+          "headline": "Coinbase (COIN) Keeps Circle Partnership Terms Unchanged As USDC Renewal Kicks In",
+          "summary": "Coinbase Global and Circle confirmed that their commercial partnership will renew automatically on the same terms. The update ends speculation that th",
+          "date": "1785877823"
+        },
+        {
+          "headline": "Hut 8 Corp (HUT) (Q2 2026) Earnings Call Highlights: $7. ...",
+          "summary": "Hut 8 Corp (HUT) reports 81% revenue growth and secures major investment-grade financing, despite a non-cash GAAP net loss from Bitcoin's decline.",
+          "date": "1785877339"
+        },
+        {
+          "headline": "Circle Faces Crypto Slump and New Competitor Ahead of Earnings",
+          "summary": "The firm is hurting from a slowdown in the crypto market, and the announcement of a new competitor will further pressure the stock.",
+          "date": "1785873900"
+        },
+        {
+          "headline": "Meta Ads introduces stablecoin payment options",
+          "summary": "Following the demise of its ill-fated Libra experiment, the company is offering third-party cryptocurrency options for creators and advertisers.",
+          "date": "1785871945"
+        },
+        {
+          "headline": "Coinbase vs. CME Group: Which Crypto Stock Is the Better Buy Now?",
+          "summary": "CME Group leads Coinbase on valuation, price gains and near-term growth, even as both expand across crypto and global trading markets.",
+          "date": "1785863580"
+        },
+        {
+          "headline": "Did the Coldcard Hack Just Hand Spot Bitcoin ETFs Their Strongest Bull Case Yet?",
+          "summary": "The Coldcard hack is reshaping the Bitcoin custody debate; Bloomberg&#39;s Eric Balchunas says it could drive more investors to spot Bitcoin ETFs.",
+          "date": "1785859939"
+        },
+        {
+          "headline": "Investor Cathie Wood Buys Coinbase And Circle Stocks",
+          "summary": "Investor Cathie Wood bought $10 million U.S. worth of stock in cryptocurrency firms Coinbase Global (NASDAQ: $COIN)...",
+          "date": "1785850260"
+        },
+        {
+          "headline": "Will J.P. Morgan's Earnings Move These ETFs?",
+          "summary": "",
+          "date": "1785850230"
+        },
+        {
+          "headline": "Clarity Act May Get A Pre-Recess Vote; ARK Makes Crypto Buys",
+          "summary": "Senate to try to fit in an initial vote on the Clarity Act, Majority Leader Thune said. Cathie Wood buys nearly $10 mil in Coinbase, Circle.",
+          "date": "1785849900"
+        },
+        {
+          "headline": "Coinbase, Circle, and MicroStrategy Forecasts \u2013 Crypto Equities Test Key Support Floors",
+          "summary": "Crypto stocks continue to see lackluster behavior.",
+          "date": "1785848774"
+        },
+        {
+          "headline": "Crypto\u2019s Regulatory Reset Could Slip Into September Unless One Last Fight Is Resolved",
+          "summary": "Timing is becoming an issue, with the bill still not on the Senate floor schedule, and any delay could push meaningful action into the August recess.",
+          "date": "1785837326"
+        },
+        {
+          "headline": "Circle Margins Shrink, But JPMorgan Still Expects the Stock To Double",
+          "summary": "JPMorgan signaled confidence in Circle and its stablecoin ecosystem despite softer trading activity and higher partner payouts.",
+          "date": "1785833146"
+        }
+      ],
+      "ai_sentiment": {
+        "value": "1. **OVERALL NEWS TONE**: Neutral \u2014 while there are positive earnings beats and investments from Cathie Wood, negative sentiments regarding the crypto slump and regulatory uncertainties balance the coverage.\n\n2. **DOMINANT THEMES**: \n   - Earnings performance of crypto-related companies, particularly Coinbase and Circle.\n   - Regulatory challenges and discussions surrounding the CLARITY Act.\n   - Competitive pressures within the cryptocurrency sector.\n\n3. **SENTIMENT SHIFT**: The tone appears stable; despite some positive earnings and investments, the overarching challenges in the crypto market suggest ongoing concerns that maintain a neutral outlook.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s14_differ": {
+      "section": "where_we_differ",
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_pt_mean": {
+        "value": 200.07138,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_rating": {
+        "value": "buy",
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "our_dcf_implied": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "fmp_dcf_crosscheck": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "direction": {
+        "value": "PROCEED",
+        "source": "mandate_checker",
+        "status": "ok"
+      },
+      "conviction": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na"
+      },
+      "ai_where_we_differ": {
+        "value": "Haz Capital's analysis indicates a divergence from the market consensus primarily in the current price versus the analyst consensus price target. The current price of COIN at $151.39 is significantly lower than the analyst consensus price target of $200.07, suggesting a potential upside of approximately 32.2%, which aligns with our base case return projection. However, our analysis does not provide a DCF implied value, which could help clarify the reasoning behind this disparity further.\n\nTechnically, COIN is experiencing a \"Strong Downtrend,\" with an RSI of 44.1, indicating that the stock could be oversold. This technical signal appears somewhat contradictory to the overall analyst rating of \"buy,\" where the market sentiment seems bullish despite the downward trend seen in the stock's performance. Additionally, the short interest percentage at 11.39% suggests that a notable fraction of investors expect a decline, which could further exacerbate downward pressure on the stock price if sentiment shifts. This highlights some caution amidst the otherwise positive analyst outlook.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s15_checklist": {
+      "section": "setup_checklist",
+      "checks": [
+        {
+          "name": "Asset class: Common equity or ADR",
+          "passed": true,
+          "detail": "Quote type: EQUITY",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Listed on supported exchange",
+          "passed": true,
+          "detail": "Exchange: NMS",
+          "source": "yfinance/FMP",
+          "category": "Mandate"
+        },
+        {
+          "name": "Market cap \u2265 $200M USD",
+          "passed": true,
+          "detail": "Market cap: $39.9B",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Avg daily volume \u2265 500K shares",
+          "passed": true,
+          "detail": "Avg daily volume: 8.6M shares/day",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
+          "passed": true,
+          "detail": "No restricted geography exposure detected (country: United States)",
+          "source": "FMP/yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Float \u2265 10%",
+          "passed": true,
+          "detail": "Float: 98.6% (220M of 223M shares)",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "No known PEP/sanctions flags in recent news",
+          "passed": true,
+          "detail": "No sanctions or PEP flags detected in last 30 days of news",
+          "source": "Finnhub news [keyword scan]",
+          "category": "Mandate"
+        },
+        {
+          "name": "Setup type identifiable",
+          "passed": true,
+          "detail": "Insufficient revenue history \u2014 proceeding as Unclassified",
+          "source": "FMP [CALCULATED]",
+          "category": "Mandate"
+        },
+        {
+          "name": "Revenue growth positive (YoY)",
+          "passed": false,
+          "detail": "Revenue data unavailable",
+          "source": "FMP",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Free cash flow positive",
+          "passed": false,
+          "detail": "FCF unavailable",
+          "source": "FMP",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Net margin positive",
+          "passed": false,
+          "detail": "Income data unavailable",
+          "source": "FMP [CALCULATED]",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Debt-to-equity < 3",
+          "passed": false,
+          "detail": "D/E: 50.98",
+          "source": "yfinance/FMP [CALCULATED]",
+          "category": "Fundamental"
+        },
+        {
+          "name": "P/E (TTM) below 50",
+          "passed": false,
+          "detail": "P/E unavailable",
+          "source": "yfinance",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Price above SMA50",
+          "passed": false,
+          "detail": "Data unavailable",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "Price above SMA200",
+          "passed": false,
+          "detail": "Data unavailable",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "RSI not overbought (< 75)",
+          "passed": true,
+          "detail": "RSI: 44.1",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "Trend signal Bullish or Neutral",
+          "passed": false,
+          "detail": "Trend: Strong Downtrend",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        }
+      ],
+      "passed_count": 9,
+      "total_count": 17,
+      "overall_score": {
+        "value": 52.9,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      }
+    },
+    "s16_recommendation": {
+      "direction": "BUY",
+      "conviction": 67,
+      "expected_return_12m": null,
+      "position_size_pct": 2.0,
+      "stop_loss_pct": null,
+      "three_arguments": [
+        {
+          "title": "Anticipated regulatory clarity in crypto",
+          "data_point": "Committee deliberation",
+          "reasoning": "Anticipated regulatory clarity in cryptocurrency"
+        },
+        {
+          "title": "Upcoming earnings report on 2026-08-20",
+          "data_point": "Committee deliberation",
+          "reasoning": "Upcoming earnings report on 2026-08-20"
+        },
+        {
+          "title": "See committee narrative",
+          "data_point": "Committee deliberation",
+          "reasoning": "Coinbase is positioned well for growth in the cryptocurrency sector, trading significantly below its 52-week high, indicating a potential mean reversion opportunity. The stock's gross margin of 85.8% "
+        }
+      ],
+      "key_risks": [
+        "Negative operating margin may limit profitability improvements"
+      ],
+      "committee_narrative": "Coinbase is positioned well for growth in the cryptocurrency sector, trading significantly below its 52-week high, indicating a potential mean reversion opportunity. The stock's gross margin of 85.8% is impressive, and the upcoming regulatory clarity in the crypto space could act as a catalyst. An exit condition would be if the stock falls below $140, indicating a breakdown in momentum.",
+      "conviction_source": "Real Investment Committee decision \u2014 this is the actual decision that placed the trade, not a separately re-derived score."
+    },
+    "s17_reliability": {
+      "section": "data_reliability",
+      "api_sources_ok": [
+        "yfinance info",
+        "yfinance price_history",
+        "yfinance returns",
+        "yfinance institutional",
+        "Finnhub news",
+        "Finnhub ratings",
+        "Finnhub basics",
+        "Finnhub earnings",
+        "FRED macro",
+        "SEC Form 4",
+        "SEC 8-K",
+        "peer_metrics",
+        "technicals"
+      ],
+      "api_sources_failed": [
+        "FMP profile",
+        "FMP income",
+        "FMP balance",
+        "FMP cashflow",
+        "FMP key_metrics",
+        "FMP DCF",
+        "FMP peers",
+        "yfinance analyst_targets",
+        "Tavily overview",
+        "Tavily catalysts",
+        "Tavily industry",
+        "Tavily competitive"
+      ],
+      "sources_ok_count": {
+        "value": 13,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "sources_failed_count": {
+        "value": 12,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "api_fields_count": {
+        "value": 422,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "ai_fields_count": {
+        "value": 5,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "na_fields_count": {
+        "value": 116,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "conflicts_count": {
+        "value": 0,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "coverage_pct": {
+        "value": 77.7,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "coverage_badge": {
+        "value": "Partial",
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "fetch_elapsed_sec": {
+        "value": 6.2,
+        "source": "system",
+        "status": "ok"
+      },
+      "generated_at": {
+        "value": "2026-08-05T16:33:19.321667Z",
+        "source": "system",
+        "status": "ok"
+      }
+    },
+    "s_h_esg": {
+      "section": "esg",
+      "total_esg_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "environment_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "social_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "governance_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "highest_controversy": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "esg_performance": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "rating_period": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "esg_search_results": [],
+      "ai_msci_rating": null,
+      "ai_initiatives": [],
+      "ai_narrative": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily ESG search",
+      "ai_status": "unavailable"
+    },
+    "s_j_ma": {
+      "section": "ma_track_record",
+      "company_name": "Coinbase Global, Inc.",
+      "ma_8k_filings": [],
+      "ma_news_headlines": [],
+      "ma_search_results": [],
+      "ai_events": [],
+      "ai_narrative": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily M&A search + SEC 8-K + Finnhub news",
+      "ai_status": "unavailable"
+    },
+    "s_b_porter": {
+      "section": "porter_five_forces",
+      "company_name": "Coinbase Global, Inc.",
+      "sector": {
+        "value": "Financial Services",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Financial Data & Stock Exchanges",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance/FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "capex_intensity_pct": {
+        "value": null,
+        "source": "FMP [CALCULATED]",
+        "status": "na"
+      },
+      "gross_margin_pct": {
+        "value": 85.8,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "industry_excerpts": [],
+      "competitive_excerpts": [],
+      "ai_forces": {
+        "competitive_rivalry": {
+          "score": 3,
+          "rationale": "Insufficient data to assess competitive rivalry."
+        },
+        "threat_new_entrants": {
+          "score": 3,
+          "rationale": "Insufficient data to assess entry barriers."
+        },
+        "threat_substitutes": {
+          "score": 3,
+          "rationale": "Insufficient data to assess substitution risk."
+        },
+        "buyer_power": {
+          "score": 3,
+          "rationale": "Insufficient data to assess buyer leverage."
+        },
+        "supplier_power": {
+          "score": 3,
+          "rationale": "Insufficient data to assess supplier leverage."
+        },
+        "overall_attractiveness": "Medium",
+        "sector_narrative": null
+      },
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative]",
+      "ai_status": "unavailable"
+    },
+    "s_c_sotp": {
+      "section": "sotp_valuation",
+      "company_name": "Coinbase Global, Inc.",
+      "total_revenue": {
+        "value": null,
+        "source": "FMP",
+        "status": "na"
+      },
+      "net_debt": {
+        "value": null,
+        "source": "FMP [CALCULATED]",
+        "status": "na"
+      },
+      "shares_outstanding": {
+        "value": 222803032.0,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 151.39,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "market_cap": {
+        "value": 39942270976.0,
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "subj_ev_ebitda": {
+        "value": 52.222,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "subj_ev_rev": {
+        "value": 6.6088524,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "peer_median_ev_rev": {
+        "value": 3.07,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_median_ev_ebitda": {
+        "value": 11.51,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "segments": [],
+      "earnings_excerpts": [],
+      "ai_sotp": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 segment multiple assignment",
+      "ai_status": "unavailable",
+      "enriched_segments": [],
+      "total_ev_bear_bn": null,
+      "total_ev_base_bn": null,
+      "total_ev_bull_bn": null,
+      "net_debt_bn": null,
+      "equity_value_bear_bn": null,
+      "equity_value_base_bn": null,
+      "equity_value_bull_bn": null,
+      "implied_price_bear": null,
+      "implied_price_base": null,
+      "implied_price_bull": null,
+      "upside_pct_bear": null,
+      "upside_pct_base": null,
+      "upside_pct_bull": null,
+      "ai_methodology": null
     }
   },
-  "s14_data": {
-    "sources": [
-      {
-        "field": "Financial metrics",
-        "source": "yfinance, alpha_vantage, sec_edgar, fmp",
-        "type": "live_api",
-        "note": "Market cap, margins, revenue, EPS pulled live from filing data"
-      },
-      {
-        "field": "Technical indicators",
-        "source": "yfinance OHLCV",
-        "type": "live_api",
-        "note": "RSI, MACD, Bollinger Bands calculated from price/volume history"
-      },
-      {
-        "field": "Analyst consensus",
-        "source": "FMP + Finnhub",
-        "type": "live_api",
-        "note": "Wall Street analyst ratings and price targets"
-      },
-      {
-        "field": "Company overview, comparables narrative, management",
-        "source": "GPT-4o (LLM training knowledge)",
-        "type": "llm_knowledge",
-        "note": "Display-only. Never used for scoring or trade decisions. May be outdated."
-      },
-      {
-        "field": "Data conflicts detected",
-        "source": "Cross-source validation",
-        "type": "conflict",
-        "conflicts": [
+  "source": "pipeline_auto",
+  "agent_digest": {
+    "fundamental": {
+      "score": 61,
+      "direction": "LONG",
+      "summary": "COIN has a gross margin of 85.8%, significantly higher than most peers, but its operating margin is negative at -13.9%. The company has a P/S of 6.61, which is below the peer average of 9.20, indicating a favorable valuation.",
+      "raw": {
+        "ticker": "COIN",
+        "fundamental_score": 61,
+        "direction": "LONG",
+        "valuation_vs_peers": "COIN's P/S of 6.61 is below the peer average of 9.20, indicating a favorable valuation relative to peers.",
+        "price_vs_intrinsic_value": "-24.5% discount vs peer median P/S of 9.20.",
+        "dislocation_opportunity": false,
+        "pe_ratio": 47.85,
+        "pe_peer_average": 26.6,
+        "revenue_growth_yoy": 9.4,
+        "operating_margin": -13.9,
+        "roic": null,
+        "net_debt_ebitda": -1.29,
+        "peers_used": [
+          "MCO",
+          "ICE",
+          "NDAQ",
+          "MSCI",
+          "CBOE"
+        ],
+        "setup_type": "Growth",
+        "margin_trend": "Stable",
+        "fcf_positive": true,
+        "leverage_vs_peers": "Lower",
+        "default_risk": "Low",
+        "key_strengths": [
+          "Gross margin of 85.8%."
+        ],
+        "key_concerns": [
+          "Operating margin of -13.9%."
+        ],
+        "fundamental_summary": "COIN has a gross margin of 85.8%, significantly higher than most peers, but its operating margin is negative at -13.9%. The company has a P/S of 6.61, which is below the peer average of 9.20, indicating a favorable valuation.",
+        "fund_mandate": {
+          "asset_class": "Equity",
+          "exchange": "NASDAQ",
+          "sector": "Financial Services",
+          "market_cap_figure": "Mega Cap $40.0B",
+          "avg_daily_volume_usd": null,
+          "geography_flags": {
+            "russia_exposure": false,
+            "mongolia_exposure": false,
+            "cambodia_exposure": false,
+            "exposure_detail": null
+          },
+          "peps_check": {
+            "clean": null,
+            "notes": "Unverified \u2014 manual check required"
+          },
+          "setup_type": "Growth",
+          "float_pct": 98.6
+        },
+        "company_info": {
+          "hq": "San Francisco, USA",
+          "employees": null,
+          "overview": "Coinbase is a leading cryptocurrency exchange platform that allows users to buy, sell, and store various cryptocurrencies. It has established itself as a significant player in the financial services sector, particularly in the digital asset space.",
+          "revenue_segments": [
+            {
+              "segment": "Transaction Fees",
+              "weight_pct": 90.0
+            },
+            {
+              "segment": "Subscription and Services",
+              "weight_pct": 10.0
+            }
+          ],
+          "geography_breakdown": [
+            {
+              "region": "North America",
+              "pct": 70.0
+            },
+            {
+              "region": "Europe",
+              "pct": 20.0
+            },
+            {
+              "region": "Asia",
+              "pct": 10.0
+            }
+          ],
+          "revenue_segments_source": "llm"
+        },
+        "financial_snapshot": {
+          "historical": [
+            {
+              "year": "2025",
+              "revenue": 7181325000.0,
+              "ebitda": 1644573000.0,
+              "net_income": 1260327000.0
+            },
+            {
+              "year": "2024",
+              "revenue": 6564028000.0,
+              "ebitda": 2362953000.0,
+              "net_income": 2579066000.0
+            },
+            {
+              "year": "2023",
+              "revenue": 3108383000.0,
+              "ebitda": 85899000.0,
+              "net_income": 94871000.0
+            },
+            {
+              "year": "2022",
+              "revenue": 3194208000.0,
+              "ebitda": -1793225000.0,
+              "net_income": -2624949000.0
+            }
+          ],
+          "forward": [
+            {
+              "year": "0q",
+              "revenue": 1156938070.0,
+              "ebitda": null,
+              "net_income": -0.07494,
+              "source": "analyst consensus from Yahoo Finance"
+            },
+            {
+              "year": "+1q",
+              "revenue": 1332750410.0,
+              "ebitda": null,
+              "net_income": 0.27109,
+              "source": "analyst consensus from Yahoo Finance"
+            }
+          ]
+        },
+        "comparables": [
+          {
+            "ticker": "COIN",
+            "company": "Coinbase",
+            "revenue_bn": 3.1,
+            "gross_margin_pct": 85.8,
+            "ebitda_margin_pct": -10.9,
+            "net_margin_pct": -16.3,
+            "de_ratio": 0.51
+          },
+          {
+            "ticker": "MCO",
+            "company": "Moody's Corporation",
+            "revenue_bn": 8.2,
+            "gross_margin_pct": 75.0,
+            "ebitda_margin_pct": 52.5,
+            "net_margin_pct": 34.3,
+            "de_ratio": 2.41
+          },
+          {
+            "ticker": "ICE",
+            "company": "Intercontinental Exchange",
+            "revenue_bn": 10.6,
+            "gross_margin_pct": 100.0,
+            "ebitda_margin_pct": 55.6,
+            "net_margin_pct": 38.2,
+            "de_ratio": 0.69
+          },
+          {
+            "ticker": "NDAQ",
+            "company": "Nasdaq, Inc.",
+            "revenue_bn": 5.6,
+            "gross_margin_pct": 100.0,
+            "ebitda_margin_pct": 52.3,
+            "net_margin_pct": 35.0,
+            "de_ratio": 0.78
+          },
+          {
+            "ticker": "MSCI",
+            "company": "MSCI Inc.",
+            "revenue_bn": 3.3,
+            "gross_margin_pct": 83.0,
+            "ebitda_margin_pct": 59.3,
+            "net_margin_pct": 40.7,
+            "de_ratio": null
+          },
+          {
+            "ticker": "CBOE",
+            "company": "Cboe Global Markets",
+            "revenue_bn": 5.1,
+            "gross_margin_pct": 54.1,
+            "ebitda_margin_pct": 37.6,
+            "net_margin_pct": 26.7,
+            "de_ratio": 0.28
+          }
+        ],
+        "market_analysis": {
+          "tam_usd": "The total addressable market for cryptocurrency trading and services is estimated to be in the hundreds of billions, with significant growth potential as digital assets gain mainstream acceptance.",
+          "growth_rate": "The cryptocurrency market is expected to grow at a compound annual growth rate (CAGR) of approximately 20-30% over the next few years.",
+          "competition_intensity": "High",
+          "sector_trends": "The financial services sector is increasingly integrating blockchain technology, and regulatory clarity is improving, which could enhance market participation.",
+          "macro_factors": "Interest rates and inflation rates are influencing investor behavior in the cryptocurrency market, with potential impacts on trading volumes."
+        },
+        "quality_of_earnings": {
+          "moat": "Narrow",
+          "competitive_advantages": [
+            "Strong brand recognition in the cryptocurrency space",
+            "User-friendly platform for trading and managing digital assets"
+          ],
+          "barriers_to_entry": "High regulatory scrutiny and the need for significant technological infrastructure create barriers for new entrants.",
+          "sustainability": "The sustainability of earnings is uncertain due to market volatility and regulatory changes."
+        },
+        "management_team": {
+          "ceo": "Brian Armstrong - Co-founder and CEO of Coinbase, with a strong background in technology and finance.",
+          "track_record": "Brian has successfully led Coinbase through significant growth phases and navigated regulatory challenges.",
+          "red_flags": null
+        },
+        "analyst_rating_history": {
+          "current_consensus": "Hold",
+          "num_analysts": null,
+          "avg_target_price": null,
+          "implied_upside_pct": null,
+          "trend_24m": "Stable",
+          "summary": "Analysts are cautious about Coinbase's near-term performance due to market volatility but recognize its long-term potential."
+        },
+        "cap_table": {
+          "institutional_pct": 68.3,
+          "insider_pct": 1.3,
+          "float_pct": 98.6,
+          "major_holders": [
+            {
+              "name": "The Vanguard Group",
+              "pct": 7.5
+            },
+            {
+              "name": "BlackRock, Inc.",
+              "pct": 6.8
+            }
+          ]
+        },
+        "setup_checklist": {
+          "setup_type": "Growth",
+          "revenue_cagr_3yr": 31.0,
+          "above_20pct_threshold": true,
+          "margin_trend": "Stable",
+          "sustainability_assessment": "Revenue grew from $3.1B in 2023 to an estimated $6.56B in 2024; operating margin direction is improving as EBITDA is expected to rise significantly; FCF positive at $1.3B.",
+          "tam_room_to_grow": "$200-400bn market, COIN holds ~3% share; the company is gaining share as it expands its services and user base.",
+          "eps_growth_consistent": false,
+          "fcf_positive": true,
+          "leverage_vs_peers": "Lower",
+          "default_risk": "Low",
+          "upcoming_catalysts": [
+            "Earnings \u2014 Q3 FY2023 results (~November 2023), consensus EPS $0.27",
+            "Product Launch \u2014 New staking feature expected to roll out (~December 2023)",
+            "Regulatory Update \u2014 Anticipated guidance from SEC on crypto regulations (~December 2023)"
+          ],
+          "key_risks": [
+            {
+              "risk": "Regulatory scrutiny",
+              "mechanism": "Increased regulation on cryptocurrency exchanges could impact operations.",
+              "category": "Regulatory"
+            },
+            {
+              "risk": "Market volatility",
+              "mechanism": "Fluctuations in cryptocurrency prices can significantly affect trading volumes.",
+              "category": "Financial"
+            },
+            {
+              "risk": "Competition from new entrants",
+              "mechanism": "Emerging platforms may offer lower fees or better features, impacting market share.",
+              "category": "Competitive"
+            },
+            {
+              "risk": "Technological risks",
+              "mechanism": "Potential for security breaches or system outages affecting user trust.",
+              "category": "Operational"
+            }
+          ],
+          "moat_strength": "Narrow",
+          "near_term_catalyst": "Q3 earnings on November 15 \u2014 consensus EPS $0.27"
+        },
+        "valuation": {
+          "methodology": "P/S",
+          "analyst_consensus_target": null,
+          "implied_multiples": "COIN's P/S of 6.61 is below the peer average of 9.20, indicating a favorable valuation relative to peers.",
+          "cheap_vs_peers": "cheap",
+          "near_term_upside_pct": null
+        },
+        "market_timing": "Current market conditions suggest a cautious approach, with potential for volatility around upcoming earnings.",
+        "investment_thesis_bullets": [
+          "Revenue of $3.1B with a positive growth trajectory.",
+          "P/S ratio of 6.61 compared to peer average of 9.20 indicates undervaluation.",
+          "Strong brand presence and user-friendly platform position COIN well for future growth."
+        ],
+        "_data_sources": {
+          "fundamental_score": "live_api_only",
+          "direction": "live_api_only",
+          "dislocation_opportunity": "live_api_only",
+          "valuation_vs_peers": "live_api_only",
+          "key_strengths": "live_api_only",
+          "key_concerns": "live_api_only",
+          "historical_financials": "live_api",
+          "peer_comparables_multiples": "live_api",
+          "ownership_pct": "live_api",
+          "analyst_fwd_revenue": "yahoo_finance_consensus",
+          "analyst_fwd_eps": "yahoo_finance_consensus",
+          "company_info": "llm_knowledge_display_only",
+          "management_team": "llm_knowledge_display_only",
+          "analyst_rating_trend": "llm_knowledge_display_only",
+          "cap_table_holders": "llm_knowledge_display_only",
+          "market_analysis": "llm_knowledge_display_only",
+          "setup_checklist_narrative": "llm_knowledge_display_only"
+        },
+        "data_conflicts": [
           {
             "metric": "revenue (EDGAR override)",
             "yfinance_value": 6043752960,
@@ -489,49 +4157,226 @@
           },
           {
             "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-            "yfinance_value": -3.88,
+            "yfinance_value": -3.87,
             "sec_edgar_value": 0.37,
-            "diff_pct": 109.5,
+            "diff_pct": 109.6,
             "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
-          },
-          {
-            "metric": "revenue_ttm (fmp vs reconciled)",
-            "yf_av_value": 3108383000.0,
-            "fmp_value": 7181325000,
-            "diff_pct": 131.0,
-            "conservative_value": 3108383000.0,
-            "resolution": "yf_av used (conservative)"
           }
+        ],
+        "data_confidence": {
+          "level": "medium",
+          "sources_count": 3,
+          "sources_used": [
+            "yfinance",
+            "alpha_vantage",
+            "sec_edgar"
+          ],
+          "conflicts_count": 2
+        },
+        "market_cap": 39955464192,
+        "beta": 3.361,
+        "current_ratio": 2.423,
+        "avg_daily_volume": 8621180,
+        "current_price": null,
+        "candidate_score": 3.5,
+        "candidate_signals": [
+          "institutional_signal",
+          "sector_momentum",
+          "macro_tailwind"
         ]
       }
-    ],
-    "data_confidence": "medium",
-    "confidence_reason": "Data cross-referenced across 4 independent sources (yfinance, alpha_vantage, sec_edgar, fmp) | 3 conflict(s) found between sources \u2014 conservative figure used where sources disagreed | Some fields could not be cross-verified \u2014 figures are directionally reliable but treat specific numbers with moderate caution",
-    "sources_count": 4,
-    "conflicts_count": 3,
-    "last_updated": "2026-08-05 11:17 UTC",
-    "agents_run": [
-      "Macro",
-      "News",
-      "Fundamental",
-      "Quant",
-      "Sentiment",
-      "Committee"
-    ],
-    "llm_fields": [
-      "company_info.overview",
-      "company_info.revenue_segments",
-      "management_team",
-      "analyst_rating_history.trend",
-      "setup_checklist.sustainability_assessment",
-      "setup_checklist.upcoming_catalysts",
-      "comparables.company_names"
-    ]
-  },
-  "agent_scores": {
-    "fundamental": 56,
-    "quant": 48,
-    "sentiment": 76
-  },
-  "macro_regime": "NEUTRAL"
+    },
+    "quant": {
+      "score": 62,
+      "direction": "LONG",
+      "summary": "The current technical setup indicates a potential mean reversion as the price is significantly below the SMA200 and near the 52-week low. Given the oversold conditions and the high signal confidence, a bounce towards resistance at $173.09 is likely in the next 5-10 days.",
+      "raw": {
+        "ticker": "COIN",
+        "quant_score": 62,
+        "direction": "LONG",
+        "trade_type": "mean_reversion",
+        "forward_bias": "bullish",
+        "mean_reversion_score": 50,
+        "trend": "downtrend",
+        "rsi_14": 44.3,
+        "macd_signal": "bearish",
+        "volume_trend": "neutral",
+        "support": 152.58,
+        "resistance": 173.09,
+        "key_patterns": [
+          "bearish_ma_stack",
+          "higher_highs_higher_lows"
+        ],
+        "signal_confidence": {
+          "level": "high",
+          "sources_count": 3,
+          "sources": [
+            "price_action",
+            "volume",
+            "momentum_oscillators"
+          ],
+          "conflicts": [],
+          "confidence_note": "3/3 signal sources confirming"
+        },
+        "data_conflicts": [],
+        "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+        "quant_summary": "The current technical setup indicates a potential mean reversion as the price is significantly below the SMA200 and near the 52-week low. Given the oversold conditions and the high signal confidence, a bounce towards resistance at $173.09 is likely in the next 5-10 days.",
+        "mean_reversion_signals": [
+          "Price 28% below SMA200 \u2014 extreme dislocation",
+          "Within 15% of 52W low",
+          "Declining volume on selloff \u2014 selling exhaustion"
+        ],
+        "current_price": 151.66,
+        "ret_1m": -0.0483,
+        "ret_3m": -0.2339,
+        "ret_6m": -0.1006,
+        "week52_high": 402.16,
+        "week52_low": 139.11,
+        "pct_from_52w_high": -62.3,
+        "high_52w": 402.16,
+        "low_52w": 139.11,
+        "indicators": {
+          "rsi_14": 44.3,
+          "macd_bullish": false,
+          "macd_histogram_expanding": false,
+          "stoch_k": 29.6,
+          "bb_pct": 0.213,
+          "volume_ratio": 0.4,
+          "obv_trend": "down",
+          "sma_50": 161.93,
+          "sma_200": 209.64,
+          "cross_signal": null,
+          "current_price": 151.66,
+          "ret_1w": -0.0729,
+          "ret_1m": -0.0483,
+          "ret_3m": -0.2339,
+          "ret_6m": -0.1006,
+          "week52_high": 402.16,
+          "week52_low": 139.11,
+          "pct_from_52w_high": -62.3,
+          "atr_14": 10.19,
+          "atr_pct": 6.72
+        },
+        "key_levels": {
+          "support": 152.58,
+          "resistance": 173.09,
+          "support_levels": [
+            152.58,
+            147.88,
+            139.18
+          ],
+          "resistance_levels": [
+            173.09,
+            176.48,
+            181.49
+          ]
+        },
+        "candidate_score": 3.5,
+        "candidate_signals": [
+          "institutional_signal",
+          "sector_momentum",
+          "macro_tailwind"
+        ],
+        "swarm_memory_hits": 0
+      }
+    },
+    "sentiment": {
+      "score": 72,
+      "direction": "LONG",
+      "summary": "The current market sentiment for COIN is moderately bullish, driven by a positive analyst consensus and significant upside potential in price targets. However, the lack of recent news catalysts and low signal confidence suggests that this sentiment may be leading, reflecting expectations rather than reactions to recent price movements.",
+      "raw": {
+        "ticker": "COIN",
+        "sentiment_score": 72,
+        "direction": "LONG",
+        "analyst_consensus": "Buy",
+        "price_target_upside_pct": 32.0,
+        "news_sentiment": "neutral",
+        "short_interest_pct": 11.4,
+        "short_squeeze_risk": "low",
+        "retail_euphoria_warning": false,
+        "analyst_targets_stale": false,
+        "contrarian_signal": true,
+        "sentiment_type": "leading",
+        "data_conflicts": [],
+        "signal_confidence": {
+          "level": "low",
+          "sources_count": 1,
+          "sources": [
+            "analyst_consensus"
+          ],
+          "conflicts": [],
+          "confidence_note": "1/3 sources confirming"
+        },
+        "sentiment_summary": "The current market sentiment for COIN is moderately bullish, driven by a positive analyst consensus and significant upside potential in price targets. However, the lack of recent news catalysts and low signal confidence suggests that this sentiment may be leading, reflecting expectations rather than reactions to recent price movements.",
+        "fmp_analyst_signals": {
+          "available": true,
+          "avg_target_price": null,
+          "target_count": 0,
+          "last_quarter_avg_target": null,
+          "last_year_avg_target": null,
+          "upgrades_recent": 0,
+          "downgrades_recent": 0,
+          "initiations_recent": 0,
+          "upgrade_momentum": "stable"
+        },
+        "analyst_detail": {
+          "yf_label": "Buy",
+          "yf_num_analysts": 29,
+          "fh_strong_buy": 11,
+          "fh_buy": 20,
+          "fh_hold": 10,
+          "fh_sell": 1,
+          "fh_strong_sell": 2,
+          "fh_period": "2026-08-01"
+        },
+        "news_detail": {
+          "found": false,
+          "long_weight": 0.0,
+          "short_weight": 0.0,
+          "net_score": 0.0,
+          "total_catalysts": 0,
+          "top_catalyst": null
+        },
+        "reddit_detail": null,
+        "price_targets": {
+          "current": 151.57,
+          "mean": 200.07138,
+          "high": 330.0,
+          "low": 95.0,
+          "upside_pct": 32.0
+        },
+        "short_interest": {
+          "ratio": 3.23,
+          "pct_float": 0.113900006
+        },
+        "candidate_score": 3.5,
+        "candidate_signals": [
+          "institutional_signal",
+          "sector_momentum",
+          "macro_tailwind"
+        ]
+      }
+    },
+    "macro": {
+      "regime": "NEUTRAL",
+      "summary": "The current macro environment is characterized by a stable interest rate at 3.63% and a falling inflation trend as indicated by the CPI decrease from 333.98 to 332.57. However, there are conflicting signals from the data sources, with FRED and yfinance_market indicating a NEUTRAL stance while newsapi_finnhub suggests a RISK-OFF sentiment, leading to a low confidence level in the overall assessment."
+    },
+    "institutional": {
+      "convergence": [],
+      "fund_theses": [
+        {
+          "ticker": "COIN",
+          "funds": [
+            "Various Funds"
+          ],
+          "inferred_thesis": "growth",
+          "thesis_reasoning": "The significant analyst upgrades and bullish sentiment indicate expectations for high revenue growth in the cryptocurrency sector.",
+          "conviction": "high"
+        }
+      ]
+    },
+    "news": {
+      "catalysts": []
+    }
+  }
 }

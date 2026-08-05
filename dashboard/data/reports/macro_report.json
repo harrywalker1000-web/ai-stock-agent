@@ -3,39 +3,38 @@
   "interest_rate_direction": "stable",
   "inflation_trend": "falling",
   "favoured_themes": [
-    "defensive equities",
+    "defensive stocks",
     "high-quality bonds",
-    "energy sector",
-    "emerging markets",
-    "technology"
+    "technology sector",
+    "consumer staples"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "cyclical stocks",
-    "commodities",
-    "real estate"
+    "leveraged investments",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "Yemen's Houthis attacking Saudi oil tanker",
-    "US-Iran negotiations affecting oil prices",
-    "China's easing of fuel export controls"
+    "US sanctions removal from IRGC-linked entities",
+    "Israeli military actions in Lebanon",
+    "Iran's control over Hormuz traffic"
   ],
-  "macro_summary": "The current macro environment is characterized by a neutral market regime, with stable interest rates and a falling inflation trend as indicated by the CPI decline from 333.98 to 332.57. The yield curve remains slightly positive, suggesting no immediate recession risk, but geopolitical tensions, particularly in the Middle East, could impact market stability. All three data sources agree on the neutral classification, indicating a high confidence level.",
+  "macro_summary": "The current macro environment is characterized by a stable interest rate at 3.63% and a falling inflation trend as indicated by the CPI decrease from 333.98 to 332.57. However, there are conflicting signals from the data sources, with FRED and yfinance_market indicating a NEUTRAL stance while newsapi_finnhub suggests a RISK-OFF sentiment, leading to a low confidence level in the overall assessment.",
   "signal_confidence": {
-    "level": "high",
+    "level": "low",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [
-      "All 3 sources agree: NEUTRAL"
+    "agreements": [],
+    "conflicts": [
+      "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "conflicts": [],
-    "confidence_note": "The high confidence level is supported by unanimous agreement among all data sources."
+    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
   },
-  "confidence": 90,
+  "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
     "us_10y_yield": 4.7,
@@ -48,41 +47,41 @@
     "gdp_latest": 32475.2,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.91,
-    "dxy_current": 99.83,
+    "dxy_current": 99.69,
     "dxy_1m_ago": 100.85,
     "dxy_trend": "weakening",
-    "vix": 16.49,
-    "tlt_1m_change_pct": -2.69,
-    "hyg_1m_change_pct": 0.08,
+    "vix": 16.32,
+    "tlt_1m_change_pct": -2.6,
+    "hyg_1m_change_pct": 0.0,
     "macro_headlines": [
-      "Yemen's Houthis say they attacked Saudi oil tanker in Red Sea - Reuters",
-      "US and Iran having 'very good discussions', Trump says - Reuters",
-      "Trump says US held 'all-day negotiation' with Iran on Tuesday - Reuters",
-      "China eases controls on fuel exports for a second month, sources say - Reuters",
-      "Gulf shipping traffic steady amid uncertainty of peace talks - Reuters",
-      "Stocks get AI-boost; investors on tenterhooks over Mideast peace talks - Reuters",
-      "Yen drifts after intervention whirlwind; Iran optimism dents dollar - Reuters",
-      "Oil prices rebound after Houthis say they attacked Saudi tanker - Reuters",
-      "Gold scales one-month peak as US-Iran peace hopes ease inflation worries - Reuters",
-      "Antisemitism in UK remains near record levels, charity says - Reuters"
+      "We're pocketing gains in two tech stocks that are hitting new record highs",
+      "Disney weighs free ad-supported streaming, says it has sold out Super Bowl ad spots",
+      "US removes sanctions from three IRGC-linked entities, Treasury website shows - Reuters",
+      "Israeli military strikes southern Lebanon after evacuation warning to village - Reuters",
+      "Situational Awareness hedge fund meltdown was a warning shot for leveraged markets, BofA CEO says",
+      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "Iran state oil company's bank accounts frozen over debt, Fars news agency reports - Reuters",
+      "Proposed Hormuz deal would give Iran control of inbound traffic, sources say - Reuters",
+      "Stock bears obliterated as Nasdaq 100 logs top 10 bullish stat of past decade",
+      "The box office is on pace for its best year since the pandemic. But fewer people are going to the movies. - Reuters"
     ],
     "geopolitical_headlines": [
       "Japan may not have intervened in FX market on Monday despite yen's surge, BOJ data suggests",
+      "The Latest: Blanche's assertion of Trump tax audit immunity remains in place",
       "Capital One says it closed Trump Organization accounts over money-laundering concerns",
       "'The best Android phone for students': why I decided to buy the Google Pixel 10a ahead of the Pixel 11 launch",
       "Trump accounts were closed in 2021 due to concerns over possible money laundering, Capital One says",
       "UBS fined $125 million by US regulators for money laundering violations",
+      "A forgotten Swedish economist\u2019s 130-year-old theory explains why investors won\u2019t quit funding America\u2019s near-$40 trillion pile of debt",
       "Find funding and save Jodrell Bank, stars say",
       "Young South Korean investors are finding company in collective misery by sharing their losses on social media",
-      "Analysis-China draws 'red lines' around its economic model ahead of EU, US trade talks",
-      "The U.S. is using euros, not dollars, to prop up the yen, and it may backfire: \u2018This kind of twist\u2026undercuts the efficacy of U.S. participation\u2019",
-      "Capital One says it closed several Trump accounts 'for anti-money laundering reasons'"
+      "TCL's new budget tablet just landed in the US with a surprising launch discount"
     ],
     "central_bank_headlines": [
       "Bond Funds Turn to Europe as Global Risks Become Harder to Price",
       "Weekly Climate and Energy News Roundup #700"
     ],
-    "as_of": "2026-08-05 10:52 UTC"
+    "as_of": "2026-08-05 15:50 UTC"
   },
-  "generated_at": "2026-08-05T10:52:48.720656"
+  "generated_at": "2026-08-05T15:51:00.551479"
 }
