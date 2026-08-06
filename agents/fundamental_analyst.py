@@ -1470,7 +1470,7 @@ def run(mode: str = "new_opportunities") -> dict:
             r_latest = hist[0].get("revenue")
             r_oldest = hist[-1].get("revenue")
             n_years = len(hist) - 1
-            if r_latest and r_oldest and r_oldest > 0 and n_years > 0:
+            if r_latest and r_oldest and r_latest > 0 and r_oldest > 0 and n_years > 0:
                 cagr = (r_latest / r_oldest) ** (1.0 / n_years) - 1
                 sc["revenue_cagr_3yr"] = round(cagr * 100, 1)
                 sc["above_20pct_threshold"] = cagr >= 0.20
