@@ -568,11 +568,12 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     # Must run here, not inside investment_committee.py — Portfolio Construction
     # (Phase 4b, above) can still downgrade an enter_long/enter_short to skip if it
     # doesn't get funded, and the executor can still fail the order (e.g.
-    # insufficient buying power). Reading committee_report.json now gets the final,
-    # patched decisions; cross-checking against open_positions confirms the trade
-    # actually filled before we spend Tavily quota on it.
+    # insufficient buying power, insufficient_capital, or market closed). Gating on
+    # trade_executor's own executed_trades list (not just ticker-in-open_positions —
+    # an already-held ticker whose "increase" was skipped this run would otherwise
+    # still look "confirmed", since it was already open from a prior day).
     results["deep_research"] = _safe_run(
-        "Phase B: Deep-Dive Research", _generate_entered_position_reports,
+        "Phase B: Deep-Dive Research", _generate_entered_position_reports, results["executor"],
     )
 
     results["elapsed_sec"] = round(time.time() - t0, 1)
@@ -580,12 +581,15 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     return results
 
 
-def _generate_entered_position_reports() -> dict:
+def _generate_entered_position_reports(executor_result: dict | None) -> dict:
     """
     Generates the agent-attributed deep-dive report (see report_synthesis.py)
-    for every ticker confirmed as a newly-entered position this run — real
-    capital placed, real position held, not just a committee decision that may
-    have been downgraded or failed to fill.
+    for every ticker confirmed as ACTUALLY EXECUTED this run — not merely
+    decided, and not merely "currently held" (an already-held ticker whose
+    increase order was skipped this run — e.g. insufficient_capital, market
+    closed — would still be "open" from its prior-day entry, which is why we
+    gate on trade_executor's own executed_trades list rather than
+    memory.get_open_positions()).
     """
     from agents import report_synthesis
 
@@ -596,16 +600,19 @@ def _generate_entered_position_reports() -> dict:
     if not entered_decisions:
         return {"generated": [], "skipped_unfilled": []}
 
-    open_positions = memory.get_open_positions()
+    executed_tickers = {
+        t.get("ticker") for t in (executor_result or {}).get("executed_trades", [])
+    }
     generated, skipped = [], []
     for decision in entered_decisions:
         ticker = decision.get("ticker", "")
-        if ticker not in open_positions:
-            # Decided to enter, but not actually held — construction downgraded it
-            # after this list was cached, or the order failed at execution.
+        if ticker not in executed_tickers:
+            # Decided to enter, but this run's order never actually filled —
+            # construction downgraded it, insufficient capital, market closed,
+            # or the executor otherwise skipped/failed it.
             logger.warning(
-                "%s: committee decided %s but no open position found — "
-                "skipping deep-dive report (order likely didn't fill)",
+                "%s: committee decided %s but trade_executor did not record a fill "
+                "this run — skipping deep-dive report",
                 ticker, decision.get("action"),
             )
             skipped.append(ticker)
