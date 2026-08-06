@@ -372,7 +372,7 @@ def compute_risk_snapshot() -> dict:
 def _write_snapshot(snapshot: dict) -> None:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     with open(SNAPSHOT_PATH, "w") as f:
-        json.dump(snapshot, f, indent=2)
+        json.dump(snapshot, f, indent=2, allow_nan=False)
 
 
 def load_snapshot() -> dict:

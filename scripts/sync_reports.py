@@ -392,7 +392,7 @@ try:
         # Never overwrite an existing daily report — it may have been committed already
         if not out_file.exists():
             with open(out_file, "w") as f:
-                json.dump(daily, f, indent=2)
+                json.dump(daily, f, indent=2, allow_nan=False)
             print(f"  ✓ daily_report_{date}.json written for Reports page")
         else:
             print(f"  - daily_report_{date}.json already exists, skipping")

@@ -327,7 +327,7 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
                 "generated_at": cr.get("generated_at", ""),
             }
             with open(committee_report_path, "w") as f:
-                _json.dump(cr, f, indent=2)
+                _json.dump(cr, f, indent=2, allow_nan=False)
             logger.info("Portfolio construction: patched %d/%d decisions with target weights (%d capital swaps)",
                         patched, len(phase_b_decisions), len(capital_swap_exits))
         except Exception as exc:
@@ -610,7 +610,14 @@ def _generate_entered_position_reports() -> dict:
             )
             skipped.append(ticker)
             continue
-        report = report_synthesis.generate_entered_position_report(ticker, decision)
+        try:
+            report = report_synthesis.generate_entered_position_report(ticker, decision)
+        except Exception as exc:
+            # Belt-and-braces: generate_entered_position_report already catches its own
+            # errors and returns None, but one ticker's failure must never stop the
+            # others in this loop from being attempted.
+            logger.error("%s: deep-dive report generation raised unexpectedly: %s", ticker, exc, exc_info=True)
+            report = None
         if report:
             generated.append(ticker)
 
@@ -677,7 +684,12 @@ def run() -> dict:
         summary["phase_a"] = {"skipped": True, "reason": "SKIP_PHASE_A env var set"}
         macro_ran_in_phase_a = False
     else:
-        summary["phase_a"] = run_phase_a()
+        try:
+            summary["phase_a"] = run_phase_a()
+        except Exception as exc:
+            logger.error("Phase A crashed: %s — continuing to Phase B with no Phase A results",
+                         exc, exc_info=True)
+            summary["phase_a"] = {"error": str(exc)}
         macro_ran_in_phase_a = not summary["phase_a"].get("skipped", False)
 
     # --- Phase B ---
@@ -692,15 +704,25 @@ def run() -> dict:
             if d.get("action") == "exit" and d.get("ticker")
         ]
         phase_a_all_decisions = phase_a_committee.get("position_decisions", [])
-        summary["phase_b"] = run_phase_b(
-            macro_already_ran=macro_ran_in_phase_a,
-            phase_a_exits=phase_a_exits or None,
-            phase_a_decisions=phase_a_all_decisions or None,
-        )
+        try:
+            summary["phase_b"] = run_phase_b(
+                macro_already_ran=macro_ran_in_phase_a,
+                phase_a_exits=phase_a_exits or None,
+                phase_a_decisions=phase_a_all_decisions or None,
+            )
+        except Exception as exc:
+            logger.error("Phase B crashed: %s — continuing to memory consolidation with no Phase B results",
+                         exc, exc_info=True)
+            summary["phase_b"] = {"error": str(exc)}
 
     # --- Memory consolidation ---
     logger.info("Running Memory Agent consolidation...")
-    summary["memory"] = memory.run()
+    try:
+        summary["memory"] = memory.run()
+    except Exception as exc:
+        logger.error("Memory consolidation crashed: %s — pipeline continues without it",
+                     exc, exc_info=True)
+        summary["memory"] = {"error": str(exc)}
 
     # --- Pipeline summary ---
     total_elapsed = round(time.time() - pipeline_start, 1)

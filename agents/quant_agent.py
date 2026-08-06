@@ -89,7 +89,13 @@ def _compute_indicators(df: pd.DataFrame, ticker: str = "") -> dict:
     def _ret(n):
         if len(close) <= n:
             return None
-        return round((float(close.iloc[-1]) - float(close.iloc[-n])) / abs(float(close.iloc[-n])), 4)
+        try:
+            base = float(close.iloc[-n])
+            if base == 0:
+                return None
+            return round((float(close.iloc[-1]) - base) / abs(base), 4)
+        except Exception:
+            return None
 
     ind["ret_1w"] = _ret(5)
     ind["ret_1m"] = _ret(21)
@@ -873,7 +879,7 @@ def run(mode: str = "new_opportunities") -> dict:
     }
 
     with open(OUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
 
     logger.info("Saved quant report to %s", OUT_PATH)
     logger.info("=== Quant Agent complete: %d tickers analysed ===", len(results))

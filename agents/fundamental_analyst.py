@@ -657,8 +657,7 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
         reconciled[field] = yf.get(field)
 
     # --- FMP cross-checks and supplements ---
-    if fmp_ok:
-        assert fmp is not None  # fmp_ok guards fmp is not None
+    if fmp_ok and fmp is not None:
         # Revenue: FMP as a third corroboration (after yf/AV reconcile, before EDGAR override)
         fmp_rev = fmp.get("revenue_ttm")
         current_rev = reconciled.get("revenue") or reconciled.get("revenue_ttm") or yf.get("revenue_ttm")
@@ -1531,7 +1530,7 @@ def run(mode: str = "new_opportunities") -> dict:
     }
 
     with open(OUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
 
     logger.info("Saved fundamental report to %s", OUT_PATH)
     logger.info("=== Fundamental Analyst complete: %d tickers analysed ===", len(results))

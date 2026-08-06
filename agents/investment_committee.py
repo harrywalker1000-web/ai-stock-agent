@@ -2034,7 +2034,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
     }
 
     with open(OUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
 
     logger.info("Saved committee report to %s", OUT_PATH)
     logger.info("=== Investment Committee complete: %d decisions (%d enter, %d exit, %d hold) ===",

@@ -80,7 +80,7 @@ def _print_summary(result: dict):
         for e in new_entries:
             sl = f"  SL: ${e.get('stop_loss')}" if e.get("stop_loss") else ""
             logger.info("    %-6s %s  conviction=%d  size=%.0f%%%s",
-                        e["ticker"], e["action"], e.get("conviction", 0),
+                        e.get("ticker", "?"), e.get("action", "?"), e.get("conviction", 0),
                         e.get("size_pct", 0), sl)
             logger.info("    %s", e.get("investment_thesis", "")[:100])
 
@@ -94,7 +94,7 @@ def _print_summary(result: dict):
         logger.info("  Phase A portfolio adjustments:")
         for d in a_decisions:
             logger.info("    %-6s %s  — %s",
-                        d["ticker"], d["action"],
+                        d.get("ticker", "?"), d.get("action", "?"),
                         d.get("investment_thesis", "")[:80])
 
 
@@ -124,14 +124,17 @@ def main() -> int:
         logger.error("Check logs/ for details. Individual agent reports may be partially written.")
         return 1
 
-    _print_summary(result)
+    try:
+        _print_summary(result)
+    except Exception as exc:
+        logger.error("Failed to print pipeline summary: %s", exc, exc_info=True)
 
     # Save full pipeline result for debugging
     result_path = ROOT / "data" / "reports" / "pipeline_result.json"
     try:
         with open(result_path, "w") as f:
             # Scrub non-serialisable objects before saving
-            json.dump(result, f, indent=2, default=str)
+            json.dump(result, f, indent=2, default=str, allow_nan=False)
     except Exception:
         pass  # Non-critical
 

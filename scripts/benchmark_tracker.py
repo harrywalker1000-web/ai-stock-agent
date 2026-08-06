@@ -40,7 +40,7 @@ def _load_json(path: Path, default=None):
 def _save_json(path: Path, data) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w") as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, allow_nan=False)
 
 
 # ---------------------------------------------------------------------------
@@ -141,8 +141,8 @@ def _cumulative_returns(nav_series: list[dict], spy_closes: dict[str, float]) ->
                 break
 
         spy_close = spy_closes[spy_date]
-        portfolio_cumulative = round((last_known_equity / inception_equity - 1) * 100, 3)
-        spy_cumulative       = round((spy_close / inception_spy - 1) * 100, 3)
+        portfolio_cumulative = round((last_known_equity / inception_equity - 1) * 100, 3) if inception_equity else 0.0
+        spy_cumulative       = round((spy_close / inception_spy - 1) * 100, 3) if inception_spy else 0.0
 
         series.append({
             "date":                 spy_date,

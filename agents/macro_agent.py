@@ -71,8 +71,9 @@ def _collect_macro_data() -> dict:
     if len(gdp_series) >= 2:
         data["gdp_latest"] = round(float(gdp_series.iloc[-1]), 1)
         data["gdp_prev"] = round(float(gdp_series.iloc[-2]), 1)
-        data["gdp_growth"] = round(
-            (data["gdp_latest"] - data["gdp_prev"]) / data["gdp_prev"] * 100, 2
+        data["gdp_growth"] = (
+            round((data["gdp_latest"] - data["gdp_prev"]) / data["gdp_prev"] * 100, 2)
+            if data["gdp_prev"] else None
         )
     else:
         data["gdp_latest"] = data["gdp_prev"] = data["gdp_growth"] = None
@@ -106,7 +107,7 @@ def _collect_macro_data() -> dict:
         if len(closes) >= 2:
             c0 = float(closes.iloc[0].item() if hasattr(closes.iloc[0], 'item') else closes.iloc[0])
             c1 = float(closes.iloc[-1].item() if hasattr(closes.iloc[-1], 'item') else closes.iloc[-1])
-            data["tlt_1m_change_pct"] = round((c1 - c0) / c0 * 100, 2)
+            data["tlt_1m_change_pct"] = round((c1 - c0) / c0 * 100, 2) if c0 else None
         else:
             data["tlt_1m_change_pct"] = None
     else:
@@ -119,7 +120,7 @@ def _collect_macro_data() -> dict:
         if len(closes) >= 2:
             c0 = float(closes.iloc[0].item() if hasattr(closes.iloc[0], 'item') else closes.iloc[0])
             c1 = float(closes.iloc[-1].item() if hasattr(closes.iloc[-1], 'item') else closes.iloc[-1])
-            data["hyg_1m_change_pct"] = round((c1 - c0) / c0 * 100, 2)
+            data["hyg_1m_change_pct"] = round((c1 - c0) / c0 * 100, 2) if c0 else None
         else:
             data["hyg_1m_change_pct"] = None
     else:
@@ -403,7 +404,7 @@ def run() -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / "macro_report.json"
     with open(output_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        json.dump(result, f, indent=2, default=str, allow_nan=False)
 
     logger.info("Macro Agent: report saved to %s", output_path)
     logger.info("=== Macro Agent complete — regime: %s ===", result.get("regime"))

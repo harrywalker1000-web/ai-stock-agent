@@ -520,7 +520,7 @@ def run() -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     output_path = output_dir / "sector_report.json"
     with open(output_path, "w") as f:
-        json.dump(result, f, indent=2, default=str)
+        json.dump(result, f, indent=2, default=str, allow_nan=False)
 
     logger.info("Sector Agent: report saved to %s", output_path)
     logger.info("=== Sector Agent complete ===")

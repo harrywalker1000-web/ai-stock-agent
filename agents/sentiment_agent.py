@@ -644,7 +644,7 @@ def run(mode: str = "new_opportunities") -> dict:
     }
 
     with open(OUT_PATH, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
 
     logger.info("Saved sentiment report to %s", OUT_PATH)
     logger.info("=== Sentiment Analyst complete: %d tickers analysed ===", len(results))

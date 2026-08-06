@@ -57,7 +57,7 @@ def _write_candidates_report(ticker: str) -> None:
         "mode": "adhoc",
     }
     with open(REPORTS_DIR / "candidates_report.json", "w") as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, allow_nan=False)
 
 
 def _emit(progress_mode: bool, step: str, label: str) -> None:
@@ -766,7 +766,7 @@ def generate(ticker: str, force_refresh: bool = False, progress_mode: bool = Fal
     date_str  = datetime.utcnow().date().isoformat()
     out_path  = ADHOC_DIR / f"{ticker}_{date_str}.json"
     with open(out_path, "w") as f:
-        json.dump(report, f, indent=2)
+        json.dump(report, f, indent=2, allow_nan=False)
     print(f"  Saved → {out_path}", flush=True)
 
     return report
@@ -896,7 +896,7 @@ def generate_from_pipeline_data(
     date_str = datetime.utcnow().date().isoformat()
     out_path = ADHOC_DIR / f"{ticker}_{date_str}.json"
     with open(out_path, "w") as f:
-        json.dump(report, f, indent=2)
+        json.dump(report, f, indent=2, allow_nan=False)
 
     print(f"  [auto-research] Saved full 14-section report for {ticker} → {out_path.name}", flush=True)
     return report

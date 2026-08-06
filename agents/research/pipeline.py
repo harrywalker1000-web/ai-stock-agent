@@ -111,7 +111,7 @@ def run_pipeline(ticker: str) -> dict:
     path = os.path.join(OUTPUT_DIR, f"{ticker}_{ts}.json")
     try:
         with open(path, "w") as f:
-            json.dump(report, f, indent=2, default=str)
+            json.dump(report, f, indent=2, default=str, allow_nan=False)
         logger.info("[%s] Report written to %s", ticker, path)
     except Exception as exc:
         logger.error("[%s] Failed to write report: %s", ticker, exc)

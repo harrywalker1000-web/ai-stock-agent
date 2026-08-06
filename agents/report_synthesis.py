@@ -68,9 +68,9 @@ def _build_agent_digest(ticker: str) -> dict:
     institutional = _load_json(REPORTS_DIR / "institutional_report.json")
     news          = _load_json(REPORTS_DIR / "news_report.json")
 
-    f = _find_by_ticker(fundamental.get("fundamental_analyses", []), ticker)
-    q = _find_by_ticker(quant.get("quant_analyses", []), ticker)
-    s = _find_by_ticker(sentiment.get("sentiment_analyses", []), ticker)
+    f = _find_by_ticker(fundamental.get("fundamental_analyses") or [], ticker)
+    q = _find_by_ticker(quant.get("quant_analyses") or [], ticker)
+    s = _find_by_ticker(sentiment.get("sentiment_analyses") or [], ticker)
 
     convergence = [c for c in (institutional.get("convergence_signals") or [])
                    if str(c.get("ticker", "")).upper() == ticker]
@@ -122,7 +122,12 @@ def _digest_text(digest: dict) -> str:
     return "\n".join(lines)
 
 
-def _recommendation_from_decision(decision: dict, digest: dict) -> dict:
+def _v(field):
+    """Extract .value from a {value, source, status} tagged field, or return as-is."""
+    return field.get("value") if isinstance(field, dict) else field
+
+
+def _recommendation_from_decision(decision: dict, digest: dict, current_price=None) -> dict:
     """
     Builds s16_recommendation directly from the REAL committee decision that
     placed this trade — no separate AI call, no risk of a second, conflicting
@@ -158,12 +163,21 @@ def _recommendation_from_decision(decision: dict, digest: dict) -> dict:
         or valuation.get("expected_roi_2_3yr") or fundamental_raw.get("expected_roi_2_3yr")
     )
 
+    stop_loss_pct = None
+    stop_loss_price = decision.get("stop_loss")
+    price = _v(current_price)
+    if stop_loss_price and price:
+        try:
+            stop_loss_pct = round(abs(float(stop_loss_price) - float(price)) / float(price) * 100, 1)
+        except (TypeError, ValueError, ZeroDivisionError):
+            pass
+
     return {
         "direction": direction,
         "conviction": decision.get("conviction"),
         "expected_return_12m": expected_return,
         "position_size_pct": decision.get("size_pct"),
-        "stop_loss_pct": None,
+        "stop_loss_pct": stop_loss_pct,
         "three_arguments": three_arguments,
         "key_risks": decision.get("key_risks") or [],
         "committee_narrative": thesis,
@@ -200,7 +214,7 @@ def generate_entered_position_report(ticker: str, decision: dict) -> dict | None
         ai_results = run_haiku_synthesis(data, assembled)
         merged = merge_ai_into_sections(assembled, ai_results)
 
-        s16 = _recommendation_from_decision(decision, digest)
+        s16 = _recommendation_from_decision(decision, digest, current_price=assembled.get("s1", {}).get("current_price"))
 
         data["_api_errors"] = get_api_errors()
         if data["_api_errors"]:
@@ -216,19 +230,19 @@ def generate_entered_position_report(ticker: str, decision: dict) -> dict | None
         )
         report["source"] = "pipeline_auto"
         report["agent_digest"] = digest
-    except Exception as exc:
-        logger.error("[%s] Agent-attributed report generation failed: %s", ticker, exc)
-        return None
 
-    date_str = datetime.utcnow().date().isoformat()
-    for out_dir in OUTPUT_DIRS:
-        out_dir.mkdir(parents=True, exist_ok=True)
-        path = out_dir / f"{ticker}_{date_str}.json"
-        try:
-            with open(path, "w") as f:
-                json.dump(report, f, indent=2, default=str)
-            logger.info("[%s] Agent-attributed report written to %s", ticker, path)
-        except Exception as exc:
-            logger.error("[%s] Failed to write report to %s: %s", ticker, path, exc)
+        date_str = datetime.utcnow().date().isoformat()
+        for out_dir in OUTPUT_DIRS:
+            out_dir.mkdir(parents=True, exist_ok=True)
+            path = out_dir / f"{ticker}_{date_str}.json"
+            try:
+                with open(path, "w") as f:
+                    json.dump(report, f, indent=2, default=str, allow_nan=False)
+                logger.info("[%s] Agent-attributed report written to %s", ticker, path)
+            except Exception as exc:
+                logger.error("[%s] Failed to write report to %s: %s", ticker, path, exc)
+    except Exception as exc:
+        logger.error("[%s] Agent-attributed report generation failed: %s", ticker, exc, exc_info=True)
+        return None
 
     return report

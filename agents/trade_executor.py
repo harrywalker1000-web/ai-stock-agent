@@ -549,7 +549,7 @@ def reconcile_positions_with_alpaca() -> dict:
                         abs(float(alpaca_data.get("market_value", 0))) / portfolio_value * 100, 1
                     ) if portfolio_value else _positions[ticker].get("size_pct", 10.0)
                     with open(_log_path, "w") as _f:
-                        _rjson.dump(_positions, _f, indent=2)
+                        _rjson.dump(_positions, _f, indent=2, allow_nan=False)
                     logger.info("Reconcile: corrected %s direction to %s in positions_log", ticker, alpaca_direction)
                     if "direction_corrected" not in summary:
                         summary["direction_corrected"] = []
@@ -581,7 +581,7 @@ def reconcile_positions_with_alpaca() -> dict:
                     logger.debug("Size drift sync: %s %.1f%% → %.1f%%", tkr, old_wt, live_wt)
             if _dirty:
                 with open(_log_path, "w") as _sf:
-                    _sjson.dump(_all_pos, _sf, indent=2)
+                    _sjson.dump(_all_pos, _sf, indent=2, allow_nan=False)
                 logger.info("Reconcile: synced live Alpaca weights to positions_log")
         except Exception as _exc:
             logger.warning("Reconcile: could not sync size_pct weights: %s", _exc)
@@ -1155,7 +1155,7 @@ def run(mode: str = "new_opportunities") -> dict:
     }
     import json
     with open(PORTFOLIO_STATE_PATH, "w") as f:
-        json.dump(portfolio_state, f, indent=2)
+        json.dump(portfolio_state, f, indent=2, allow_nan=False)
 
     output = {
         "executed_trades": executed_trades,

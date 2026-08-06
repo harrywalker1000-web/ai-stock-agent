@@ -743,7 +743,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
         }
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         with open(REPORT_OUT, "w") as f:
-            json.dump(result, f, indent=2)
+            json.dump(result, f, indent=2, allow_nan=False)
         return result
 
     # Load universe
@@ -861,9 +861,9 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
 
     # Save outputs
     with open(DAILY_OUT, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
     with open(REPORT_OUT, "w") as f:
-        json.dump(output, f, indent=2)
+        json.dump(output, f, indent=2, allow_nan=False)
 
     logger.info(f"Saved candidates to {DAILY_OUT}")
     logger.info(f"Saved report to {REPORT_OUT}")
