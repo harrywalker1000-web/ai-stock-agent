@@ -7,13 +7,36 @@ type Candle = { time: number; open: number; high: number; low: number; close: nu
 const TIMEFRAMES = ["15m", "1h", "1D", "1W", "YTD"] as const;
 type TF = (typeof TIMEFRAMES)[number];
 
+export interface TradeEvent {
+  date: string;           // "YYYY-MM-DD"
+  decision: string;       // raw action: enter_long | enter_short | increase | decrease | exit | hold | skip
+  size_pct?: number | null;
+}
+
 interface Props {
   ticker: string;
   entryPrice?: number;
   currentPrice?: number;
+  tradeEvents?: TradeEvent[];
 }
 
-export default function CandlestickChart({ ticker, entryPrice, currentPrice }: Props) {
+// Visual language: up = capital added (entry or increase), down = capital removed (trim or exit).
+// Entry keeps the same amber used for the "Entry" price line so the two visually pair up.
+const EVENT_STYLE: Record<string, { color: string; shape: "arrowUp" | "arrowDown"; position: "belowBar" | "aboveBar"; label: string } | undefined> = {
+  enter_long:  { color: "#F59E0B", shape: "arrowUp",   position: "belowBar", label: "Entry" },
+  enter_short: { color: "#F59E0B", shape: "arrowDown", position: "aboveBar", label: "Entry" },
+  increase:    { color: "#10B981", shape: "arrowUp",   position: "belowBar", label: "Add" },
+  decrease:    { color: "#F97316", shape: "arrowDown", position: "aboveBar", label: "Trim" },
+  exit:        { color: "#EF4444", shape: "arrowDown", position: "aboveBar", label: "Exit" },
+};
+
+function dateToUnixSeconds(dateStr: string): number | null {
+  const d = new Date(`${dateStr}T00:00:00Z`);
+  const t = Math.floor(d.getTime() / 1000);
+  return Number.isNaN(t) ? null : t;
+}
+
+export default function CandlestickChart({ ticker, entryPrice, currentPrice, tradeEvents }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<unknown>(null);
   const seriesRef = useRef<unknown>(null);
@@ -84,13 +107,16 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice }: P
           upColor: "#10B981", downColor: "#EF4444",
           borderUpColor: "#10B981", borderDownColor: "#EF4444",
           wickUpColor: "#10B981", wickDownColor: "#EF4444",
-          // The library's automatic last-bar price line reflects whatever the most
-          // recent loaded candle is — history endpoints (Yahoo) can lag the live
-          // quote by a day or more, which reads as a wrong "current price". We draw
-          // our own "Current" line below from the same live source as the rest of
-          // the page instead, so suppress the default one to avoid two conflicting
-          // numbers on screen.
+          // The library's automatic last-bar price line/label reflects whatever the
+          // most recent loaded candle is — history endpoints (Yahoo) can lag the live
+          // quote by days, which reads as a wrong "current price" floating on the axis
+          // with no label explaining what it is. We draw our own explicit "Current"
+          // line below from the same live (Alpaca) source as the rest of the page,
+          // so suppress both the default line AND its axis label — priceLineVisible
+          // alone only hides the line, lastValueVisible is a separate flag for the
+          // floating number badge and was the one actually still leaking through.
           priceLineVisible: false,
+          lastValueVisible: false,
         };
         if (typeof lc.CandlestickSeries !== "undefined") {
           // v5
@@ -122,6 +148,31 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice }: P
           });
         }
 
+        // Trade-event annotations: entered / expanded / trimmed markers at their
+        // actual dates, from decision_log — complements the Entry/Current lines
+        // (which only show price, not when each capital move happened).
+        if (tradeEvents && tradeEvents.length > 0 && typeof lc.createSeriesMarkers === "function") {
+          const markers = tradeEvents
+            .map((ev) => {
+              const style = EVENT_STYLE[ev.decision];
+              const time = style ? dateToUnixSeconds(ev.date) : null;
+              if (!style || time == null) return null;
+              const pct = ev.size_pct != null ? ` ${ev.size_pct.toFixed(0)}%` : "";
+              return {
+                time,
+                position: style.position,
+                color: style.color,
+                shape: style.shape,
+                text: `${style.label}${pct}`,
+              };
+            })
+            .filter((m): m is NonNullable<typeof m> => m !== null)
+            .sort((a, b) => a.time - b.time);
+          if (markers.length > 0) {
+            lc.createSeriesMarkers(series, markers);
+          }
+        }
+
         chartRef.current = chart;
         seriesRef.current = series;
 
@@ -148,7 +199,7 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice }: P
       loadedTfRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticker, entryPrice, currentPrice]);
+  }, [ticker, entryPrice, currentPrice, tradeEvents]);
 
   useEffect(() => {
     if (tf !== loadedTfRef.current && seriesRef.current) {
@@ -168,6 +219,11 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice }: P
             <span className="w-2 h-2 rounded-full bg-[#10B981]" />
             <span className="text-xs text-[#6B7280]">Current</span>
           </div>
+          {tradeEvents && tradeEvents.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-[#4B5563]">▲▼ Entry / Add / Trim</span>
+            </div>
+          )}
         </div>
         <div className="flex gap-1">
           {TIMEFRAMES.map((t) => (

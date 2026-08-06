@@ -468,7 +468,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Price chart ── */}
         <div className="card p-6 mb-6">
           <Suspense fallback={<div style={{ height: 310 }} className="flex items-center justify-center text-xs text-[#6B7280]">Loading chart...</div>}>
-            <CandlestickChart ticker={position.ticker} entryPrice={position.entry_price} currentPrice={position.current_price} />
+            <CandlestickChart ticker={position.ticker} entryPrice={position.entry_price} currentPrice={position.current_price} tradeEvents={position.review_timeline} />
           </Suspense>
         </div>
 
