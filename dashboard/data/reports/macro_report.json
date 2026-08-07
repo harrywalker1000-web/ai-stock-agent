@@ -3,21 +3,23 @@
   "interest_rate_direction": "stable",
   "inflation_trend": "falling",
   "favoured_themes": [
-    "defense tech",
-    "high-yield bonds",
-    "AI stocks"
+    "defensive stocks",
+    "high-quality bonds",
+    "energy security",
+    "AI technology"
   ],
   "avoid_themes": [
-    "energy stocks",
+    "high-yield bonds",
     "emerging markets",
-    "long-term treasuries"
+    "real estate",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Israel-Lebanon conflict escalation",
-    "Iran nuclear deal uncertainty",
-    "US-China trade tensions"
+    "Middle East turmoil affecting oil prices",
+    "Iran war implications on global markets",
+    "defense supply chain disruptions"
   ],
-  "macro_summary": "The current macro environment is characterized by a stable interest rate at 3.63% and a falling inflation trend indicated by a decrease in CPI from 333.98 to 332.57. However, there is a conflict in signals with FRED and yfinance_market indicating a NEUTRAL stance while newsapi_finnhub suggests a RISK-OFF sentiment, leading to a low confidence level overall. The yield curve remains positive, but geopolitical tensions, particularly in the Middle East, pose risks to market stability.",
+  "macro_summary": "The current macro environment is characterized by a stable interest rate at 3.63% and a falling inflation trend indicated by a decrease in CPI from 333.98 to 332.57. However, there is a conflict among sources with FRED indicating a NEUTRAL regime, while yfinance_market suggests RISK-ON and newsapi_finnhub indicates RISK-OFF, leading to a low confidence level overall.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,17 +30,18 @@
     ],
     "agreements": [],
     "conflicts": [
+      "FRED signals NEUTRAL but yfinance_market signals RISK-ON",
       "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals RISK-ON"
     ],
-    "confidence_note": "The conflicting signals from different sources contribute to a low confidence level for downstream agents."
+    "confidence_note": "The conflicting signals from sources contribute to a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
     "us_10y_yield": 4.63,
-    "us_2y_yield": 4.2,
-    "yield_curve_spread": 0.43,
+    "us_2y_yield": 4.18,
+    "yield_curve_spread": 0.45,
     "cpi_latest": 332.57,
     "cpi_prev": 333.98,
     "cpi_trend": "falling",
@@ -46,42 +49,43 @@
     "gdp_latest": 32475.2,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.91,
-    "dxy_current": 99.79,
-    "dxy_1m_ago": 100.85,
+    "dxy_current": 99.6,
+    "dxy_1m_ago": 101.14,
     "dxy_trend": "weakening",
-    "vix": 15.92,
-    "tlt_1m_change_pct": -2.48,
-    "hyg_1m_change_pct": 0.05,
+    "vix": 14.91,
+    "tlt_1m_change_pct": -1.85,
+    "hyg_1m_change_pct": 0.28,
     "macro_headlines": [
-      "Hadrian valued at nearly $8 billion after fresh funding as money pours into defense tech",
-      "Israel strikes south Lebanon after soldiers killed, talks continue in Rome - reuters.com",
-      "Oil traders double down on Iran deal bet as odds worsen - Reuters",
-      "Morning Bid: AI stocks learn to fly \u2014 but ain't got wings - Reuters",
-      "EXCLUSIVE: Sinopec steps up Russian oil imports to offset Mideast supply cuts, traders and tracker say - reuters.com",
-      "Trump reiterates his positive portrayal of Iran talks - Reuters",
-      "Yen and dollar drift as markets await Iran deal news, look towards payrolls - Reuters",
-      "Asia shares fall on tech pullback, oil stable as Iran talks stay in focus - Reuters",
-      "Oil gains as investors cautious over Iran-Oman talk progress - Reuters",
-      "Gold hovers near seven-week high on easing rate hike concerns - Reuters"
+      "Jim Cramer's top 10 things to watch in the stock market Friday",
+      "Homes are selling below asking in 38 of the 50 biggest U.S. cities\u2014if you can afford one",
+      "Everybody wants energy security post the Iran war, but how? - Reuters",
+      "Saudi Arabia, Turkey, Pakistan pledge mutual defence as Middle East turmoil escalates - Reuters",
+      "Martha's Vineyard African American Film Festival set for record attendance despite macro challenges",
+      "Trump to host mining CEOs as administration seeks minerals for defense supply chains - Reuters",
+      "Rheinmetall says ramping up ATACMS output will take time as US rebuilds stocks - Reuters",
+      "Vessel traffic through Hormuz dwindles this week as markets watch Iran-Oman talks - Reuters",
+      "AI demand keeps China's export engine humming, but risks loom - Reuters",
+      "Dollar falls against yen after weak US jobs data - Reuters"
     ],
     "geopolitical_headlines": [
-      "Japan may not have intervened in FX market on Monday despite yen's surge, BOJ data suggests",
       "EA Is Now Officially Privately Owned",
-      "The Latest: Blanche's assertion of Trump tax audit immunity remains in place",
+      "An economist says there a 3 reasons Kevin Warsh is right to nix Fed guidance, and flags one thing he can do to calm markets",
+      "Bank of America spends more than $250 million on GLP-1s",
       "UK Treasury working on scope for extra borrowing, The Times says",
-      "'The best Android phone for students': why I decided to buy the Google Pixel 10a ahead of the Pixel 11 launch",
-      "Trump accounts were closed in 2021 due to concerns over possible money laundering, Capital One says",
-      "UBS fined $125 million by US regulators for money laundering violations",
-      "A forgotten Swedish economist\u2019s 130-year-old theory explains why investors won\u2019t quit funding America\u2019s near-$40 trillion pile of debt",
+      "A surprising backer of America\u2019s affordable housing push: Big banks",
       "Divided federal appeals court says Trump administration was wrong to terminate climate funds",
-      "Young South Korean investors are finding company in collective misery by sharing their losses on social media"
+      "Citigroup, Idaho, and Build-a-Bear Launched a Coordinated Attack on Me",
+      "JPMorgan CEO Jamie Dimon says the AI spending boom is likely to pay off",
+      "I tested BMX's ultra-thin power bank against UGreen's; size changed everything",
+      "Morgan Stanley mapped 3 AI futures. One company wins them all."
     ],
     "central_bank_headlines": [
-      "Bond Funds Turn to Europe as Global Risks Become Harder to Price",
       "Terence Corcoran: Central bankers drop \u2018Odyssean\u2019 forward guidance",
+      "Northern Trust Pension Universe Data: Canadian Pension Plan Returns Rise in Q2",
+      "Skeptical Science New Research for Week #32 2026",
       "Did al-Qaeda Succeed?"
     ],
-    "as_of": "2026-08-06 10:12 UTC"
+    "as_of": "2026-08-07 14:40 UTC"
   },
-  "generated_at": "2026-08-06T10:12:56.685489"
+  "generated_at": "2026-08-07T14:40:24.321614"
 }
