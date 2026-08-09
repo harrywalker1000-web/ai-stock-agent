@@ -227,13 +227,19 @@ def store_trade_entry(
         "alpaca_order_id": alpaca_order_id,
         "status": "open",
         "opened_at": datetime.utcnow().isoformat(),
+        # A real trade record now exists (confirmed, or legitimately pending at
+        # market open) — clear any research-only stub flag from enrich_position_framework.
+        "pending_confirmation": False,
     }
     with _db() as conn:
         _upsert(conn, "stock_agent_trades", ticker, record)
 
-    # Mirror to positions_log.json (read by Agents 6, 7, 8 in portfolio_review mode)
+    # Mirror to positions_log.json (read by Agents 6, 7, 8 in portfolio_review mode).
+    # Merge rather than replace — enrich_position_framework may have already attached
+    # research/framework fields to this ticker moments earlier in the same run; a full
+    # replace would silently discard them.
     positions = _load_json(POSITIONS_LOG_PATH, default={})
-    positions[ticker] = record
+    positions[ticker] = {**positions.get(ticker, {}), **record}
     _save_json(POSITIONS_LOG_PATH, positions)
     logger.info("Trade entry stored: %s %s @ $%.2f (%.0f%%)", direction, ticker, entry_price, size_pct)
 
@@ -399,8 +405,15 @@ def get_ticker_history(ticker: str, days_back: int = 30) -> list[dict]:
 
 
 def get_open_positions() -> dict:
-    """Return current open positions from positions_log.json."""
-    return _load_json(POSITIONS_LOG_PATH, default={})
+    """
+    Return current open positions from positions_log.json.
+    Excludes research-only stubs (pending_confirmation=True) created by
+    enrich_position_framework before a real trade record exists — those aren't
+    positions we hold or even have a pending order for, just attached research
+    context for a candidate the committee is still deciding on.
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    return {t: p for t, p in positions.items() if not p.get("pending_confirmation")}
 
 
 def confirm_trade_entry(ticker: str, alpaca_order_id: str) -> None:
@@ -439,11 +452,19 @@ def enrich_position_framework(ticker: str, framework_fields: dict) -> None:
     Merge institutional framework fields into an existing positions_log.json entry.
     Called by Investment Committee after enter_long / enter_short decisions to attach
     the full analyst framework (fund mandate, comparables, valuation, etc.) to the record.
-    Creates the entry if it doesn't exist yet (Trade Executor may not have run).
+
+    Creates the entry if it doesn't exist yet, since the Trade Executor (which sets the
+    real trading fields via store_trade_entry) hasn't run yet at the point this is called.
+    That stub is tagged pending_confirmation=True so get_open_positions() excludes it —
+    a research-context stub is not the same as a confirmed (or even pending) trade, and
+    treating it as one caused the executor's own "already held?" check moments later to
+    mistake a brand-new candidate for an existing position, converting the real entry
+    attempt into a skipped "increase" and leaving nothing but this stub behind. If
+    store_trade_entry does run afterward, its merge (not replace) write clears the flag.
     """
     positions = _load_json(POSITIONS_LOG_PATH, default={})
     if ticker not in positions:
-        positions[ticker] = {}
+        positions[ticker] = {"pending_confirmation": True}
     positions[ticker].update(framework_fields)
     _save_json(POSITIONS_LOG_PATH, positions)
     logger.debug("Enriched position framework: %s (%d fields)", ticker, len(framework_fields))

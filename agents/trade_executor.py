@@ -51,6 +51,7 @@ HARD_MAX_POSITION_PCT = 30.0   # Never exceed this regardless of Committee instr
 HARD_MIN_CASH_PCT = 5.0        # Keep 5% cash buffer — hard floor, never use margin
 MARKET_OPEN_BUFFER_MIN = 0     # No open buffer — pipeline is already scheduled 15min after open
 MARKET_CLOSE_BUFFER_MIN = 5    # Only block final 5 min to avoid MOC chaos
+PENDING_ENTRY_MAX_AGE_DAYS = 2 # Give up retrying a deferred entry after this many days
 
 # ── No-leverage policy ────────────────────────────────────────────────────────
 # Total deployed capital (|long| + |short| notional) must never exceed equity.
@@ -420,18 +421,17 @@ def reconcile_positions_with_alpaca() -> dict:
     portfolio_value = portfolio["portfolio_value"]
 
     # --- Case 1: Pending positions (alpaca_order_id=None) — place now if market open ---
+    # Market-open status is checked BEFORE "is this in Alpaca" on purpose: a genuinely
+    # pending order can never be in Alpaca before it's placed, so checking that first
+    # (the old ordering) always fired and deleted every pending entry on the very next
+    # reconciliation — before the market had ever had a chance to open. That made the
+    # "place it now if market is open" logic below unreachable for its own stated
+    # purpose. Staleness (not "not yet in Alpaca") is what actually distinguishes a
+    # genuinely-stuck pending order from one that just hasn't had its market-open
+    # window yet.
     for ticker, pos_data in list(log_positions.items()):
         if pos_data.get("alpaca_order_id") is not None:
             continue  # Has order ID — check in Case 2
-
-        # If pending but NOT in Alpaca AND market is closed: remove phantom entry.
-        # These are decisions that were logged when capital was unavailable or the order
-        # was never actually placed. Never let them linger to be placed later.
-        if ticker not in alpaca_pos:
-            logger.warning("Reconcile: %s is pending (no order_id) but NOT in Alpaca — removing phantom entry", ticker)
-            memory.remove_position(ticker)
-            summary["ghosts_removed"].append(ticker)
-            continue
 
         if safe:
             current_price = _get_live_price(ticker)
@@ -459,7 +459,22 @@ def reconcile_positions_with_alpaca() -> dict:
             else:
                 summary["errors"].append(ticker)
         else:
-            logger.info("Reconcile: %s still pending (market not open yet)", ticker)
+            age_days = None
+            entry_date_str = pos_data.get("entry_date")
+            if entry_date_str:
+                try:
+                    age_days = (datetime.utcnow().date() - datetime.strptime(entry_date_str, "%Y-%m-%d").date()).days
+                except ValueError:
+                    pass
+            if age_days is not None and age_days > PENDING_ENTRY_MAX_AGE_DAYS:
+                logger.warning(
+                    "Reconcile: %s pending for %d days with market still closed each time — giving up, removing",
+                    ticker, age_days,
+                )
+                memory.remove_position(ticker)
+                summary["ghosts_removed"].append(ticker)
+            else:
+                logger.info("Reconcile: %s still pending (market not open yet)", ticker)
 
     # Refresh log after Case 1 mutations
     log_positions = memory.get_open_positions()
@@ -955,10 +970,22 @@ def run(mode: str = "new_opportunities") -> dict:
             direction = open_positions.get(ticker, {}).get("direction", "LONG").upper()
             side = "sell" if direction == "LONG" else "buy"
 
-            if safe:
-                order = _place_order(api, ticker, qty, side, rationale)
-            else:
-                order = {"status": "market_closed_dry_run"}
+            if not safe:
+                # Market closed — no real sell order placed. The position is still
+                # genuinely held, so positions_log must keep saying so (store_trade_exit
+                # would remove it, which previously happened unconditionally here even
+                # though nothing actually executed — that's how the model "forgot" real
+                # holdings). Leave the record untouched; the committee re-reviews every
+                # held position next run and will simply re-decide fresh then.
+                logger.info("%s: exit deferred — market closed, no order placed", ticker)
+                skipped.append({"ticker": ticker, "reason": "market_closed — exit deferred, position left open"})
+                continue
+
+            order = _place_order(api, ticker, qty, side, rationale)
+            if not order:
+                logger.warning("%s: exit order failed to place — leaving position open", ticker)
+                errors.append({"ticker": ticker, "error": "exit order placement failed"})
+                continue
 
             memory.store_trade_exit(
                 ticker=ticker, exit_date=today, exit_price=current_price,
@@ -1001,10 +1028,22 @@ def run(mode: str = "new_opportunities") -> dict:
                 errors.append({"ticker": ticker, "error": "no position to reverse — record closed"})
                 continue
 
+            if not safe:
+                # Reverse is two coupled steps (close, then reopen opposite) — with the
+                # market closed neither can actually place, so defer the whole action
+                # rather than book-keeping a close that didn't happen (which previously
+                # removed the position from positions_log even though it was still held).
+                logger.info("%s: reverse deferred — market closed, no orders placed", ticker)
+                skipped.append({"ticker": ticker, "reason": "market_closed — reverse deferred, position left open"})
+                continue
+
             # Step 1: close existing
             close_side = "sell" if existing_dir == "LONG" else "buy"
-            close_order = _place_order(api, ticker, existing_qty, close_side,
-                                       f"Reversing {existing_dir}: {rationale}") if safe else {"status": "market_closed_dry_run"}
+            close_order = _place_order(api, ticker, existing_qty, close_side, f"Reversing {existing_dir}: {rationale}")
+            if not close_order:
+                logger.warning("%s: reverse close order failed to place — leaving position open", ticker)
+                errors.append({"ticker": ticker, "error": "reverse close order placement failed"})
+                continue
             entry_price_r = open_positions.get(ticker, {}).get("entry_price")
             pnl_r = round((current_price - entry_price_r) / entry_price_r * 100, 2) if entry_price_r else None
             if existing_dir == "SHORT" and pnl_r is not None:
@@ -1036,9 +1075,9 @@ def run(mode: str = "new_opportunities") -> dict:
             new_order = None
             if new_shares >= 1:
                 new_side = "buy" if reverse_direction == "LONG" else "sell"
-                new_order = _place_order(api, ticker, new_shares, new_side,
-                                         f"[REVERSAL→{reverse_direction}] {rationale}") if safe else {"status": "market_closed_dry_run"}
-                alpaca_oid = new_order.get("order_id") if (safe and new_order) else None
+                # safe is guaranteed True here — deferred above if the market was closed.
+                new_order = _place_order(api, ticker, new_shares, new_side, f"[REVERSAL→{reverse_direction}] {rationale}")
+                alpaca_oid = new_order.get("order_id") if new_order else None
                 memory.store_trade_entry(
                     ticker=ticker, entry_date=today, entry_price=current_price,
                     direction=reverse_direction, conviction=conviction,
