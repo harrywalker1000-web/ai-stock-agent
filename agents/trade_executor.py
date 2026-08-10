@@ -433,6 +433,31 @@ def reconcile_positions_with_alpaca() -> dict:
         if pos_data.get("alpaca_order_id") is not None:
             continue  # Has order ID — check in Case 2
 
+        if ticker in alpaca_pos:
+            # Already genuinely held in Alpaca despite no recorded order ID — a
+            # bookkeeping gap (e.g. a pre-fix phantom stub that picked up real
+            # conviction/size_pct via update_position without ever going through
+            # store_trade_entry), not an order still waiting to be placed. Backfill
+            # from the live position instead of placing a duplicate real order.
+            alpaca_data = alpaca_pos[ticker]
+            logger.warning(
+                "Reconcile: %s has no order ID but IS already held in Alpaca — "
+                "backfilling record instead of placing a duplicate order", ticker,
+            )
+            memory.store_trade_entry(
+                ticker=ticker,
+                entry_date=pos_data.get("entry_date") or today,
+                entry_price=float(alpaca_data["avg_entry_price"]),
+                direction="LONG" if alpaca_data["side"] == "long" else "SHORT",
+                conviction=pos_data.get("conviction") or 0,
+                size_pct=round(alpaca_data["market_value"] / portfolio_value * 100, 1) if portfolio_value else pos_data.get("size_pct", 10.0),
+                rationale=pos_data.get("entry_thesis") or "Backfilled during reconciliation — record existed without a confirmed order ID.",
+                signals=pos_data.get("signals", []),
+                alpaca_order_id="external",
+            )
+            summary["pending_placed"].append(ticker)
+            continue
+
         if safe:
             current_price = _get_live_price(ticker)
             if current_price is None:
