@@ -1,23 +1,24 @@
 {
-  "regime": "NEUTRAL",
+  "regime": "RISK-OFF",
   "interest_rate_direction": "stable",
-  "inflation_trend": "falling",
+  "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
     "high-quality bonds",
-    "AI technology investments"
+    "commodities",
+    "energy sector"
   ],
   "avoid_themes": [
-    "high-yield bonds",
-    "emerging markets",
-    "energy stocks"
+    "high-growth tech",
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions affecting oil prices",
-    "potential economic collapse in Iran",
-    "Israeli-Palestinian conflict escalation"
+    "Iran's stalled peace negotiations with the US",
+    "Houthi threats to Saudi oil exports",
+    "Russia's aggressive stance towards EU vessels"
   ],
-  "macro_summary": "The current macro environment is characterized by a stable interest rate at 3.63% and a falling inflation trend as indicated by the CPI decrease from 333.98 to 332.57. However, there is a conflict in signals with FRED and yfinance_market indicating a NEUTRAL stance while newsapi_finnhub suggests a RISK-OFF sentiment, leading to a low confidence level overall.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions. Conflicting signals from FRED and yfinance_market create uncertainty, with FRED indicating RISK-OFF while yfinance_market suggests RISK-ON. The yield curve remains inverted, signaling recession risks, and inflation continues to rise, complicating the outlook.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,58 +29,59 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals NEUTRAL but newsapi_finnhub signals RISK-OFF",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+      "FRED signals RISK-OFF but yfinance_market signals RISK-ON",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals RISK-ON"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
+    "confidence_note": "The low confidence level reflects significant conflicts among the sources regarding the current market regime."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.65,
-    "us_2y_yield": 4.19,
-    "yield_curve_spread": 0.46,
-    "cpi_latest": 332.57,
-    "cpi_prev": 333.98,
-    "cpi_trend": "falling",
+    "us_10y_yield": 4.72,
+    "us_2y_yield": 4.25,
+    "yield_curve_spread": 0.47,
+    "cpi_latest": 332.81,
+    "cpi_prev": 332.57,
+    "cpi_trend": "rising",
     "pce_latest": 131.392,
     "gdp_latest": 32475.2,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.91,
-    "dxy_current": 99.81,
+    "dxy_current": 99.75,
     "dxy_1m_ago": 101.28,
     "dxy_trend": "weakening",
-    "vix": 15.39,
-    "tlt_1m_change_pct": -1.64,
-    "hyg_1m_change_pct": 0.52,
+    "vix": 14.76,
+    "tlt_1m_change_pct": -1.56,
+    "hyg_1m_change_pct": 0.63,
     "macro_headlines": [
-      "Polymarket makes moves to get house in order before expected boom times for prediction markets this fall",
-      "S&P 500, Nasdaq open higher as investors weigh report of fresh U.S.-Iran peace deal - Reuters",
-      "We're starting a position in a memory maker that was just put in the Bullpen",
-      "My 401(k) fully vests this month\u2014why my latest work anniversary is worth thousands",
-      "Trump boarded secret Turkey flight via catering truck due to Iran threat, reports say - Reuters",
-      "US fired on Panama-flagged ship that tried to break blockade of Iranian ports, WSJ reports citing US official - Reuters",
-      "Houthi attack on small cargo ship in Red Sea kills three crew members, sources say - Reuters",
-      "UKMTO reports incident involving container ship and military forces in Gulf of Oman - Reuters",
-      "Wall Street just endorsed Jensen Huang's 'big concept' for AI. What now?",
-      "Gulf stocks fall on fading prospects of US-Iran deal - Reuters"
+      "Trust, but hedge: Quietly violent summer lingers as bulls buy crash protection",
+      "Iran says no progress on reviving interim peace deal with US - Reuters",
+      "Saudi Red Sea oil exports go dark as Houthi attack threat grows - Reuters",
+      "Iranian photojournalist faces 15 years in prison over images, reporting - Reuters",
+      "US must return to interim deal, no ceasefire extension talks, senior Iranian source says - Reuters",
+      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "Saudi Arabia bets on defensive alliances to deter slide into war - Reuters",
+      "Putin says Russia will start seizing EU vessels if bloc goes after Russian ships - Reuters",
+      "China\u2019s answer to Boeing and Airbus makes first international flight \u2014 could COMAC challenge the aviation duopoly?",
+      "Wall St futures tick up heading into July inflation data - Reuters"
     ],
     "geopolitical_headlines": [
-      "Israel accused of weaponising archaeology at ancient West Bank sites",
+      "Ukrainian central bank issues biggest currency liberalisation since 2022 invasion",
       "Jamie Dimon says the dollar could lose reserve-currency status if the US loses its economic and military edge",
-      "Iranian officials are worried the U.S. blockade will cause an economic collapse and admit sanctions relief is desperately needed",
       "By propping up the yen, the U.S. and Japan are actually admitting dollar dominance isn\u2019t what it used to be, top economist warns",
       "Israeli military closes Palestinian Christian village Taybeh, citing settler attacks",
+      "US missile strike reportedly hits container ship off Pakistan",
+      "Trump pivots back to sanctions for Iran as other strategies to end his war fizzle",
+      "Trump pivots back to sanctions for Iran as other strategies to end his war fizzle",
       "Jamie Dimon says the dollar could lose reserve-currency status if the US loses its economic and military edge",
       "Microsoft brings its fourth Indian cloud region online in Hyderabad, the first delivery against a $17.5 billion commitment",
-      "Stream Your Favorites for Less With the Best Subscription Deals Available",
-      "How tariffs are rewriting the US retail peak-season calendar",
-      "Warren Buffett is out, and Berkshire Hathaway is spending again"
+      "Google Play adds Venmo as a payment option in the US. In other markets, it is testing cash."
     ],
     "central_bank_headlines": [
+      "Central Banks Double Down on Climate Regulation Despite Collapse of Green Finance",
       "Investigating Bacillus anthracis genomic diversity and trait-specific lineages in an endemic area in northern Tanzania through a combination of traditional and culture-free sequencing approaches"
     ],
-    "as_of": "2026-08-11 14:44 UTC"
+    "as_of": "2026-08-12 14:43 UTC"
   },
-  "generated_at": "2026-08-11T14:44:38.252655"
+  "generated_at": "2026-08-12T14:44:04.511550"
 }
