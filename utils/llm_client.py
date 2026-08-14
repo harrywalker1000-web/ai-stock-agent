@@ -128,25 +128,75 @@ class AnthropicCompatClient:
         self.chat = _AnthropicChat()
 
 
+def _anthropic_durable_failure_reason(exc: Exception) -> str | None:
+    """
+    Classify whether an Anthropic failure is durable for the rest of this
+    process (out of credit, bad/revoked key, no permission) vs transient
+    (rate limit, timeout, connection blip, server overload) — the latter
+    genuinely might succeed on the next call, the former never will without
+    a human topping up billing or fixing the key. Returns a short reason
+    string if durable, else None.
+    """
+    try:
+        import anthropic
+    except ImportError:
+        return None
+
+    if isinstance(exc, anthropic.AuthenticationError):
+        return "authentication failed — check ANTHROPIC_API_KEY"
+    if isinstance(exc, anthropic.PermissionDeniedError):
+        return "permission denied on Anthropic account"
+    if isinstance(exc, anthropic.BadRequestError) and "credit balance" in str(exc).lower():
+        return "credit balance too low"
+    return None
+
+
 class _FallbackCompletions:
     """Tries Anthropic first; on ANY failure (no credit, rate limit, auth,
     connection — anything), retries the identical call against OpenAI instead.
     Only used in auto mode when both keys are present. A failed call never
-    raises to the caller unless OpenAI also fails."""
+    raises to the caller unless OpenAI also fails.
+
+    Once a call fails for a DURABLE reason (out of credit, bad key, no
+    permission), Anthropic is skipped entirely for the rest of this process —
+    those conditions won't resolve mid-run, so retrying every subsequent call
+    just adds latency and log noise. Transient failures (rate limits,
+    timeouts, connection blips) don't trip this — Anthropic keeps getting
+    retried per-call since those can genuinely recover.
+    """
+
+    # Process-wide, not per-instance: every agent in a pipeline run creates
+    # its own client, but they should all learn about a durable outage once.
+    _unavailable_reason: str | None = None
 
     def __init__(self, openai_key: str) -> None:
         self._anthropic = _AnthropicCompletions()
         self._openai_key = openai_key
 
     def create(self, **kwargs) -> _CompatResponse:
+        import logging
+        logger = logging.getLogger(__name__)
+
+        if _FallbackCompletions._unavailable_reason is not None:
+            return _openai_client(self._openai_key).chat.completions.create(**kwargs)
+
         try:
             return self._anthropic.create(**kwargs)
         except Exception as exc:
-            import logging
-            logging.getLogger(__name__).warning(
-                "Anthropic call failed (%s) — falling back to OpenAI for this request",
-                exc,
-            )
+            durable_reason = _anthropic_durable_failure_reason(exc)
+            if durable_reason:
+                _FallbackCompletions._unavailable_reason = durable_reason
+                logger.critical(
+                    "Anthropic unavailable for the rest of this run (%s) — every "
+                    "remaining call in this pipeline run will go straight to OpenAI. "
+                    "Fix this before the next scheduled run to restore Anthropic usage.",
+                    durable_reason,
+                )
+            else:
+                logger.warning(
+                    "Anthropic call failed (%s) — falling back to OpenAI for this request",
+                    exc,
+                )
             return _openai_client(self._openai_key).chat.completions.create(**kwargs)
 
 
@@ -216,3 +266,14 @@ def llm_available() -> bool:
     return bool(
         os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("OPENAI_API_KEY")
     )
+
+
+def anthropic_status() -> str | None:
+    """
+    None if Anthropic is fine (or hasn't failed yet this run). Otherwise the
+    durable failure reason recorded by the fallback client — e.g. "credit
+    balance too low". Lets callers (e.g. the end-of-run pipeline summary)
+    surface a persistent "running on OpenAI only" notice instead of it being
+    buried in per-call log lines.
+    """
+    return _FallbackCompletions._unavailable_reason
