@@ -1281,6 +1281,7 @@ def construct_portfolio_allocation(
     scorecards: list[dict] | None = None,
     adhoc_reports: dict | None = None,
     macro_data: dict | None = None,
+    shortfall_context: str | None = None,
 ) -> dict:
     """
     Portfolio Construction: a single LLM call that sees the ENTIRE book simultaneously.
@@ -1291,6 +1292,13 @@ def construct_portfolio_allocation(
 
     This prevents the blindness problem where Phase B sizes positions based on
     whatever cash happened to be left after Phase A, without seeing the full picture.
+
+    shortfall_context: when set, this is a retry — the caller detected that a prior
+    call to this function returned a plan it couldn't actually fund. The string
+    describes the exact shortfall and is appended to the prompt so the LLM gets one
+    real chance to revise its own plan, rather than having it silently cut afterward.
+    Whatever this call returns is still mechanically capped by the caller regardless —
+    this is about giving the committee a genuine say, not a guarantee in itself.
 
     Returns:
         {
@@ -1544,6 +1552,14 @@ RULES:
 
 IMPORTANT: Do NOT include "CASH" as a ticker in target_weights. Cash allocation is implicit —
 whatever percentage is not assigned to stocks stays as cash automatically.
+{f'''
+THIS IS A RETRY — YOUR PREVIOUS PLAN WAS NOT FUNDABLE:
+{shortfall_context}
+Revise target_weights so total new buying actually fits within available cash this time —
+either trim further (add to capital_swap_exits) or drop specific entries (omit them / set to 0).
+This is your final call: anything still unfunded after this will be cut automatically by
+conviction, lowest first, without further input from you.
+''' if shortfall_context else ''}
 
 Return ONLY valid JSON:
 {{

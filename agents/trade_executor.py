@@ -736,8 +736,15 @@ def run(mode: str = "new_opportunities") -> dict:
     # Sort decisions: exits and decreases first so freed capital is available for enters/increases.
     # Alpaca executes orders immediately but our available_capital snapshot is static — processing
     # decreases first lets us track freed capital and apply it to subsequent increases.
+    # Within the same tier, highest conviction goes first — defense in depth so that if real
+    # freed capital comes in short of what portfolio construction assumed (a decrease partially
+    # fails, share rounding, etc.), whichever entries get starved are the lowest-conviction ones,
+    # never just an arbitrary artifact of candidate-generation order.
     _ACTION_ORDER = {"exit": 0, "decrease": 1, "reverse": 2, "enter_long": 3, "enter_short": 3, "increase": 4, "hold": 5, "skip": 6}
-    decisions = sorted(decisions, key=lambda d: _ACTION_ORDER.get(d.get("action", "skip"), 5))
+    decisions = sorted(
+        decisions,
+        key=lambda d: (_ACTION_ORDER.get(d.get("action", "skip"), 5), -(d.get("conviction") or 50)),
+    )
 
     freed_capital = 0.0  # capital freed by decrease/exit orders placed this run
     stop_triggers: list[dict] = []  # stop-loss exits triggered this run

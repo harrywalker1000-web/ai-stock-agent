@@ -263,35 +263,9 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
         existing_tickers.add(ticker)
         logger.info("Portfolio construction: capital swap — adding exit for %s (%s)", ticker, reason[:80])
 
-    # Log funding status so the pipeline report shows whether construction left entries unfunded.
-    _entries_pct = sum(
-        d.get("size_pct", 0.0) for d in phase_b_decisions
-        if "enter" in d.get("action", "") and d.get("size_pct")
-    )
-    _exits_freed = sum(
-        open_positions.get(d["ticker"], {}).get("size_pct", 0.0)
-        for d in phase_b_decisions if d.get("action") == "exit"
-        and d["ticker"] in open_positions
-    )
-    _decreases_freed = sum(
-        max(0.0, (open_positions.get(d["ticker"], {}).get("size_pct", 0.0) - d.get("size_pct", 0.0)))
-        for d in phase_b_decisions if d.get("action") == "decrease"
-        and d["ticker"] in open_positions
-    )
-    _net_available = cash_pct + _exits_freed + _decreases_freed
-    _shortfall = round(_entries_pct - _net_available, 1)
-    if _shortfall > 0.5:
-        # New entries exceed available cash. Portfolio Construction chose not to trim anything
-        # to fund them — that is a valid decision (maybe the existing book is worth holding).
-        # Log it clearly so the outcome is visible, but do NOT auto-trim. The model decided.
-        logger.warning(
-            "Portfolio construction: new entries need %.1f%% but only %.1f%% available "
-            "(shortfall %.1f%%) — construction chose not to trim existing positions; "
-            "underfunded entries will be skipped at execution",
-            _entries_pct, _net_available, _shortfall,
-        )
-
-    # Also handle rebalancing of held positions: add increase/decrease entries to decisions
+    # Handle rebalancing of held positions BEFORE the funding check below — rebalance-derived
+    # increases spend real cash too and must be counted as demand, not discovered only after
+    # decisions are already handed to the executor.
     rebalancing = construction.get("rebalancing", {})
     for ticker, change in rebalancing.items():
         if ticker in existing_tickers:
@@ -313,6 +287,138 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
         existing_tickers.add(ticker)
         logger.info("Portfolio construction: adding %s rebalance %s → %.1f%%", ticker, action, to_pct)
 
+    def _demand_pct(decisions: list[dict]) -> float:
+        """Total new buying power requested: full size for new entries, incremental for increases."""
+        total = 0.0
+        for d in decisions:
+            action = d.get("action", "")
+            if "enter" in action and d.get("size_pct"):
+                total += d["size_pct"]
+            elif action == "increase" and d.get("ticker") in open_positions:
+                current = open_positions[d["ticker"]].get("size_pct", 0.0) or 0.0
+                total += max(0.0, (d.get("size_pct") or 0.0) - current)
+        return total
+
+    def _freed_pct(decisions: list[dict]) -> float:
+        exits_freed = sum(
+            open_positions.get(d["ticker"], {}).get("size_pct", 0.0)
+            for d in decisions if d.get("action") == "exit" and d.get("ticker") in open_positions
+        )
+        decreases_freed = sum(
+            max(0.0, (open_positions.get(d["ticker"], {}).get("size_pct", 0.0) - (d.get("size_pct") or 0.0)))
+            for d in decisions if d.get("action") == "decrease" and d.get("ticker") in open_positions
+        )
+        return exits_freed + decreases_freed
+
+    _entries_pct = _demand_pct(phase_b_decisions)
+    _net_available = cash_pct + _freed_pct(phase_b_decisions)
+    _shortfall = round(_entries_pct - _net_available, 1)
+    _shortfall_resolution = "none_needed"
+
+    # Layer 2 — give the committee one real chance to revise its own plan when the numbers
+    # don't work, before anything gets cut mechanically. Bounded to exactly one retry.
+    if _shortfall > 0.5:
+        logger.warning(
+            "Portfolio construction: new entries/increases need %.1f%% but only %.1f%% available "
+            "(shortfall %.1f%%) — asking construction to revise before falling back to an automatic cut",
+            _entries_pct, _net_available, _shortfall,
+        )
+        _unfunded = sorted(
+            [d for d in phase_b_decisions if "enter" in d.get("action", "") or d.get("action") == "increase"],
+            key=lambda d: -(d.get("conviction") or 50),
+        )
+        _unfunded_lines = "\n".join(
+            f"  {d['ticker']}: {d.get('action')} | conviction={d.get('conviction', '?')}/100 | requested={d.get('size_pct', 0):.1f}%"
+            for d in _unfunded
+        )
+        shortfall_context = (
+            f"Total requested new buying: {_entries_pct:.1f}%. Actually available: {_net_available:.1f}% "
+            f"(shortfall {_shortfall:.1f}%).\nEntries/increases requesting capital:\n{_unfunded_lines}"
+        )
+        _shortfall_resolution = "retry_failed"
+        try:
+            retry = construct_portfolio_allocation(
+                phase_b_decisions=phase_b_decisions,
+                phase_a_decisions=phase_a_decisions,
+                open_positions=open_positions,
+                equity=equity,
+                cash_pct=cash_pct,
+                macro_regime=macro_regime,
+                shortfall_context=shortfall_context,
+            )
+            retry_weights = retry.get("target_weights", {})
+            if retry_weights:
+                for d in phase_b_decisions:
+                    ticker = d.get("ticker", "")
+                    if ticker not in retry_weights or not (
+                        "enter" in d.get("action", "") or d.get("action") == "increase"
+                    ):
+                        continue
+                    tw = retry_weights[ticker]
+                    if tw == 0:
+                        d["action"] = "skip" if "enter" in d.get("action", "") else "hold"
+                        d["skip_reason"] = "Portfolio construction (revised): insufficient cash to fund"
+                    else:
+                        d["size_pct"] = tw
+                for swap in retry.get("capital_swap_exits", []):
+                    ticker = swap.get("ticker", "")
+                    if ticker and ticker in open_positions and ticker not in existing_tickers:
+                        phase_b_decisions.append({
+                            "ticker": ticker, "action": "exit",
+                            "conviction": open_positions[ticker].get("conviction", 50),
+                            "investment_thesis": swap.get("reason", "Capital reallocation (revised plan)"),
+                            "key_catalysts": [], "key_risks": [], "skip_reason": "",
+                        })
+                        existing_tickers.add(ticker)
+                _entries_pct = _demand_pct(phase_b_decisions)
+                _net_available = cash_pct + _freed_pct(phase_b_decisions)
+                _shortfall = round(_entries_pct - _net_available, 1)
+                _shortfall_resolution = "revised_by_committee"
+                logger.info(
+                    "Portfolio construction: revised plan — %.1f%% requested vs %.1f%% available (shortfall now %.1f%%)",
+                    _entries_pct, _net_available, _shortfall,
+                )
+        except Exception as exc:
+            logger.warning("Portfolio construction: shortfall retry failed (%s) — falling back to automatic cut", exc)
+
+    # Layer 1 — deterministic hard guarantee. Whatever construction (or its retry) produced,
+    # this makes the final decision set mechanically fundable: rank every remaining entry/
+    # increase by conviction and fund highest-conviction first. Runs unconditionally whenever
+    # a shortfall remains — correctness never depends on the LLM having complied.
+    _cut: list[str] = []
+    if _shortfall > 0.5:
+        _fundable = sorted(
+            [d for d in phase_b_decisions if "enter" in d.get("action", "") or d.get("action") == "increase"],
+            key=lambda d: -(d.get("conviction") or 50),
+        )
+        _remaining = _net_available
+        for d in _fundable:
+            ticker = d.get("ticker", "")
+            if d.get("action") == "increase":
+                current = open_positions.get(ticker, {}).get("size_pct", 0.0) or 0.0
+                cost = max(0.0, (d.get("size_pct") or 0.0) - current)
+            else:
+                cost = d.get("size_pct") or 0.0
+            if cost <= _remaining + 0.05:  # small epsilon for rounding
+                _remaining -= cost
+            else:
+                if "enter" in d.get("action", ""):
+                    d["action"] = "skip"
+                else:  # increase — falls back to hold, it's still a real held position
+                    d["action"] = "hold"
+                d["skip_reason"] = (
+                    f"Portfolio construction: cut automatically — capital exhausted "
+                    f"(conviction {d.get('conviction', '?')}, needed {cost:.1f}%)"
+                )
+                _cut.append(ticker)
+        if _cut:
+            _shortfall_resolution = "auto_cut_by_conviction"
+            logger.warning(
+                "Portfolio construction: automatic capital cut applied — %d decision(s) dropped by "
+                "conviction ranking (lowest first): %s",
+                len(_cut), _cut,
+            )
+
     # Write patched decisions back to committee_report.json so executor picks them up
     if committee_report_path.exists():
         try:
@@ -324,6 +430,8 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
                 "reasoning": construction.get("reasoning", ""),
                 "rebalancing": rebalancing,
                 "capital_swap_exits": [s.get("ticker") for s in capital_swap_exits if s.get("ticker")],
+                "shortfall_resolution": _shortfall_resolution,
+                "capital_cut_tickers": _cut,
                 "generated_at": cr.get("generated_at", ""),
             }
             with open(committee_report_path, "w") as f:
@@ -333,7 +441,7 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
         except Exception as exc:
             logger.warning("Portfolio construction: could not patch committee_report.json: %s", exc)
 
-    return {**construction, "decisions_patched": patched}
+    return {**construction, "decisions_patched": patched, "shortfall_resolution": _shortfall_resolution}
 
 
 # ---------------------------------------------------------------------------
