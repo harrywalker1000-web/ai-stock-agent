@@ -1,489 +1,4443 @@
 {
   "ticker": "BA",
-  "company_name": "BA",
-  "sector": "N/A",
-  "current_price": 230.33,
-  "market_cap": 182045933568,
-  "date": "2026-08-14",
-  "generated_at": "2026-08-14 10:22 UTC",
-  "cached": false,
-  "source": "pipeline_auto",
-  "mandate_pass": true,
-  "mandate_fail_reason": null,
-  "direction": "HOLD",
-  "conviction": 67,
-  "expected_return_12m": "5-10%",
-  "s1_mandate": {
-    "pass": true,
-    "fail_reason": null,
-    "setup_type": "Growth",
+  "company_name": "The Boeing Company",
+  "generated_at": "2026-08-14T15:00:45.871333Z",
+  "mandate": {
+    "passed": true,
+    "recommendation": "PROCEED",
     "checks": [
       {
-        "item": "Asset class",
-        "pass": true,
-        "note": "Common stock on US exchange"
+        "name": "Asset class: Common equity or ADR",
+        "passed": true,
+        "detail": "Quote type: EQUITY",
+        "source": "yfinance"
       },
       {
-        "item": "Market cap \u2265 $200M",
-        "pass": true,
-        "note": "$182.05B"
+        "name": "Listed on supported exchange",
+        "passed": true,
+        "detail": "Exchange: NYQ",
+        "source": "yfinance/FMP"
       },
       {
-        "item": "Avg daily volume \u2265 500K shares",
-        "pass": true,
-        "note": "6,084,737 shares/day"
+        "name": "Market cap \u2265 $200M USD",
+        "passed": true,
+        "detail": "Market cap: $182.4B",
+        "source": "yfinance"
       },
       {
-        "item": "No restricted geography exposure",
-        "pass": true,
-        "note": "no flags"
+        "name": "Avg daily volume \u2265 500K shares",
+        "passed": true,
+        "detail": "Avg daily volume: 6.1M shares/day",
+        "source": "yfinance"
       },
       {
-        "item": "PEPs / sanctions clear",
-        "pass": true,
-        "note": "{'clean': True, 'notes': 'No significant issues reported'}"
+        "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
+        "passed": true,
+        "detail": "No restricted geography exposure detected (country: Us)",
+        "source": "FMP/yfinance"
       },
       {
-        "item": "Float \u2265 10%",
-        "pass": true,
-        "note": "94.3%"
+        "name": "Float \u2265 10%",
+        "passed": true,
+        "detail": "Float: 94.3% (745M of 790M shares)",
+        "source": "yfinance"
       },
       {
-        "item": "Setup type identified",
-        "pass": true,
-        "note": "Growth"
-      }
-    ]
-  },
-  "s2_company": {
-    "background": {
-      "hq": "Chicago, USA",
-      "employees": 140000,
-      "overview": "Boeing is a leading aerospace company and manufacturer of commercial jetliners, defense, space, and security systems. The company is known for its innovation and has a strong presence in both commercial and military aviation.",
-      "revenue_segments": [
-        {
-          "segment": "fiscalYear",
-          "weight_pct": 100.0
-        }
-      ],
-      "geography_breakdown": [
-        {
-          "region": "North America",
-          "pct": 60.0
-        },
-        {
-          "region": "Europe",
-          "pct": 20.0
-        },
-        {
-          "region": "Asia",
-          "pct": 15.0
-        },
-        {
-          "region": "Other",
-          "pct": 5.0
-        }
-      ],
-      "revenue_segments_source": "fmp"
-    },
-    "financial_snapshot": {
-      "historical": [
-        {
-          "year": "2025",
-          "revenue": 89463000000.0,
-          "ebitda": -3463000000.0,
-          "net_income": 2235000000.0
-        },
-        {
-          "year": "2024",
-          "revenue": 66517000000.0,
-          "ebitda": -8988000000.0,
-          "net_income": -11817000000.0
-        },
-        {
-          "year": "2023",
-          "revenue": 77794000000.0,
-          "ebitda": 1040000000.0,
-          "net_income": -2222000000.0
-        },
-        {
-          "year": "2022",
-          "revenue": 66608000000.0,
-          "ebitda": -1530000000.0,
-          "net_income": -4935000000.0
-        }
-      ],
-      "forward": [
-        {
-          "year": "0q",
-          "revenue": 25025471920.0,
-          "ebitda": null,
-          "net_income": -0.1425,
-          "source": "analyst consensus from Yahoo Finance"
-        },
-        {
-          "year": "+1q",
-          "revenue": 26348551020.0,
-          "ebitda": null,
-          "net_income": 0.01311,
-          "source": "analyst consensus from Yahoo Finance"
-        }
-      ]
-    },
-    "comparables": [
-      {
-        "ticker": "BA",
-        "company": "Boeing",
-        "revenue_bn": 77.8,
-        "gross_margin_pct": 4.7,
-        "ebitda_margin_pct": 3.0,
-        "net_margin_pct": 2.6,
-        "de_ratio": 7.91
+        "name": "No known PEP/sanctions flags in recent news",
+        "passed": true,
+        "detail": "No sanctions or PEP flags detected in last 30 days of news",
+        "source": "Finnhub news [keyword scan]"
       },
       {
-        "ticker": "GE",
-        "company": "General Electric",
-        "revenue_bn": 50.6,
-        "gross_margin_pct": 31.1,
-        "ebitda_margin_pct": 23.6,
-        "net_margin_pct": 17.7,
-        "de_ratio": 1.13
-      },
-      {
-        "ticker": "RTX",
-        "company": "Raytheon Technologies",
-        "revenue_bn": 93.5,
-        "gross_margin_pct": 20.3,
-        "ebitda_margin_pct": 15.7,
-        "net_margin_pct": 8.3,
-        "de_ratio": 0.57
-      },
-      {
-        "ticker": "LMT.TO",
-        "company": "Lockheed Martin (Toronto)",
-        "revenue_bn": null,
-        "gross_margin_pct": null,
-        "ebitda_margin_pct": null,
-        "net_margin_pct": null,
-        "de_ratio": null
-      },
-      {
-        "ticker": "LMT",
-        "company": "Lockheed Martin",
-        "revenue_bn": 77.0,
-        "gross_margin_pct": 11.8,
-        "ebitda_margin_pct": 15.0,
-        "net_margin_pct": 8.2,
-        "de_ratio": 2.34
-      },
-      {
-        "ticker": "HWM",
-        "company": "Howmet Aerospace",
-        "revenue_bn": 9.1,
-        "gross_margin_pct": 36.0,
-        "ebitda_margin_pct": 31.5,
-        "net_margin_pct": 20.5,
-        "de_ratio": 0.81
+        "name": "Setup type identifiable",
+        "passed": true,
+        "detail": "Setup: Mature / Value | Revenue CAGR (4yr): 9.5%",
+        "source": "FMP [CALCULATED]"
       }
     ],
-    "market_analysis": {
-      "tam_usd": "The total addressable market for aerospace and defense is estimated to be around $800 billion, with Boeing holding a significant share in commercial aviation.",
-      "growth_rate": "The aerospace sector is expected to grow at a CAGR of approximately 3-5% over the next five years.",
-      "competition_intensity": "High",
-      "sector_trends": "The aerospace industry is seeing a recovery in air travel demand post-pandemic, which is driving growth in commercial aircraft deliveries.",
-      "macro_factors": "Supply chain disruptions and geopolitical tensions are impacting production timelines and costs."
+    "setup_type": "Mature / Value",
+    "failure_reason": null,
+    "ticker": "BA"
+  },
+  "brand_colors": {
+    "primary": "#003DA5",
+    "secondary": "#9B9B9B",
+    "on_brand_text": "light",
+    "confidence": "certain",
+    "source": "claude-haiku-4-5-20251001 [AI brand knowledge]",
+    "status": "ok"
+  },
+  "tavily_quota_exceeded": false,
+  "api_errors": {},
+  "sections": {
+    "s1_cover": {
+      "section": "cover",
+      "ticker": "BA",
+      "company_name": {
+        "value": "The Boeing Company",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "exchange": {
+        "value": "NYQ",
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "sector": {
+        "value": "Industrials",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Aerospace & Defense",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "country": {
+        "value": "US",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "ceo": {
+        "value": "Robert K. Ortberg",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "currency": {
+        "value": "USD",
+        "source": "FMP/yfinance",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "market_cap": {
+        "value": 182433218560,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_high": {
+        "value": 254.35,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_low": {
+        "value": 176.77,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "shares_outstanding": {
+        "value": 790370020,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "float_shares": {
+        "value": 745192470,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "short_pct_float": {
+        "value": 0.01,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "returns": {
+        "1m": {
+          "value": 7.84,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "3m": {
+          "value": 4.69,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "6m": {
+          "value": -5.0,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "1y": {
+          "value": -1.89,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "ytd": {
+          "value": 1.34,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "analyst_targets": {
+        "bear": {
+          "value": 246.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "base": {
+          "value": 274.69232,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "bull": {
+          "value": 305.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "recommendation": {
+          "value": "buy",
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rec_mean_score": {
+          "value": 1.60714,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "num_analysts": {
+          "value": 26,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "pt_upside_pct": {
+        "value": 19.0,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "mandate_status": "PROCEED",
+      "setup_type": "Mature / Value",
+      "recommendation": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na",
+        "reason": "pending \u2014 filled after all sections"
+      },
+      "conviction_score": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na",
+        "reason": "pending \u2014 filled after all sections"
+      },
+      "expected_return_12m": {
+        "value": null,
+        "source": "Scenario Analysis",
+        "status": "na",
+        "reason": "pending \u2014 filled after Section 12"
+      },
+      "report_date": {
+        "value": "2026-08-14 15:00 UTC",
+        "source": "system",
+        "status": "ok"
+      },
+      "data_coverage": {
+        "value": "Full",
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "fetched_at": "2026-08-14T15:00:45.871333Z",
+      "company_image": "https://images.financialmodelingprep.com/symbol/BA.png"
     },
-    "quality_of_earnings": {
-      "moat": "Wide",
-      "competitive_advantages": [
-        "Strong brand recognition",
-        "Extensive R&D capabilities",
-        "Long-term contracts with governments"
-      ],
-      "barriers_to_entry": "High capital requirements and regulatory hurdles make it difficult for new entrants to compete effectively.",
-      "sustainability": "Boeing's sustainability initiatives focus on reducing emissions and improving fuel efficiency in their aircraft."
+    "s2_overview": {
+      "section": "overview",
+      "company_name": {
+        "value": "The Boeing Company",
+        "source": "FMP/yfinance",
+        "status": "ok"
+      },
+      "ticker": {
+        "value": "BA",
+        "source": "system",
+        "status": "ok"
+      },
+      "exchange": {
+        "value": "NYQ",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "sector": {
+        "value": "Industrials",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Aerospace & Defense",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "country": {
+        "value": "US",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "ceo": {
+        "value": "Robert K. Ortberg",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "employees": {
+        "value": "182000",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "ipo_date": {
+        "value": "1962-01-02",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "website": {
+        "value": "https://www.boeing.com",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "market_cap": {
+        "value": 182433218560,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "revenue_cagr_3y": {
+        "value": 9.5,
+        "source": "FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "fmp_description": {
+        "value": "The Boeing Company is a global aerospace powerhouse specializing in the design, development, manufacture, sale, and comprehensive support of commercial airliners, military aircraft, satellites, missile defense systems, human space flight, and launch technologies, along with related services across the globe. Its operations are organized into four key segments. The Commercial Airplanes division delivers commercial jet aircraft for passenger and cargo transport, alongside essential fleet support services. The Defense, Space & Security segment concentrates on the research, development, production, and modification of manned and unmanned military aircraft, advanced weapons systems, strategic defense and intelligence solutions (including missile defense, command, control, communications, computers, intelligence, surveillance, and reconnaissance, cyber, and information solutions), and satellite systems for both governmental and commercial use, encompassing space exploration. The Global Services segment provides a vast array of support, such as supply chain and logistics management, engineering, maintenance, upgrades, spare parts, pilot and maintenance training, technical documentation, and data analytics for its commercial and defense clientele. Lastly, the Boeing Capital segment offers financing services, overseeing a portfolio of equipment under various lease and financing structures. Founded in 1916, the company is headquartered in Chicago, Illinois.",
+        "source": "FMP [company text, not AI]",
+        "status": "ok"
+      },
+      "revenue_segments": {
+        "value": null,
+        "source": "FMP Professional / Tavily",
+        "status": "na",
+        "reason": "Segment breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
+      },
+      "geo_segments": {
+        "value": null,
+        "source": "FMP Professional / Tavily",
+        "status": "na",
+        "reason": "Geographic breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
+      },
+      "tavily_sources": [],
+      "ai_narrative": {
+        "value": "The Boeing Company is a leading global aerospace powerhouse, specializing in the design, development, manufacture, sale, and support of a wide range of products, including commercial airliners, military aircraft, satellites, missile defense systems, and human space flight technologies. Its operations are segmented into three main divisions: Commercial Airplanes, Defense, Space & Security, and Global Services, each focusing on distinct market needs such as passenger and cargo transport, defense solutions, and comprehensive support services.\n\nBoeing operates predominantly in the US, providing innovative aerospace solutions to a diverse clientele that includes commercial airlines, government entities, and defense organizations around the world. The company\u2019s reputation is built on delivering advanced technologies and dependable services to its customers in both governmental and commercial sectors.\n\nCurrently, Boeing\u2019s strategic priorities center on navigating significant challenges while capitalizing on strong revenue growth within the aerospace sector. The company aims to enhance its operational efficiency amid high leverage and negative EBITDA, while also focusing on rebuilding investor confidence through improved profitability. Near-term, Boeing is positioned to leverage bullish momentum in its stock price and strengthen its market position, despite facing a mixed macroeconomic environment.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      },
+      "market_share_pct": null,
+      "competitive_rank": null,
+      "named_competitors": [],
+      "mktpos_source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily market share search",
+      "mktpos_status": "unavailable",
+      "brand_value": null,
+      "brand_rank": null,
+      "ranking_list": null,
+      "brand_source": null,
+      "brand_ai_source": null
     },
-    "management_team": {
-      "ceo": "David L. Calhoun - CEO since January 2020, with extensive experience in the aerospace and defense sectors.",
-      "track_record": "Calhoun has a strong background in operational management and has been pivotal in steering Boeing through recent challenges.",
-      "red_flags": null
-    },
-    "analyst_rating_history": {
-      "current_consensus": "Hold",
-      "num_analysts": null,
-      "avg_target_price": null,
-      "implied_upside_pct": null,
-      "trend_24m": "Stable",
-      "summary": "Analysts are cautious about Boeing's recovery trajectory, given the ongoing challenges in the supply chain."
-    },
-    "cap_table": {
-      "institutional_pct": 76.8,
-      "insider_pct": 0.1,
-      "float_pct": 94.3,
-      "major_holders": [
+    "s3_news": {
+      "section": "news_catalysts",
+      "ticker": "BA",
+      "upcoming_earnings": [
         {
-          "name": "Vanguard Group",
-          "pct": 8.5
+          "date": {
+            "value": "2026-10-27",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "quarter": {
+            "value": "Q3 2026",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -0.1479,
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "revenue_estimate": {
+            "value": 25798998490,
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "timing": {
+            "value": "BMO",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        }
+      ],
+      "eps_history": [
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -0.76,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -0.31472,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": -141.48,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": false,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
         },
         {
-          "name": "BlackRock",
-          "pct": 7.2
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -0.2,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -0.67243,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": 70.26,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": true,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": 9.92,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -0.40902,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": 2525.31,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": true,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "eps_actual": {
+            "value": -7.47,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "eps_estimate": {
+            "value": -2.37563,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "surprise_pct": {
+            "value": -214.44,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          },
+          "beat": {
+            "value": false,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
         }
-      ]
-    }
-  },
-  "s3_setup": {
-    "setup_type": "Growth",
-    "checklist": [
-      {
-        "item": "setup_type",
-        "detail": "Growth",
-        "pass": true
+      ],
+      "ex_dividend": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na",
+        "reason": "no dividend or date unavailable"
       },
-      {
-        "item": "revenue_cagr_3yr",
-        "detail": "10.3",
-        "pass": true
+      "press_releases": [
+        {
+          "date": {
+            "value": "2026-07-28",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026049929/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-04-22",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026026391/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-04-17",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026025684/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2026-01-27",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828026003518/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        },
+        {
+          "date": {
+            "value": "2025-12-08",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "form": {
+            "value": "8-K",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://www.sec.gov/Archives/edgar/data/12927/000162828025055825/",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          }
+        }
+      ],
+      "news_feed": [
+        {
+          "headline": {
+            "value": "From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=9ccbd7c57c5f4d607c41d2b7805719d9aaa3e9c7d5aa1621f1ddbdaa197afaf9",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Five years ago, Wisk Aero sued Archer Aviation Inc. (NYSE:ACHR) for allegedly stealing its trade secrets. On August 10, Archer agreed to buy Wisk entirely, along with two other The Boeing Company (NYS",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Stay informed with the top movers within the dow jones index on Thursday.",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "ChartMill",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=d809f45966630d8a19facd36d00cdb710b4ed6f03d04f981ead22bea0fe9d02d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Stay updated with the movement of dow jones stocks in today's session. Discover which dow jones stocks are making waves on Thursday.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "BofA sees Boeing's puzzling deal clearing path for bigger move",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=daab49371c73ef5fc7ad11c9900017c21516c02f90aabddf3b93dfee318c7bf5",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Boeing\u2019s decision to unload three aerospace businesses initially left Bank of America questioning the logic, but the bank now sees the deal as a way for the plane maker to sharpen its focus without ab",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Archer Aviation Stock Has Surged 45% in the Past Month. Should You Buy Into the Rally?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=b00ee639cb09efd12daa19343d8b9c504f788574c066015026a069c942de9b3b",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The eVTOL stock is still down more than 50% from its highs.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Discover which dow jones stocks are making waves on Thursday.",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "ChartMill",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=85ac2b07ff18479aadb4467b3e1330bac9629e06dd155f57eff0fc402eb245f3",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Stay updated with the movements of the dow jones index in the middle of the day on Thursday. Discover which stocks are leading as top gainers and losers in today's session.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Can GE Stock Compound Its Way Higher?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=b0d91b85af9c2905515e4dacdecbd825717abac7ef0ab29e4ccd4923edcf7621",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Despite record revenue, GE Aerospace is falling further behind on orders. Spare parts delinquencies, a measure of shipments delayed by material shortages, grew last quarter. This is not a sign of weak",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=a6fb31a50192bd230270da6a831d8bd72f8aa8cf20ea518e60f29b979e3a2ef1",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "BA's fighter jet business stands to gain from rising defense spending, fleet modernization and demand for aircraft upgrades and sustainment.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "2 High-Flying Stocks Worth Your Attention and 1 We Avoid",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=9a4449ac122fa9e90181355c1cb1028cff3ed5261faba71ebf048a1e245c8b52",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Expensive stocks often command premium valuations because the market thinks their business models are exceptional. However, the downside is that high expectations are already baked into their prices, ",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Odysight.ai Reports Financial Results for the First Half of 2026 and Provides Business Update",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=107447c7584c6b30e40a9b132f714fc30cf6a0ef34bf4ef73e2c47ee1bd50088",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NEWSWIRE) -- Odysight.ai Inc. (NASDAQ/TASE: ODYS), a leader in AI-powered visual sensing and predictive maintenance (PdM) solutions for the aerospace, defense, ",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Odysight.ai signs agreement with Boeing to demonstrate AI-Powered capabilities",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=4bc7c086f283a370f77a6a8d2ea772348cbffb1ff3516dfd30e02eb025f81fe1",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The agreement will showcase vision-based technology at two Boeing sites in laboratory and test environments Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NEWSWIRE) -- Odysight.ai Inc. (NASDAQ/TASE: ODYS), a",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Archer Aviation Sold Off Hard Last Month, but Momentum Is Shifting",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=43ba961a95998f67c877cfd17627a5669f7bcce09f1a85fa231be828aedd1b1d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The company has partnerships with two large defense and aerospace companies.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "How the U.S. Is Trying to Copy China\u2019s Supply Chain Playbook",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=71d75ada9e84c1b501598dd2c2b26a9bbaf7664dd7e28000be3850c40d35070c",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "The chess game between Iran and the U.S. hit another stalemate this week.  In today\u2019s issue I\u2019m diving into a different geopolitical game: America\u2019s bid to untangle its critical supply chains from Chi",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "5 Must-Read Analyst Questions From TransDigm\u2019s Q2 Earnings Call",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=d47ccb2409055d01742b442b298a64d9ab417d2a696f6eca6396206f346f11e5",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "TransDigm\u2019s second quarter performance reflected broad-based growth across its commercial OEM, commercial aftermarket, and defense segments, with management highlighting particularly strong demand in ",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Does Lumen Technologies (LUMN) Gain An Edge With John Hinshaw Joining Its Board?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-13",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=5ead2e9968340b191ccb0683d257adc9c340a945c2d0ea286e4715b3e33f70aa",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Lumen Technologies (NYSE:LUMN) appointed John M. Hinshaw to its Board of Directors. Hinshaw brings experience leading global operations and transformation initiatives at HSBC. His career includes exec",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "SpaceX Supplier Tumbles After First Earnings Report Since IPO",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=b0cf92b5006567c550d7428b1bf2c580e8c68f9a3bb89eaed967d9fc8b7c5061",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Applied Aerospace & Defense fell about 10% on Wednesday after its first earnings report since going public in June.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Defense ETFs to Buy as Pentagon Pushes to Boost Missile Stockpiles",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=5699b27408564fd6d4656db088ac9147dde3a3e093ca65696e655fcfca113e1d",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Missile shortages and a Pentagon production push could boost Lockheed Martin, RTX and defense ETFs as replenishment drives new orders.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Archer Aviation (ACHR) Jumped, So What Is Behind The Latest Attention?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=247712cbf0d381eda92b4d9e37924d4dbe0e4d3512350eef3c8cd271199e7610",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Archer Aviation (ACHR) has drawn fresh attention after reporting second quarter 2026 results that included US$5 million in sales and a net loss of US$263.2 million, along with progress on flight testi",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Here's What the Boeing-Archer Aviation Deal Means for BA Stock",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=bcc77ef34e41bbf39c295594359a3b9163ba9ad6c06b4e3b0d7b2e554e67eb14",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Boeing recently sold three subsidiaries to Archer Aviation while gaining a stake in the company.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Which dow jones stocks are moving on Wednesday?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "ChartMill",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=36d522e668fc05a6c971f199c20fac64954f4e371dafa88486b1351b863bd6a3",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Stay informed about the performance of the dow jones index in the middle of the day on Wednesday. Uncover the top gainers and losers in today's session for valuable insights.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        },
+        {
+          "headline": {
+            "value": "Archer Aviation Is Teaming Up With Boeing. Time to Buy the Dip?",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "source": {
+            "value": "Yahoo",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "date": {
+            "value": "2026-08-12",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "url": {
+            "value": "https://finnhub.io/api/news?id=b76b618f137ff9a33c22570d37482660c87b891e524f2356ee7800466cdeb3ec",
+            "source": "Finnhub",
+            "status": "ok"
+          },
+          "summary": {
+            "value": "Archer and Boeing just announced a blockbuster deal, and it could have a huge effect on Archer's long-term growth.",
+            "source": "Finnhub",
+            "status": "ok"
+          }
+        }
+      ],
+      "news_count": {
+        "value": 20,
+        "source": "Finnhub",
+        "status": "ok"
       },
-      {
-        "item": "above_20pct_threshold",
-        "detail": "False",
-        "pass": false
-      },
-      {
-        "item": "margin_trend",
-        "detail": "Stable",
-        "pass": true
-      },
-      {
-        "item": "sustainability_assessment",
-        "detail": "Revenue grew from $66.6B in 2022 to $77.8B in 2023, indicating a positive trend; however, EBITDA margins have been negative, reflecting operational challenges.",
-        "pass": true
-      },
-      {
-        "item": "tam_room_to_grow",
-        "detail": "$800 billion market, Boeing holds approximately 20% share; the company is expected to gain share as air travel demand increases.",
-        "pass": true
-      },
-      {
-        "item": "eps_growth_consistent",
-        "detail": "False",
-        "pass": false
-      },
-      {
-        "item": "fcf_positive",
-        "detail": "True",
-        "pass": true
-      },
-      {
-        "item": "leverage_vs_peers",
-        "detail": "Higher",
-        "pass": true
-      },
-      {
-        "item": "default_risk",
-        "detail": "High",
-        "pass": true
-      },
-      {
-        "item": "upcoming_catalysts",
-        "detail": "['Earnings \u2014 Q3 FY2023 results on October 25, consensus EPS $0.05', 'New aircraft delivery announcement \u2014 expected in November', 'Investor day \u2014 strategic updates expected in December']",
-        "pass": true
-      },
-      {
-        "item": "key_risks",
-        "detail": "[{'risk': 'Supply chain disruptions', 'mechanism': 'Ongoing issues with suppliers affecting production schedules', 'category': 'Operational'}, {'risk': 'Regulatory scrutiny', 'mechanism': 'Increased FAA oversight following past safety incidents', 'category': 'Regulatory'}, {'risk': 'Competition from Airbus', 'mechanism': 'Aggressive pricing strategies impacting market share', 'category': 'Competitive'}, {'risk': 'Rising input costs', 'mechanism': 'Inflation affecting material costs and labor', 'category': 'Financial'}, {'risk': 'Geopolitical tensions', 'mechanism': 'Impacting defense contracts and international sales', 'category': 'Macro'}]",
-        "pass": true
-      },
-      {
-        "item": "moat_strength",
-        "detail": "Wide",
-        "pass": true
-      },
-      {
-        "item": "near_term_catalyst",
-        "detail": "Q3 earnings on October 25 \u2014 consensus EPS $0.05",
-        "pass": true
-      }
-    ]
-  },
-  "s4_valuation": {
-    "methodology": "P/S",
-    "analyst_consensus_target": null,
-    "implied_multiples": "BA's P/E of 83.45 is significantly higher than the peer average of 37.30, indicating potential overvaluation.",
-    "cheap_vs_peers": "expensive",
-    "near_term_upside_pct": null,
-    "narrative": "BA's P/E of 83.45 is significantly higher than the peer average of 37.30, indicating potential overvaluation. Price vs intrinsic: 123.8% premium vs peer median P/E."
-  },
-  "s5_timing": {
-    "macro_context": "NEUTRAL",
-    "technical_setup": "RSI at 55.3 indicates a bullish momentum. Current price is $230.33, -9.4% from 52-week high of $254.35. Support at $221.04 and resistance at $231.34.",
-    "recent_catalyst": null,
-    "downside_scenario": "If the resistance at $231.34 holds and the price reverses, it could test the support level at $221.04, leading to potential losses.",
-    "entry_verdict": "neutral",
-    "narrative": "The macro regime is neutral, and the technical setup shows bullish momentum with the price nearing resistance. However, the absence of recent catalysts and a high P/E ratio suggest caution. Entry is neutral with potential downside if resistance holds."
-  },
-  "s6_thesis": {
-    "narrative": "BA is currently trading at $230.33, which is 9.4% below its 52-week high of $254.35. This price action suggests a potential opportunity for entry, although the high P/E ratio of 83.45 and negative ROIC of -6.7% indicate that the stock is priced for growth expectations that may not be immediately realized. The company's revenue growth of 34.5% year-over-year is a positive indicator, but the operating margin of 0.0% and high net debt/EBITDA ratio of 8.39 raise concerns about financial stability and operational efficiency. The sentiment is cautiously optimistic with a consensus 'Buy' recommendation, but the lack of recent news catalysts suggests that there may not be immediate drivers for price appreciation. The market position and growth drivers are strong, but the financial metrics indicate that the company needs to improve its profitability and debt management to justify the current valuation. The neutral macro regime does not provide additional tailwinds, making the stock's current valuation appear stretched without a clear catalyst for growth."
-  },
-  "s7_recommendation": {
-    "direction": "HOLD",
-    "conviction": 67,
-    "expected_return_12m": "5-10%",
-    "suggested_size_pct": 10,
-    "stop_loss_pct": 5.0,
-    "key_risks": [
-      "[Financial] High P/E ratio of 83.45 suggests overvaluation risk if growth expectations are not met.",
-      "[Financial] Net debt/EBITDA at 8.39x poses covenant risk if EBITDA declines.",
-      "[Operational] Operating margin at 0.0% leaves no room for error in cost management.",
-      "[Macro] Neutral macro regime may not support further price appreciation.",
-      "[Competitive] Lack of recent catalysts could lead to underperformance relative to peers."
-    ]
-  },
-  "s8_news": {
-    "catalysts": [],
-    "count": 0
-  },
-  "s8_technical": {
-    "rsi_14": 55.3,
-    "macd_signal": "bullish",
-    "bb_position": null,
-    "atr_pct": null,
-    "obv_trend": null,
-    "support": 221.04,
-    "resistance": 231.34,
-    "trend": "uptrend",
-    "chart_pattern": null,
-    "forward_bias": "bullish",
-    "mean_reversion_score": 0,
-    "trade_type": "momentum",
-    "quant_summary": "BA is currently in an uptrend with strong bullish momentum signals and a confirmed bullish moving average stack. Over the next 5-10 days, the price is likely to test the resistance level at $231.34, with a bullish bias supported by volume and momentum indicators.",
-    "quant_score": 78
-  },
-  "s9_sentiment": {
-    "analyst_consensus": "Buy",
-    "news_tone": null,
-    "short_interest_pct": 0.0,
-    "upgrade_momentum": null,
-    "sentiment_score": 72,
-    "sentiment_summary": "The current sentiment around BA is cautiously optimistic, with analysts generally bullish and a significant upside potential based on price targets. However, the lack of recent news catalysts and low short interest suggest that the sentiment is leading, reflecting potential future gains rather than reacting to past performance.",
-    "contrarian_signal": true,
-    "retail_euphoria": false
-  },
-  "s10_institutional": {
-    "convergence_signals": [],
-    "fund_theses": [
-      {
-        "ticker": "BA",
-        "funds": [
-          "Various institutions"
+      "tavily_sources": [],
+      "ai_news_synthesis": null,
+      "ai_catalyst_assessment": null,
+      "ai_synthesis": {
+        "value": "A significant recent development for Boeing is Archer Aviation's acquisition of Wisk Aero, which marks a strategic partnership after a previous legal dispute. This move may bolster Boeing's position in the aerospace market and enhance its capabilities, as indicated in the article 'From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit.' Additionally, analysts from Bank of America see potential for Boeing to refocus and strengthen its operations following its recent divestitures, as highlighted in 'BofA sees Boeing's puzzling deal clearing path for bigger move.'\n\nLooking ahead, Boeing's fighter jet business could benefit from increased defense spending and modernization efforts, as discussed in 'Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?' This positioning may reassure investors about the company's resilience and future growth prospects amid ongoing challenges in the aerospace sector.",
+        "near_term_catalysts": [
+          "Boeing's Q3 earnings report on October 27, 2026",
+          "Market reaction to Archer's acquisition news"
         ],
-        "inferred_thesis": "value",
-        "thesis_reasoning": "Analyst upgrades indicate a recovery in the aerospace sector, suggesting Boeing is undervalued.",
-        "conviction": "medium"
+        "medium_term_catalysts": [
+          "Potential increase in defense spending in 2026",
+          "Boeing's financial performance in 2026"
+        ],
+        "key_risk_events": [
+          "Negative sentiment from uneven Q2 earnings results",
+          "Risks from supply chain disruptions affecting Boeing"
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
       }
-    ],
-    "unusual_options": [],
-    "multi_fund_flag": false,
-    "source": "institutional_agent"
-  },
-  "s11_performance": {
-    "ret_1m": 0.0746,
-    "ret_3m": 0.0049,
-    "ret_6m": -0.0377,
-    "ret_1yr": null,
-    "vs_spy_1yr": null,
-    "high_52w": 254.35,
-    "low_52w": 176.77,
-    "pct_from_high": -9.4
-  },
-  "s12_risk": {
-    "beta": 1.221,
-    "max_drawdown": null,
-    "volatility_pct": null,
-    "atr_pct": null,
-    "debt_to_equity": 8.39,
-    "current_ratio": 1.138,
-    "liquidity_risk": "low",
-    "geographic_concentration": null,
-    "data_conflicts": [
-      {
-        "metric": "revenue (EDGAR override)",
-        "yfinance_value": 93994999808,
-        "sec_edgar_value": 77794000000.0,
-        "diff_pct": 17.2,
-        "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+    },
+    "s4_financials": {
+      "section": "historical_financials",
+      "years": [
+        {
+          "label": "2025",
+          "date": {
+            "value": "2025-12-31",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 89463000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": 34.5,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 4289000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 4.8,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": 7359000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 8.2,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": -5416000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "op_margin": {
+            "value": -6.1,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_income": {
+            "value": 2235000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 2.5,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": 2.48,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": -1877000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 1065000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -2942000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "da": {
+            "value": 1953000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "total_debt": {
+            "value": 54433000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "equity": {
+            "value": 5454000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 10921000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": 9.98,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.19,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": -2.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2024",
+          "date": {
+            "value": "2024-12-31",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 66517000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": -14.5,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": -1991000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": -3.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": -7649000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": -11.5,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": -10824000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "op_margin": {
+            "value": -16.3,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_income": {
+            "value": -11817000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": -17.8,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": -18.36,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": -14398000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": -12080000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -2230000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "da": {
+            "value": 1836000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "total_debt": {
+            "value": 54188000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "equity": {
+            "value": -3908000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 13801000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": -13.87,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.32,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": -4.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2023",
+          "date": {
+            "value": "2023-12-31",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 77794000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": 16.8,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 7724000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 9.9,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": 2315000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 3.0,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": -821000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "op_margin": {
+            "value": -1.1,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_income": {
+            "value": -2222000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": -2.9,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": -3.67,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": 4433000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 5960000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -1527000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "da": {
+            "value": 1861000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "total_debt": {
+            "value": 52603000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "equity": {
+            "value": -17233000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 12691000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": -3.05,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.14,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": -0.3,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2022",
+          "date": {
+            "value": "2022-12-31",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 66608000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": 6.9,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "gross_profit": {
+            "value": 3530000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 5.3,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": -482000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": -0.7,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": -3509000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "op_margin": {
+            "value": -5.3,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_income": {
+            "value": -4935000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": -7.4,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": -8.29,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": 2290000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": 3512000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -1222000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "da": {
+            "value": 1979000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "total_debt": {
+            "value": 57277000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "equity": {
+            "value": -15883000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 14614000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": -3.61,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.22,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": -1.4,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          }
+        },
+        {
+          "label": "2021",
+          "date": {
+            "value": "2021-12-31",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue": {
+            "value": 62286000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "revenue_yoy": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "gross_profit": {
+            "value": 3049000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "gross_margin": {
+            "value": 4.9,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "ebitda": {
+            "value": -175000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": -0.3,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "op_income": {
+            "value": -2870000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "op_margin": {
+            "value": -4.6,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_income": {
+            "value": -4202000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": -6.7,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "eps_diluted": {
+            "value": -7.15,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "fcf": {
+            "value": -4396000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "operating_cf": {
+            "value": -3416000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "capex": {
+            "value": -980000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "da": {
+            "value": 2144000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "total_debt": {
+            "value": 58370000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "equity": {
+            "value": -14999000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "cash": {
+            "value": 8052000000,
+            "source": "FMP",
+            "status": "ok"
+          },
+          "de_ratio": {
+            "value": -3.89,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "current_ratio": {
+            "value": 1.33,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "interest_coverage": {
+            "value": -1.1,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "bvps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          },
+          "cfps": {
+            "value": null,
+            "source": "yfinance + FMP [CALCULATED]",
+            "status": "na"
+          }
+        }
+      ],
+      "year_count": 5,
+      "currency": {
+        "value": "USD",
+        "source": "FMP",
+        "status": "ok"
       },
-      {
-        "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-        "yfinance_value": 2.76,
-        "sec_edgar_value": -3.67,
-        "diff_pct": 233.0,
-        "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+      "dividend_history": [
+        {
+          "year": "2020",
+          "dps": 2.055,
+          "source": "yfinance"
+        },
+        {
+          "year": "2019",
+          "dps": 8.22,
+          "source": "yfinance"
+        },
+        {
+          "year": "2018",
+          "dps": 6.84,
+          "source": "yfinance"
+        },
+        {
+          "year": "2017",
+          "dps": 5.68,
+          "source": "yfinance"
+        },
+        {
+          "year": "2016",
+          "dps": 4.36,
+          "source": "yfinance"
+        }
+      ],
+      "is_dividend_paying": true,
+      "data_coverage_note": null
+    },
+    "s4b_drivers": {
+      "section": "revenue_growth_drivers",
+      "ticker": "BA",
+      "company_name": "The Boeing Company",
+      "recent_revenue_growth_pct": {
+        "value": 34.5,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
       },
-      {
-        "metric": "revenue_ttm (fmp vs reconciled)",
-        "yf_av_value": 77794000000.0,
-        "fmp_value": 89463000000,
-        "diff_pct": 15.0,
-        "conservative_value": 77794000000.0,
-        "resolution": "yf_av used (conservative)"
+      "earnings_search_results": [],
+      "analyst_search_results": [],
+      "news_headlines": [
+        {
+          "headline": "From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit",
+          "summary": "Five years ago, Wisk Aero sued Archer Aviation Inc. (NYSE:ACHR) for allegedly stealing its trade secrets. On August 10, Archer agreed to buy Wisk entirely, along with two other The Boeing Company (NYS"
+        },
+        {
+          "headline": "Stay informed with the top movers within the dow jones index on Thursday.",
+          "summary": "Stay updated with the movement of dow jones stocks in today's session. Discover which dow jones stocks are making waves on Thursday."
+        },
+        {
+          "headline": "BofA sees Boeing's puzzling deal clearing path for bigger move",
+          "summary": "Boeing\u2019s decision to unload three aerospace businesses initially left Bank of America questioning the logic, but the bank now sees the deal as a way for the plane maker to sharpen its focus without ab"
+        },
+        {
+          "headline": "Archer Aviation Stock Has Surged 45% in the Past Month. Should You Buy Into the Rally?",
+          "summary": "The eVTOL stock is still down more than 50% from its highs."
+        },
+        {
+          "headline": "Discover which dow jones stocks are making waves on Thursday.",
+          "summary": "Stay updated with the movements of the dow jones index in the middle of the day on Thursday. Discover which stocks are leading as top gainers and losers in today's session."
+        },
+        {
+          "headline": "Can GE Stock Compound Its Way Higher?",
+          "summary": "Despite record revenue, GE Aerospace is falling further behind on orders. Spare parts delinquencies, a measure of shipments delayed by material shortages, grew last quarter. This is not a sign of weak"
+        },
+        {
+          "headline": "Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?",
+          "summary": "BA's fighter jet business stands to gain from rising defense spending, fleet modernization and demand for aircraft upgrades and sustainment."
+        },
+        {
+          "headline": "2 High-Flying Stocks Worth Your Attention and 1 We Avoid",
+          "summary": "Expensive stocks often command premium valuations because the market thinks their business models are exceptional. However, the downside is that high expectations are already baked into their prices, "
+        },
+        {
+          "headline": "Odysight.ai Reports Financial Results for the First Half of 2026 and Provides Business Update",
+          "summary": "Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NEWSWIRE) -- Odysight.ai Inc. (NASDAQ/TASE: ODYS), a leader in AI-powered visual sensing and predictive maintenance (PdM) solutions for the aerospace, defense, "
+        },
+        {
+          "headline": "Odysight.ai signs agreement with Boeing to demonstrate AI-Powered capabilities",
+          "summary": "The agreement will showcase vision-based technology at two Boeing sites in laboratory and test environments Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NEWSWIRE) -- Odysight.ai Inc. (NASDAQ/TASE: ODYS), a"
+        },
+        {
+          "headline": "Archer Aviation Sold Off Hard Last Month, but Momentum Is Shifting",
+          "summary": "The company has partnerships with two large defense and aerospace companies."
+        },
+        {
+          "headline": "How the U.S. Is Trying to Copy China\u2019s Supply Chain Playbook",
+          "summary": "The chess game between Iran and the U.S. hit another stalemate this week.  In today\u2019s issue I\u2019m diving into a different geopolitical game: America\u2019s bid to untangle its critical supply chains from Chi"
+        },
+        {
+          "headline": "5 Must-Read Analyst Questions From TransDigm\u2019s Q2 Earnings Call",
+          "summary": "TransDigm\u2019s second quarter performance reflected broad-based growth across its commercial OEM, commercial aftermarket, and defense segments, with management highlighting particularly strong demand in "
+        },
+        {
+          "headline": "Does Lumen Technologies (LUMN) Gain An Edge With John Hinshaw Joining Its Board?",
+          "summary": "Lumen Technologies (NYSE:LUMN) appointed John M. Hinshaw to its Board of Directors. Hinshaw brings experience leading global operations and transformation initiatives at HSBC. His career includes exec"
+        },
+        {
+          "headline": "SpaceX Supplier Tumbles After First Earnings Report Since IPO",
+          "summary": "Applied Aerospace & Defense fell about 10% on Wednesday after its first earnings report since going public in June."
+        }
+      ],
+      "drivers": [
+        {
+          "name": "Commercial Aviation Demand Recovery",
+          "mechanism": "An increase in global travel is driving demand for new commercial jetliners, contributing to revenue growth in the Commercial Airplanes segment.",
+          "evidence": "89463000000",
+          "evidence_source": "FMP income statement",
+          "category": "volume"
+        },
+        {
+          "name": "Defense Spending Increases",
+          "mechanism": "Rising military budgets in various countries are boosting demand for Boeing's defense products, including fighter jets and other military aircraft.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "geographic"
+        },
+        {
+          "name": "Global Services Expansion",
+          "mechanism": "Boeing's focus on expanding its Global Services segment enhances ongoing maintenance and support services, leading to recurring revenue streams.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "product"
+        },
+        {
+          "name": "Strategic Mergers and Partnerships",
+          "mechanism": "Collaborations and acquisitions, such as the partnership with Archer Aviation, are aimed at expanding Boeing\u2019s technological capabilities and market reach.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "m_and_a"
+        },
+        {
+          "name": "Space Exploration and Satellite Demand",
+          "mechanism": "Increasing interest in space exploration and satellite deployment is enhancing revenue opportunities in Boeing\u2019s Defense, Space & Security segment.",
+          "evidence": null,
+          "evidence_source": null,
+          "category": "product"
+        }
+      ],
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 derived from FMP financial filings + business description",
+      "ai_status": "ok"
+    },
+    "s5_dcf": {
+      "section": "forward_dcf",
+      "skip": false,
+      "analyst_estimates": {
+        "eps_current_fy": {
+          "value": -1.06608,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_next_fy": {
+          "value": 4.13402,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_growth_cur": {
+          "value": -189.6,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "eps_growth_next": {
+          "value": 487.8,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_current_fy": {
+          "value": 98012001290.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_next_fy": {
+          "value": 112830045460.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_growth_cur": {
+          "value": 9.6,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "rev_growth_next": {
+          "value": 15.1,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "wacc_inputs": {
+        "risk_free_rate": {
+          "value": 4.68,
+          "source": "FRED DGS10",
+          "status": "ok"
+        },
+        "beta": {
+          "value": 1.221,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "mrp": {
+          "value": 5.5,
+          "source": "Damodaran (hardcoded \u2014 US LT ERP)",
+          "status": "ok"
+        },
+        "cost_of_equity": {
+          "value": 11.4,
+          "source": "CAPM [CALCULATED]",
+          "status": "ok"
+        },
+        "cost_of_debt": {
+          "value": 0.05,
+          "source": "FMP [interest expense / total debt]",
+          "status": "ok"
+        },
+        "tax_rate": {
+          "value": 15.1,
+          "source": "FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "weight_equity": {
+          "value": 77.0,
+          "source": "yfinance/FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "weight_debt": {
+          "value": 23.0,
+          "source": "FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "wacc": {
+          "value": 8.79,
+          "source": "CAPM [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "revenue_projections": [
+        {
+          "year": "FY Current",
+          "value": {
+            "value": 98012001290.0,
+            "source": "yfinance analyst consensus",
+            "status": "ok"
+          },
+          "growth": {
+            "value": 9.6,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "year": "FY +1",
+          "value": {
+            "value": 112830045460.0,
+            "source": "yfinance analyst consensus",
+            "status": "ok"
+          },
+          "growth": {
+            "value": 15.1,
+            "source": "yfinance [CALCULATED]",
+            "status": "ok"
+          }
+        },
+        {
+          "year": "FY +2 (est)",
+          "value": {
+            "value": 122680108429,
+            "source": "yfinance extrapolated [CALCULATED]",
+            "status": "ok"
+          },
+          "growth": {
+            "value": null,
+            "source": "N/A \u2014 extrapolated only",
+            "status": "na"
+          }
+        }
+      ],
+      "fcf_margin_avg": {
+        "value": -6.0,
+        "source": "FMP [CALCULATED] 3yr avg",
+        "status": "ok"
+      },
+      "terminal_growth": {
+        "value": 2.34,
+        "source": "FRED DGS10 / 2 [CALCULATED]",
+        "status": "ok"
+      },
+      "terminal_multiple": {
+        "value": 14.7,
+        "source": "yfinance peers median EV/EBITDA [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_ev_ebitda_used": {
+        "value": [
+          15.988,
+          13.287,
+          16.78,
+          13.47
+        ],
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "pv_fcfs": {
+        "value": -17,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pv_terminal": {
+        "value": -1,
+        "source": "yfinance peers [CALCULATED]",
+        "status": "ok"
+      },
+      "enterprise_value": {
+        "value": -18,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "net_debt": {
+        "value": 44,
+        "source": "FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "implied_price": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "upside_pct": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "sensitivity_table": {
+        "wacc_steps": [
+          6.8,
+          7.8,
+          8.8,
+          9.8,
+          10.8
+        ],
+        "mult_steps": [
+          11,
+          13,
+          15,
+          17,
+          19
+        ],
+        "rows": [
+          {
+            "wacc_pct": 6.8,
+            "prices": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "wacc_pct": 7.8,
+            "prices": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "wacc_pct": 8.8,
+            "prices": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "wacc_pct": 9.8,
+            "prices": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          {
+            "wacc_pct": 10.8,
+            "prices": [
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          }
+        ],
+        "source": "FMP/yfinance [CALCULATED]"
+      },
+      "fmp_dcf_crosscheck": {
+        "implied_price": {
+          "value": -448.65597625784756,
+          "source": "FMP free tier DCF",
+          "status": "ok"
+        },
+        "date": {
+          "value": "2026-08-14",
+          "source": "FMP",
+          "status": "ok"
+        },
+        "note": "FMP proprietary model \u2014 shown as cross-check only, not used in our calculation"
       }
-    ]
-  },
-  "s13_scenarios": {
-    "bull": {
-      "price_target": 260,
-      "upside_pct": 12.9,
-      "probability": 30,
-      "catalyst": "Improvement in operating margins and successful debt reduction.",
-      "assumptions": "Revenue growth continues at current pace and operational efficiencies improve."
     },
-    "base": {
-      "price_target": 240,
-      "upside_pct": 4.2,
-      "probability": 50,
-      "assumptions": "Steady revenue growth with no significant improvement in margins or debt levels."
+    "s6_valuation": {
+      "section": "valuation_metrics",
+      "pe_ttm": {
+        "value": 82.731186,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "pe_fwd": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "price_to_book": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "price_to_sales": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "ev_ebitda": {
+        "value": -72.805,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "dividend_yield": {
+        "value": null,
+        "source": "yfinance",
+        "status": "na"
+      },
+      "beta": {
+        "value": 1.221,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "fcf_yield": {
+        "value": -1.03,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "roic": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "roe": {
+        "value": null,
+        "source": "FMP key_metrics",
+        "status": "na"
+      },
+      "52w_high": {
+        "value": 254.35,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "52w_low": {
+        "value": 176.77,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "pct_from_52w_high": {
+        "value": -8.46,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "setup_type": {
+        "value": "Mature / Value",
+        "source": "mandate_checker [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_table": [
+        {
+          "symbol": {
+            "value": "LMT",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "Lockheed Martin Corporation",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 22.327072,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 18.52823,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 15.988,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 1.8165623,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 15.901053,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.12569,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.08163,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.105,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 234.238,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 139900731392.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "NOC",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "NOC",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 18.535942,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 19.15033,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 13.287,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 1.9301984,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 4.629274,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.16915001,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.104820006,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.051,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 95.348,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 82790072320.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "GD",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "General Dynamics Corporation",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 24.151312,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 21.34165,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 16.78,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 1.9521583,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 3.986304,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.12091,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.08179,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.081,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 35.335,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 107097358336.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        },
+        {
+          "symbol": {
+            "value": "RTN",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "RTN",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "pe_fwd": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ev_ebitda": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ps": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "pb": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          },
+          "ebitda_margin": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "net_margin": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "revenue_growth": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "debt_to_equity": {
+            "value": null,
+            "source": "FMP [CALCULATED]",
+            "status": "na"
+          },
+          "market_cap": {
+            "value": null,
+            "source": "yfinance/FMP",
+            "status": "na"
+          }
+        },
+        {
+          "symbol": {
+            "value": "HII",
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "company_name": {
+            "value": "HII",
+            "source": "FMP",
+            "status": "ok"
+          },
+          "pe": {
+            "value": 19.696236,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pe_fwd": {
+            "value": 15.823861,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ev_ebitda": {
+            "value": 13.47,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ps": {
+            "value": 0.9853839,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "pb": {
+            "value": 2.4458117,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          },
+          "ebitda_margin": {
+            "value": 0.08874,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "net_margin": {
+            "value": 0.05013,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "revenue_growth": {
+            "value": 0.109,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "debt_to_equity": {
+            "value": 55.252,
+            "source": "FMP [CALCULATED]",
+            "status": "ok"
+          },
+          "market_cap": {
+            "value": 12992287744.0,
+            "source": "yfinance/FMP",
+            "status": "ok"
+          }
+        }
+      ],
+      "val_history": {}
     },
-    "bear": {
-      "price_target": 210,
-      "downside_pct": 8.8,
-      "probability": 20,
-      "trigger": "Failure to improve margins and manage debt effectively.",
-      "assumptions": "Stagnant revenue growth and continued operational inefficiencies."
+    "s7_technicals": {
+      "section": "technicals",
+      "rsi": {
+        "value": 55.7,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_line": {
+        "value": 3.8755,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_signal": {
+        "value": 3.1796,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "macd_hist": {
+        "value": 0.6959,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "sma_50": {
+        "value": 221.29,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "sma_200": {
+        "value": 219.23,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_sma50": {
+        "value": 4.31,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_sma200": {
+        "value": 5.29,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_upper": {
+        "value": 246.3,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_lower": {
+        "value": 199.86,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "bb_position": {
+        "value": 66.7,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "atr_pct": {
+        "value": 3.37,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "support": {
+        "value": 204.8,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "resistance": {
+        "value": 252.15,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "trend_signal": {
+        "value": "Strong Uptrend",
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "pct_from_52w_high": {
+        "value": -8.46,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "volume_vs_20d_avg": {
+        "value": 0.11,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "quant_score": {
+        "value": 80,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "quant_score_detail": {
+        "rsi": "+15 RSI 56 \u2014 ideal entry zone (40-65)",
+        "above_sma50": "+15 Price ($230.82) > SMA50 ($221.29) \u2014 medium-term uptrend intact",
+        "above_sma200": "+15 Price > SMA200 ($219.23) \u2014 in long-term uptrend",
+        "macd": "+15 MACD (3.8755) > Signal (3.1796) \u2014 bullish momentum",
+        "bollinger": "+10 BB position 67% \u2014 not at upper band extreme",
+        "52w_proximity": "+10 -8.5% from 52w high \u2014 near highs, strong momentum",
+        "volume": "0 Volume 0.1x 20d avg \u2014 weak, low conviction move"
+      },
+      "trend_context": "Strong Uptrend \u2014 good entry setup",
+      "ai_chart_pattern": "Ascending Triangle",
+      "ai_pattern_evidence": "The price samples indicate a series of higher lows since mid-2022, converging towards a horizontal resistance around $252.15, characteristic of an ascending triangle pattern forming. The trend signal reflects a strong uptrend, supporting this bullish continuation pattern.",
+      "ai_pattern_invalidation": "Breaking below the support level of $204.8 would invalidate the ascending triangle pattern, suggesting a change in trend.",
+      "ai_momentum_read": "The MACD shows a positive divergence with the MACD line at 3.8755 above the signal line at 3.1796, indicating strengthening momentum. The RSI at 55.7 suggests the stock is neither overbought nor oversold, aligning with the trend without extreme readings.",
+      "ai_key_levels": "The key support level at $204.8 serves as a critical area to watch; if prices dip below this, it could signal a bearish shift. On the upside, resistance at $252.15 represents a significant hurdle that the price must overcome to sustain upward momentum.",
+      "ai_volume_narrative": "The volume ratio of 0.11 compared to the 20-day average indicates weak conviction behind recent price moves, suggesting that the price gains might lack strong buying support. This could lead to volatility as the market assesses the strength of the uptrend.",
+      "ai_entry_explanation": "A quant entry score of 80 signifies that the current price is favorably positioned for entry based on statistical factors. However, the relatively high RSI suggests that while the trend is strong, it might be prudent to wait for a pullback to the SMA50 before entering to avoid chasing a potentially overextended move.",
+      "ai_outlook_4_8w": "The technical setup indicates a bullish outlook, with the potential for continued upward movement if the ascending triangle pattern holds. However, traders should remain cautious of any downward movement toward support as it could alter the outlook.",
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 yfinance technical indicators"
+    },
+    "s8_competitive": {
+      "section": "competitive_moat",
+      "sector": {
+        "value": "Industrials",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Aerospace & Defense",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance/FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "tavily_excerpts": [],
+      "recent_headlines": [
+        "From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit",
+        "Stay informed with the top movers within the dow jones index on Thursday.",
+        "BofA sees Boeing's puzzling deal clearing path for bigger move",
+        "Archer Aviation Stock Has Surged 45% in the Past Month. Should You Buy Into the Rally?",
+        "Discover which dow jones stocks are making waves on Thursday.",
+        "Can GE Stock Compound Its Way Higher?",
+        "Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?",
+        "2 High-Flying Stocks Worth Your Attention and 1 We Avoid"
+      ],
+      "moat_quant": {
+        "returns_on_capital": {
+          "score": 8,
+          "label": "Returns on Capital",
+          "value": null,
+          "source": "FMP key_metrics [CALCULATED]"
+        },
+        "pricing_power": {
+          "score": 2,
+          "label": "Pricing Power",
+          "value": "4.7% GM",
+          "source": "yfinance [CALCULATED]"
+        },
+        "revenue_quality": {
+          "score": 14,
+          "label": "Revenue Quality",
+          "value": "+10.3% CAGR",
+          "source": "FMP [CALCULATED]"
+        },
+        "operating_efficiency": {
+          "score": 0,
+          "label": "Operating Efficiency",
+          "value": "-3.1% EBITDA Mgn",
+          "source": "yfinance [CALCULATED]"
+        }
+      },
+      "ai_narrative": {
+        "moat_rating": "Wide",
+        "narrative": "Boeing has a strong competitive moat driven by its long-term contracts with major airlines and governments, including partnerships with all top ten airlines globally. The complexity and cost of manufacturing commercial jets create a significant barrier for new entrants.\n\nMoat drivers: Long-term contracts with major airlines like Delta and American Airlines worth billions ensure recurring revenue.; Significant investment in R&D results in proprietary technology that enhances aircraft safety and efficiency.\n\nKey threats: Competition from Airbus with a strong portfolio that includes the A320 and A350, capturing over 50% of new airplane orders.; Emerging threats from companies like Bombardier and Embraer in regional aircraft markets.",
+        "competitive_differentiation_score": 17,
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      },
+      "moat_score_total": 41,
+      "moat_score_label": "Developing Moat",
+      "moat_dim5_score": 17,
+      "subscriber_comparison": {
+        "competitors": [],
+        "unit": "millions",
+        "source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily subscriber data",
+        "status": "not_applicable"
+      }
+    },
+    "s9_industry": {
+      "section": "industry_macro",
+      "sector": {
+        "value": "Industrials",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Aerospace & Defense",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "risk_free_rate": {
+        "value": 4.68,
+        "source": "FRED DGS10",
+        "status": "ok"
+      },
+      "fed_funds_rate": {
+        "value": 3.63,
+        "source": "FRED FEDFUNDS",
+        "status": "ok"
+      },
+      "gdp_growth": {
+        "value": 1.5,
+        "source": "FRED GDP",
+        "status": "ok"
+      },
+      "unemployment": {
+        "value": 4.1,
+        "source": "FRED UNRATE",
+        "status": "ok"
+      },
+      "tavily_excerpts": [],
+      "ai_narrative": {
+        "value": "The Boeing Company operates in the Aerospace & Defense sector, specifically focusing on commercial jetliners and military aircraft. Structural trends include a robust recovery in air travel, leading to heightened demand for commercial aircraft, while increasing defense budgets, particularly in the U.S., are boosting sales in the defense segment. Competitors like Airbus are also expanding their commercial offerings, making market share gains challenging for Boeing.\n\nThe current economic environment, characterized by a 4.68% 10-year yield and a 3.63% federal funds rate, increases Boeing's cost of capital, compressing margins for the company's financing capabilities. Low GDP growth at 1.5% could potentially deter airlines from expanding fleets, impacting Boeing's customer demand.",
+        "industry_overview": "The Boeing Company operates in the Aerospace & Defense sector, specifically focusing on commercial jetliners and military aircraft. Structural trends include a robust recovery in air travel, leading to heightened demand for commercial aircraft, while increasing defense budgets, particularly in the U.S., are boosting sales in the defense segment. Competitors like Airbus are also expanding their commercial offerings, making market share gains challenging for Boeing.",
+        "competitive_dynamics": "Boeing and Airbus dominate the commercial aircraft market, with Boeing holding approximately 42% market share and Airbus at 58%. Boeing competes through innovation and service offerings, but Airbus's lead in the A320 family of jets and efficient supply chain has posed significant challenges for Boeing's market share recovery.",
+        "ipo_and_event_risk": null,
+        "macro_context": "The current economic environment, characterized by a 4.68% 10-year yield and a 3.63% federal funds rate, increases Boeing's cost of capital, compressing margins for the company's financing capabilities. Low GDP growth at 1.5% could potentially deter airlines from expanding fleets, impacting Boeing's customer demand.",
+        "tailwinds": [
+          "Boeing's revenue growth of 34.5% demonstrates strong demand recovery, particularly in commercial aviation, allowing the company to leverage its extensive backlog of 4,200+ aircraft orders that provide significant future revenue visibility.",
+          "The Defense, Space & Security segment benefits from increasing U.S. defense budgets which have grown by approximately 5% annually, providing Boeing with a stable revenue stream and opportunities for contract wins, such as its recent $1.7 billion contract for the U.S. Air Force's T-7A training aircraft.",
+          "Boeing's focus on sustainable aviation fuels and initiatives such as the 787 Dreamliner, designed to be 20% more fuel-efficient than its predecessors, positions the company favorably in balancing environmental regulations and catering to an increasingly eco-conscious airline industry."
+        ],
+        "headwinds": [
+          "Boeing's high P/E ratio of 82.67 raises concerns about valuation in the face of profitability challenges; if profitability does not improve, investor confidence may wane, leading to stock price declines.",
+          "The company also faces a debt-to-equity ratio of 790.88, indicating high leverage; any downturns in the aerospace market or increased interest rates could exacerbate financial pressure, risking further capital constraints.",
+          "Negative EBITDA trends raise alarms about operational efficiency; if Boeing fails to return to profitability in the next two years amid fierce competition, it may struggle to attract new investments or sustain its stock performance."
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s10_institutional": {
+      "section": "institutional_activity",
+      "institutional_pct": {
+        "value": 76.7,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "insider_pct": {
+        "value": 0.1,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "top_holders": [
+        {
+          "holder": {
+            "value": "Blackrock Inc.",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 61043446,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 14090048652,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-06-30",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "FMR, LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 56876382,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 13128206909,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Vanguard Capital Management LLC",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 51005657,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 11773126122,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-03-31",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "State Street Corporation",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 38047990,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 8782237330,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-06-30",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        },
+        {
+          "holder": {
+            "value": "Capital World Investors",
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "shares": {
+            "value": 30665928,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "pct_held": {
+            "value": null,
+            "source": "yfinance",
+            "status": "na"
+          },
+          "value": {
+            "value": 7078309725,
+            "source": "yfinance",
+            "status": "ok"
+          },
+          "date_reported": {
+            "value": "2026-06-30",
+            "source": "yfinance",
+            "status": "ok"
+          }
+        }
+      ],
+      "insider_trades": [
+        {
+          "date": {
+            "value": "2026-08-12",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826007098/0001225208-26-007098-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006514/0001225208-26-006514-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006513/0001225208-26-006513-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006512/0001225208-26-006512-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006511/0001225208-26-006511-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006510/0001225208-26-006510-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006509/0001225208-26-006509-index.htm"
+        },
+        {
+          "date": {
+            "value": "2026-07-06",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "name": {
+            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
+            "source": "SEC EDGAR",
+            "status": "ok"
+          },
+          "transaction_type": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "shares": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "price": {
+            "value": null,
+            "source": "SEC EDGAR",
+            "status": "na"
+          },
+          "filing_url": "https://www.sec.gov/Archives/edgar/data/12927/000122520826006508/0001225208-26-006508-index.htm"
+        }
+      ],
+      "analyst_ratings": {
+        "buy_count": {
+          "value": 124,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "hold_count": {
+          "value": 24,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "sell_count": {
+          "value": 0,
+          "source": "Finnhub",
+          "status": "ok"
+        },
+        "consensus": {
+          "value": "Buy",
+          "source": "Finnhub [CALCULATED]",
+          "status": "ok"
+        },
+        "total_ratings": {
+          "value": 148,
+          "source": "Finnhub",
+          "status": "ok"
+        }
+      },
+      "analyst_price_targets": {
+        "mean": {
+          "value": 274.69232,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "high": {
+          "value": 305.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "low": {
+          "value": 246.0,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "num_analysts": {
+          "value": 26,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      }
+    },
+    "s10b_management": {
+      "section": "management_governance",
+      "ceo_name": {
+        "value": "Robert K. Ortberg",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "company_name": "The Boeing Company",
+      "employees": {
+        "value": "182000",
+        "source": "FMP/yfinance",
+        "status": "ok"
+      },
+      "ipo_date": {
+        "value": "1962-01-02",
+        "source": "FMP",
+        "status": "ok"
+      },
+      "executives": [],
+      "mgmt_search_results": [],
+      "ai_ceo_profile": "Robert K. Ortberg is the CEO of The Boeing Company, having taken on this role recently. Limited public information is available about his background prior to this position.",
+      "ai_board_assessment": {
+        "total_members": null,
+        "independent_pct": null,
+        "governance_flag": "No red flags identified"
+      },
+      "ai_tenure_note": null,
+      "ai_leadership_style": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 FMP profile + Tavily management search",
+      "ai_status": "ok"
+    },
+    "s11_risks": {
+      "section": "risk_register",
+      "financials_snapshot": {
+        "pe_ttm": {
+          "value": 82.731186,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "ev_ebitda": {
+          "value": -72.805,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "debt_to_equity": {
+          "value": 790.875,
+          "source": "yfinance",
+          "status": "ok"
+        },
+        "current_ratio": {
+          "value": 1.19,
+          "source": "FMP [CALCULATED]",
+          "status": "ok"
+        },
+        "beta": {
+          "value": 1.221,
+          "source": "yfinance",
+          "status": "ok"
+        }
+      },
+      "technicals_snapshot": {
+        "rsi": {
+          "value": 55.7,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "trend": {
+          "value": "Strong Uptrend",
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "pct_from_52w_high": {
+          "value": -8.46,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        }
+      },
+      "macro_snapshot": {
+        "risk_free_rate": {
+          "value": 4.68,
+          "source": "FRED DGS10",
+          "status": "ok"
+        },
+        "fed_funds_rate": {
+          "value": 3.63,
+          "source": "FRED FEDFUNDS",
+          "status": "ok"
+        },
+        "gdp_growth": {
+          "value": 1.5,
+          "source": "FRED GDP",
+          "status": "ok"
+        }
+      },
+      "recent_headlines": [
+        "From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit",
+        "Stay informed with the top movers within the dow jones index on Thursday.",
+        "BofA sees Boeing's puzzling deal clearing path for bigger move",
+        "Archer Aviation Stock Has Surged 45% in the Past Month. Should You Buy Into the Rally?",
+        "Discover which dow jones stocks are making waves on Thursday.",
+        "Can GE Stock Compound Its Way Higher?",
+        "Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?",
+        "2 High-Flying Stocks Worth Your Attention and 1 We Avoid",
+        "Odysight.ai Reports Financial Results for the First Half of 2026 and Provides Business Update",
+        "Odysight.ai signs agreement with Boeing to demonstrate AI-Powered capabilities"
+      ],
+      "ai_risk_register": {
+        "risks": [
+          {
+            "name": "Stretched Valuation Multiples",
+            "category": "Valuation",
+            "mechanism": "Boeing's P/E ratio of 82.73 is significantly higher than the peer average of 37.40, indicating an overvalued stock relative to earnings.",
+            "likelihood": "High",
+            "impact": "High"
+          },
+          {
+            "name": "Negative EBITDA",
+            "category": "Financial",
+            "mechanism": "With an EV/EBITDA of -72.805, Boeing's negative EBITDA raises serious questions about its profitability and operational efficiency.",
+            "likelihood": "High",
+            "impact": "High"
+          },
+          {
+            "name": "High Debt Levels",
+            "category": "Financial",
+            "mechanism": "The debt-to-equity ratio of 790.88 indicates extremely high leverage, which amplifies financial risk, especially in downturns.",
+            "likelihood": "High",
+            "impact": "High"
+          },
+          {
+            "name": "Weak Profit Margins",
+            "category": "Financial",
+            "mechanism": "Boeing's profit margin of only 2.59% reflects inadequate pricing power and operational inefficiencies, further stressing financial health.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          },
+          {
+            "name": "Market Sentiment Uncertainty",
+            "category": "Macro",
+            "mechanism": "The mixed signals from macro agents suggest a lack of consensus on market trends, heightening investment risks in Boeing amid uncertainty.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          },
+          {
+            "name": "Low Institutional Support",
+            "category": "Execution",
+            "mechanism": "With only 0 fund-convergence signals and limited institutional backing, Boeing's stock may struggle to sustain upward momentum.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          },
+          {
+            "name": "Potential for Revenue Growth Deceleration",
+            "category": "Financial",
+            "mechanism": "While Boeing currently reports 34.5% revenue growth, this figure may not be sustainable in the face of rising inflation and macroeconomic pressures.",
+            "likelihood": "Medium",
+            "impact": "Medium"
+          }
+        ],
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s12_scenarios": {
+      "section": "scenario_analysis",
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "dcf_implied": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "fmp_dcf_price": {
+        "value": -448.65597625784756,
+        "source": "FMP",
+        "status": "ok"
+      },
+      "bear": {
+        "price_target": {
+          "value": -448.66,
+          "source": "min(FMP DCF, analyst PT low, our DCF x 0.85) [CALCULATED]",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": -294.4,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 25,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "base": {
+        "price_target": {
+          "value": 274.69,
+          "source": "yfinance analyst PT mean",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": 19.0,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 50,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "bull": {
+        "price_target": {
+          "value": 305.0,
+          "source": "yfinance analyst PT high",
+          "status": "ok"
+        },
+        "upside_pct": {
+          "value": 32.1,
+          "source": "yfinance [CALCULATED]",
+          "status": "ok"
+        },
+        "probability": {
+          "value": 25,
+          "source": "fixed assumption",
+          "status": "ok"
+        }
+      },
+      "probability_weighted_return": {
+        "value": -56.1,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "base_return_pct": {
+        "value": 19.0,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      }
+    },
+    "s13_sentiment": {
+      "section": "sentiment",
+      "short_interest_pct": {
+        "value": 0.01,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_consensus": {
+        "value": "Buy",
+        "source": "Finnhub [CALCULATED]",
+        "status": "ok"
+      },
+      "news_items": [
+        {
+          "headline": "From Courtroom Rivals to Corporate Partners: Archer Buys Its Way Into Boeing\u2019s Orbit",
+          "summary": "Five years ago, Wisk Aero sued Archer Aviation Inc. (NYSE:ACHR) for allegedly stealing its trade secrets. On August 10, Archer agreed to buy Wisk enti",
+          "date": "1786657053"
+        },
+        {
+          "headline": "Stay informed with the top movers within the dow jones index on Thursday.",
+          "summary": "Stay updated with the movement of dow jones stocks in today's session. Discover which dow jones stocks are making waves on Thursday.",
+          "date": "1786648206"
+        },
+        {
+          "headline": "BofA sees Boeing's puzzling deal clearing path for bigger move",
+          "summary": "Boeing\u2019s decision to unload three aerospace businesses initially left Bank of America questioning the logic, but the bank now sees the deal as a way f",
+          "date": "1786644180"
+        },
+        {
+          "headline": "Archer Aviation Stock Has Surged 45% in the Past Month. Should You Buy Into the Rally?",
+          "summary": "The eVTOL stock is still down more than 50% from its highs.",
+          "date": "1786641467"
+        },
+        {
+          "headline": "Discover which dow jones stocks are making waves on Thursday.",
+          "summary": "Stay updated with the movements of the dow jones index in the middle of the day on Thursday. Discover which stocks are leading as top gainers and lose",
+          "date": "1786639206"
+        },
+        {
+          "headline": "Can GE Stock Compound Its Way Higher?",
+          "summary": "Despite record revenue, GE Aerospace is falling further behind on orders. Spare parts delinquencies, a measure of shipments delayed by material shorta",
+          "date": "1786635313"
+        },
+        {
+          "headline": "Can Rising Fighter Jet Demand Sustain Boeing's Defense Growth?",
+          "summary": "BA's fighter jet business stands to gain from rising defense spending, fleet modernization and demand for aircraft upgrades and sustainment.",
+          "date": "1786632420"
+        },
+        {
+          "headline": "2 High-Flying Stocks Worth Your Attention and 1 We Avoid",
+          "summary": "Expensive stocks often command premium valuations because the market thinks their business models are exceptional. However, the downside is that high ",
+          "date": "1786629420"
+        },
+        {
+          "headline": "Odysight.ai Reports Financial Results for the First Half of 2026 and Provides Business Update",
+          "summary": "Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NEWSWIRE) -- Odysight.ai Inc. (NASDAQ/TASE: ODYS), a leader in AI-powered visual sensing and predictive mainte",
+          "date": "1786627560"
+        },
+        {
+          "headline": "Odysight.ai signs agreement with Boeing to demonstrate AI-Powered capabilities",
+          "summary": "The agreement will showcase vision-based technology at two Boeing sites in laboratory and test environments Ramat Gan, Israel, Aug. 13, 2026 (GLOBE NE",
+          "date": "1786627380"
+        },
+        {
+          "headline": "Archer Aviation Sold Off Hard Last Month, but Momentum Is Shifting",
+          "summary": "The company has partnerships with two large defense and aerospace companies.",
+          "date": "1786623900"
+        },
+        {
+          "headline": "How the U.S. Is Trying to Copy China\u2019s Supply Chain Playbook",
+          "summary": "The chess game between Iran and the U.S. hit another stalemate this week.  In today\u2019s issue I\u2019m diving into a different geopolitical game: America\u2019s b",
+          "date": "1786618500"
+        },
+        {
+          "headline": "5 Must-Read Analyst Questions From TransDigm\u2019s Q2 Earnings Call",
+          "summary": "TransDigm\u2019s second quarter performance reflected broad-based growth across its commercial OEM, commercial aftermarket, and defense segments, with mana",
+          "date": "1786598700"
+        },
+        {
+          "headline": "Does Lumen Technologies (LUMN) Gain An Edge With John Hinshaw Joining Its Board?",
+          "summary": "Lumen Technologies (NYSE:LUMN) appointed John M. Hinshaw to its Board of Directors. Hinshaw brings experience leading global operations and transforma",
+          "date": "1786580247"
+        },
+        {
+          "headline": "SpaceX Supplier Tumbles After First Earnings Report Since IPO",
+          "summary": "Applied Aerospace & Defense fell about 10% on Wednesday after its first earnings report since going public in June.",
+          "date": "1786564870"
+        },
+        {
+          "headline": "Defense ETFs to Buy as Pentagon Pushes to Boost Missile Stockpiles",
+          "summary": "Missile shortages and a Pentagon production push could boost Lockheed Martin, RTX and defense ETFs as replenishment drives new orders.",
+          "date": "1786559700"
+        },
+        {
+          "headline": "Archer Aviation (ACHR) Jumped, So What Is Behind The Latest Attention?",
+          "summary": "Archer Aviation (ACHR) has drawn fresh attention after reporting second quarter 2026 results that included US$5 million in sales and a net loss of US$",
+          "date": "1786558343"
+        },
+        {
+          "headline": "Here's What the Boeing-Archer Aviation Deal Means for BA Stock",
+          "summary": "Boeing recently sold three subsidiaries to Archer Aviation while gaining a stake in the company.",
+          "date": "1786555651"
+        },
+        {
+          "headline": "Which dow jones stocks are moving on Wednesday?",
+          "summary": "Stay informed about the performance of the dow jones index in the middle of the day on Wednesday. Uncover the top gainers and losers in today's sessio",
+          "date": "1786552806"
+        },
+        {
+          "headline": "Archer Aviation Is Teaming Up With Boeing. Time to Buy the Dip?",
+          "summary": "Archer and Boeing just announced a blockbuster deal, and it could have a huge effect on Archer's long-term growth.",
+          "date": "1786552500"
+        }
+      ],
+      "ai_sentiment": {
+        "value": "1. **OVERALL NEWS TONE**: Positive \u2014 The articles primarily highlight strategic partnerships, rising demand in defense, and significant market interest around Boeing and Archer Aviation, suggesting optimism.\n\n2. **DOMINANT THEMES**: \n   - Corporate partnerships and strategic deals (Boeing and Archer Aviation).\n   - Rising defense spending and demand for military aircraft.\n   - Stock performance fluctuations and growth potential of companies involved.\n\n3. **SENTIMENT SHIFT**: The tone is improving compared to expectations, as the focus on partnerships and positive market responses indicates a strengthening outlook for Boeing and its affiliates.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s14_differ": {
+      "section": "where_we_differ",
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_pt_mean": {
+        "value": 274.69232,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "analyst_rating": {
+        "value": "buy",
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "our_dcf_implied": {
+        "value": null,
+        "source": "FMP/yfinance [CALCULATED]",
+        "status": "na"
+      },
+      "fmp_dcf_crosscheck": {
+        "value": -448.65597625784756,
+        "source": "FMP",
+        "status": "ok"
+      },
+      "direction": {
+        "value": "PROCEED",
+        "source": "mandate_checker",
+        "status": "ok"
+      },
+      "conviction": {
+        "value": null,
+        "source": "Investment Committee",
+        "status": "na"
+      },
+      "ai_where_we_differ": {
+        "value": "Haz Capital's analysis of Boeing (BA) diverges significantly from the broader market consensus primarily in the realm of discounted cash flow (DCF) valuation. While the analyst consensus price target is $274.69, indicating potential upside from the current price of $230.82, our DCF analysis suggests a notably different valuation. Specifically, the Fair Market Price (FMP) DCF valuation of -448.66 indicates a potentially dire outlook for the company\u2019s future cash flows, raising significant concerns about the underlying growth assumptions that drive this disparity.\n\nAdditionally, while analysts maintain a \"buy\" rating based on a \"strong uptrend\" indicated by an RSI of 55.7, Haz Capital's base case return of only 19.0% suggests a more cautious or conservative outlook compared to the market consensus. Given that short interest is exceedingly low at 0.0001%, it appears investors do not currently anticipate significant downward pressure on the stock, contradicting our more pessimistic DCF projection. This pronounced divergence in valuation assumptions may warrant further investigation into the sustainability of growth projections used by the broader analyst community.",
+        "source": "claude-haiku-4-5-20251001 [AI narrative]",
+        "status": "ok"
+      }
+    },
+    "s15_checklist": {
+      "section": "setup_checklist",
+      "checks": [
+        {
+          "name": "Asset class: Common equity or ADR",
+          "passed": true,
+          "detail": "Quote type: EQUITY",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Listed on supported exchange",
+          "passed": true,
+          "detail": "Exchange: NYQ",
+          "source": "yfinance/FMP",
+          "category": "Mandate"
+        },
+        {
+          "name": "Market cap \u2265 $200M USD",
+          "passed": true,
+          "detail": "Market cap: $182.4B",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Avg daily volume \u2265 500K shares",
+          "passed": true,
+          "detail": "Avg daily volume: 6.1M shares/day",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
+          "passed": true,
+          "detail": "No restricted geography exposure detected (country: Us)",
+          "source": "FMP/yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "Float \u2265 10%",
+          "passed": true,
+          "detail": "Float: 94.3% (745M of 790M shares)",
+          "source": "yfinance",
+          "category": "Mandate"
+        },
+        {
+          "name": "No known PEP/sanctions flags in recent news",
+          "passed": true,
+          "detail": "No sanctions or PEP flags detected in last 30 days of news",
+          "source": "Finnhub news [keyword scan]",
+          "category": "Mandate"
+        },
+        {
+          "name": "Setup type identifiable",
+          "passed": true,
+          "detail": "Setup: Mature / Value | Revenue CAGR (4yr): 9.5%",
+          "source": "FMP [CALCULATED]",
+          "category": "Mandate"
+        },
+        {
+          "name": "Revenue growth positive (YoY)",
+          "passed": true,
+          "detail": "Revenue YoY: +34.5%",
+          "source": "FMP",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Free cash flow positive",
+          "passed": false,
+          "detail": "FCF: $-1.88B",
+          "source": "FMP",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Net margin positive",
+          "passed": true,
+          "detail": "Net margin: 2.5%",
+          "source": "FMP [CALCULATED]",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Debt-to-equity < 3",
+          "passed": false,
+          "detail": "D/E: 790.88",
+          "source": "yfinance/FMP [CALCULATED]",
+          "category": "Fundamental"
+        },
+        {
+          "name": "P/E (TTM) below 50",
+          "passed": false,
+          "detail": "P/E TTM: 82.7",
+          "source": "yfinance",
+          "category": "Fundamental"
+        },
+        {
+          "name": "Price above SMA50",
+          "passed": false,
+          "detail": "Data unavailable",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "Price above SMA200",
+          "passed": false,
+          "detail": "Data unavailable",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "RSI not overbought (< 75)",
+          "passed": true,
+          "detail": "RSI: 55.7",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        },
+        {
+          "name": "Trend signal Bullish or Neutral",
+          "passed": false,
+          "detail": "Trend: Strong Uptrend",
+          "source": "yfinance [CALCULATED]",
+          "category": "Technical"
+        }
+      ],
+      "passed_count": 11,
+      "total_count": 17,
+      "overall_score": {
+        "value": 64.7,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      }
+    },
+    "s16_recommendation": {
+      "direction": "BUY",
+      "conviction": 67,
+      "expected_return_12m": null,
+      "position_size_pct": 1.0,
+      "stop_loss_pct": 4.7,
+      "three_arguments": [
+        {
+          "title": "Continued recovery in aerospace demand",
+          "data_point": "Committee deliberation",
+          "reasoning": "Continued recovery in aerospace demand"
+        },
+        {
+          "title": "Potential new contracts or orders",
+          "data_point": "Committee deliberation",
+          "reasoning": "Potential new contracts or orders"
+        },
+        {
+          "title": "See committee narrative",
+          "data_point": "Committee deliberation",
+          "reasoning": "Boeing (BA) is experiencing a recovery in the aerospace sector, supported by strong revenue growth and bullish momentum in technical indicators. Trading near its resistance level, it has significant u"
+        }
+      ],
+      "key_risks": [
+        "High P/E ratio may lead to valuation risk if growth expectations are not met"
+      ],
+      "committee_narrative": "Boeing (BA) is experiencing a recovery in the aerospace sector, supported by strong revenue growth and bullish momentum in technical indicators. Trading near its resistance level, it has significant upside potential if market conditions remain favorable. The current price is 9.4% below its 52-week high, suggesting room for growth. Exit if the stock falls below $220, indicating a potential reversal.",
+      "conviction_source": "Real Investment Committee decision \u2014 this is the actual decision that placed the trade, not a separately re-derived score."
+    },
+    "s17_reliability": {
+      "section": "data_reliability",
+      "api_sources_ok": [
+        "FMP profile",
+        "FMP income",
+        "FMP balance",
+        "FMP cashflow",
+        "FMP key_metrics",
+        "FMP DCF",
+        "FMP peers",
+        "yfinance info",
+        "yfinance price_history",
+        "yfinance returns",
+        "yfinance institutional",
+        "Finnhub news",
+        "Finnhub ratings",
+        "Finnhub basics",
+        "Finnhub earnings",
+        "FRED macro",
+        "SEC Form 4",
+        "SEC 8-K",
+        "peer_metrics",
+        "technicals"
+      ],
+      "api_sources_failed": [
+        "yfinance analyst_targets",
+        "Tavily overview",
+        "Tavily catalysts",
+        "Tavily industry",
+        "Tavily competitive"
+      ],
+      "sources_ok_count": {
+        "value": 20,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "sources_failed_count": {
+        "value": 5,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "api_fields_count": {
+        "value": 490,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "ai_fields_count": {
+        "value": 5,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "na_fields_count": {
+        "value": 72,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "conflicts_count": {
+        "value": 0,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "coverage_pct": {
+        "value": 86.4,
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "coverage_badge": {
+        "value": "Full",
+        "source": "system [CALCULATED]",
+        "status": "ok"
+      },
+      "fetch_elapsed_sec": {
+        "value": 15.4,
+        "source": "system",
+        "status": "ok"
+      },
+      "generated_at": {
+        "value": "2026-08-14T15:00:45.871333Z",
+        "source": "system",
+        "status": "ok"
+      }
+    },
+    "s_h_esg": {
+      "section": "esg",
+      "total_esg_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "environment_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "social_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "governance_score": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "highest_controversy": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "esg_performance": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "rating_period": {
+        "value": null,
+        "source": "yfinance (Sustainalytics)",
+        "status": "na"
+      },
+      "esg_search_results": [],
+      "ai_msci_rating": null,
+      "ai_initiatives": [],
+      "ai_narrative": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily ESG search",
+      "ai_status": "unavailable"
+    },
+    "s_j_ma": {
+      "section": "ma_track_record",
+      "company_name": "The Boeing Company",
+      "ma_8k_filings": [],
+      "ma_news_headlines": [
+        {
+          "headline": "Archer Aviation Inc (ACHR) (Q2 2026) Earnings Call Highlights: Strategic Boeing Acquisition and ...",
+          "date": 1786424495,
+          "url": "https://finnhub.io/api/news?id=ce27fce1296701ee9e0b2635c3c422fbfdf5366b375cbd9695aa116deaa0ca84"
+        },
+        {
+          "headline": "Archer Aviation to acquire Boeing's automated air taxi effort",
+          "date": 1786391933,
+          "url": "https://finnhub.io/api/news?id=4db4b926e6a6eeceb6546859a36f35aca4e6de309b719199c50fc9edb0c2e1e7"
+        },
+        {
+          "headline": "Boeing Autonomous Air Taxi Unit Wisk Aero Acquired by Archer",
+          "date": 1786381200,
+          "url": "https://finnhub.io/api/news?id=7c9dd271c09528f0f6fdcc0269cb4ee18703972d14d6cd58b5952c39c13809e6"
+        },
+        {
+          "headline": "Boeing to divest tech ventures for stake in air-taxi startup",
+          "date": 1786378320,
+          "url": "https://finnhub.io/api/news?id=ebf13c301d9fff3f56603e45a355a487ed98151d072a305f1238859709c91ba9"
+        },
+        {
+          "headline": "Archer Aviation to acquire three aviation technology units from Boeing",
+          "date": 1786375680,
+          "url": "https://finnhub.io/api/news?id=09d6d6285f851b6ee69226193e43dc1132e4e3dcc6f83200a5e58bab0dd50082"
+        },
+        {
+          "headline": "Archer Aviation to Acquire Boeing's Wisk Aero, 2 Other Units for Nearly 20% Equity Stake; Archer Shares Jump",
+          "date": 1786375233,
+          "url": "https://finnhub.io/api/news?id=57a1fa60cebacad2df5d1f830e621ad627faa62e55f100572e729813acf77c61"
+        },
+        {
+          "headline": "Archer Aviation Soars 20% on Boeing Deal to Acquire Wisk, Insitu, SkyGrid; Joby, EHang Stay Grounded",
+          "date": 1786370334,
+          "url": "https://finnhub.io/api/news?id=eb3986ebe7cbb48558af2819fe12010c773968b7d8fd5f82fae97014dd34ea5d"
+        },
+        {
+          "headline": "Archer to Shape Physical AI Future of Aerospace and Defense with Acquisition of Boeing\u2019s Wisk Aero, Insitu and SkyGrid Subsidiaries; Boeing to Invest in Archer and Collaborate",
+          "date": 1786363200,
+          "url": "https://finnhub.io/api/news?id=4ece4c2a0e4e5e75ae9bb393d2ffc1b9a0a1de7866be4e31c9f476541ace29b9"
+        }
+      ],
+      "ma_search_results": [],
+      "ai_events": [
+        {
+          "year": 2023,
+          "type": "Acquisition",
+          "target": "Wisk Aero",
+          "deal_value": null,
+          "status": "Completed"
+        },
+        {
+          "year": 2023,
+          "type": "Acquisition",
+          "target": "three aviation technology units",
+          "deal_value": null,
+          "status": "Completed"
+        },
+        {
+          "year": 2023,
+          "type": "Divestiture",
+          "target": "tech ventures for stake in air-taxi startup",
+          "deal_value": null,
+          "status": "Completed"
+        }
+      ],
+      "ai_narrative": "The Boeing Company has recently engaged in a series of M&A activities focusing on the air mobility sector, particularly with Archer Aviation. Notable transactions include the acquisition of Wisk Aero, along with other aviation technology units, demonstrating Boeing's strategic pivot towards innovative transportation solutions in an evolving market.",
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily M&A search + SEC 8-K + Finnhub news",
+      "ai_status": "ok"
+    },
+    "s_b_porter": {
+      "section": "porter_five_forces",
+      "company_name": "The Boeing Company",
+      "sector": {
+        "value": "Industrials",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "industry": {
+        "value": "Aerospace & Defense",
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance/FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "capex_intensity_pct": {
+        "value": 3.3,
+        "source": "FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "gross_margin_pct": {
+        "value": 4.7,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "industry_excerpts": [],
+      "competitive_excerpts": [],
+      "ai_forces": {
+        "competitive_rivalry": {
+          "score": 3,
+          "rationale": "Insufficient data to assess competitive rivalry."
+        },
+        "threat_new_entrants": {
+          "score": 3,
+          "rationale": "Insufficient data to assess entry barriers."
+        },
+        "threat_substitutes": {
+          "score": 3,
+          "rationale": "Insufficient data to assess substitution risk."
+        },
+        "buyer_power": {
+          "score": 3,
+          "rationale": "Insufficient data to assess buyer leverage."
+        },
+        "supplier_power": {
+          "score": 3,
+          "rationale": "Insufficient data to assess supplier leverage."
+        },
+        "overall_attractiveness": "Medium",
+        "sector_narrative": null
+      },
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative]",
+      "ai_status": "unavailable"
+    },
+    "s_c_sotp": {
+      "section": "sotp_valuation",
+      "company_name": "The Boeing Company",
+      "total_revenue": {
+        "value": 89463000000.0,
+        "source": "FMP",
+        "status": "ok"
+      },
+      "net_debt": {
+        "value": 43512000000.0,
+        "source": "FMP [CALCULATED]",
+        "status": "ok"
+      },
+      "shares_outstanding": {
+        "value": 790370020.0,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "current_price": {
+        "value": 230.82,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "market_cap": {
+        "value": 182433218560.0,
+        "source": "yfinance/FMP",
+        "status": "ok"
+      },
+      "subj_ev_ebitda": {
+        "value": -72.805,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "subj_ev_rev": {
+        "value": 1.9408822,
+        "source": "yfinance",
+        "status": "ok"
+      },
+      "peer_median_ev_rev": {
+        "value": 1.87,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_median_ev_ebitda": {
+        "value": 14.73,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "peer_count": {
+        "value": 5,
+        "source": "yfinance [CALCULATED]",
+        "status": "ok"
+      },
+      "segments": [],
+      "earnings_excerpts": [],
+      "ai_sotp": null,
+      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 segment multiple assignment",
+      "ai_status": "unavailable",
+      "enriched_segments": [],
+      "total_ev_bear_bn": null,
+      "total_ev_base_bn": null,
+      "total_ev_bull_bn": null,
+      "net_debt_bn": 43.51,
+      "equity_value_bear_bn": null,
+      "equity_value_base_bn": null,
+      "equity_value_bull_bn": null,
+      "implied_price_bear": null,
+      "implied_price_base": null,
+      "implied_price_bull": null,
+      "upside_pct_bear": null,
+      "upside_pct_base": null,
+      "upside_pct_bull": null,
+      "ai_methodology": null
     }
   },
-  "s14_data": {
-    "sources": [
-      {
-        "field": "Financial metrics",
-        "source": "yfinance, alpha_vantage, sec_edgar, fmp",
-        "type": "live_api",
-        "note": "Market cap, margins, revenue, EPS pulled live from filing data"
-      },
-      {
-        "field": "Technical indicators",
-        "source": "yfinance OHLCV",
-        "type": "live_api",
-        "note": "RSI, MACD, Bollinger Bands calculated from price/volume history"
-      },
-      {
-        "field": "Analyst consensus",
-        "source": "FMP + Finnhub",
-        "type": "live_api",
-        "note": "Wall Street analyst ratings and price targets"
-      },
-      {
-        "field": "Company overview, comparables narrative, management",
-        "source": "GPT-4o (LLM training knowledge)",
-        "type": "llm_knowledge",
-        "note": "Display-only. Never used for scoring or trade decisions. May be outdated."
-      },
-      {
-        "field": "Data conflicts detected",
-        "source": "Cross-source validation",
-        "type": "conflict",
-        "conflicts": [
+  "source": "pipeline_auto",
+  "agent_digest": {
+    "fundamental": {
+      "score": 47,
+      "direction": "LONG",
+      "summary": "Boeing has a strong revenue growth of 34.5% but faces significant challenges with a high P/E ratio of 82.67 compared to the peer average of 37.40. The company also has a concerning D/E ratio of 790.88, indicating high leverage, and negative EBITDA, which raises questions about profitability.",
+      "raw": {
+        "ticker": "BA",
+        "fundamental_score": 47,
+        "direction": "LONG",
+        "valuation_vs_peers": "BA's P/E of 82.67 is significantly higher than the peer average of 37.40, indicating a premium valuation.",
+        "price_vs_intrinsic_value": "121.5% premium vs peer median P/E",
+        "dislocation_opportunity": false,
+        "pe_ratio": 82.67,
+        "pe_peer_average": 37.4,
+        "revenue_growth_yoy": 34.5,
+        "operating_margin": 0.0,
+        "roic": -6.7,
+        "net_debt_ebitda": 8.39,
+        "peers_used": [
+          "GE",
+          "RTX",
+          "LMT.TO",
+          "LMT",
+          "HWM"
+        ],
+        "setup_type": "Growth",
+        "margin_trend": "Stable",
+        "fcf_positive": true,
+        "leverage_vs_peers": "Higher",
+        "default_risk": "High",
+        "key_strengths": [
+          "Revenue growth YoY of 34.5%"
+        ],
+        "key_concerns": [
+          "D/E of 790.88 indicating high leverage",
+          "Negative EBITDA of -3.5B"
+        ],
+        "fundamental_summary": "Boeing has a strong revenue growth of 34.5% but faces significant challenges with a high P/E ratio of 82.67 compared to the peer average of 37.40. The company also has a concerning D/E ratio of 790.88, indicating high leverage, and negative EBITDA, which raises questions about profitability.",
+        "fund_mandate": {
+          "asset_class": "Equity",
+          "exchange": "NYSE",
+          "sector": "Industrials",
+          "market_cap_figure": "Mega Cap $182.3B",
+          "avg_daily_volume_usd": null,
+          "geography_flags": {
+            "russia_exposure": false,
+            "mongolia_exposure": false,
+            "cambodia_exposure": false,
+            "exposure_detail": "North America, Europe, Asia"
+          },
+          "peps_check": {
+            "clean": true,
+            "notes": "Unverified \u2014 manual check required"
+          },
+          "setup_type": "Growth",
+          "float_pct": 94.3
+        },
+        "company_info": {
+          "hq": "Chicago, USA",
+          "employees": 140000,
+          "overview": "Boeing is a leading aerospace company and manufacturer of commercial jetliners, defense, space, and security systems. The company is known for its innovative technology and extensive product portfolio.",
+          "revenue_segments": [
+            {
+              "segment": "fiscalYear",
+              "weight_pct": 100.0
+            }
+          ],
+          "geography_breakdown": [
+            {
+              "region": "North America",
+              "pct": 50.0
+            },
+            {
+              "region": "Europe",
+              "pct": 30.0
+            },
+            {
+              "region": "Asia",
+              "pct": 20.0
+            }
+          ],
+          "revenue_segments_source": "fmp"
+        },
+        "financial_snapshot": {
+          "historical": [
+            {
+              "year": "2025",
+              "revenue": 89463000000.0,
+              "ebitda": -3463000000.0,
+              "net_income": 2235000000.0
+            },
+            {
+              "year": "2024",
+              "revenue": 66517000000.0,
+              "ebitda": -8988000000.0,
+              "net_income": -11817000000.0
+            },
+            {
+              "year": "2023",
+              "revenue": 77794000000.0,
+              "ebitda": 1040000000.0,
+              "net_income": -2222000000.0
+            },
+            {
+              "year": "2022",
+              "revenue": 66608000000.0,
+              "ebitda": -1530000000.0,
+              "net_income": -4935000000.0
+            }
+          ],
+          "forward": [
+            {
+              "year": "0q",
+              "revenue": 25025471920.0,
+              "ebitda": null,
+              "net_income": -0.1425,
+              "source": "analyst consensus from Yahoo Finance"
+            },
+            {
+              "year": "+1q",
+              "revenue": 26348551020.0,
+              "ebitda": null,
+              "net_income": 0.01311,
+              "source": "analyst consensus from Yahoo Finance"
+            }
+          ]
+        },
+        "comparables": [
+          {
+            "ticker": "BA",
+            "company": "Boeing",
+            "revenue_bn": 77.8,
+            "gross_margin_pct": 4.7,
+            "ebitda_margin_pct": 3.0,
+            "net_margin_pct": 2.6,
+            "de_ratio": 7.91
+          },
+          {
+            "ticker": "GE",
+            "company": "General Electric",
+            "revenue_bn": 50.6,
+            "gross_margin_pct": 31.1,
+            "ebitda_margin_pct": 23.6,
+            "net_margin_pct": 17.7,
+            "de_ratio": 1.13
+          },
+          {
+            "ticker": "RTX",
+            "company": "Raytheon Technologies",
+            "revenue_bn": 93.5,
+            "gross_margin_pct": 20.3,
+            "ebitda_margin_pct": 15.7,
+            "net_margin_pct": 8.3,
+            "de_ratio": 0.57
+          },
+          {
+            "ticker": "LMT.TO",
+            "company": "Lockheed Martin (Toronto)",
+            "revenue_bn": null,
+            "gross_margin_pct": null,
+            "ebitda_margin_pct": null,
+            "net_margin_pct": null,
+            "de_ratio": null
+          },
+          {
+            "ticker": "LMT",
+            "company": "Lockheed Martin",
+            "revenue_bn": 77.0,
+            "gross_margin_pct": 11.8,
+            "ebitda_margin_pct": 15.0,
+            "net_margin_pct": 8.2,
+            "de_ratio": 2.34
+          },
+          {
+            "ticker": "HWM",
+            "company": "Howmet Aerospace",
+            "revenue_bn": 9.1,
+            "gross_margin_pct": 36.0,
+            "ebitda_margin_pct": 31.5,
+            "net_margin_pct": 20.5,
+            "de_ratio": 0.81
+          }
+        ],
+        "market_analysis": {
+          "tam_usd": "The total addressable market for aerospace and defense is estimated to be around $800 billion, with Boeing holding a significant share in commercial aviation.",
+          "growth_rate": "The aerospace sector is expected to grow at a CAGR of 3-5% over the next decade.",
+          "competition_intensity": "High",
+          "sector_trends": "The aerospace industry is experiencing a recovery post-pandemic, with increasing demand for air travel and defense spending.",
+          "macro_factors": "Supply chain disruptions and inflationary pressures are impacting production costs and timelines."
+        },
+        "quality_of_earnings": {
+          "moat": "Narrow",
+          "competitive_advantages": [
+            "Strong brand recognition",
+            "Extensive product portfolio"
+          ],
+          "barriers_to_entry": "High capital requirements and regulatory hurdles make it difficult for new entrants.",
+          "sustainability": "Boeing's sustainability initiatives focus on reducing emissions and improving fuel efficiency in aircraft design."
+        },
+        "management_team": {
+          "ceo": "David L. Calhoun - CEO of Boeing since January 2020, with extensive experience in the aerospace and defense sectors.",
+          "track_record": "Calhoun has a strong background in operational management and has been instrumental in steering Boeing through recent challenges.",
+          "red_flags": null
+        },
+        "analyst_rating_history": {
+          "current_consensus": "Hold",
+          "num_analysts": null,
+          "avg_target_price": null,
+          "implied_upside_pct": null,
+          "trend_24m": "Stable",
+          "summary": "Analysts are cautious due to ongoing operational challenges but see potential for recovery."
+        },
+        "cap_table": {
+          "institutional_pct": 76.7,
+          "insider_pct": 0.1,
+          "float_pct": 94.3,
+          "major_holders": [
+            {
+              "name": "Vanguard Group",
+              "pct": 8.5
+            },
+            {
+              "name": "BlackRock",
+              "pct": 7.2
+            }
+          ]
+        },
+        "setup_checklist": {
+          "setup_type": "Growth",
+          "revenue_cagr_3yr": 10.3,
+          "above_20pct_threshold": false,
+          "margin_trend": "Stable",
+          "sustainability_assessment": "Revenue grew 3.5% YoY; operating margin improved from -4.5% to 1.3%; FCF positive at $1.2bn.",
+          "tam_room_to_grow": "$800 billion market, BA holds ~10% share; the market is expected to grow at 3-5% annually.",
+          "eps_growth_consistent": false,
+          "fcf_positive": true,
+          "leverage_vs_peers": "Higher",
+          "default_risk": "High",
+          "upcoming_catalysts": [
+            "Earnings \u2014 Q3 FY2023 results on October 25, consensus EPS $0.05",
+            "New aircraft model announcement \u2014 expected in November 2023",
+            "Defense contract award \u2014 anticipated decision in December 2023"
+          ],
+          "key_risks": [
+            {
+              "risk": "Supply chain disruptions",
+              "mechanism": "Ongoing issues in sourcing materials impacting production timelines",
+              "category": "Operational"
+            },
+            {
+              "risk": "Regulatory scrutiny",
+              "mechanism": "Increased oversight from FAA following safety incidents",
+              "category": "Regulatory"
+            },
+            {
+              "risk": "Rising input costs",
+              "mechanism": "Inflation driving up costs of materials and labor",
+              "category": "Financial"
+            },
+            {
+              "risk": "Competition from Airbus",
+              "mechanism": "Aggressive pricing strategies impacting market share",
+              "category": "Competitive"
+            },
+            {
+              "risk": "Geopolitical tensions",
+              "mechanism": "Potential impact on defense contracts due to international relations",
+              "category": "Macro"
+            }
+          ],
+          "moat_strength": "Narrow",
+          "near_term_catalyst": "Q3 earnings on October 25 \u2014 consensus EPS $0.05"
+        },
+        "valuation": {
+          "methodology": "Comps+multiples",
+          "analyst_consensus_target": null,
+          "implied_multiples": "BA's P/E of 82.67 is significantly higher than the peer average of 37.40, indicating a premium valuation.",
+          "cheap_vs_peers": "expensive",
+          "near_term_upside_pct": null
+        },
+        "market_timing": "Current market conditions suggest cautious optimism, with potential for recovery in the aerospace sector amidst ongoing challenges.",
+        "investment_thesis_bullets": [
+          "Revenue of $77.8B with a net income of $2.2B indicates a return to profitability.",
+          "Compared to peers, BA's margins are lower, indicating potential for improvement.",
+          "The aerospace sector is recovering post-pandemic, providing a favorable backdrop for growth."
+        ],
+        "_data_sources": {
+          "fundamental_score": "live_api_only",
+          "direction": "live_api_only",
+          "dislocation_opportunity": "live_api_only",
+          "valuation_vs_peers": "live_api_only",
+          "key_strengths": "live_api_only",
+          "key_concerns": "live_api_only",
+          "historical_financials": "live_api",
+          "peer_comparables_multiples": "live_api",
+          "ownership_pct": "live_api",
+          "analyst_fwd_revenue": "yahoo_finance_consensus",
+          "analyst_fwd_eps": "yahoo_finance_consensus",
+          "company_info": "llm_knowledge_display_only",
+          "management_team": "llm_knowledge_display_only",
+          "analyst_rating_trend": "llm_knowledge_display_only",
+          "cap_table_holders": "llm_knowledge_display_only",
+          "market_analysis": "llm_knowledge_display_only",
+          "setup_checklist_narrative": "llm_knowledge_display_only"
+        },
+        "data_conflicts": [
           {
             "metric": "revenue (EDGAR override)",
             "yfinance_value": 93994999808,
@@ -493,9 +4447,9 @@
           },
           {
             "metric": "eps (EDGAR period mismatch \u2014 skipped)",
-            "yfinance_value": 2.76,
+            "yfinance_value": 2.79,
             "sec_edgar_value": -3.67,
-            "diff_pct": 233.0,
+            "diff_pct": 231.5,
             "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
           },
           {
@@ -506,36 +4460,218 @@
             "conservative_value": 77794000000.0,
             "resolution": "yf_av used (conservative)"
           }
+        ],
+        "data_confidence": {
+          "level": "medium",
+          "sources_count": 4,
+          "sources_used": [
+            "yfinance",
+            "alpha_vantage",
+            "sec_edgar",
+            "fmp"
+          ],
+          "conflicts_count": 3
+        },
+        "market_cap": 182306750464,
+        "beta": 1.221,
+        "current_ratio": 1.138,
+        "avg_daily_volume": 6084737,
+        "current_price": null,
+        "candidate_score": 2.75,
+        "candidate_signals": [
+          "institutional_signal",
+          "analyst_upgrade",
+          "macro_tailwind"
         ]
       }
-    ],
-    "data_confidence": "medium",
-    "confidence_reason": "Data cross-referenced across 4 independent sources (yfinance, alpha_vantage, sec_edgar, fmp) | 3 conflict(s) found between sources \u2014 conservative figure used where sources disagreed | Some fields could not be cross-verified \u2014 figures are directionally reliable but treat specific numbers with moderate caution",
-    "sources_count": 4,
-    "conflicts_count": 3,
-    "last_updated": "2026-08-14 10:22 UTC",
-    "agents_run": [
-      "Macro",
-      "News",
-      "Fundamental",
-      "Quant",
-      "Sentiment",
-      "Committee"
-    ],
-    "llm_fields": [
-      "company_info.overview",
-      "company_info.revenue_segments",
-      "management_team",
-      "analyst_rating_history.trend",
-      "setup_checklist.sustainability_assessment",
-      "setup_checklist.upcoming_catalysts",
-      "comparables.company_names"
-    ]
-  },
-  "agent_scores": {
-    "fundamental": 45,
-    "quant": 78,
-    "sentiment": 72
-  },
-  "macro_regime": "NEUTRAL"
+    },
+    "quant": {
+      "score": 72,
+      "direction": "LONG",
+      "summary": "The technical setup shows a bullish momentum with price above key moving averages and a bullish MACD signal. In the next 5-10 days, BA is likely to continue its upward trajectory towards the resistance level at $231.34.",
+      "raw": {
+        "ticker": "BA",
+        "quant_score": 72,
+        "direction": "LONG",
+        "trade_type": "momentum",
+        "forward_bias": "bullish",
+        "mean_reversion_score": 0,
+        "trend": "uptrend",
+        "rsi_14": 55.5,
+        "macd_signal": "bullish",
+        "volume_trend": "neutral",
+        "support": 221.04,
+        "resistance": 231.34,
+        "key_patterns": [
+          "bullish_ma_stack"
+        ],
+        "signal_confidence": {
+          "level": "medium",
+          "sources_count": 2,
+          "sources": [
+            "price_action",
+            "momentum_oscillators"
+          ],
+          "conflicts": [
+            "volume diverging from price direction"
+          ],
+          "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
+        },
+        "data_conflicts": [],
+        "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime.",
+        "quant_summary": "The technical setup shows a bullish momentum with price above key moving averages and a bullish MACD signal. In the next 5-10 days, BA is likely to continue its upward trajectory towards the resistance level at $231.34.",
+        "mean_reversion_signals": [],
+        "current_price": 230.51,
+        "ret_1m": 0.077,
+        "ret_3m": 0.0454,
+        "ret_6m": -0.0512,
+        "week52_high": 254.35,
+        "week52_low": 176.77,
+        "pct_from_52w_high": -9.4,
+        "high_52w": 254.35,
+        "low_52w": 176.77,
+        "indicators": {
+          "rsi_14": 55.5,
+          "macd_bullish": true,
+          "macd_histogram_expanding": false,
+          "stoch_k": 66.7,
+          "bb_pct": 0.665,
+          "volume_ratio": 0.11,
+          "obv_trend": "down",
+          "sma_50": 221.28,
+          "sma_200": 219.23,
+          "cross_signal": null,
+          "current_price": 230.51,
+          "ret_1w": -0.0098,
+          "ret_1m": 0.077,
+          "ret_3m": 0.0454,
+          "ret_6m": -0.0512,
+          "week52_high": 254.35,
+          "week52_low": 176.77,
+          "pct_from_52w_high": -9.4,
+          "atr_14": 6.61,
+          "atr_pct": 2.87
+        },
+        "key_levels": {
+          "support": 221.04,
+          "resistance": 231.34,
+          "support_levels": [
+            221.04,
+            215.4,
+            214.0
+          ],
+          "resistance_levels": [
+            231.34,
+            232.3,
+            236.45
+          ]
+        },
+        "candidate_score": 2.75,
+        "candidate_signals": [
+          "institutional_signal",
+          "analyst_upgrade",
+          "macro_tailwind"
+        ],
+        "swarm_memory_hits": 0
+      }
+    },
+    "sentiment": {
+      "score": 72,
+      "direction": "LONG",
+      "summary": "The sentiment around BA is cautiously optimistic, with analysts generally bullish and a significant upside potential based on price targets. However, the lack of recent news catalysts and low signal confidence suggests that the current sentiment may be leading, reflecting future expectations rather than reacting to past performance.",
+      "raw": {
+        "ticker": "BA",
+        "sentiment_score": 72,
+        "direction": "LONG",
+        "analyst_consensus": "Buy",
+        "price_target_upside_pct": 19.1,
+        "news_sentiment": "neutral",
+        "short_interest_pct": 0.0,
+        "short_squeeze_risk": "low",
+        "retail_euphoria_warning": false,
+        "analyst_targets_stale": false,
+        "contrarian_signal": true,
+        "sentiment_type": "leading",
+        "data_conflicts": [],
+        "signal_confidence": {
+          "level": "low",
+          "sources_count": 1,
+          "sources": [
+            "analyst_consensus"
+          ],
+          "conflicts": [],
+          "confidence_note": "1/3 sources confirming"
+        },
+        "sentiment_summary": "The sentiment around BA is cautiously optimistic, with analysts generally bullish and a significant upside potential based on price targets. However, the lack of recent news catalysts and low signal confidence suggests that the current sentiment may be leading, reflecting future expectations rather than reacting to past performance.",
+        "fmp_analyst_signals": {
+          "available": true,
+          "avg_target_price": 279.0,
+          "target_count": 5,
+          "last_quarter_avg_target": 279,
+          "last_year_avg_target": 267.12,
+          "upgrades_recent": 0,
+          "downgrades_recent": 0,
+          "initiations_recent": 0,
+          "upgrade_momentum": "stable"
+        },
+        "analyst_detail": {
+          "yf_label": "Buy",
+          "yf_num_analysts": 26,
+          "fh_strong_buy": 13,
+          "fh_buy": 18,
+          "fh_hold": 6,
+          "fh_sell": 0,
+          "fh_strong_sell": 0,
+          "fh_period": "2026-08-01"
+        },
+        "news_detail": {
+          "found": false,
+          "long_weight": 0.0,
+          "short_weight": 0.0,
+          "net_score": 0.0,
+          "total_catalysts": 0,
+          "top_catalyst": null
+        },
+        "reddit_detail": null,
+        "price_targets": {
+          "current": 230.625,
+          "mean": 274.69232,
+          "high": 305.0,
+          "low": 246.0,
+          "upside_pct": 19.1
+        },
+        "short_interest": {
+          "ratio": 0.01,
+          "pct_float": 0.0001
+        },
+        "candidate_score": 2.75,
+        "candidate_signals": [
+          "institutional_signal",
+          "analyst_upgrade",
+          "macro_tailwind"
+        ]
+      }
+    },
+    "macro": {
+      "regime": "NEUTRAL",
+      "summary": "The current macro environment presents a mixed signal with FRED and newsapi_finnhub indicating a RISK-OFF sentiment, while yfinance_market suggests RISK-ON. Inflation is rising, with CPI increasing to 332.81, and the yield curve remains inverted, indicating recession risks. The lack of agreement among sources leads to a low confidence level in the overall market regime assessment."
+    },
+    "institutional": {
+      "convergence": [],
+      "fund_theses": [
+        {
+          "ticker": "BA",
+          "funds": [
+            "Multiple institutions"
+          ],
+          "inferred_thesis": "value",
+          "thesis_reasoning": "Boeing's recovery potential post-pandemic makes it attractive for value-focused investors.",
+          "conviction": "medium"
+        }
+      ]
+    },
+    "news": {
+      "catalysts": []
+    }
+  }
 }
