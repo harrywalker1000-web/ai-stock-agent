@@ -404,8 +404,16 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
             else:
                 if "enter" in d.get("action", ""):
                     d["action"] = "skip"
-                else:  # increase — falls back to hold, it's still a real held position
+                else:
+                    # increase — falls back to hold, it's still a real held position.
+                    # Reset size_pct to the current actual weight too, not just the action —
+                    # otherwise trade_executor's own "HOLD with rebalance" check sees the
+                    # stale, uncapped target still sitting on this decision, treats it as
+                    # off-target, and silently re-converts it straight back to an increase
+                    # attempt (caught by the capital check again, but noisily and without
+                    # this clearer reason ever surfacing).
                     d["action"] = "hold"
+                    d["size_pct"] = current
                 d["skip_reason"] = (
                     f"Portfolio construction: cut automatically — capital exhausted "
                     f"(conviction {d.get('conviction', '?')}, needed {cost:.1f}%)"
