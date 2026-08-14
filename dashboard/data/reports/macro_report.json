@@ -1,23 +1,24 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
     "commodities",
-    "high-quality bonds"
+    "energy sector",
+    "high-yield bonds"
   ],
   "avoid_themes": [
-    "high-yield bonds",
+    "growth stocks",
     "emerging markets",
-    "cyclical stocks"
+    "technology sector"
   ],
   "geopolitical_risks": [
-    "Iran-US tensions over Strait of Hormuz",
-    "US missile strike off Pakistan",
-    "Israeli-Palestinian conflict escalation"
+    "US-Iran tensions affecting oil prices",
+    "potential naval blockade impacting shipping",
+    "global economic sanctions on Iran"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, supported by rising inflation and a stable interest rate environment. Conflicting signals from FRED and yfinance_market, with FRED indicating RISK-OFF and yfinance_market showing NEUTRAL, contribute to a low confidence level. The geopolitical landscape remains tense, particularly with ongoing Iran-US tensions and instability in the Middle East.",
+  "macro_summary": "The current macro environment is characterized by conflicting signals regarding market sentiment, with FRED and newsapi_finnhub indicating a RISK-OFF stance, while yfinance_market suggests RISK-ON. Inflation is rising, as indicated by the CPI increase, and the yield curve remains inverted, suggesting recession risks. The geopolitical landscape, particularly the US-Iran tensions, adds uncertainty to market conditions, contributing to the low confidence level due to the lack of agreement among sources.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,16 +29,16 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+      "FRED signals RISK-OFF but yfinance_market signals RISK-ON",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals RISK-ON"
     ],
-    "confidence_note": "The conflicting signals from multiple sources lead to a low confidence level for downstream agents."
+    "confidence_note": "The low confidence level reflects significant conflicts among the data sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.7,
-    "us_2y_yield": 4.22,
+    "us_10y_yield": 4.68,
+    "us_2y_yield": 4.2,
     "yield_curve_spread": 0.48,
     "cpi_latest": 332.81,
     "cpi_prev": 332.57,
@@ -46,40 +47,42 @@
     "gdp_latest": 32475.2,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.91,
-    "dxy_current": 99.85,
-    "dxy_1m_ago": 101.28,
+    "dxy_current": 99.73,
+    "dxy_1m_ago": 100.94,
     "dxy_trend": "weakening",
-    "vix": 14.78,
-    "tlt_1m_change_pct": -0.89,
-    "hyg_1m_change_pct": 0.88,
+    "vix": 14.56,
+    "tlt_1m_change_pct": -1.38,
+    "hyg_1m_change_pct": 0.62,
     "macro_headlines": [
-      "Sweetgreen isn't linked to cyclospora, but many customers still don't want salads: 'I didn't think it would last' this long, CEO says",
-      "Iran, US make competing claims over control of Strait of Hormuz - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Thursday",
-      "The US says more oil is leaving the Middle East, but is it really? - Reuters",
-      "Iran's state media mock Trump over airplane switch, meme shows him hiding in a catering truck - Reuters",
-      "After US criticism, Israel ties Lebanon withdrawal to Hezbollah disarmament - Reuters",
-      "Diesel prices overtake jet fuel in Europe as global shortage widens - Reuters",
-      "Goat herding hedge: How Susquehanna and Kalshi are helping this company offset a change in California law",
-      "The Iran war risks bringing the G7's fastest-growing economy to a halt",
-      "The \u201820% rule\u2019 behind Giorgos Tsetis\u2019 blueprint for a new kind of family office"
+      "Treasury yields rise as U.S. threatens Iran with more economic sanctions",
+      "Hormuz shipping traffic capped amid competing claims from US and Iran - Reuters",
+      "Asian stocks head for strong weekly gains as US rate hike bets fade - Reuters",
+      "Indian shares slip as US threatens indefinite naval blockade of Iran - Reuters",
+      "Oil rises after US threatens indefinite blockade of Iran; set for weekly gains - Reuters",
+      "Bessent says US to apply measures never seen on Iran - Reuters",
+      "Iran war a boon for China's e-trucks, fuelling export surge - Reuters",
+      "US says it can keep naval blockade on Iran 'indefinitely,' vows more economic pressure - Reuters",
+      "Trump allows Navy to build ships abroad, orders return to steam catapults on carriers - Reuters",
+      "Are global oil stocks big enough to weather another six months of US-Iran war? - Reuters"
     ],
     "geopolitical_headlines": [
-      "Ukrainian central bank issues biggest currency liberalisation since 2022 invasion",
+      "Iran to join BRICS development bank soon, central bank governor says",
+      "Moscow says it knows where Western ships sail as Putin threatens to seize vessels",
       "US missile strike reportedly hits container ship off Pakistan",
-      "Trump pivots back to sanctions for Iran as other strategies to end his war fizzle",
-      "Trump pivots back to sanctions for Iran as other strategies to end his war fizzle",
+      "Moscow says it knows where Western ships sail as Putin threatens to seize vessels",
+      "Wall Street banks' newest investment focus: American economic security",
       "Israeli settlers besieging Palestinian families in West Bank village",
-      "Six finance giants back Nvidia\u2019s $500bn plan to fund the AI buildout",
-      "Google Play adds Venmo as a payment option in the US. In other markets, it is testing cash.",
-      "Lebanon \u2018files new lawsuit against\u2019 ex-central bank chief Riad Salameh",
+      "Sam Altman thinks working at Goldman Sachs \u2018sounds unbelievably terrible now\u2019 and admits he was \u2018peer pressured\u2019 into accepting an internship there",
+      "The dream of serving ads to AI agents has hit a snag",
       "Zhu Rongji, Chinese premier who cajoled economy into modern era, dies at 97",
       "Uber Eats Owed This Restaurant Owner $40,000. It Took 8 Months and a News Story to Get Her Paid."
     ],
     "central_bank_headlines": [
-      "Central Banks Double Down on Climate Regulation Despite Collapse of Green Finance"
+      "US Dollar Price Forecast: CPI Test Looms as DXY, EUR/USD and GBP/USD Hold Key Levels",
+      "Americans struggle to make ends meet as inflation stays high: Fed official",
+      "The Subsidiary Superpower\u2014How Britain Lost Its Crown to America"
     ],
-    "as_of": "2026-08-13 14:44 UTC"
+    "as_of": "2026-08-14 10:03 UTC"
   },
-  "generated_at": "2026-08-13T14:44:31.301838"
+  "generated_at": "2026-08-14T10:03:59.042480"
 }
