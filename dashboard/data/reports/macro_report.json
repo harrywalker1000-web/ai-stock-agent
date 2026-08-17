@@ -1,24 +1,23 @@
 {
-  "regime": "NEUTRAL",
+  "regime": "RISK-OFF",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "high-yield bonds",
-    "energy sector",
-    "inflation-protected securities"
+    "commodities",
+    "high-quality bonds"
   ],
   "avoid_themes": [
-    "high-growth tech",
-    "cyclical stocks",
-    "emerging markets"
+    "high-yield bonds",
+    "emerging markets",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "Iran's economic sanctions and military threats",
-    "oil supply disruptions due to geopolitical tensions",
-    "US-China relations affecting trade"
+    "Iran-US tensions affecting oil prices",
+    "disruptions in Gulf shipping routes",
+    "potential escalation of conflicts in the Middle East"
   ],
-  "macro_summary": "The current macro environment presents a mixed signal with FRED and newsapi_finnhub indicating a RISK-OFF sentiment, while yfinance_market suggests RISK-ON. Inflation is rising, with CPI increasing to 332.81, and the yield curve remains inverted, indicating recession risks. The lack of agreement among sources leads to a low confidence level in the overall market regime assessment.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly involving Iran. While the Fed Funds Rate remains stable at 3.63%, the yield curve is inverted, suggesting recession risks. Conflicting signals from FRED and yfinance_market contribute to a low confidence level in the overall assessment.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -29,16 +28,16 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals RISK-ON",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals RISK-ON"
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level."
+    "confidence_note": "The presence of conflicting signals from multiple sources leads to a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.68,
-    "us_2y_yield": 4.2,
+    "us_10y_yield": 4.63,
+    "us_2y_yield": 4.15,
     "yield_curve_spread": 0.48,
     "cpi_latest": 332.81,
     "cpi_prev": 332.57,
@@ -47,43 +46,41 @@
     "gdp_latest": 32475.2,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.91,
-    "dxy_current": 99.49,
-    "dxy_1m_ago": 100.94,
+    "dxy_current": 99.44,
+    "dxy_1m_ago": 100.75,
     "dxy_trend": "weakening",
-    "vix": 14.63,
-    "tlt_1m_change_pct": -1.92,
-    "hyg_1m_change_pct": 0.55,
+    "vix": 15.03,
+    "tlt_1m_change_pct": -2.86,
+    "hyg_1m_change_pct": 0.52,
     "macro_headlines": [
-      "Housing investors say this is their worst market in at least 3 years",
-      "Two slicks appear in Gulf as huge oil spill off Oman threatens disaster - Reuters",
-      "The Club's top 10 things to watch in the stock market Friday",
-      "Wall St futures muted as higher oil prices temper risk appetite after S&P record close - Reuters",
-      "Oil set for weekly gains after US threatens indefinite blockade of Iran - Reuters",
-      "US warns Iran it will step up economic pressure; two more ships attacked in Hormuz - Reuters",
-      "Siege in Palestinian village draws US criticism as Israeli settlers dig in - Reuters",
-      "Treasury yields rise as U.S. threatens Iran with more economic sanctions",
-      "China calls Taiwan's annual military drills a 'wasteful charade' - Reuters",
-      "Israeli settlers divert Palestinian water to fill West Bank pool - Reuters"
+      "Iran says it will escalate if US does not honour deal within weeks - Reuters",
+      "China surprises oil markets again with a return to stockpiling in July - Reuters",
+      "Jim Cramer's top 10 things to watch in the stock market Monday",
+      "US awards Raytheon $22.9 billion seven-year deal to boost Tomahawk output - Reuters",
+      "Most Gulf markets ease as Iran tensions, Hormuz shipping disruptions weigh - Reuters",
+      "Houthis say they attacked Saudi vessels off Yemen\u2019s Mocha - Reuters",
+      "Santoli: Earnings bonanza that lifted market to record may not be all that it appears to be",
+      "US railroad Union Pacific turned charges meant to cover fuel cost spike from Iran war into profit - Reuters",
+      "Iran says two French embassy employees barred from returning - Reuters",
+      "Drones target office of Iraqi Kurdistan's PM, no casualties reported - Reuters"
     ],
     "geopolitical_headlines": [
-      "Iran to join BRICS development bank soon, central bank governor says",
-      "Moscow says it knows where Western ships sail as Putin threatens to seize vessels",
-      "Moscow says it knows where Western ships sail as Putin threatens to seize vessels",
-      "Wall Street banks' newest investment focus: American economic security",
-      "Israeli settlers besieging Palestinian families in West Bank village",
-      "Sam Altman thinks working at Goldman Sachs \u2018sounds unbelievably terrible now\u2019 and admits he was \u2018peer pressured\u2019 into accepting an internship there",
-      "Revolut is building its own airport lounges, starting in Copenhagen in 2027",
-      "The dream of serving ads to AI agents has hit a snag",
-      "Zhu Rongji, Chinese premier who cajoled economy into modern era, dies at 97",
-      "Uber Eats Owed This Restaurant Owner $40,000. It Took 8 Months and a News Story to Get Her Paid."
+      "Iran business leader admits U.S. blockade will inflict more economic damage than war, and the \u2018worst thing that could happen\u2019 is trying to evade it",
+      "Everything we know about how biggest Wall Street banks are using AI",
+      "With The Shutdown Of Pok\u00e9mon Bank, Some Cool Elements From Old Games Are Being Lost",
+      "Large-Scale Pok\u00e9mon Eviction Looms with Pok\u00e9mon Bank Server Shutdown",
+      "Mastercard took down payments across Australia with a scheduled update",
+      "Trump-linked crypto venture World Liberty Trust granted bank status",
+      "Pope calls for an end to West Bank violence against Palestinians",
+      "Scott Bessent fired a currency bazooka, but global finance still looks like a \u2018giant Jenga tower\u2019 propped up by a Japanese yen that\u2019s in deep trouble",
+      "Arm\u2019s co-founder says AI will create more value than any revolution before it, and be a rollercoaster",
+      "India central bank head says AI can approve loans humans would have turned down, says the technology is, 'a capability to be responsibly harnessed and not merely as a risk to be contained'"
     ],
     "central_bank_headlines": [
-      "US Dollar Price Forecast: CPI Test Looms as DXY, EUR/USD and GBP/USD Hold Key Levels",
-      "Americans struggle to make ends meet as inflation stays high: Fed official",
-      "The Subsidiary Superpower\u2014How Britain Lost Its Crown to America",
-      "Socioeconomic inequalities in functional ageing trajectories in England and Canada: A comparative longitudinal cohort study"
+      "So Who's Going to Buy All These Tokens?",
+      "UK inflation set to rise as AI chip crunch, energy costs add pressure"
     ],
-    "as_of": "2026-08-14 14:39 UTC"
+    "as_of": "2026-08-17 14:05 UTC"
   },
-  "generated_at": "2026-08-14T14:39:46.204436"
+  "generated_at": "2026-08-17T14:05:53.410582"
 }
