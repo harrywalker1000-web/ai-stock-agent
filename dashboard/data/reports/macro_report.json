@@ -1,23 +1,23 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "stable",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "energy sector",
-    "high-yield bonds"
+    "high-quality bonds",
+    "commodities",
+    "energy sector"
   ],
   "avoid_themes": [
-    "growth stocks",
-    "emerging markets",
-    "cyclical sectors"
+    "high-growth tech",
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran conflict impacting energy prices",
-    "cybersecurity threats affecting market stability",
-    "potential sanctions on Iran affecting global trade"
+    "Iran's ongoing conflict impacting oil prices",
+    "US economic sanctions against Iran affecting global trade"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions related to the US-Iran conflict. While FRED and newsapi_finnhub both signal RISK-OFF, yfinance_market remains NEUTRAL, leading to a conflict in signals. The Fed Funds Rate is stable at 3.63%, and inflation is trending upwards as indicated by the CPI increase.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions surrounding Iran. Conflicting signals from sources show FRED and newsapi_finnhub both indicating RISK-OFF, while yfinance_market suggests RISK-ON, leading to a low confidence level in the overall market assessment.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -28,17 +28,17 @@
     ],
     "agreements": [],
     "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+      "FRED signals RISK-OFF but yfinance_market signals RISK-ON",
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals RISK-ON"
     ],
-    "confidence_note": "The low confidence level reflects conflicting signals from multiple sources."
+    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.63,
-    "us_10y_yield": 4.7,
-    "us_2y_yield": 4.24,
-    "yield_curve_spread": 0.46,
+    "us_10y_yield": 4.66,
+    "us_2y_yield": 4.19,
+    "yield_curve_spread": 0.47,
     "cpi_latest": 332.81,
     "cpi_prev": 332.57,
     "cpi_trend": "rising",
@@ -46,44 +46,44 @@
     "gdp_latest": 32486.1,
     "gdp_prev": 31865.7,
     "gdp_growth": 1.95,
-    "dxy_current": 99.17,
+    "dxy_current": 99.13,
     "dxy_1m_ago": 101.51,
     "dxy_trend": "weakening",
-    "vix": 15.45,
-    "tlt_1m_change_pct": -0.3,
-    "hyg_1m_change_pct": 1.19,
+    "vix": 14.51,
+    "tlt_1m_change_pct": -0.92,
+    "hyg_1m_change_pct": 1.05,
     "macro_headlines": [
-      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
-      "Medical device maker Boston Scientific is being hit by a cyberattack. The shares are falling",
-      "EXCLUSIVE: Hack of water sector supplier draws FBI scrutiny as Iran-linked cyber concerns grow - Reuters",
-      "US-Iran war spurs Europe, Asia to boost renewables - Reuters",
-      "Dubai's DXB first-half passenger traffic falls more than 30% as Iran war disrupts travel - Reuters",
-      "British energy price cap to rise 4% as Iran war pushes up costs - Reuters",
-      "As war strands Qatari gas for 6 months, US sales rise and European stocks plummet - Reuters",
-      "US-Iran war sinks into energy trench warfare six months on - Reuters",
-      "Some oil companies to avoid ships on Iran blacklist, sources say - Reuters",
-      "Gulf ship traffic via Strait of Hormuz hovers below 10-day average, data shows - Reuters"
+      "Jim Cramer says Nvidia and Salesforce earnings upended two bear narratives",
+      "Iran sets conditions for reopening Strait of Hormuz, top security official Rezaei says - Reuters",
+      "Iran's security chief denies report about a potential plot against Trump's son - Reuters",
+      "Trump to meet refiners, fuel retailers as Iran war boosts gas prices ahead of midterms, sources say - Reuters",
+      "What's expected at Apple's September event \u2014 plus, an uneven rally in AI stocks",
+      "What Warsh will say and how the market will react, according to prediction markets",
+      "Donald Trump Jr. told Republican state attorneys not to fight prediction markets, NY Times reports",
+      "After six months, the Iran war has reached its endgame \u2014 a costly stalemate - Reuters",
+      "Jim Cramer says the 'worst is over' at Salesforce, sees another 20% upside from here",
+      "We went 3 for 3 \u2014 what we learned from wins at Nvidia, Salesforce, and CrowdStrike"
     ],
     "geopolitical_headlines": [
       "Can Trump's economic war against Iran do what airstrikes and negotiations couldn't?",
-      "Iran warns of a harsh response to anticipated US sanctions and other Middle East news",
-      "Iran's rial currency hits new record low as US prepares to announce more sanctions",
-      "Take Five: Six months of war",
-      "Oil falls as US prepares to unveil new Iran sanctions",
-      "Russia is suffering from a slow-motion bank run as the Kremlin scavenges for war funding\u2014and it may start seizing recruits for the military too",
-      "Viral Chinese Cow Cartoon Becomes One Of The Most Profitable Movies Ever Made",
-      "Your bank may stop texting you six-digit codes",
-      "Google Pixel 11 Pro XL vs Pixel 9 Pro XL: Is it actually an upgrade?",
-      "How US sanctions on Iran ripple through global markets and consumers"
+      "Iraq may show how U.S. can squeeze Iran's trade partners",
+      "What leaders can learn from Mark Carney's approach to trade negotiations with Trump",
+      "Even More Maximum Pressure on Iran",
+      "Japan wants stock and bond settlement to happen instantly, on a blockchain",
+      "Revolut is launching a euro stablecoin into a market MiCA handed to an American company",
+      "Should you buy the Google Pixel 11 Pro Fold?",
+      "Fundraiser for A66 crash police officers tops \u00a31m",
+      "Iran emphasises self-sufficiency in battle against US economic war",
+      "Here's how much interest a $100,000 2-year CD account will earn savers now"
     ],
     "central_bank_headlines": [
-      "The Humbling of Scott Bessent",
-      "Iran War: Bessent\u2019s Flailing and the Misunderstood Coming, Strait of Hormuz \u201cClosure\u201d Accelerated Crisis",
-      "Why Scott Bessent Can\u2019t Fix the Bond Market",
-      "Central bankers fear dollar-based stablecoins threaten monetary sovereignty",
-      "Weekly Climate and Energy News Roundup #703"
+      "US rates need to rise soon absent evidence of ongoing drop in inflation, Fed's Collins says",
+      "Here's why America's debt binge should worry Australians",
+      "Warsh\u2019s Peers to Highlight Global Inflation Risk at Jackson Hole",
+      "Scott Bessent, Stanley Druckenmiller and a hedge-fund legend hoist on his own petard",
+      "Scott Bessent, Stanley Druckenmiller and a hedge-fund legend hoist on his own petard"
     ],
-    "as_of": "2026-08-26 14:26 UTC"
+    "as_of": "2026-08-27 23:04 UTC"
   },
-  "generated_at": "2026-08-26T14:26:38.394023"
+  "generated_at": "2026-08-27T23:05:02.213215"
 }
