@@ -447,6 +447,21 @@ def remove_position(ticker: str) -> None:
         logger.info("Removed phantom position from log: %s", ticker)
 
 
+def clear_unanalysed_flag(ticker: str) -> None:
+    """
+    Clear the unanalysed_manual_entry flag once a ticker has a complete, current
+    scorecard on file — the flag's whole purpose is "don't manage this until it's
+    been properly analysed," and until this function existed nothing ever actually
+    cleared it, so running the adhoc report the system itself asks for never
+    unblocked anything.
+    """
+    positions = _load_json(POSITIONS_LOG_PATH, default={})
+    if ticker in positions and positions[ticker].get("unanalysed_manual_entry"):
+        positions[ticker]["unanalysed_manual_entry"] = False
+        _save_json(POSITIONS_LOG_PATH, positions)
+        logger.info("Cleared unanalysed_manual_entry flag for %s — full analysis now on file", ticker)
+
+
 def enrich_position_framework(ticker: str, framework_fields: dict) -> None:
     """
     Merge institutional framework fields into an existing positions_log.json entry.

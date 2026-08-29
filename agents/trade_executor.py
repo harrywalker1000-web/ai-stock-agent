@@ -760,18 +760,39 @@ def run(mode: str = "new_opportunities") -> dict:
             skipped.append({"ticker": ticker, "reason": decision.get("skip_reason", "")})
             continue
 
-        # Block management of positions flagged as unanalysed manual entries.
-        # Only "exit" is allowed — the system must not increase or maintain a position
-        # that was entered without full pipeline analysis.
+        # Block management of positions flagged as unanalysed manual entries — UNLESS
+        # a complete, current scorecard now exists (same bar as the enter_long hard
+        # gate: all three agent scores non-zero, mandate not failed). That's exactly
+        # what running a full adhoc report produces, so check for it and lift the
+        # block for good once it's there — otherwise the flag can never be cleared
+        # and the system's own advertised remediation ("run an adhoc report") does
+        # nothing.
         if open_positions.get(ticker, {}).get("unanalysed_manual_entry") and action != "exit":
-            reason = (
-                f"BLOCKED_UNANALYSED: {ticker} was entered without pipeline analysis — "
-                "run a full adhoc report before the committee can hold/increase this position. "
-                "Only 'exit' actions are permitted on unanalysed positions."
+            _sc_unblock = next(
+                (sc for sc in committee.get("scorecards", []) if sc.get("ticker") == ticker), None,
             )
-            logger.critical("%s: %s", ticker, reason)
-            skipped.append({"ticker": ticker, "reason": reason})
-            continue
+            _has_complete_analysis = bool(
+                _sc_unblock
+                and _sc_unblock.get("fundamental_score")
+                and _sc_unblock.get("quant_score")
+                and _sc_unblock.get("sentiment_score")
+                and _sc_unblock.get("mandate_pass") is not False
+            )
+            if _has_complete_analysis:
+                memory.clear_unanalysed_flag(ticker)
+                logger.info(
+                    "%s: complete analysis found — unanalysed_manual_entry cleared, proceeding with %s",
+                    ticker, action,
+                )
+            else:
+                reason = (
+                    f"BLOCKED_UNANALYSED: {ticker} was entered without pipeline analysis — "
+                    "run a full adhoc report before the committee can hold/increase this position. "
+                    "Only 'exit' actions are permitted on unanalysed positions."
+                )
+                logger.critical("%s: %s", ticker, reason)
+                skipped.append({"ticker": ticker, "reason": reason})
+                continue
 
         if action == "hold":
             # If portfolio construction set a target size_pct that differs from the
