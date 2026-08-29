@@ -710,7 +710,17 @@ Write 2-3 sentences explaining today's screening results — what drove the sele
 # ---------------------------------------------------------------------------
 # Main run function
 # ---------------------------------------------------------------------------
-def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) -> dict:
+def run(
+    mode: str = "new_opportunities",
+    held_tickers: list[str] | None = None,
+    forced_tickers: list[str] | None = None,
+) -> dict:
+    """
+    forced_tickers: tickers that MUST appear in the output regardless of scoring/
+    freshness/universe filtering — used to force a genuine fresh look at a position
+    that was decided while the market was closed and needs re-evaluation with
+    today's data now that it's open (see trade_executor's needs_fresh_reentry_review).
+    """
     logger.info("=== Candidate Generator (Agent 5) — mode: %s ===", mode)
 
     # Portfolio review fast-path: skip all scoring, universe filter, freshness — return held tickers directly
@@ -829,6 +839,28 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None) 
     variety_pct = round(len(new_tickers) / max(1, len(candidates)) * 100, 1)
     logger.info("Candidate variety: %d/%d new tickers (%.0f%% not seen in last %dd)",
                 len(new_tickers), len(candidates), variety_pct, new_cutoff_days)
+
+    # Force-include tickers that need a fresh re-decision regardless of how they'd
+    # otherwise score — bypasses universe/freshness/threshold filtering entirely,
+    # since the point is to guarantee a look, not to compete for a slot.
+    if forced_tickers:
+        existing = {c["ticker"] for c in candidates}
+        added = []
+        for ticker in forced_tickers:
+            if ticker in existing:
+                continue
+            candidates.append({
+                "ticker": ticker,
+                "direction_hint": "LONG",
+                "score": None,
+                "signals": ["pending_reentry_review"],
+                "freshness_penalty": 0,
+                "confidence_adjustment": 1.0,
+            })
+            added.append(ticker)
+        if added:
+            logger.info("Forced re-analysis: added %d ticker(s) pending a market-open re-decision: %s",
+                        len(added), added)
 
     # Generate LLM summary
     logger.info("Generating summary via LLM...")

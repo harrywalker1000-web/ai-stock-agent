@@ -405,7 +405,10 @@ def reconcile_positions_with_alpaca() -> dict:
          Add a stub entry so Phase A reviews them correctly.
     """
     logger.info("=== Alpaca position reconciliation ===")
-    summary: dict = {"pending_placed": [], "ghosts_removed": [], "untracked_added": [], "errors": []}
+    summary: dict = {
+        "pending_placed": [], "ghosts_removed": [], "untracked_added": [], "errors": [],
+        "needs_fresh_reentry_review": [],
+    }
 
     try:
         api = _get_alpaca_client()
@@ -459,30 +462,18 @@ def reconcile_positions_with_alpaca() -> dict:
             continue
 
         if safe:
-            current_price = _get_live_price(ticker)
-            if current_price is None:
-                logger.warning("Reconcile: cannot get price for pending %s", ticker)
-                summary["errors"].append(ticker)
-                continue
-            size_pct = pos_data.get("size_pct", 10.0)
-            notional = portfolio_value * size_pct / 100
-            shares = int(notional / current_price)
-            if shares < 1:
-                logger.warning("Reconcile: %s notional too small for 1 share — removing pending entry", ticker)
-                memory.remove_position(ticker)
-                summary["ghosts_removed"].append(ticker)
-                continue
-            direction = pos_data.get("direction", "LONG").upper()
-            side = "buy" if direction == "LONG" else "sell"
-            order = _place_order(api, ticker, shares, side,
-                                 f"Deferred order from {pos_data.get('entry_date', today)} — market was closed")
-            if order:
-                memory.confirm_trade_entry(ticker, order["order_id"])
-                summary["pending_placed"].append(ticker)
-                logger.info("Reconcile: placed deferred order for %s (%d shares @ ~$%.2f)",
-                            ticker, shares, current_price)
-            else:
-                summary["errors"].append(ticker)
+            # Market is open now, but this decision was made while it was closed —
+            # don't blindly resurrect it with the old direction/size/thesis. Feed it
+            # back into Phase B's normal new-opportunity pipeline instead, so it gets
+            # a genuine fresh fundamental+quant+sentiment+committee re-decision using
+            # today's data before any real order is placed. See
+            # portfolio_manager.run()'s handling of needs_fresh_reentry_review.
+            logger.info(
+                "Reconcile: %s was pending while market was closed — market now open, "
+                "flagging for fresh re-analysis this run instead of resurrecting the old decision",
+                ticker,
+            )
+            summary["needs_fresh_reentry_review"].append(ticker)
         else:
             age_days = None
             entry_date_str = pos_data.get("entry_date")
@@ -627,9 +618,11 @@ def reconcile_positions_with_alpaca() -> dict:
             logger.warning("Reconcile: could not sync size_pct weights: %s", _exc)
 
     logger.info(
-        "Reconciliation complete: %d pending placed, %d ghosts removed, %d untracked added, %d errors",
+        "Reconciliation complete: %d pending placed, %d ghosts removed, %d untracked added, "
+        "%d need fresh re-analysis, %d errors",
         len(summary["pending_placed"]), len(summary["ghosts_removed"]),
-        len(summary["untracked_added"]), len(summary["errors"]),
+        len(summary["untracked_added"]), len(summary["needs_fresh_reentry_review"]),
+        len(summary["errors"]),
     )
     return summary
 

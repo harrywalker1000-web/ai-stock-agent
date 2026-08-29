@@ -567,13 +567,22 @@ def run_phase_a() -> dict:
 # Phase B — New Opportunity Research
 # ---------------------------------------------------------------------------
 
-def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = None, phase_a_decisions: list | None = None) -> dict:
+def run_phase_b(
+    macro_already_ran: bool = False,
+    phase_a_exits: list | None = None,
+    phase_a_decisions: list | None = None,
+    pending_reentry_tickers: list | None = None,
+) -> dict:
     """
     Full pipeline for identifying new positions to enter.
     Phase 1 runs sequentially (could be parallelised in future).
     Macro is skipped if it already ran in Phase A.
     phase_a_exits: list of tickers Phase A exited today — passed to Phase B committee
                    as a cooldown signal so it doesn't re-enter same-day exits.
+    pending_reentry_tickers: tickers reconciliation found pending (decided while the
+                   market was closed, never executed) now that the market is open —
+                   forced into candidate generation and given a genuine fresh
+                   enter/skip re-decision, never a blind resurrection of the old one.
     """
     logger.info("Phase B: New Opportunity Research")
     results: dict = {}
@@ -628,7 +637,10 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     # --- Phase 2: Candidate Generator ---
     from agents import candidate_generator
     logger.info("Phase B: Candidate Generator...")
-    results["candidates"] = _safe_run("Phase B: Candidate Generator", candidate_generator.run, mode="new_opportunities", fallback={})
+    results["candidates"] = _safe_run(
+        "Phase B: Candidate Generator", candidate_generator.run,
+        mode="new_opportunities", forced_tickers=pending_reentry_tickers, fallback={},
+    )
     n_candidates = results["candidates"].get("total_candidates", 0)
     logger.info("Phase B: %d candidates selected", n_candidates)
 
@@ -663,6 +675,7 @@ def run_phase_b(macro_already_ran: bool = False, phase_a_exits: list | None = No
     results["committee"] = _safe_run(
         "Phase B: Investment Committee", investment_committee.run,
         mode="new_opportunities", exited_today=phase_a_exits, live_portfolio=live_portfolio_b,
+        pending_reentry_tickers=pending_reentry_tickers,
     )
 
     # --- Phase 4b: Portfolio Construction ---
@@ -827,11 +840,13 @@ def run() -> dict:
             if d.get("action") == "exit" and d.get("ticker")
         ]
         phase_a_all_decisions = phase_a_committee.get("position_decisions", [])
+        pending_reentry_tickers = summary.get("reconciliation", {}).get("needs_fresh_reentry_review") or None
         try:
             summary["phase_b"] = run_phase_b(
                 macro_already_ran=macro_ran_in_phase_a,
                 phase_a_exits=phase_a_exits or None,
                 phase_a_decisions=phase_a_all_decisions or None,
+                pending_reentry_tickers=pending_reentry_tickers,
             )
         except Exception as exc:
             logger.error("Phase B crashed: %s — continuing to memory consolidation with no Phase B results",

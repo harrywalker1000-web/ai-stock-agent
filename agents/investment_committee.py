@@ -394,6 +394,7 @@ def _deliberate_with_llm(
     live_portfolio: dict | None = None,
     risk_snapshot: dict | None = None,
     adhoc_reports: dict[str, dict] | None = None,
+    pending_reentry_tickers: list[str] | None = None,
 ) -> list[dict]:
     """
     One LLM call — receives the top qualifying scorecards and produces
@@ -622,6 +623,25 @@ def _deliberate_with_llm(
             + "\n"
         )
 
+    # Pending re-entry block: tickers that were already decided enter_long/enter_short in a
+    # PREVIOUS run but never executed because the market was closed at the time. Reconciliation
+    # deliberately does NOT resurrect the old decision once the market reopens — it sends them
+    # back here for a genuine fresh look instead, so treat these exactly like any other
+    # candidate above and decide on today's data alone.
+    pending_reentry_block = ""
+    if pending_reentry_tickers:
+        pending_reentry_block = (
+            "\nPENDING RE-ENTRY — MARKET WAS CLOSED WHEN THIS WAS LAST DECIDED:\n"
+            "The following tickers were previously decided enter_long/enter_short, but that decision "
+            "was never executed because the market was closed at the time. Do NOT assume the old "
+            "decision still holds — evaluate each one fresh, exactly as if seeing it for the first "
+            "time, using the data in this prompt. Decide enter_long/enter_short again only if it "
+            "genuinely still stands up today; otherwise decide skip and it will be abandoned "
+            "(no position was ever actually opened, so skip has no downside beyond passing on it):\n"
+            + "\n".join(f"  {t}: PENDING RE-ENTRY — re-decide fresh" for t in pending_reentry_tickers)
+            + "\n"
+        )
+
     mode_instruction = (
         "This is a PORTFOLIO REVIEW (Phase A). For each ticker, decide: hold, increase, decrease, exit, or — in extraordinary circumstances — reverse.\n"
         "Exit criteria (any one sufficient): thesis has broken, fundamentals deteriorated materially, "
@@ -669,6 +689,7 @@ your judgement.
 {fund_memory_block}{benchmark_block}{attribution_block}{learning_block}{risk_snapshot_block}{leverage_block}
 {portfolio_context_block}
 {cooldown_block}
+{pending_reentry_block}
 
 CANDIDATES FOR DELIBERATION:
 {'=' * 60}
@@ -1678,7 +1699,7 @@ def _committee_narrative_llm(decisions: list[dict], macro_regime: str) -> str:
 # Main run function
 # ---------------------------------------------------------------------------
 
-def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, exited_today: list[str] | None = None, live_portfolio: dict | None = None) -> dict:
+def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, exited_today: list[str] | None = None, live_portfolio: dict | None = None, pending_reentry_tickers: list[str] | None = None) -> dict:
     logger.info("=== Investment Committee (Agent 10) — mode: %s ===", mode)
     today = datetime.utcnow().date().isoformat()
 
@@ -1722,9 +1743,17 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
 
     # Phase B hard filter: never send held tickers to the new-opportunities committee.
     # Phase A owns all decisions for held positions — Phase B must only deliberate on new names.
+    # Exception: pending_reentry_tickers ARE technically in open_positions (they have a
+    # positions_log record from their original decision), but no real Alpaca position was
+    # ever opened — they need Phase B's enter/skip decision space, not Phase A's hold/increase/
+    # decrease/exit framing, since "should I actually enter this" is exactly the question.
+    _pending_reentry_set = set(pending_reentry_tickers or [])
     if mode == "new_opportunities" and open_positions:
         n_before = len(qualifying)
-        qualifying = [sc for sc in qualifying if sc["ticker"] not in open_positions]
+        qualifying = [
+            sc for sc in qualifying
+            if sc["ticker"] not in open_positions or sc["ticker"] in _pending_reentry_set
+        ]
         n_excluded = n_before - len(qualifying)
         if n_excluded:
             logger.info("Phase B: excluded %d already-held tickers from deliberation: %s",
@@ -1815,7 +1844,7 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
 
     # LLM deliberation — committee now reads full research synthesis per candidate
     logger.info("Sending %d candidates to Committee deliberation...", len(to_debate))
-    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot, adhoc_reports=adhoc_by_ticker)
+    decisions = _deliberate_with_llm(to_debate, macro_regime, open_positions, mode, available_cash_pct, exited_today=exited_today, live_portfolio=live_portfolio, risk_snapshot=risk_snapshot, adhoc_reports=adhoc_by_ticker, pending_reentry_tickers=pending_reentry_tickers)
     logger.info("Committee produced %d decisions", len(decisions))
 
     # ── Portfolio Construction: assign final sizes across the full book ──
@@ -1938,6 +1967,25 @@ def run(mode: str = "new_opportunities", held_tickers: list[str] | None = None, 
         _gated_decisions.append(_d)
     decisions = _gated_decisions
     # ── End committee entry gate ───────────────────────────────────────────────
+
+    # Pending re-entry resolution: any pending_reentry_tickers the committee decided to skip
+    # (fresh look, no longer wanted) are abandoned now rather than waiting on the reconciler's
+    # 2-day staleness cutoff — no real position was ever opened, so there's nothing to clean up
+    # beyond the stale positions_log record itself.
+    if pending_reentry_tickers:
+        _decided_tickers = {d.get("ticker") for d in decisions}
+        for _t in pending_reentry_tickers:
+            _d_match = next((d for d in decisions if d.get("ticker") == _t), None)
+            if _d_match is not None and _d_match.get("action") == "skip":
+                logger.info(
+                    "%s: pending re-entry re-evaluated and skipped — abandoning stale record", _t,
+                )
+                memory.remove_position(_t)
+            elif _t not in _decided_tickers:
+                logger.warning(
+                    "%s: pending re-entry did not reach a decision this run (no qualifying "
+                    "scorecard) — will be re-flagged for review next reconciliation", _t,
+                )
 
     # Store all decisions in memory
     for d in decisions:
