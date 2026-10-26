@@ -1,0 +1,284 @@
+{
+  "ticker": "COIN",
+  "company_name": "COIN",
+  "sector": "N/A",
+  "current_price": 159.96,
+  "market_cap": 42244169728,
+  "date": "2026-10-26",
+  "generated_at": "2026-10-26 19:40 UTC",
+  "cached": false,
+  "source": "pipeline_auto",
+  "mandate_pass": true,
+  "mandate_fail_reason": "Setup type identified",
+  "direction": "PASS",
+  "conviction": 50,
+  "expected_return_12m": null,
+  "s1_mandate": {
+    "pass": true,
+    "fail_reason": "Setup type identified",
+    "setup_type": "Unknown",
+    "checks": [
+      {
+        "item": "Asset class",
+        "pass": true,
+        "note": "Common stock on US exchange"
+      },
+      {
+        "item": "Market cap \u2265 $200M",
+        "pass": true,
+        "note": "$42.24B"
+      },
+      {
+        "item": "Avg daily volume \u2265 500K shares",
+        "pass": true,
+        "note": "9,152,064 shares/day"
+      },
+      {
+        "item": "No restricted geography exposure",
+        "pass": true,
+        "note": "no flags"
+      },
+      {
+        "item": "PEPs / sanctions clear",
+        "pass": true,
+        "note": "no flags"
+      },
+      {
+        "item": "Float \u2265 10%",
+        "pass": true,
+        "note": "unavailable"
+      },
+      {
+        "item": "Setup type identified",
+        "pass": false,
+        "note": "Unknown"
+      }
+    ]
+  },
+  "s2_company": {
+    "background": {},
+    "financial_snapshot": {},
+    "comparables": [],
+    "market_analysis": {},
+    "quality_of_earnings": {},
+    "management_team": {},
+    "analyst_rating_history": {},
+    "cap_table": {}
+  },
+  "s3_setup": {
+    "setup_type": "Unknown",
+    "checklist": [
+      {
+        "item": "revenue_cagr_3yr",
+        "detail": "31.0",
+        "pass": true
+      },
+      {
+        "item": "above_20pct_threshold",
+        "detail": "True",
+        "pass": true
+      },
+      {
+        "item": "eps_growth_consistent",
+        "detail": "False",
+        "pass": false
+      },
+      {
+        "item": "fcf_positive",
+        "detail": "True",
+        "pass": true
+      }
+    ]
+  },
+  "s4_valuation": {
+    "narrative": "Scoring unavailable",
+    "methodology": "EV/EBITDA and P/S ratio (P/E unavailable)"
+  },
+  "s5_timing": {
+    "narrative": "Synthesis failed: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+    "entry_verdict": "neutral"
+  },
+  "s6_thesis": {
+    "narrative": "Synthesis failed."
+  },
+  "s7_recommendation": {
+    "direction": "PASS",
+    "conviction": 50,
+    "key_risks": []
+  },
+  "s8_news": {
+    "catalysts": [],
+    "count": 0
+  },
+  "s8_technical": {
+    "rsi_14": null,
+    "macd_signal": null,
+    "bb_position": null,
+    "atr_pct": null,
+    "obv_trend": null,
+    "support": null,
+    "resistance": null,
+    "trend": "unknown",
+    "chart_pattern": null,
+    "forward_bias": "watch_for_reversal",
+    "mean_reversion_score": 43,
+    "trade_type": null,
+    "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+    "quant_score": 50
+  },
+  "s9_sentiment": {
+    "analyst_consensus": "Buy",
+    "news_tone": null,
+    "short_interest_pct": null,
+    "upgrade_momentum": null,
+    "sentiment_score": 50,
+    "sentiment_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+    "contrarian_signal": null,
+    "retail_euphoria": false
+  },
+  "s10_institutional": {
+    "convergence_signals": [],
+    "fund_theses": [],
+    "unusual_options": [],
+    "multi_fund_flag": false,
+    "institutional_pct": null,
+    "insider_pct": null,
+    "major_holders": [],
+    "analyst_consensus": null,
+    "analyst_target": null,
+    "analyst_trend": null,
+    "analyst_summary": null,
+    "source": "yahoo_finance_cap_table",
+    "note": "Institutional data not available for this ticker."
+  },
+  "s11_performance": {
+    "ret_1m": -0.166,
+    "ret_3m": -0.0008,
+    "ret_6m": -0.1759,
+    "ret_1yr": null,
+    "vs_spy_1yr": null,
+    "high_52w": 373.25,
+    "low_52w": 139.11,
+    "pct_from_high": -57.1
+  },
+  "s12_risk": {
+    "beta": 3.409,
+    "max_drawdown": null,
+    "volatility_pct": null,
+    "atr_pct": null,
+    "debt_to_equity": null,
+    "current_ratio": 2.423,
+    "liquidity_risk": "low",
+    "geographic_concentration": null,
+    "data_conflicts": [
+      {
+        "metric": "revenue (EDGAR override)",
+        "yfinance_value": 6043752960,
+        "sec_edgar_value": 3108383000.0,
+        "diff_pct": 48.6,
+        "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+      },
+      {
+        "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+        "yfinance_value": -3.84,
+        "sec_edgar_value": 0.37,
+        "diff_pct": 109.6,
+        "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+      },
+      {
+        "metric": "revenue_ttm (fmp vs reconciled)",
+        "yf_av_value": 3108383000.0,
+        "fmp_value": 7181325000,
+        "diff_pct": 131.0,
+        "conservative_value": 3108383000.0,
+        "resolution": "yf_av used (conservative)"
+      }
+    ]
+  },
+  "s13_scenarios": {},
+  "s14_data": {
+    "sources": [
+      {
+        "field": "Financial metrics",
+        "source": "yfinance, sec_edgar, fmp",
+        "type": "live_api",
+        "note": "Market cap, margins, revenue, EPS pulled live from filing data"
+      },
+      {
+        "field": "Technical indicators",
+        "source": "yfinance OHLCV",
+        "type": "live_api",
+        "note": "Not available \u2014 quant agent may not have run"
+      },
+      {
+        "field": "Analyst consensus",
+        "source": "FMP + Finnhub",
+        "type": "live_api",
+        "note": "Wall Street analyst ratings and price targets"
+      },
+      {
+        "field": "Company overview, comparables narrative, management",
+        "source": "GPT-4o (LLM training knowledge)",
+        "type": "llm_knowledge",
+        "note": "Display-only. Never used for scoring or trade decisions. May be outdated."
+      },
+      {
+        "field": "Data conflicts detected",
+        "source": "Cross-source validation",
+        "type": "conflict",
+        "conflicts": [
+          {
+            "metric": "revenue (EDGAR override)",
+            "yfinance_value": 6043752960,
+            "sec_edgar_value": 3108383000.0,
+            "diff_pct": 48.6,
+            "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+          },
+          {
+            "metric": "eps (EDGAR period mismatch \u2014 skipped)",
+            "yfinance_value": -3.84,
+            "sec_edgar_value": 0.37,
+            "diff_pct": 109.6,
+            "resolution": "yfinance used \u2014 EDGAR EPS >80% different (likely prior fiscal year vs TTM)"
+          },
+          {
+            "metric": "revenue_ttm (fmp vs reconciled)",
+            "yf_av_value": 3108383000.0,
+            "fmp_value": 7181325000,
+            "diff_pct": 131.0,
+            "conservative_value": 3108383000.0,
+            "resolution": "yf_av used (conservative)"
+          }
+        ]
+      }
+    ],
+    "data_confidence": "medium",
+    "confidence_reason": "Data cross-referenced across 3 independent sources (yfinance, sec_edgar, fmp) | 3 conflict(s) found between sources \u2014 conservative figure used where sources disagreed | Some fields could not be cross-verified \u2014 figures are directionally reliable but treat specific numbers with moderate caution",
+    "sources_count": 3,
+    "conflicts_count": 3,
+    "last_updated": "2026-10-26 19:40 UTC",
+    "agents_run": [
+      "Macro",
+      "News",
+      "Fundamental",
+      "Quant",
+      "Sentiment",
+      "Committee"
+    ],
+    "llm_fields": [
+      "company_info.overview",
+      "company_info.revenue_segments",
+      "management_team",
+      "analyst_rating_history.trend",
+      "setup_checklist.sustainability_assessment",
+      "setup_checklist.upcoming_catalysts",
+      "comparables.company_names"
+    ]
+  },
+  "agent_scores": {
+    "fundamental": 50,
+    "quant": 50,
+    "sentiment": 50
+  },
+  "macro_regime": "NEUTRAL"
+}
