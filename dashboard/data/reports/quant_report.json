@@ -1,81 +1,21 @@
 {
   "quant_analyses": [
     {
-      "ticker": "LLY",
-      "quant_score": 50,
+      "ticker": "INTC",
+      "quant_score": 42,
       "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 1151.363333,
-      "current_price": 1276.22,
-      "pnl_pct": 10.84,
-      "ret_1m": 0.0772,
-      "ret_3m": 0.0562,
-      "ret_6m": 0.4648,
-      "week52_high": 1321.21,
-      "week52_low": 804.56,
-      "pct_from_52w_high": -3.4,
-      "high_52w": 1321.21,
-      "low_52w": 804.56,
-      "indicators": {
-        "rsi_14": 62.6,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 76.3,
-        "bb_pct": 0.815,
-        "volume_ratio": 0.63,
-        "obv_trend": "up",
-        "sma_50": 1188.53,
-        "sma_200": 1083.83,
-        "cross_signal": null,
-        "current_price": 1276.22,
-        "ret_1w": -0.0058,
-        "ret_1m": 0.0772,
-        "ret_3m": 0.0562,
-        "ret_6m": 0.4648,
-        "week52_high": 1321.21,
-        "week52_low": 804.56,
-        "pct_from_52w_high": -3.4,
-        "atr_14": 37.17,
-        "atr_pct": 2.91
-      },
-      "key_levels": {
-        "support": 1163.5,
-        "resistance": 1292.65,
-        "support_levels": [
-          1163.5,
-          1132.78,
-          1131.21
-        ],
-        "resistance_levels": [
-          1292.65
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "NVDA",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 40.8,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 89.59,
+      "resistance": 106.69,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
         "level": "medium",
         "sources_count": 2,
@@ -87,141 +27,81 @@
         "confidence_note": "2/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 15,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "INTC is currently in a downtrend with a mean reversion score indicating potential for a bounce, but the overall momentum remains negative. In the next 5-10 days, the stock may attempt to stabilize around support levels, but significant upward movement is unlikely without a shift in momentum.",
       "mean_reversion_signals": [
         "Declining volume on selloff \u2014 selling exhaustion"
       ],
-      "entry_price": 194.36,
-      "current_price": 216.48,
-      "pnl_pct": 11.38,
-      "ret_1m": -0.0541,
-      "ret_3m": 0.1406,
-      "ret_6m": 0.0178,
-      "week52_high": 243.37,
-      "week52_low": 163.9,
-      "pct_from_52w_high": -11.0,
-      "high_52w": 243.37,
-      "low_52w": 163.9,
+      "current_price": 92.33,
+      "ret_1m": -0.2036,
+      "ret_3m": 0.0131,
+      "ret_6m": -0.0256,
+      "week52_high": 142.35,
+      "week52_low": 32.89,
+      "pct_from_52w_high": -35.1,
+      "high_52w": 142.35,
+      "low_52w": 32.89,
       "indicators": {
-        "rsi_14": 44.7,
+        "rsi_14": 40.8,
         "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 21.8,
-        "bb_pct": 0.257,
-        "volume_ratio": 0.64,
+        "macd_histogram_expanding": true,
+        "stoch_k": 28.5,
+        "bb_pct": 0.298,
+        "volume_ratio": 0.23,
         "obv_trend": "down",
-        "sma_50": 222.23,
-        "sma_200": 203.52,
+        "sma_50": 101.64,
+        "sma_200": 86.29,
         "cross_signal": null,
-        "current_price": 216.48,
-        "ret_1w": 0.0,
-        "ret_1m": -0.0541,
-        "ret_3m": 0.1406,
-        "ret_6m": 0.0178,
-        "week52_high": 243.37,
-        "week52_low": 163.9,
-        "pct_from_52w_high": -11.0,
-        "atr_14": 6.11,
-        "atr_pct": 2.82
+        "current_price": 92.33,
+        "ret_1w": -0.0068,
+        "ret_1m": -0.2036,
+        "ret_3m": 0.0131,
+        "ret_6m": -0.0256,
+        "week52_high": 142.35,
+        "week52_low": 32.89,
+        "pct_from_52w_high": -35.1,
+        "atr_14": 5.47,
+        "atr_pct": 5.93
       },
       "key_levels": {
-        "support": 208.93,
-        "resistance": 214.15,
+        "support": 89.59,
+        "resistance": 106.69,
         "support_levels": [
-          208.93,
-          207.02,
-          197.75
+          89.59,
+          85.14,
+          81.79
         ],
         "resistance_levels": [
-          214.15,
-          227.67,
-          230.21
+          106.69,
+          107.57,
+          127.44
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 4.0,
+      "candidate_signals": [
+        "unusual_calls(27.6x_vol_oi)",
+        "dislocation_screen(-20%_1m)"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "PLTR",
-      "quant_score": 50,
+      "ticker": "PG",
+      "quant_score": 82,
       "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "price_action"
-        ],
-        "conflicts": [
-          "volume diverging from price direction",
-          "RSI bullish but MACD bearish"
-        ],
-        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bullish but MACD bearish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
       "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 126.59,
-      "current_price": 199.4,
-      "pnl_pct": 57.52,
-      "ret_1m": 0.0636,
-      "ret_3m": 0.6211,
-      "ret_6m": 0.4123,
-      "week52_high": 212.94,
-      "week52_low": 106.37,
-      "pct_from_52w_high": -6.4,
-      "high_52w": 212.94,
-      "low_52w": 106.37,
-      "indicators": {
-        "rsi_14": 56.5,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 52.5,
-        "bb_pct": 0.615,
-        "volume_ratio": 0.54,
-        "obv_trend": "down",
-        "sma_50": 185.26,
-        "sma_200": 153.26,
-        "cross_signal": null,
-        "current_price": 199.4,
-        "ret_1w": 0.0353,
-        "ret_1m": 0.0636,
-        "ret_3m": 0.6211,
-        "ret_6m": 0.4123,
-        "week52_high": 212.94,
-        "week52_low": 106.37,
-        "pct_from_52w_high": -6.4,
-        "atr_14": 8.06,
-        "atr_pct": 4.04
-      },
-      "key_levels": {
-        "support": 184.45,
-        "resistance": 212.94,
-        "support_levels": [
-          184.45,
-          164.55,
-          122.64
-        ],
-        "resistance_levels": [
-          212.94
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "V",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
+      "trend": "uptrend",
+      "rsi_14": 62.5,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 142.64,
+      "resistance": null,
+      "key_patterns": [
+        "golden_cross",
+        "bullish_ma_stack",
+        "higher_highs_higher_lows"
+      ],
       "signal_confidence": {
         "level": "high",
         "sources_count": 3,
@@ -234,63 +114,334 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "The technical setup indicates a strong bullish momentum with key patterns supporting a long position. Over the next 5-10 days, PG is likely to continue its upward trajectory, potentially approaching its 52-week high.",
       "mean_reversion_signals": [],
-      "entry_price": 346.556,
-      "current_price": 403.94,
-      "pnl_pct": 16.56,
-      "ret_1m": 0.0984,
-      "ret_3m": 0.0975,
-      "ret_6m": 0.3111,
-      "week52_high": 414.6,
-      "week52_low": 292.74,
-      "pct_from_52w_high": -2.6,
-      "high_52w": 414.6,
-      "low_52w": 292.74,
+      "current_price": 159.51,
+      "ret_1m": 0.0826,
+      "ret_3m": 0.1154,
+      "ret_6m": 0.1045,
+      "week52_high": 165.75,
+      "week52_low": 133.74,
+      "pct_from_52w_high": -3.8,
+      "high_52w": 165.75,
+      "low_52w": 133.74,
       "indicators": {
-        "rsi_14": 65.0,
+        "rsi_14": 62.5,
         "macd_bullish": true,
         "macd_histogram_expanding": false,
-        "stoch_k": 76.3,
-        "bb_pct": 0.732,
-        "volume_ratio": 0.65,
+        "stoch_k": 68.3,
+        "bb_pct": 0.759,
+        "volume_ratio": 0.06,
         "obv_trend": "up",
-        "sma_50": 377.86,
-        "sma_200": 340.03,
-        "cross_signal": null,
-        "current_price": 403.94,
-        "ret_1w": -0.0065,
-        "ret_1m": 0.0984,
-        "ret_3m": 0.0975,
-        "ret_6m": 0.3111,
-        "week52_high": 414.6,
-        "week52_low": 292.74,
-        "pct_from_52w_high": -2.6,
-        "atr_14": 6.66,
-        "atr_pct": 1.65
+        "sma_50": 148.09,
+        "sma_200": 146.57,
+        "cross_signal": "golden_cross",
+        "current_price": 159.51,
+        "ret_1w": 0.0238,
+        "ret_1m": 0.0826,
+        "ret_3m": 0.1154,
+        "ret_6m": 0.1045,
+        "week52_high": 165.75,
+        "week52_low": 133.74,
+        "pct_from_52w_high": -3.8,
+        "atr_14": 2.95,
+        "atr_pct": 1.85
       },
       "key_levels": {
-        "support": 365.52,
+        "support": 142.64,
         "resistance": null,
         "support_levels": [
-          365.52,
-          359.8,
-          358.2
+          142.64,
+          142.46,
+          142.16
         ],
         "resistance_levels": []
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 4.0,
+      "candidate_signals": [
+        "institutional_signal",
+        "unusual_calls(640.0x_vol_oi)",
+        "macro_tailwind"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "MSFT",
-      "quant_score": 50,
+      "ticker": "JNJ",
+      "quant_score": 62,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 56.5,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 263.83,
+      "resistance": 264.39,
+      "key_patterns": [
+        "bullish_ma_stack",
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "low",
+        "sources_count": 1,
+        "sources": [
+          "momentum_oscillators"
+        ],
+        "conflicts": [
+          "volume diverging from price direction"
+        ],
+        "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "The technical setup shows an uptrend with bullish momentum indicators, suggesting potential for price appreciation in the next 5-10 days. However, the low signal confidence and volume divergence indicate caution, but a long position may still be warranted.",
+      "mean_reversion_signals": [],
+      "current_price": 267.47,
+      "ret_1m": -0.0004,
+      "ret_3m": 0.0507,
+      "ret_6m": 0.1891,
+      "week52_high": 281.07,
+      "week52_low": 180.59,
+      "pct_from_52w_high": -4.8,
+      "high_52w": 281.07,
+      "low_52w": 180.59,
+      "indicators": {
+        "rsi_14": 56.5,
+        "macd_bullish": true,
+        "macd_histogram_expanding": true,
+        "stoch_k": 82.0,
+        "bb_pct": 0.913,
+        "volume_ratio": 0.08,
+        "obv_trend": "up",
+        "sma_50": 265.29,
+        "sma_200": 244.39,
+        "cross_signal": null,
+        "current_price": 267.47,
+        "ret_1w": 0.0376,
+        "ret_1m": -0.0004,
+        "ret_3m": 0.0507,
+        "ret_6m": 0.1891,
+        "week52_high": 281.07,
+        "week52_low": 180.59,
+        "pct_from_52w_high": -4.8,
+        "atr_14": 6.26,
+        "atr_pct": 2.34
+      },
+      "key_levels": {
+        "support": 263.83,
+        "resistance": 264.39,
+        "support_levels": [
+          263.83,
+          260.68,
+          249.21
+        ],
+        "resistance_levels": [
+          264.39,
+          268.11,
+          273.55
+        ]
+      },
+      "candidate_score": 3.5,
+      "candidate_signals": [
+        "fresh_catalyst",
+        "sector_momentum",
+        "macro_tailwind"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "ORCL",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 40,
+      "trend": "downtrend",
+      "rsi_14": 44.1,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 131.1,
+      "resistance": 146.4,
+      "key_patterns": [
+        "bearish_ma_stack",
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3,
+        "sources": [
+          "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "The technical setup indicates a potential for mean reversion as the price is significantly below the SMA200 and near the 52-week low. In the next 5-10 days, a bounce towards resistance at $146.4 is likely, despite the current downtrend.",
+      "mean_reversion_signals": [
+        "Price 17% below SMA200",
+        "Within 15% of 52W low",
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 129.92,
+      "ret_1m": -0.0536,
+      "ret_3m": 0.0223,
+      "ret_6m": -0.2013,
+      "week52_high": 283.21,
+      "week52_low": 114.08,
+      "pct_from_52w_high": -54.1,
+      "high_52w": 283.21,
+      "low_52w": 114.08,
+      "indicators": {
+        "rsi_14": 44.1,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 33.4,
+        "bb_pct": 0.31,
+        "volume_ratio": 0.17,
+        "obv_trend": "down",
+        "sma_50": 141.67,
+        "sma_200": 156.82,
+        "cross_signal": null,
+        "current_price": 129.92,
+        "ret_1w": 0.0061,
+        "ret_1m": -0.0536,
+        "ret_3m": 0.0223,
+        "ret_6m": -0.2013,
+        "week52_high": 283.21,
+        "week52_low": 114.08,
+        "pct_from_52w_high": -54.1,
+        "atr_14": 6.29,
+        "atr_pct": 4.84
+      },
+      "key_levels": {
+        "support": 131.1,
+        "resistance": 146.4,
+        "support_levels": [
+          131.1,
+          114.08
+        ],
+        "resistance_levels": [
+          146.4,
+          148.01,
+          153.03
+        ]
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "AVGO",
+      "quant_score": 38,
+      "direction": "SHORT",
+      "trade_type": "momentum",
+      "forward_bias": "bearish",
+      "mean_reversion_score": 15,
+      "trend": "downtrend",
+      "rsi_14": 46.5,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 343.29,
+      "resistance": 366.55,
+      "key_patterns": [
+        "death_cross",
+        "bearish_ma_stack"
+      ],
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3,
+        "sources": [
+          "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "AVGO is currently in a downtrend with bearish momentum signals and a low mean reversion score, indicating continued downward pressure. In the next 5-10 days, the price is likely to test support levels around $343.29, with a bearish bias prevailing.",
+      "mean_reversion_signals": [
+        "Declining volume on selloff \u2014 selling exhaustion"
+      ],
+      "current_price": 340.01,
+      "ret_1m": -0.0425,
+      "ret_3m": -0.1217,
+      "ret_6m": -0.1585,
+      "week52_high": 493.32,
+      "week52_low": 288.98,
+      "pct_from_52w_high": -31.1,
+      "high_52w": 493.32,
+      "low_52w": 288.98,
+      "indicators": {
+        "rsi_14": 46.5,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 37.2,
+        "bb_pct": 0.389,
+        "volume_ratio": 0.25,
+        "obv_trend": "down",
+        "sma_50": 354.13,
+        "sma_200": 366.72,
+        "cross_signal": "death_cross",
+        "current_price": 340.01,
+        "ret_1w": 0.0065,
+        "ret_1m": -0.0425,
+        "ret_3m": -0.1217,
+        "ret_6m": -0.1585,
+        "week52_high": 493.32,
+        "week52_low": 288.98,
+        "pct_from_52w_high": -31.1,
+        "atr_14": 11.58,
+        "atr_pct": 3.4
+      },
+      "key_levels": {
+        "support": 343.29,
+        "resistance": 366.55,
+        "support_levels": [
+          343.29,
+          341.71,
+          335.2
+        ],
+        "resistance_levels": [
+          366.55,
+          375.91,
+          380.84
+        ]
+      },
+      "candidate_score": 3.0,
+      "candidate_signals": [
+        "institutional_signal",
+        "analyst_upgrade"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "AAPL",
+      "quant_score": 62,
+      "direction": "LONG",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 0,
+      "trend": "uptrend",
+      "rsi_14": 56.6,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 338.7,
+      "resistance": 344.27,
+      "key_patterns": [
+        "bullish_ma_stack",
+        "higher_highs_higher_lows",
+        "consolidation"
+      ],
       "signal_confidence": {
         "level": "low",
         "sources_count": 1,
@@ -303,117 +454,129 @@
         ],
         "confidence_note": "1/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bullish but MACD bearish"
       },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
+      "data_conflicts": [
+        "volume diverging from price direction",
+        "RSI bullish but MACD bearish"
+      ],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "AAPL is currently in an uptrend, showing bullish patterns despite some bearish momentum indicators. In the next 5-10 days, the price is likely to test resistance at $344.27, with a bullish bias supported by the overall trend.",
       "mean_reversion_signals": [],
-      "entry_price": 394.804444,
-      "current_price": 531.87,
-      "pnl_pct": 34.72,
-      "ret_1m": 0.0445,
-      "ret_3m": 0.3644,
-      "ret_6m": 0.2441,
-      "week52_high": 551.15,
-      "week52_low": 348.54,
-      "pct_from_52w_high": -3.5,
-      "high_52w": 551.15,
-      "low_52w": 348.54,
+      "current_price": 343.19,
+      "ret_1m": 0.0419,
+      "ret_3m": 0.0302,
+      "ret_6m": 0.2725,
+      "week52_high": 351.73,
+      "week52_low": 242.76,
+      "pct_from_52w_high": -2.4,
+      "high_52w": 351.73,
+      "low_52w": 242.76,
       "indicators": {
-        "rsi_14": 56.9,
+        "rsi_14": 56.6,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 45.6,
-        "bb_pct": 0.608,
-        "volume_ratio": 0.55,
+        "stoch_k": 59.4,
+        "bb_pct": 0.666,
+        "volume_ratio": 0.1,
         "obv_trend": "down",
-        "sma_50": 509.1,
-        "sma_200": 435.65,
+        "sma_50": 330.98,
+        "sma_200": 294.96,
         "cross_signal": null,
-        "current_price": 531.87,
-        "ret_1w": 0.0,
-        "ret_1m": 0.0445,
-        "ret_3m": 0.3644,
-        "ret_6m": 0.2441,
-        "week52_high": 551.15,
-        "week52_low": 348.54,
-        "pct_from_52w_high": -3.5,
-        "atr_14": 11.27,
-        "atr_pct": 2.12
+        "current_price": 343.19,
+        "ret_1w": -0.0023,
+        "ret_1m": 0.0419,
+        "ret_3m": 0.0302,
+        "ret_6m": 0.2725,
+        "week52_high": 351.73,
+        "week52_low": 242.76,
+        "pct_from_52w_high": -2.4,
+        "atr_14": 6.17,
+        "atr_pct": 1.8
       },
       "key_levels": {
-        "support": 486.0,
-        "resistance": 551.15,
+        "support": 338.7,
+        "resistance": 344.27,
         "support_levels": [
-          486.0,
-          476.25,
-          376.68
+          338.7,
+          325.81,
+          319.07
         ],
         "resistance_levels": [
-          551.15
+          344.27,
+          345.34,
+          348.15
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "unusual_calls(2.1x_vol_oi)"
+      ],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "AMZN",
-      "quant_score": 50,
+      "quant_score": 42,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 10,
+      "trend": "downtrend",
+      "rsi_14": 44.4,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 244.73,
+      "resistance": 249.71,
+      "key_patterns": [
+        "higher_highs_higher_lows",
+        "consolidation"
+      ],
       "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
           "price_action",
-          "volume",
           "momentum_oscillators"
         ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
+        "conflicts": [
+          "volume diverging from price direction"
+        ],
+        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 10,
-      "forward_bias": "momentum_continuation",
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "The technical setup indicates a potential for a bounce despite the current downtrend, with oversold conditions present. In the next 5-10 days, AMZN may experience a short-term rally towards resistance at $249.71.",
       "mean_reversion_signals": [
         "Stochastic oversold"
       ],
-      "entry_price": 279.866471,
-      "current_price": 249.08,
-      "pnl_pct": -11.0,
-      "ret_1m": 0.0119,
-      "ret_3m": 0.099,
-      "ret_6m": -0.0409,
+      "current_price": 249.16,
+      "ret_1m": 0.0101,
+      "ret_3m": 0.058,
+      "ret_6m": -0.0527,
       "week52_high": 287.2,
       "week52_low": 196.0,
-      "pct_from_52w_high": -13.3,
+      "pct_from_52w_high": -13.2,
       "high_52w": 287.2,
       "low_52w": 196.0,
       "indicators": {
-        "rsi_14": 44.3,
+        "rsi_14": 44.4,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 13.9,
-        "bb_pct": 0.246,
-        "volume_ratio": 0.64,
-        "obv_trend": "up",
-        "sma_50": 255.38,
-        "sma_200": 243.31,
+        "stoch_k": 14.4,
+        "bb_pct": 0.237,
+        "volume_ratio": 0.12,
+        "obv_trend": "down",
+        "sma_50": 255.13,
+        "sma_200": 243.32,
         "cross_signal": null,
-        "current_price": 249.08,
-        "ret_1w": -0.0516,
-        "ret_1m": 0.0119,
-        "ret_3m": 0.099,
-        "ret_6m": -0.0409,
+        "current_price": 249.16,
+        "ret_1w": -0.0503,
+        "ret_1m": 0.0101,
+        "ret_3m": 0.058,
+        "ret_6m": -0.0527,
         "week52_high": 287.2,
         "week52_low": 196.0,
-        "pct_from_52w_high": -13.3,
-        "atr_14": 6.44,
-        "atr_pct": 2.59
+        "pct_from_52w_high": -13.2,
+        "atr_14": 6.16,
+        "atr_pct": 2.47
       },
       "key_levels": {
         "support": 244.73,
@@ -429,527 +592,29 @@
           259.49
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "XOM",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [
-          "RSI overbought while in bullish MA stack \u2014 momentum stretched"
-        ],
-        "confidence_note": "3/3 signal sources confirming; conflicts: RSI overbought while in bullish MA stack \u2014 momentum stretched"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 155.34,
-      "current_price": 184.07,
-      "pnl_pct": 18.49,
-      "ret_1m": 0.1326,
-      "ret_3m": 0.1819,
-      "ret_6m": 0.2388,
-      "week52_high": 184.58,
-      "week52_low": 109.34,
-      "pct_from_52w_high": -0.3,
-      "high_52w": 184.58,
-      "low_52w": 109.34,
-      "indicators": {
-        "rsi_14": 77.0,
-        "macd_bullish": true,
-        "macd_histogram_expanding": true,
-        "stoch_k": 97.6,
-        "bb_pct": 0.921,
-        "volume_ratio": 0.61,
-        "obv_trend": "up",
-        "sma_50": 166.26,
-        "sma_200": 152.2,
-        "cross_signal": null,
-        "current_price": 184.07,
-        "ret_1w": 0.0349,
-        "ret_1m": 0.1326,
-        "ret_3m": 0.1819,
-        "ret_6m": 0.2388,
-        "week52_high": 184.58,
-        "week52_low": 109.34,
-        "pct_from_52w_high": -0.3,
-        "atr_14": 3.83,
-        "atr_pct": 2.08
-      },
-      "key_levels": {
-        "support": 155.85,
-        "resistance": null,
-        "support_levels": [
-          155.85,
-          155.32,
-          148.13
-        ],
-        "resistance_levels": []
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "AAPL",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "high",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "3/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 306.5435,
-      "current_price": 344.5,
-      "pnl_pct": 12.38,
-      "ret_1m": 0.018,
-      "ret_3m": 0.0195,
-      "ret_6m": 0.2748,
-      "week52_high": 351.73,
-      "week52_low": 242.76,
-      "pct_from_52w_high": -2.1,
-      "high_52w": 351.73,
-      "low_52w": 242.76,
-      "indicators": {
-        "rsi_14": 58.6,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 65.6,
-        "bb_pct": 0.742,
-        "volume_ratio": 0.6,
-        "obv_trend": "up",
-        "sma_50": 330.24,
-        "sma_200": 294.54,
-        "cross_signal": null,
-        "current_price": 344.5,
-        "ret_1w": 0.0147,
-        "ret_1m": 0.018,
-        "ret_3m": 0.0195,
-        "ret_6m": 0.2748,
-        "week52_high": 351.73,
-        "week52_low": 242.76,
-        "pct_from_52w_high": -2.1,
-        "atr_14": 6.43,
-        "atr_pct": 1.87
-      },
-      "key_levels": {
-        "support": 325.81,
-        "resistance": 344.27,
-        "support_levels": [
-          325.81,
-          319.07,
-          309.9
-        ],
-        "resistance_levels": [
-          344.27,
-          345.34,
-          348.15
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "META",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [],
-        "confidence_note": "2/3 signal sources confirming"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 40,
-      "forward_bias": "watch_for_reversal",
-      "mean_reversion_signals": [
-        "RSI oversold (34.3)",
-        "At/below lower Bollinger Band (BB%=-0.08)",
-        "Stochastic oversold"
+      "candidate_score": 2.5,
+      "candidate_signals": [
+        "unusual_calls(9.7x_vol_oi)"
       ],
-      "entry_price": 552.652102,
-      "current_price": 634.09,
-      "pnl_pct": 14.74,
-      "ret_1m": -0.1139,
-      "ret_3m": 0.0836,
-      "ret_6m": -0.0539,
-      "week52_high": 779.82,
-      "week52_low": 519.37,
-      "pct_from_52w_high": -18.7,
-      "high_52w": 779.82,
-      "low_52w": 519.37,
-      "indicators": {
-        "rsi_14": 34.3,
-        "macd_bullish": false,
-        "macd_histogram_expanding": false,
-        "stoch_k": 3.6,
-        "bb_pct": -0.082,
-        "volume_ratio": 1.0,
-        "obv_trend": "down",
-        "sma_50": 664.47,
-        "sma_200": 631.61,
-        "cross_signal": null,
-        "current_price": 634.09,
-        "ret_1w": -0.0867,
-        "ret_1m": -0.1139,
-        "ret_3m": 0.0836,
-        "ret_6m": -0.0539,
-        "week52_high": 779.82,
-        "week52_low": 519.37,
-        "pct_from_52w_high": -18.7,
-        "atr_14": 25.55,
-        "atr_pct": 4.03
-      },
-      "key_levels": {
-        "support": 576.61,
-        "resistance": 685.54,
-        "support_levels": [
-          576.61,
-          555.66,
-          536.85
-        ],
-        "resistance_levels": [
-          685.54,
-          771.27,
-          779.82
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "AKAM",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "price_action",
-          "momentum_oscillators"
-        ],
-        "conflicts": [
-          "volume diverging from price direction"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 8,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [
-        "Price 12% below SMA200"
-      ],
-      "entry_price": 113.67,
-      "current_price": 98.36,
-      "pnl_pct": -13.47,
-      "ret_1m": -0.0975,
-      "ret_3m": -0.0842,
-      "ret_6m": 0.0307,
-      "week52_high": 165.45,
-      "week52_low": 70.82,
-      "pct_from_52w_high": -40.5,
-      "high_52w": 165.45,
-      "low_52w": 70.82,
-      "indicators": {
-        "rsi_14": 47.9,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 52.2,
-        "bb_pct": 0.474,
-        "volume_ratio": 0.77,
-        "obv_trend": "up",
-        "sma_50": 105.4,
-        "sma_200": 112.41,
-        "cross_signal": null,
-        "current_price": 98.36,
-        "ret_1w": 0.0974,
-        "ret_1m": -0.0975,
-        "ret_3m": -0.0842,
-        "ret_6m": 0.0307,
-        "week52_high": 165.45,
-        "week52_low": 70.82,
-        "pct_from_52w_high": -40.5,
-        "atr_14": 5.64,
-        "atr_pct": 5.74
-      },
-      "key_levels": {
-        "support": null,
-        "resistance": 112.76,
-        "support_levels": [],
-        "resistance_levels": [
-          112.76,
-          127.04,
-          128.46
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "LYB",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 3,
-        "sources": [
-          "price_action",
-          "volume",
-          "momentum_oscillators"
-        ],
-        "conflicts": [
-          "RSI overbought while in bullish MA stack \u2014 momentum stretched"
-        ],
-        "confidence_note": "3/3 signal sources confirming; conflicts: RSI overbought while in bullish MA stack \u2014 momentum stretched"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 52.913137,
-      "current_price": 67.53,
-      "pnl_pct": 27.62,
-      "ret_1m": 0.1588,
-      "ret_3m": 0.1278,
-      "ret_6m": -0.0356,
-      "week52_high": 82.22,
-      "week52_low": 39.12,
-      "pct_from_52w_high": -17.9,
-      "high_52w": 82.22,
-      "low_52w": 39.12,
-      "indicators": {
-        "rsi_14": 70.9,
-        "macd_bullish": true,
-        "macd_histogram_expanding": true,
-        "stoch_k": 88.3,
-        "bb_pct": 1.02,
-        "volume_ratio": 0.79,
-        "obv_trend": "up",
-        "sma_50": 62.59,
-        "sma_200": 62.55,
-        "cross_signal": null,
-        "current_price": 67.53,
-        "ret_1w": 0.0557,
-        "ret_1m": 0.1588,
-        "ret_3m": 0.1278,
-        "ret_6m": -0.0356,
-        "week52_high": 82.22,
-        "week52_low": 39.12,
-        "pct_from_52w_high": -17.9,
-        "atr_14": 1.88,
-        "atr_pct": 2.78
-      },
-      "key_levels": {
-        "support": 61.48,
-        "resistance": 67.49,
-        "support_levels": [
-          61.48,
-          57.27,
-          57.25
-        ],
-        "resistance_levels": [
-          67.49,
-          68.42
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "QCOM",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 0,
-        "sources": [],
-        "conflicts": [
-          "volume diverging from price direction",
-          "RSI bullish but MACD bearish"
-        ],
-        "confidence_note": "0/3 signal sources confirming; conflicts: volume diverging from price direction; RSI bullish but MACD bearish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 148.974,
-      "current_price": 179.7,
-      "pnl_pct": 20.63,
-      "ret_1m": -0.0415,
-      "ret_3m": 0.1606,
-      "ret_6m": 0.209,
-      "week52_high": 257.56,
-      "week52_low": 120.88,
-      "pct_from_52w_high": -30.2,
-      "high_52w": 257.56,
-      "low_52w": 120.88,
-      "indicators": {
-        "rsi_14": 52.0,
-        "macd_bullish": false,
-        "macd_histogram_expanding": true,
-        "stoch_k": 89.3,
-        "bb_pct": 0.624,
-        "volume_ratio": 0.45,
-        "obv_trend": "up",
-        "sma_50": 176.16,
-        "sma_200": 168.12,
-        "cross_signal": null,
-        "current_price": 179.7,
-        "ret_1w": 0.0227,
-        "ret_1m": -0.0415,
-        "ret_3m": 0.1606,
-        "ret_6m": 0.209,
-        "week52_high": 257.56,
-        "week52_low": 120.88,
-        "pct_from_52w_high": -30.2,
-        "atr_14": 6.7,
-        "atr_pct": 3.73
-      },
-      "key_levels": {
-        "support": 171.19,
-        "resistance": 195.03,
-        "support_levels": [
-          171.19,
-          168.84,
-          163.88
-        ],
-        "resistance_levels": [
-          195.03,
-          205.85
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
-      "swarm_memory_hits": 0
-    },
-    {
-      "ticker": "TTD",
-      "quant_score": 50,
-      "direction": "LONG",
-      "trend": "unknown",
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "volume"
-        ],
-        "conflicts": [
-          "RSI bearish but MACD bullish"
-        ],
-        "confidence_note": "1/3 signal sources confirming; conflicts: RSI bearish but MACD bullish"
-      },
-      "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 35,
-      "forward_bias": "watch_for_reversal",
-      "mean_reversion_signals": [
-        "Price 38% below SMA200 \u2014 extreme dislocation",
-        "Within 15% of 52W low"
-      ],
-      "entry_price": 13.965,
-      "current_price": 12.7,
-      "pnl_pct": -9.06,
-      "ret_1m": 0.0296,
-      "ret_3m": -0.3345,
-      "ret_6m": -0.4531,
-      "week52_high": 54.04,
-      "week52_low": 11.62,
-      "pct_from_52w_high": -76.5,
-      "high_52w": 54.04,
-      "low_52w": 11.62,
-      "indicators": {
-        "rsi_14": 48.8,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 64.2,
-        "bb_pct": 0.738,
-        "volume_ratio": 0.38,
-        "obv_trend": "up",
-        "sma_50": 13.16,
-        "sma_200": 20.55,
-        "cross_signal": null,
-        "current_price": 12.7,
-        "ret_1w": 0.0043,
-        "ret_1m": 0.0296,
-        "ret_3m": -0.3345,
-        "ret_6m": -0.4531,
-        "week52_high": 54.04,
-        "week52_low": 11.62,
-        "pct_from_52w_high": -76.5,
-        "atr_14": 0.53,
-        "atr_pct": 4.16
-      },
-      "key_levels": {
-        "support": 12.83,
-        "resistance": 13.31,
-        "support_levels": [
-          12.83,
-          11.62
-        ],
-        "resistance_levels": [
-          13.31,
-          15.26,
-          15.31
-        ]
-      },
-      "candidate_score": null,
-      "candidate_signals": [],
       "swarm_memory_hits": 0
     },
     {
       "ticker": "COIN",
-      "quant_score": 50,
+      "quant_score": 62,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 53,
+      "trend": "downtrend",
+      "rsi_14": 38.4,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 161.18,
+      "resistance": 155.4,
+      "key_patterns": [
+        "golden_cross",
+        "lower_highs_lower_lows"
+      ],
       "signal_confidence": {
         "level": "high",
         "sources_count": 3,
@@ -962,72 +627,80 @@
         "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 43,
-      "forward_bias": "watch_for_reversal",
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "Despite the current downtrend and bearish momentum indicators, the oversold conditions and mean reversion signals suggest a potential bounce in the next 5-10 days. Watch for a reversal as price approaches key support at $161.18.",
       "mean_reversion_signals": [
-        "Price 11% below SMA200",
+        "Price 12% below SMA200",
+        "Within 15% of 52W low",
         "Declining volume on selloff \u2014 selling exhaustion",
-        "At/below lower Bollinger Band (BB%=-0.03)",
+        "At/below lower Bollinger Band (BB%=-0.00)",
         "Stochastic oversold"
       ],
-      "entry_price": 149.75,
-      "current_price": 159.96,
-      "pnl_pct": 6.82,
-      "ret_1m": -0.166,
-      "ret_3m": -0.0008,
-      "ret_6m": -0.1759,
+      "current_price": 158.24,
+      "ret_1m": -0.1672,
+      "ret_3m": -0.0326,
+      "ret_6m": -0.1293,
       "week52_high": 373.25,
       "week52_low": 139.11,
-      "pct_from_52w_high": -57.1,
+      "pct_from_52w_high": -57.6,
       "high_52w": 373.25,
       "low_52w": 139.11,
       "indicators": {
-        "rsi_14": 39.2,
+        "rsi_14": 38.4,
         "macd_bullish": false,
         "macd_histogram_expanding": false,
-        "stoch_k": 15.4,
-        "bb_pct": -0.03,
-        "volume_ratio": 0.61,
+        "stoch_k": 9.7,
+        "bb_pct": -0.001,
+        "volume_ratio": 0.11,
         "obv_trend": "down",
-        "sma_50": 179.78,
-        "sma_200": 180.07,
-        "cross_signal": null,
-        "current_price": 159.96,
-        "ret_1w": -0.0638,
-        "ret_1m": -0.166,
-        "ret_3m": -0.0008,
-        "ret_6m": -0.1759,
+        "sma_50": 179.93,
+        "sma_200": 179.66,
+        "cross_signal": "golden_cross",
+        "current_price": 158.24,
+        "ret_1w": -0.1064,
+        "ret_1m": -0.1672,
+        "ret_3m": -0.0326,
+        "ret_6m": -0.1293,
         "week52_high": 373.25,
         "week52_low": 139.11,
-        "pct_from_52w_high": -57.1,
-        "atr_14": 10.4,
-        "atr_pct": 6.5
+        "pct_from_52w_high": -57.6,
+        "atr_14": 9.95,
+        "atr_pct": 6.29
       },
       "key_levels": {
         "support": 161.18,
-        "resistance": 173.09,
+        "resistance": 155.4,
         "support_levels": [
           161.18,
           152.58,
           146.02
         ],
         "resistance_levels": [
+          155.4,
           173.09,
-          181.49,
-          185.49
+          181.49
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "institutional_signal"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "SNDK",
-      "quant_score": 50,
+      "ticker": "HD",
+      "quant_score": 67,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "momentum",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 10,
+      "trend": "uptrend",
+      "rsi_14": 59.2,
+      "macd_signal": "bullish",
+      "volume_trend": "accumulation",
+      "support": 320.69,
+      "resistance": 351.39,
+      "key_patterns": [],
       "signal_confidence": {
         "level": "medium",
         "sources_count": 2,
@@ -1039,47 +712,124 @@
         "confidence_note": "2/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 45,
-      "forward_bias": "watch_for_reversal",
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "The technical setup indicates a potential bullish momentum continuation as the price is above the SMA50 and momentum is accelerating. In the next 5-10 days, HD is likely to test the resistance level at $351.39.",
       "mean_reversion_signals": [
-        "RSI oversold (32.8)",
+        "Within 15% of 52W low"
+      ],
+      "current_price": 316.63,
+      "ret_1m": 0.0993,
+      "ret_3m": -0.0432,
+      "ret_6m": -0.0045,
+      "week52_high": 389.18,
+      "week52_low": 277.15,
+      "pct_from_52w_high": -18.6,
+      "high_52w": 389.18,
+      "low_52w": 277.15,
+      "indicators": {
+        "rsi_14": 59.2,
+        "macd_bullish": true,
+        "macd_histogram_expanding": false,
+        "stoch_k": 75.0,
+        "bb_pct": 0.774,
+        "volume_ratio": 0.06,
+        "obv_trend": "up",
+        "sma_50": 308.59,
+        "sma_200": 331.26,
+        "cross_signal": null,
+        "current_price": 316.63,
+        "ret_1w": 0.0079,
+        "ret_1m": 0.0993,
+        "ret_3m": -0.0432,
+        "ret_6m": -0.0045,
+        "week52_high": 389.18,
+        "week52_low": 277.15,
+        "pct_from_52w_high": -18.6,
+        "atr_14": 7.02,
+        "atr_pct": 2.22
+      },
+      "key_levels": {
+        "support": 320.69,
+        "resistance": 351.39,
+        "support_levels": [
+          320.69,
+          277.15
+        ],
+        "resistance_levels": [
+          351.39,
+          355.74,
+          356.22
+        ]
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "institutional_signal"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "SNDK",
+      "quant_score": 42,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "neutral",
+      "mean_reversion_score": 25,
+      "trend": "downtrend",
+      "rsi_14": 36.0,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": 998.19,
+      "resistance": 1446.62,
+      "key_patterns": [
+        "lower_highs_lower_lows"
+      ],
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "2/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "SNDK is currently in a downtrend with a mean reversion score indicating potential for a bounce, but the overall momentum remains negative. In the next 5-10 days, the price may attempt to stabilize near support levels, but significant upward movement is uncertain given the bearish indicators.",
+      "mean_reversion_signals": [
         "Declining volume on selloff \u2014 selling exhaustion",
         "Stochastic oversold"
       ],
-      "entry_price": 1243.93,
-      "current_price": 1262.51,
-      "pnl_pct": 1.49,
-      "ret_1m": -0.2629,
-      "ret_3m": 0.2428,
-      "ret_6m": 0.2595,
+      "current_price": 1294.91,
+      "ret_1m": -0.2514,
+      "ret_3m": 0.0117,
+      "ret_6m": 0.2168,
       "week52_high": 2354.39,
       "week52_low": 164.56,
-      "pct_from_52w_high": -46.4,
+      "pct_from_52w_high": -45.0,
       "high_52w": 2354.39,
       "low_52w": 164.56,
       "indicators": {
-        "rsi_14": 32.8,
+        "rsi_14": 36.0,
         "macd_bullish": false,
         "macd_histogram_expanding": true,
-        "stoch_k": 6.7,
-        "bb_pct": 0.161,
-        "volume_ratio": 0.71,
+        "stoch_k": 14.8,
+        "bb_pct": 0.234,
+        "volume_ratio": 0.21,
         "obv_trend": "down",
-        "sma_50": 1585.88,
-        "sma_200": 1240.97,
+        "sma_50": 1575.9,
+        "sma_200": 1245.52,
         "cross_signal": null,
-        "current_price": 1262.51,
-        "ret_1w": -0.0753,
-        "ret_1m": -0.2629,
-        "ret_3m": 0.2428,
-        "ret_6m": 0.2595,
+        "current_price": 1294.91,
+        "ret_1w": -0.0605,
+        "ret_1m": -0.2514,
+        "ret_3m": 0.0117,
+        "ret_6m": 0.2168,
         "week52_high": 2354.39,
         "week52_low": 164.56,
-        "pct_from_52w_high": -46.4,
-        "atr_14": 93.48,
-        "atr_pct": 7.4
+        "pct_from_52w_high": -45.0,
+        "atr_14": 90.33,
+        "atr_pct": 6.98
       },
       "key_levels": {
         "support": 998.19,
@@ -1093,86 +843,179 @@
           1807.38
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "dislocation_screen(-25%_1m)"
+      ],
       "swarm_memory_hits": 0
     },
     {
-      "ticker": "WMT",
-      "quant_score": 50,
+      "ticker": "LRCX",
+      "quant_score": 72,
       "direction": "LONG",
-      "trend": "unknown",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 60,
+      "trend": "downtrend",
+      "rsi_14": 29.7,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 321.07,
+      "key_patterns": [
+        "oversold_potential_reversal"
+      ],
       "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
+        "level": "high",
+        "sources_count": 3,
         "sources": [
           "price_action",
+          "volume",
           "momentum_oscillators"
         ],
-        "conflicts": [
-          "volume diverging from price direction"
-        ],
-        "confidence_note": "2/3 signal sources confirming; conflicts: volume diverging from price direction"
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
       },
       "data_conflicts": [],
-      "pattern_learning_note": "No prior history for these specific signal combinations in NEUTRAL regime. Applying neutral weighting. Will learn from today's outcome.",
-      "quant_summary": "Analysis unavailable: Error code: 429 - {'error': {'message': 'You have no credits remaining. Add credits to continue using the API at https://platform.openai.com/settings/organization/billing/.', 'type': 'insufficient_quota', 'param': None, 'code': 'credit_balance_exhausted'}}",
-      "mean_reversion_score": 0,
-      "forward_bias": "momentum_continuation",
-      "mean_reversion_signals": [],
-      "entry_price": 104.6199,
-      "current_price": 119.9,
-      "pnl_pct": 14.61,
-      "ret_1m": 0.1028,
-      "ret_3m": 0.0523,
-      "ret_6m": -0.0562,
-      "week52_high": 134.84,
-      "week52_low": 98.05,
-      "pct_from_52w_high": -11.1,
-      "high_52w": 134.84,
-      "low_52w": 98.05,
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "LRCX is currently in a downtrend but shows signs of being oversold, with a strong mean reversion setup indicated by the RSI and Stochastic readings. In the next 5-10 days, a bounce towards resistance at $321.07 is likely as selling exhaustion appears to be setting in.",
+      "mean_reversion_signals": [
+        "RSI oversold (29.7)",
+        "Price 16% below SMA200",
+        "Declining volume on selloff \u2014 selling exhaustion",
+        "Stochastic oversold"
+      ],
+      "current_price": 238.53,
+      "ret_1m": -0.2635,
+      "ret_3m": -0.198,
+      "ret_6m": -0.0394,
+      "week52_high": 438.03,
+      "week52_low": 134.88,
+      "pct_from_52w_high": -45.5,
+      "high_52w": 438.03,
+      "low_52w": 134.88,
       "indicators": {
-        "rsi_14": 69.6,
-        "macd_bullish": true,
-        "macd_histogram_expanding": false,
-        "stoch_k": 83.4,
-        "bb_pct": 0.8,
-        "volume_ratio": 0.45,
+        "rsi_14": 29.7,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 12.6,
+        "bb_pct": 0.164,
+        "volume_ratio": 0.13,
         "obv_trend": "down",
-        "sma_50": 109.5,
-        "sma_200": 118.08,
+        "sma_50": 298.23,
+        "sma_200": 283.31,
         "cross_signal": null,
-        "current_price": 119.9,
-        "ret_1w": 0.0174,
-        "ret_1m": 0.1028,
-        "ret_3m": 0.0523,
-        "ret_6m": -0.0562,
-        "week52_high": 134.84,
-        "week52_low": 98.05,
-        "pct_from_52w_high": -11.1,
-        "atr_14": 2.46,
-        "atr_pct": 2.06
+        "current_price": 238.53,
+        "ret_1w": -0.0854,
+        "ret_1m": -0.2635,
+        "ret_3m": -0.198,
+        "ret_6m": -0.0394,
+        "week52_high": 438.03,
+        "week52_low": 134.88,
+        "pct_from_52w_high": -45.5,
+        "atr_14": 14.11,
+        "atr_pct": 5.91
       },
       "key_levels": {
-        "support": 108.3,
-        "resistance": 117.81,
-        "support_levels": [
-          108.3,
-          106.99,
-          106.53
-        ],
+        "support": null,
+        "resistance": 321.07,
+        "support_levels": [],
         "resistance_levels": [
-          117.81,
-          121.38
+          321.07,
+          321.87,
+          344.91
         ]
       },
-      "candidate_score": null,
-      "candidate_signals": [],
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "dislocation_screen(-24%_1m)"
+      ],
+      "swarm_memory_hits": 0
+    },
+    {
+      "ticker": "AMAT",
+      "quant_score": 62,
+      "direction": "LONG",
+      "trade_type": "mean_reversion",
+      "forward_bias": "bullish",
+      "mean_reversion_score": 53,
+      "trend": "downtrend",
+      "rsi_14": 30.7,
+      "macd_signal": "bearish",
+      "volume_trend": "distribution",
+      "support": null,
+      "resistance": 474.04,
+      "key_patterns": [],
+      "signal_confidence": {
+        "level": "high",
+        "sources_count": 3,
+        "sources": [
+          "price_action",
+          "volume",
+          "momentum_oscillators"
+        ],
+        "conflicts": [],
+        "confidence_note": "3/3 signal sources confirming"
+      },
+      "data_conflicts": [],
+      "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
+      "quant_summary": "Despite the current downtrend and bearish momentum signals, the oversold conditions and declining volume suggest a potential mean reversion. In the next 5-10 days, AMAT is likely to experience a bounce towards the resistance level at $474.04.",
+      "mean_reversion_signals": [
+        "RSI oversold (30.7)",
+        "Price 12% below SMA200",
+        "Declining volume on selloff \u2014 selling exhaustion",
+        "Stochastic oversold"
+      ],
+      "current_price": 387.72,
+      "ret_1m": -0.2427,
+      "ret_3m": -0.2265,
+      "ret_6m": 0.0158,
+      "week52_high": 738.88,
+      "week52_low": 202.28,
+      "pct_from_52w_high": -47.5,
+      "high_52w": 738.88,
+      "low_52w": 202.28,
+      "indicators": {
+        "rsi_14": 30.7,
+        "macd_bullish": false,
+        "macd_histogram_expanding": true,
+        "stoch_k": 9.9,
+        "bb_pct": 0.199,
+        "volume_ratio": 0.12,
+        "obv_trend": "down",
+        "sma_50": 463.05,
+        "sma_200": 442.29,
+        "cross_signal": null,
+        "current_price": 387.72,
+        "ret_1w": -0.0519,
+        "ret_1m": -0.2427,
+        "ret_3m": -0.2265,
+        "ret_6m": 0.0158,
+        "week52_high": 738.88,
+        "week52_low": 202.28,
+        "pct_from_52w_high": -47.5,
+        "atr_14": 18.75,
+        "atr_pct": 4.84
+      },
+      "key_levels": {
+        "support": null,
+        "resistance": 474.04,
+        "support_levels": [],
+        "resistance_levels": [
+          474.04,
+          547.25,
+          563.16
+        ]
+      },
+      "candidate_score": 2.0,
+      "candidate_signals": [
+        "dislocation_screen(-20%_1m)"
+      ],
       "swarm_memory_hits": 0
     }
   ],
-  "total_analysed": 16,
-  "macro_regime": "NEUTRAL",
+  "total_analysed": 12,
+  "macro_regime": "RISK-OFF",
   "pattern_history_loaded": true,
-  "generated_at": "2026-10-26 19:37 UTC"
+  "generated_at": "2026-10-27 14:03 UTC"
 }
