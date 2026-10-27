@@ -1,4122 +1,486 @@
 {
   "ticker": "LRCX",
-  "company_name": "Lam Research Corporation",
-  "generated_at": "2026-10-27T14:07:18.516525Z",
-  "mandate": {
-    "passed": true,
-    "recommendation": "PROCEED",
+  "company_name": "LRCX",
+  "sector": "N/A",
+  "current_price": 240.42,
+  "market_cap": 301030146048,
+  "date": "2026-10-27",
+  "generated_at": "2026-10-27 19:15 UTC",
+  "cached": false,
+  "source": "pipeline_auto",
+  "mandate_pass": true,
+  "mandate_fail_reason": null,
+  "direction": "BUY",
+  "conviction": 73,
+  "expected_return_12m": "12-18%",
+  "s1_mandate": {
+    "pass": true,
+    "fail_reason": null,
+    "setup_type": "Growth",
     "checks": [
       {
-        "name": "Asset class: Common equity or ADR",
-        "passed": true,
-        "detail": "Quote type: EQUITY",
-        "source": "yfinance"
+        "item": "Asset class",
+        "pass": true,
+        "note": "Common stock on US exchange"
       },
       {
-        "name": "Listed on supported exchange",
-        "passed": true,
-        "detail": "Exchange: NMS",
-        "source": "yfinance/FMP"
+        "item": "Market cap \u2265 $200M",
+        "pass": true,
+        "note": "$301.03B"
       },
       {
-        "name": "Market cap \u2265 $200M USD",
-        "passed": true,
-        "detail": "Market cap: $298.8B",
-        "source": "yfinance"
+        "item": "Avg daily volume \u2265 500K shares",
+        "pass": true,
+        "note": "9,584,907 shares/day"
       },
       {
-        "name": "Avg daily volume \u2265 500K shares",
-        "passed": true,
-        "detail": "Avg daily volume: 9.6M shares/day",
-        "source": "yfinance"
+        "item": "No restricted geography exposure",
+        "pass": true,
+        "note": "no flags"
       },
       {
-        "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
-        "passed": true,
-        "detail": "No restricted geography exposure detected (country: Us)",
-        "source": "FMP/yfinance"
+        "item": "PEPs / sanctions clear",
+        "pass": true,
+        "note": "{'clean': True, 'notes': 'No significant issues identified.'}"
       },
       {
-        "name": "Float \u2265 10%",
-        "passed": true,
-        "detail": "Float: 99.4% (1244M of 1251M shares)",
-        "source": "yfinance"
+        "item": "Float \u2265 10%",
+        "pass": true,
+        "note": "99.4%"
       },
       {
-        "name": "No known PEP/sanctions flags in recent news",
-        "passed": true,
-        "detail": "No sanctions or PEP flags detected in last 30 days of news",
-        "source": "Finnhub news [keyword scan]"
-      },
-      {
-        "name": "Setup type identifiable",
-        "passed": true,
-        "detail": "Insufficient revenue history \u2014 proceeding as Unclassified",
-        "source": "FMP [CALCULATED]"
+        "item": "Setup type identified",
+        "pass": true,
+        "note": "Growth"
       }
-    ],
-    "setup_type": "Unclassified",
-    "failure_reason": null,
-    "ticker": "LRCX"
+    ]
   },
-  "brand_colors": {
-    "primary": "#A4C8E1",
-    "secondary": "#005EB8",
-    "on_brand_text": "dark",
-    "confidence": "certain",
-    "source": "claude-haiku-4-5-20251001 [AI brand knowledge]",
-    "status": "ok"
-  },
-  "tavily_quota_exceeded": false,
-  "api_errors": {},
-  "sections": {
-    "s1_cover": {
-      "section": "cover",
-      "ticker": "LRCX",
-      "company_name": {
-        "value": "Lam Research Corporation",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "exchange": {
-        "value": "NMS",
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "sector": {
-        "value": "Technology",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "industry": {
-        "value": "Semiconductor Equipment & Materials",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "country": {
-        "value": "US",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "ceo": {
-        "value": "Timothy Archer",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "currency": {
-        "value": "USD",
-        "source": "FMP/yfinance",
-        "status": "ok"
-      },
-      "current_price": {
-        "value": 238.76,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "market_cap": {
-        "value": 298796351488,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "52w_high": {
-        "value": 438.5,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "52w_low": {
-        "value": 135.5,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "shares_outstanding": {
-        "value": 1251424362,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "float_shares": {
-        "value": 1244349200,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "short_pct_float": {
-        "value": 2.07,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "returns": {
-        "1m": {
-          "value": -26.28,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
+  "s2_company": {
+    "background": {
+      "hq": "Tualatin, Oregon, USA",
+      "employees": 16000,
+      "overview": "Lam Research Corporation is a global supplier of wafer fabrication equipment and services to the semiconductor industry. The company focuses on developing innovative technologies that enable the production of advanced semiconductor devices.",
+      "revenue_segments": [
+        {
+          "segment": "Equipment Sales",
+          "weight_pct": 70.0
         },
-        "3m": {
-          "value": -19.72,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "6m": {
-          "value": -3.84,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "1y": {
-          "value": 54.14,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "ytd": {
-          "value": 29.4,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
+        {
+          "segment": "Service and Support",
+          "weight_pct": 30.0
         }
-      },
-      "analyst_targets": {
-        "bear": {
-          "value": 255.0,
-          "source": "yfinance",
-          "status": "ok"
+      ],
+      "geography_breakdown": [
+        {
+          "region": "North America",
+          "pct": 60.0
         },
-        "base": {
-          "value": 364.03333,
-          "source": "yfinance",
-          "status": "ok"
+        {
+          "region": "Asia",
+          "pct": 30.0
         },
-        "bull": {
-          "value": 500.0,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "recommendation": {
-          "value": "strong_buy",
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "rec_mean_score": {
-          "value": 1.38235,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "num_analysts": {
-          "value": 30,
-          "source": "yfinance",
-          "status": "ok"
+        {
+          "region": "Europe",
+          "pct": 10.0
         }
-      },
-      "pt_upside_pct": {
-        "value": 52.5,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "mandate_status": "PROCEED",
-      "setup_type": "Unclassified",
-      "recommendation": {
-        "value": null,
-        "source": "Investment Committee",
-        "status": "na",
-        "reason": "pending \u2014 filled after all sections"
-      },
-      "conviction_score": {
-        "value": null,
-        "source": "Investment Committee",
-        "status": "na",
-        "reason": "pending \u2014 filled after all sections"
-      },
-      "expected_return_12m": {
-        "value": null,
-        "source": "Scenario Analysis",
-        "status": "na",
-        "reason": "pending \u2014 filled after Section 12"
-      },
-      "report_date": {
-        "value": "2026-10-27 14:07 UTC",
-        "source": "system",
-        "status": "ok"
-      },
-      "data_coverage": {
-        "value": "Full",
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "fetched_at": "2026-10-27T14:07:18.516525Z",
-      "company_image": "https://images.financialmodelingprep.com/symbol/LRCX.png"
+      ],
+      "revenue_segments_source": "llm"
     },
-    "s2_overview": {
-      "section": "overview",
-      "company_name": {
-        "value": "Lam Research Corporation",
-        "source": "FMP/yfinance",
-        "status": "ok"
-      },
-      "ticker": {
-        "value": "LRCX",
-        "source": "system",
-        "status": "ok"
-      },
-      "exchange": {
-        "value": "NMS",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "sector": {
-        "value": "Technology",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "industry": {
-        "value": "Semiconductor Equipment & Materials",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "country": {
-        "value": "US",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "ceo": {
-        "value": "Timothy Archer",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "employees": {
-        "value": "23300",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "ipo_date": {
-        "value": "1984-05-04",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "website": {
-        "value": "https://www.lamresearch.com",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "market_cap": {
-        "value": 298796351488,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "revenue_cagr_3y": {
-        "value": null,
-        "source": "FMP",
-        "status": "na",
-        "reason": "insufficient history"
-      },
-      "fmp_description": {
-        "value": "Lam Research Corporation is a prominent supplier of equipment vital for semiconductor processing, encompassing its design, production, sales, repair, and ongoing maintenance. These sophisticated systems are fundamental for the creation of integrated circuits. The company's extensive product catalog features a variety of deposition technologies. For tungsten metallization, they provide ALTUS systems that deposit conformal films. SABRE products excel in electrochemical deposition, crucial for copper interconnect transitions and enabling copper damascene manufacturing. SOLA utilizes ultraviolet thermal processing for film treatments, while VECTOR delivers plasma-enhanced chemical vapor deposition (CVD) and atomic layer deposition (ALD) solutions. Furthermore, SPEED addresses gapfill applications with its high-density plasma CVD products, and Striker is engineered for single-wafer atomic layer deposition of dielectric films. Beyond deposition, Lam Research offers a comprehensive suite of etching tools. Flex is designed for dielectric etch applications, Kiyo handles conductor etch processes, Syndion specializes in through-silicon via etching, and Versys metal products are used for metal etch processes. The company's offerings also extend to specialized solutions like Coronus, which enhances die yield through bevel cleaning. For various wafer cleaning requirements, Lam Research supplies multiple product lines, including Da Vinci, DV-Prime, EOS, and SP series. Additionally, Metryx mass metrology systems provide precise, in-line mass measurement capabilities for semiconductor wafer manufacturing. Lam Research serves the global semiconductor industry, distributing its technologies and services across the United States, China, Europe, Japan, Korea, Southeast Asia, Taiwan, and other international markets. Established in 1980, the company maintains its corporate headquarters in Fremont, California.",
-        "source": "FMP [company text, not AI]",
-        "status": "ok"
-      },
-      "revenue_segments": {
-        "value": null,
-        "source": "FMP Professional / Tavily",
-        "status": "na",
-        "reason": "Segment breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
-      },
-      "geo_segments": {
-        "value": null,
-        "source": "FMP Professional / Tavily",
-        "status": "na",
-        "reason": "Geographic breakdown unavailable on free FMP plan. Manual lookup: 10-K or IR page."
-      },
-      "tavily_sources": [],
-      "ai_narrative": {
-        "value": "Lam Research Corporation is a leading supplier of equipment essential for semiconductor processing, specializing in the design, production, sales, repair, and ongoing maintenance of sophisticated systems crucial for integrated circuit manufacturing. The company has an extensive product portfolio that includes ALTUS systems for tungsten metallization, SABRE electrochemical deposition products for copper interconnect transitions, and Striker single-wafer atomic layer deposition solutions. Additionally, its product offerings encompass various deposition technologies tailored to meet advanced semiconductor manufacturing needs.\n\nOperating primarily in the United States and extending its reach to markets in China, Korea, Taiwan, Japan, Southeast Asia, and Europe, Lam Research serves a diverse clientele within the semiconductor industry. Key customers include major semiconductor manufacturers that rely on Lam's innovative solutions to enhance their fabrication processes and maintain competitive advantages within the rapidly evolving technology landscape.\n\nLam Research's current strategic priorities focus on sustaining robust growth, capitalizing on the increasing demand for advanced semiconductor solutions. As illustrated by a significant revenue growth of 26.0% year-over-year and a solid operating margin of 40.0%, the company is well-positioned to navigate the prevailing risk-off macro environment. Moving forward, Lam is likely to maintain its focus on expanding its product technologies and enhancing customer relationships to further solidify its market leadership.",
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      },
-      "market_share_pct": null,
-      "competitive_rank": null,
-      "named_competitors": [],
-      "mktpos_source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily market share search",
-      "mktpos_status": "unavailable",
-      "brand_value": null,
-      "brand_rank": null,
-      "ranking_list": null,
-      "brand_source": null,
-      "brand_ai_source": null
-    },
-    "s3_news": {
-      "section": "news_catalysts",
-      "ticker": "LRCX",
-      "upcoming_earnings": [],
-      "eps_history": [
-        {
-          "date": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "eps_actual": {
-            "value": 2.2,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "eps_estimate": {
-            "value": 2.17953,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "surprise_pct": {
-            "value": 0.94,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "beat": {
-            "value": true,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "eps_actual": {
-            "value": 1.82,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "eps_estimate": {
-            "value": 1.68363,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "surprise_pct": {
-            "value": 8.1,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "beat": {
-            "value": true,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "eps_actual": {
-            "value": 1.47,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "eps_estimate": {
-            "value": 1.3628,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "surprise_pct": {
-            "value": 7.87,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "beat": {
-            "value": true,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "eps_actual": {
-            "value": 1.27,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "eps_estimate": {
-            "value": 1.16837,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "surprise_pct": {
-            "value": 8.7,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "beat": {
-            "value": true,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        }
-      ],
-      "ex_dividend": {
-        "value": null,
-        "source": "yfinance",
-        "status": "na",
-        "reason": "no dividend or date unavailable"
-      },
-      "press_releases": [
-        {
-          "date": {
-            "value": "2026-10-21",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "form": {
-            "value": "8-K",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000052/",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": "2026-08-27",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "form": {
-            "value": "8-K",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000043/",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": "2026-07-29",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "form": {
-            "value": "8-K",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000033/",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": "2026-04-22",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "form": {
-            "value": "8-K",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000020/",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          }
-        },
-        {
-          "date": {
-            "value": "2026-02-03",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "form": {
-            "value": "8-K",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://www.sec.gov/Archives/edgar/data/707549/000070754926000012/",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          }
-        }
-      ],
-      "news_feed": [
-        {
-          "headline": {
-            "value": "MP Materials And 2 Other Top Growth Stocks",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-27",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=44fd3f7eefdca64d1e0ce5ed1a3fa690055dffe4081fee52a07a52535dad1db0",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Wall Street is watching Anthropic\u2019s huge planned IPO, which is shining a spotlight on fast expanding businesses that still pass basic financial health checks. That mix of growth potential and balance ",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=4245c751b5a54c28734d44e962c8fdc31e6eabb1fe2eb53d8d44b2d80253a44f",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Is KLAC a good stock to buy? We came across a bullish thesis on KLA Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will summarize the bulls\u2019 thesis on KLAC. KLA Corporation\u2019s share ",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Is Lam Research Stock Cheap Enough Yet?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=42fc5cfc27e456c4977db7cf96550184f050cbb5ade2ffad3362cefd872b2021",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "For questions about this article or underlying research, email help@trefis.com.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Marvell Stock Is Bouncing Back From a Near 9% Drop. Its COO Says It Has \u201cAll the Demand and the Supply\u201d to Hit $20 Billion in Revenue Next Year",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=1359a52a2a32a419abb4f08bcde43eb012c4cb48a6a96fb6ec1597b60290ecb6",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Key Stats for Marvell StockCurrent Price: $228. 51Target Price (Mid): ~$1,710Street Target: ~$341Potential Total Return: ~650%Annualized IRR: ~60% / year__Now Live: Discover how much upside your favor",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=b520fbdd9eb4bdd9f4a1fa1ef807c8bb042f229bb71b202b657b0012e6417db9",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Is LRCX a good stock to buy? We came across a bullish thesis on Lam Research Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will summarize the bulls\u2019 thesis on LRCX. Lam Research Co",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Reuters Reported Samsung Electronics Said It Is Not Reviewing The Possibility Of Issuing American Depositary Receipts, Following Bloomberg Report That The Chipmaker Is Exploring Potential U.S. Share Sale",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Benzinga",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=ecb91433517b2af4cc0f3268e828c7073ea5b7f5f119f9bdf52bb7a3471b4424",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Intel: Agentic AI Is Making CPUs A New Bottleneck",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "SeekingAlpha",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=e49ff45b31dfb41634d7d862cb1030791b6dc2ed0792a9faaa3c32cf2ea89bbf",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Intel Corporation looks undervalued as AI demand boosts margins and foundry losses shrink. Click for this INTC earnings preview.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Intel Just Dropped 10% in a Week. Is It Time to Sell, or Load Up?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=0a218d762f34219e4771ffaaf077fd5c6345e1b34049ca723071a50c316aa97a",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Key TakeawaysIntel stock fell 10% in the week through Thursday\u2019s close, mostly in a chip selloff after Lam Research said supply chain constraints held back its outlook. TSMC\u2019s offer to back customers ",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Does Beating The Market Prove KLA Is A Great Company?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=5d247373d070edaf173aaa2a2bcf7f7f4678243d36c14bc2e6e102ed75a1f9ad",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "For questions about this article or underlying research, email help@trefis.com.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Earn 12-15% Potential Income: Monthly Options Series (Nov. 2026)",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "SeekingAlpha",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=d0c7e1b3677366fd122e2f26ea0fa370e542416391d5f6df82f92d533d8766a5",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Learn a disciplined options income strategy targeting 12-15% annually with risk management, stock selection tips, and sustainable tactics\u00e2\u0080\u0094read now.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Chip Stocks to Buy After Their Worst Day Since June",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=56611dc00f1352c02235888cd9f5561d3311fd2962a480e9e72bbbe01270a7a0",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Is a warning of too little supply actually a reason to sell chip stocks?",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "AI Stocks Surge, Then Plunge: Which of 4 Sectors Is Worth Buying?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-26",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=7ee52ffb320522eeef6b56c596571c27e57508db9a7e162274a968247a74fbd0",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Micron surged over 300% while Nvidia barely moved, yet both sit at the center of the same AI spending boom. The reason for that gap reveals something important about which companies investors actually",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Arm Stock Is Down 8% Last Week. What Does Lam Research Have to Do With It?",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-25",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=99058ab1f3f06e73dd4ebe5fd6c3afddecd4f2bca24b01c4a7255ee4dddbce45",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Key TakeawaysArm stock is down 7. 8% over the past week to $210.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Sandisk (SNDK) Flags Industry Supply Chain Constraints As Memory Production Timelines Tighten",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-25",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=b2e3e40a388efdd821a35cfb48c97aabeb1dee227981cd8ba0d5f3d7feb4eee1",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Sandisk (NasdaqGS:SNDK) is among memory suppliers referenced as affected by supply chain constraints highlighted by Lam Research. Lam Research flagged ongoing semiconductor equipment and component bot",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Lam Research: Down 29% Since My Sell Call, But The Math Has Changed (Upgrade)",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "SeekingAlpha",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-25",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=88e2b36e16a66b53658dc4a8714e9ced75f862fc1c922fa8f27e6af4973b0c58",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Lam Research Corporation shares fell 29%, reshaping valuations as a $200 billion wafer fabrication boom boosts outlook. Click for this LRCX stock update.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "5 big analyst AI moves: \u2019Uniquely catalyst-rich\u2019 months ahead for SpaceX",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-24",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=cc49d19e208e5dd3f3ed858fdfdc7a86c3ed8ea0d00ef035c50a69ffa74fc79a",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Investing.com -- Here are the biggest analyst moves in the area of artificial intelligence (AI) for this week.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Lam Research (LRCX) Stock Faces Q1 Earnings Quality Questions After Records",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-24",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=5e678fd7a1106113fb4f7c2fbd19a9743406a6f6ad9c7a45f064ddda0751ee50",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Lam Research just posted its Q1 2027 scorecard with record revenue of US$8.22b and non GAAP earnings per share of US$2.20, yet the stock barely flinched. The share price slipped a fraction to around U",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "The AI Trade Is Shifting From Chip Stocks to Cybersecurity",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-24",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=d4aa1fdb87fa617cd5442d66bc81831f65efa6dc2f9d8e5975f85eca1fa19551",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Software leaders got a big boost this week and chip stocks were crushed as the AI tech investing landscape continues to shift.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "3 Growth Stocks To Watch With Up To 103% Earnings Growth",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "Yahoo",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-24",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=dc09b6be175158eafce25fd3affe7aceadad7cc267f4f9ae20681c7b96901528",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Investor enthusiasm for artificial intelligence has cooled as some smaller AI infrastructure firms struggle with heavy debt and patchy demand, which puts more focus on businesses that can grow earning",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        },
-        {
-          "headline": {
-            "value": "Wall Street Breakfast: What Moved Markets This Week",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "source": {
-            "value": "SeekingAlpha",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "date": {
-            "value": "2026-10-24",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "url": {
-            "value": "https://finnhub.io/api/news?id=2db318dc4a25c97d1a7494bbdf5136a328c2c69f069372f18733503ae2f3c653",
-            "source": "Finnhub",
-            "status": "ok"
-          },
-          "summary": {
-            "value": "Wall Street weekly recap: hotter CPI, rising VIX, tech weakness and big bank earnings.",
-            "source": "Finnhub",
-            "status": "ok"
-          }
-        }
-      ],
-      "news_count": {
-        "value": 20,
-        "source": "Finnhub",
-        "status": "ok"
-      },
-      "tavily_sources": [],
-      "ai_news_synthesis": null,
-      "ai_catalyst_assessment": null,
-      "ai_synthesis": {
-        "value": "The most significant recent development for Lam Research Corporation (LRCX) is the bullish thesis emerging from articles discussing its strong cash flow and potential AI demand. The headline 'Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?' suggests that sustained investment in technology could bolster LRCX's market position against competitors like KLA Corporation and Applied Materials. This discussion aligns with the growing focus on semiconductor complexity and more reliable growth cycles, indicated in 'KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?'.\n\nFurthermore, the recent drop in LRCX's stock by 29% since a previous call indicates a reshaped valuation landscape in response to the booming wafer fabrication market. The article titled 'Lam Research: Down 29% Since My Sell Call, But The Math Has Changed (Upgrade)' highlights how macro conditions may provide an opportunity for investors as the market adjusts to new valuation metrics tied to technology and demand shifts. Collectively, these events suggest an intriguing investment thesis centered around LRCX's adaptability in a competitive semiconductor sector influenced by AI and supply chain dynamics.",
-        "near_term_catalysts": [
-          "Earnings report on 2026-10-21",
-          "AI demand driving semiconductor market growth"
-        ],
-        "medium_term_catalysts": [],
-        "key_risk_events": [
-          "Lam Research stock dropped 29% recently",
-          "Ongoing supply chain constraints affecting production"
-        ],
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      }
-    },
-    "s4_financials": {
-      "section": "historical_financials",
-      "years": [
-        {
-          "label": "2026",
-          "date": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue": {
-            "value": 23232690000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue_yoy": {
-            "value": 26.0,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "gross_profit": {
-            "value": 11725308000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "gross_margin": {
-            "value": 50.5,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "ebitda": {
-            "value": 8860890000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 38.1,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "op_income": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "op_margin": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "net_income": {
-            "value": 7265396000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 31.3,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "eps_diluted": {
-            "value": 5.76,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "fcf": {
-            "value": 4891252000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "operating_cf": {
-            "value": 5857657000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "capex": {
-            "value": -966405000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "da": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "total_debt": {
-            "value": 3734563000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "equity": {
-            "value": 12470921000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "cash": {
-            "value": 5579171000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "de_ratio": {
-            "value": 0.3,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "current_ratio": {
-            "value": 2.63,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "interest_coverage": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "bvps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          },
-          "cfps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          }
-        },
-        {
-          "label": "2025",
-          "date": {
-            "value": "2025-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue": {
-            "value": 18435591000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue_yoy": {
-            "value": 23.7,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "gross_profit": {
-            "value": 8979059000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "gross_margin": {
-            "value": 48.7,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "ebitda": {
-            "value": 6522609000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 35.4,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "op_income": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "op_margin": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "net_income": {
-            "value": 5358217000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 29.1,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "eps_diluted": {
-            "value": 4.15,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "fcf": {
-            "value": 5414078000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "operating_cf": {
-            "value": 6173264000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "capex": {
-            "value": -759186000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "da": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "total_debt": {
-            "value": 4484505000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "equity": {
-            "value": 9861619000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "cash": {
-            "value": 6390659000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "de_ratio": {
-            "value": 0.45,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "current_ratio": {
-            "value": 2.21,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "interest_coverage": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "bvps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          },
-          "cfps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          }
-        },
-        {
-          "label": "2024",
-          "date": {
-            "value": "2024-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue": {
-            "value": 14905386000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue_yoy": {
-            "value": -14.5,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "gross_profit": {
-            "value": 7052791000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "gross_margin": {
-            "value": 47.3,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "ebitda": {
-            "value": 4905157000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 32.9,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "op_income": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "op_margin": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "net_income": {
-            "value": 3827772000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 25.7,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "eps_diluted": {
-            "value": 2.9,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "fcf": {
-            "value": 4255599000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "operating_cf": {
-            "value": 4652269000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "capex": {
-            "value": -396670000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "da": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "total_debt": {
-            "value": 4983334000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "equity": {
-            "value": 8539454000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "cash": {
-            "value": 5847856000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "de_ratio": {
-            "value": 0.58,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "current_ratio": {
-            "value": 2.97,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "interest_coverage": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "bvps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          },
-          "cfps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          }
-        },
-        {
-          "label": "2023",
-          "date": {
-            "value": "2023-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue": {
-            "value": 17428516000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "revenue_yoy": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          },
-          "gross_profit": {
-            "value": 7776925000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "gross_margin": {
-            "value": 44.6,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "ebitda": {
-            "value": 5638104000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 32.3,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "op_income": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "op_margin": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "net_income": {
-            "value": 4510931000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 25.9,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "eps_diluted": {
-            "value": 3.321,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "fcf": {
-            "value": 4677370000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "operating_cf": {
-            "value": 5178938000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "capex": {
-            "value": -501568000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "da": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "total_debt": {
-            "value": 5011541000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "equity": {
-            "value": 8210172000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "cash": {
-            "value": 5337056000.0,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "de_ratio": {
-            "value": 0.61,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "current_ratio": {
-            "value": 3.16,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          },
-          "interest_coverage": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "bvps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          },
-          "cfps": {
-            "value": null,
-            "source": "yfinance [CALCULATED]",
-            "status": "na"
-          }
-        }
-      ],
-      "year_count": 4,
-      "currency": {
-        "value": "USD",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "dividend_history": [
+    "financial_snapshot": {
+      "historical": [
         {
           "year": "2026",
-          "dps": 0.85,
-          "source": "yfinance"
+          "revenue": 23232690000.0,
+          "ebitda": 8641328000.0,
+          "net_income": 7265396000.0
         },
         {
           "year": "2025",
-          "dps": 0.98,
-          "source": "yfinance"
+          "revenue": 18435591000.0,
+          "ebitda": 6287245000.0,
+          "net_income": 5358217000.0
         },
         {
           "year": "2024",
-          "dps": 0.86,
-          "source": "yfinance"
+          "revenue": 14905386000.0,
+          "ebitda": 4641799000.0,
+          "net_income": 3827772000.0
         },
         {
           "year": "2023",
-          "dps": 0.745,
-          "source": "yfinance"
-        },
-        {
-          "year": "2022",
-          "dps": 0.645,
-          "source": "yfinance"
+          "revenue": 17428516000.0,
+          "ebitda": 5559442000.0,
+          "net_income": 4510931000.0
         }
       ],
-      "is_dividend_paying": true,
-      "data_coverage_note": "4 years of data available \u2014 company may be recently listed or free-tier API coverage is limited."
+      "forward": [
+        {
+          "year": "0q",
+          "revenue": 8643520980.0,
+          "ebitda": null,
+          "net_income": 2.34922,
+          "source": "analyst consensus from Yahoo Finance"
+        },
+        {
+          "year": "+1q",
+          "revenue": 9013988820.0,
+          "ebitda": null,
+          "net_income": 2.47891,
+          "source": "analyst consensus from Yahoo Finance"
+        }
+      ]
     },
-    "s4b_drivers": {
-      "section": "revenue_growth_drivers",
-      "ticker": "LRCX",
-      "company_name": "Lam Research Corporation",
-      "recent_revenue_growth_pct": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
+    "comparables": [
+      {
+        "ticker": "LRCX",
+        "company": "Lam Research",
+        "revenue_bn": 26.1,
+        "gross_margin_pct": 51.1,
+        "ebitda_margin_pct": 43.0,
+        "net_margin_pct": 32.3,
+        "de_ratio": 0.27
       },
-      "earnings_search_results": [],
-      "analyst_search_results": [],
-      "news_headlines": [
-        {
-          "headline": "MP Materials And 2 Other Top Growth Stocks",
-          "summary": "Wall Street is watching Anthropic\u2019s huge planned IPO, which is shining a spotlight on fast expanding businesses that still pass basic financial health checks. That mix of growth potential and balance "
-        },
-        {
-          "headline": "KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?",
-          "summary": "Is KLAC a good stock to buy? We came across a bullish thesis on KLA Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will summarize the bulls\u2019 thesis on KLAC. KLA Corporation\u2019s share "
-        },
-        {
-          "headline": "Is Lam Research Stock Cheap Enough Yet?",
-          "summary": "For questions about this article or underlying research, email help@trefis.com."
-        },
-        {
-          "headline": "Marvell Stock Is Bouncing Back From a Near 9% Drop. Its COO Says It Has \u201cAll the Demand and the Supply\u201d to Hit $20 Billion in Revenue Next Year",
-          "summary": "Key Stats for Marvell StockCurrent Price: $228. 51Target Price (Mid): ~$1,710Street Target: ~$341Potential Total Return: ~650%Annualized IRR: ~60% / year__Now Live: Discover how much upside your favor"
-        },
-        {
-          "headline": "Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?",
-          "summary": "Is LRCX a good stock to buy? We came across a bullish thesis on Lam Research Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will summarize the bulls\u2019 thesis on LRCX. Lam Research Co"
-        },
-        {
-          "headline": "Reuters Reported Samsung Electronics Said It Is Not Reviewing The Possibility Of Issuing American Depositary Receipts, Following Bloomberg Report That The Chipmaker Is Exploring Potential U.S. Share Sale",
-          "summary": ""
-        },
-        {
-          "headline": "Intel: Agentic AI Is Making CPUs A New Bottleneck",
-          "summary": "Intel Corporation looks undervalued as AI demand boosts margins and foundry losses shrink. Click for this INTC earnings preview."
-        },
-        {
-          "headline": "Intel Just Dropped 10% in a Week. Is It Time to Sell, or Load Up?",
-          "summary": "Key TakeawaysIntel stock fell 10% in the week through Thursday\u2019s close, mostly in a chip selloff after Lam Research said supply chain constraints held back its outlook. TSMC\u2019s offer to back customers "
-        },
-        {
-          "headline": "Does Beating The Market Prove KLA Is A Great Company?",
-          "summary": "For questions about this article or underlying research, email help@trefis.com."
-        },
-        {
-          "headline": "Earn 12-15% Potential Income: Monthly Options Series (Nov. 2026)",
-          "summary": "Learn a disciplined options income strategy targeting 12-15% annually with risk management, stock selection tips, and sustainable tactics\u00e2\u0080\u0094read now."
-        },
-        {
-          "headline": "Chip Stocks to Buy After Their Worst Day Since June",
-          "summary": "Is a warning of too little supply actually a reason to sell chip stocks?"
-        },
-        {
-          "headline": "AI Stocks Surge, Then Plunge: Which of 4 Sectors Is Worth Buying?",
-          "summary": "Micron surged over 300% while Nvidia barely moved, yet both sit at the center of the same AI spending boom. The reason for that gap reveals something important about which companies investors actually"
-        },
-        {
-          "headline": "Arm Stock Is Down 8% Last Week. What Does Lam Research Have to Do With It?",
-          "summary": "Key TakeawaysArm stock is down 7. 8% over the past week to $210."
-        },
-        {
-          "headline": "Sandisk (SNDK) Flags Industry Supply Chain Constraints As Memory Production Timelines Tighten",
-          "summary": "Sandisk (NasdaqGS:SNDK) is among memory suppliers referenced as affected by supply chain constraints highlighted by Lam Research. Lam Research flagged ongoing semiconductor equipment and component bot"
-        },
-        {
-          "headline": "Lam Research: Down 29% Since My Sell Call, But The Math Has Changed (Upgrade)",
-          "summary": "Lam Research Corporation shares fell 29%, reshaping valuations as a $200 billion wafer fabrication boom boosts outlook. Click for this LRCX stock update."
-        }
-      ],
-      "drivers": [
-        {
-          "name": "Demand for Advanced Etch Solutions",
-          "mechanism": "The increasing complexity of semiconductor devices necessitates high-precision etching systems, driving demand for Lam Research's advanced etch product line.",
-          "evidence": null,
-          "evidence_source": null,
-          "category": "product"
-        },
-        {
-          "name": "Growth in Semiconductor Fabrication",
-          "mechanism": "As global semiconductor manufacturing capacity expands, Lam Research benefits from increased sales of its fabrication equipment across multiple regions.",
-          "evidence": null,
-          "evidence_source": null,
-          "category": "geographic"
-        },
-        {
-          "name": "AI and High-Performance Computing Demand",
-          "mechanism": "Rise in demand for AI and high-performance computing drives investments in semiconductor technologies, leading to increased equipment sales for Lam Research.",
-          "evidence": null,
-          "evidence_source": null,
-          "category": "volume"
-        },
-        {
-          "name": "Emergence of New Material Technologies",
-          "mechanism": "Innovations in materials science, such as the need for advanced dielectric films, create new sales opportunities for Lam Research's deposition systems.",
-          "evidence": null,
-          "evidence_source": null,
-          "category": "product"
-        }
-      ],
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 derived from FMP financial filings + business description",
-      "ai_status": "ok"
-    },
-    "s5_dcf": {
-      "section": "forward_dcf",
-      "skip": false,
-      "analyst_estimates": {
-        "eps_current_fy": {
-          "value": 9.62799,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "eps_next_fy": {
-          "value": 12.15311,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "eps_growth_cur": {
-          "value": 65.4,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "eps_growth_next": {
-          "value": 26.2,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "rev_current_fy": {
-          "value": 35394639330.0,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "rev_next_fy": {
-          "value": 42599869090.0,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "rev_growth_cur": {
-          "value": 52.3,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "rev_growth_next": {
-          "value": 20.4,
-          "source": "yfinance",
-          "status": "ok"
-        }
+      {
+        "ticker": "AMAT",
+        "company": "Applied Materials",
+        "revenue_bn": 30.8,
+        "gross_margin_pct": 49.4,
+        "ebitda_margin_pct": 36.7,
+        "net_margin_pct": 30.1,
+        "de_ratio": 0.29
       },
-      "wacc_inputs": {
-        "risk_free_rate": {
-          "value": 5.0,
-          "source": "FRED DGS10",
-          "status": "ok"
-        },
-        "beta": {
-          "value": 1.854,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "mrp": {
-          "value": 5.5,
-          "source": "Damodaran (hardcoded \u2014 US LT ERP)",
-          "status": "ok"
-        },
-        "cost_of_equity": {
-          "value": 15.2,
-          "source": "CAPM [CALCULATED]",
-          "status": "ok"
-        },
-        "cost_of_debt": {
-          "value": 6.0,
-          "source": "FRED + 1% AA credit spread proxy [FMP interest expense = 0]",
-          "status": "ok"
-        },
-        "tax_rate": {
-          "value": 21.0,
-          "source": "FMP [CALCULATED]",
-          "status": "ok"
-        },
-        "weight_equity": {
-          "value": 100.0,
-          "source": "yfinance/FMP [CALCULATED]",
-          "status": "ok"
-        },
-        "weight_debt": {
-          "value": 0.0,
-          "source": "FMP [CALCULATED]",
-          "status": "ok"
-        },
-        "wacc": {
-          "value": 15.2,
-          "source": "CAPM [CALCULATED]",
-          "status": "ok"
-        }
+      {
+        "ticker": "KLAC",
+        "company": "KLA Corporation",
+        "revenue_bn": 13.6,
+        "gross_margin_pct": 61.3,
+        "ebitda_margin_pct": 45.5,
+        "net_margin_pct": 35.6,
+        "de_ratio": 0.97
       },
-      "revenue_projections": [
-        {
-          "year": "FY Current",
-          "value": {
-            "value": 35394639330.0,
-            "source": "yfinance analyst consensus",
-            "status": "ok"
-          },
-          "growth": {
-            "value": 52.3,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "year": "FY +1",
-          "value": {
-            "value": 42599869090.0,
-            "source": "yfinance analyst consensus",
-            "status": "ok"
-          },
-          "growth": {
-            "value": 20.4,
-            "source": "yfinance [CALCULATED]",
-            "status": "ok"
-          }
-        },
-        {
-          "year": "FY +2 (est)",
-          "value": {
-            "value": 47469034127,
-            "source": "yfinance extrapolated [CALCULATED]",
-            "status": "ok"
-          },
-          "growth": {
-            "value": null,
-            "source": "N/A \u2014 extrapolated only",
-            "status": "na"
-          }
-        }
-      ],
-      "fcf_margin_avg": {
-        "value": null,
-        "source": "FMP [CALCULATED] 3yr avg",
-        "status": "na"
+      {
+        "ticker": "TER",
+        "company": "Teradyne",
+        "revenue_bn": 4.5,
+        "gross_margin_pct": 59.2,
+        "ebitda_margin_pct": 36.2,
+        "net_margin_pct": 25.8,
+        "de_ratio": 0.03
       },
-      "terminal_growth": {
-        "value": 2.5,
-        "source": "FRED DGS10 / 2 [CALCULATED]",
-        "status": "ok"
+      {
+        "ticker": "Q",
+        "company": "Qorvo",
+        "revenue_bn": 5.2,
+        "gross_margin_pct": 46.2,
+        "ebitda_margin_pct": 25.3,
+        "net_margin_pct": 11.2,
+        "de_ratio": 0.6
       },
-      "terminal_multiple": {
-        "value": 32.2,
-        "source": "yfinance peers median EV/EBITDA [CALCULATED]",
-        "status": "ok"
-      },
-      "peer_ev_ebitda_used": {
-        "value": [
-          30.104,
-          32.404,
-          31.956,
-          66.485
-        ],
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "pv_fcfs": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "pv_terminal": {
-        "value": null,
-        "source": "yfinance peers [CALCULATED]",
-        "status": "na"
-      },
-      "enterprise_value": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "net_debt": {
-        "value": null,
-        "source": "FMP [CALCULATED]",
-        "status": "na"
-      },
-      "implied_price": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "current_price": {
-        "value": 238.765,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "upside_pct": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "sensitivity_table": null,
-      "fmp_dcf_crosscheck": {
-        "implied_price": {
-          "value": null,
-          "source": "FMP free tier DCF",
-          "status": "na"
-        },
-        "date": {
-          "value": null,
-          "source": "FMP",
-          "status": "na"
-        },
-        "note": "FMP proprietary model \u2014 shown as cross-check only, not used in our calculation"
+      {
+        "ticker": "ENTG",
+        "company": "Entegris",
+        "revenue_bn": 3.3,
+        "gross_margin_pct": 45.6,
+        "ebitda_margin_pct": 22.3,
+        "net_margin_pct": 9.2,
+        "de_ratio": 0.86
       }
+    ],
+    "market_analysis": {
+      "tam_usd": "The total addressable market for semiconductor equipment is estimated to be around $200-300 billion, with significant growth driven by advancements in technology and increasing demand for chips.",
+      "growth_rate": "The semiconductor equipment market is expected to grow at a CAGR of approximately 5-7% over the next few years.",
+      "competition_intensity": "High",
+      "sector_trends": "The semiconductor industry is experiencing rapid innovation, particularly in AI and machine learning applications, driving demand for advanced manufacturing equipment.",
+      "macro_factors": "Global supply chain disruptions and geopolitical tensions may impact production and demand in the semiconductor sector."
     },
-    "s6_valuation": {
-      "section": "valuation_metrics",
-      "pe_ttm": {
-        "value": 34.453823,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "pe_fwd": {
-        "value": null,
-        "source": "yfinance",
-        "status": "na"
-      },
-      "price_to_book": {
-        "value": null,
-        "source": "FMP key_metrics",
-        "status": "na"
-      },
-      "price_to_sales": {
-        "value": null,
-        "source": "yfinance",
-        "status": "na"
-      },
-      "ev_ebitda": {
-        "value": 28.961,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "dividend_yield": {
-        "value": 56.0,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "beta": {
-        "value": 1.854,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "fcf_yield": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "roic": {
-        "value": null,
-        "source": "FMP key_metrics",
-        "status": "na"
-      },
-      "roe": {
-        "value": null,
-        "source": "FMP key_metrics",
-        "status": "na"
-      },
-      "52w_high": {
-        "value": 438.5,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "52w_low": {
-        "value": 135.5,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "pct_from_52w_high": {
-        "value": -44.84,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "setup_type": {
-        "value": "Unclassified",
-        "source": "mandate_checker [CALCULATED]",
-        "status": "ok"
-      },
-      "peer_table": [
-        {
-          "symbol": {
-            "value": "ASML",
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "company_name": {
-            "value": "ASML Holding N.V.",
-            "source": "FMP",
-            "status": "ok"
-          },
-          "pe": {
-            "value": 39.524117,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pe_fwd": {
-            "value": 25.564316,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ev_ebitda": {
-            "value": 2091.891,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ps": {
-            "value": 15.683461,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pb": {
-            "value": 1379.2135,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 0.40992,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 0.34135,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "revenue_growth": {
-            "value": 0.552,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "debt_to_equity": {
-            "value": 8.897,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "market_cap": {
-            "value": 619081105408.0,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          }
-        },
-        {
-          "symbol": {
-            "value": "AMAT",
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "company_name": {
-            "value": "Applied Materials, Inc.",
-            "source": "FMP",
-            "status": "ok"
-          },
-          "pe": {
-            "value": 33.459015,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pe_fwd": {
-            "value": 20.971893,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ev_ebitda": {
-            "value": 30.104,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ps": {
-            "value": 9.979867,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pb": {
-            "value": 12.009229,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 0.32931,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 0.30052,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "revenue_growth": {
-            "value": 0.248,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "debt_to_equity": {
-            "value": 28.666,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "market_cap": {
-            "value": 307749158912.0,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          }
-        },
-        {
-          "symbol": {
-            "value": "KLAC",
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "company_name": {
-            "value": "KLA Corporation",
-            "source": "FMP",
-            "status": "ok"
-          },
-          "pe": {
-            "value": 41.081966,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pe_fwd": {
-            "value": 22.307316,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ev_ebitda": {
-            "value": 32.404,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ps": {
-            "value": 14.449805,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pb": {
-            "value": 30.95101,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 0.44588003,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 0.35574,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "revenue_growth": {
-            "value": 0.152,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "debt_to_equity": {
-            "value": 96.88,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "market_cap": {
-            "value": 196220780544.0,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          }
-        },
-        {
-          "symbol": {
-            "value": "TER",
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "company_name": {
-            "value": "Teradyne, Inc.",
-            "source": "FMP",
-            "status": "ok"
-          },
-          "pe": {
-            "value": 43.440247,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pe_fwd": {
-            "value": 27.667131,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ev_ebitda": {
-            "value": 31.956,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ps": {
-            "value": 11.075635,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pb": {
-            "value": 14.387853,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 0.33712003,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 0.25766,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "revenue_growth": {
-            "value": 1.039,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "debt_to_equity": {
-            "value": 2.883,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "market_cap": {
-            "value": 49441980416.0,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          }
-        },
-        {
-          "symbol": {
-            "value": "MTSI",
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "company_name": {
-            "value": "MACOM Technology Solutions Holdings, Inc.",
-            "source": "FMP",
-            "status": "ok"
-          },
-          "pe": {
-            "value": 80.272285,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pe_fwd": {
-            "value": 29.526909,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ev_ebitda": {
-            "value": 66.485,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ps": {
-            "value": 16.53789,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "pb": {
-            "value": 12.492812,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          },
-          "ebitda_margin": {
-            "value": 0.23716,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "net_margin": {
-            "value": 0.20698999,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "revenue_growth": {
-            "value": 0.358,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "debt_to_equity": {
-            "value": 26.873,
-            "source": "FMP [CALCULATED]",
-            "status": "ok"
-          },
-          "market_cap": {
-            "value": 19249674240.0,
-            "source": "yfinance/FMP",
-            "status": "ok"
-          }
-        }
+    "quality_of_earnings": {
+      "moat": "Wide",
+      "competitive_advantages": [
+        "Strong R&D capabilities",
+        "Established customer relationships"
       ],
-      "val_history": {}
+      "barriers_to_entry": "High capital requirements and technological expertise create significant barriers for new entrants in the semiconductor equipment market.",
+      "sustainability": "Lam Research has demonstrated consistent revenue growth and strong profit margins, indicating a sustainable business model."
     },
-    "s7_technicals": {
-      "section": "technicals",
-      "rsi": {
-        "value": 29.8,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "macd_line": {
-        "value": -19.8859,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "macd_signal": {
-        "value": -12.5533,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "macd_hist": {
-        "value": -7.3326,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "sma_50": {
-        "value": 298.23,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "sma_200": {
-        "value": 283.31,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "pct_from_sma50": {
-        "value": -19.94,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "pct_from_sma200": {
-        "value": -15.72,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "bb_upper": {
-        "value": 373.11,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "bb_lower": {
-        "value": 210.56,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "bb_position": {
-        "value": 17.4,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "atr_pct": {
-        "value": 6.15,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "support": {
-        "value": 230.1,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "resistance": {
-        "value": 432.87,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "trend_signal": {
-        "value": "Strong Downtrend",
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "pct_from_52w_high": {
-        "value": -44.84,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "volume_vs_20d_avg": {
-        "value": 0.14,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "current_price": {
-        "value": 238.765,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "quant_score": {
-        "value": 15,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "quant_score_detail": {
-        "rsi": "0 RSI 30 \u2014 extreme oversold (<30)",
-        "above_sma50": "0 Price ($238.76) < SMA50 ($298.23) \u2014 below medium-term trend",
-        "above_sma200": "0 Price < SMA200 ($283.31) \u2014 below long-term trend",
-        "macd": "0 MACD (-19.8859) < Signal (-12.5533) \u2014 bearish momentum",
-        "bollinger": "+10 BB position 17% \u2014 not at upper band extreme",
-        "52w_proximity": "+5 -44.8% from 52w high \u2014 some runway but trend may be weak",
-        "volume": "0 Volume 0.1x 20d avg \u2014 weak, low conviction move"
-      },
-      "trend_context": "Strong Downtrend \u2014 poor entry timing despite trend",
-      "ai_chart_pattern": "Strong Downtrend",
-      "ai_pattern_evidence": "The continuous decline in price, particularly from highs around 298 in the SMA50, indicates a clear downtrend. The recent price movements under the current price of 238.765 reflect bearish momentum.",
-      "ai_pattern_invalidation": "A break above the resistance level of 432.87 would invalidate this downtrend pattern.",
-      "ai_momentum_read": "The MACD shows a bearish trend with a negative line of -19.8859, below the signal of -12.5533, indicating continued selling pressure. The RSI at 29.8 signals an oversold condition, suggesting potential for a bounce, but momentum remains weak overall.",
-      "ai_key_levels": "The support level at 230.1 is critical, as a drop below may lead to further downside; conversely, resistance at 432.87 is significant to watch for any reversal attempts.",
-      "ai_volume_narrative": "Volume is currently low at 0.14 of the 20-day average, indicating weak conviction in recent price moves and suggesting that the selling pressure may not be strongly supported.",
-      "ai_entry_explanation": "The quant entry score of 15 indicates a poor setup for buying, suggesting conditions are not favorable for entry. Although the trend is strong, the low score means it could be better to wait for clearer signs of stabilization or reversals.",
-      "ai_outlook_4_8w": "The technical setup suggests the stock may continue its downtrend in the near term, but a potential bounce could occur if oversold conditions lead to a short-term recovery.",
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 yfinance technical indicators"
+    "management_team": {
+      "ceo": "Tim Archer - CEO with extensive experience in the semiconductor industry, having held various leadership roles within Lam Research.",
+      "track_record": "The management team has a strong track record of driving growth and innovation within the company.",
+      "red_flags": null
     },
-    "s8_competitive": {
-      "section": "competitive_moat",
-      "sector": {
-        "value": "Technology",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "industry": {
-        "value": "Semiconductor Equipment & Materials",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "peer_count": {
-        "value": 5,
-        "source": "yfinance/FMP [CALCULATED]",
-        "status": "ok"
-      },
-      "tavily_excerpts": [],
-      "recent_headlines": [
-        "MP Materials And 2 Other Top Growth Stocks",
-        "KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?",
-        "Is Lam Research Stock Cheap Enough Yet?",
-        "Marvell Stock Is Bouncing Back From a Near 9% Drop. Its COO Says It Has \u201cAll the Demand and the Supply\u201d to Hit $20 Billion in Revenue Next Year",
-        "Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?",
-        "Reuters Reported Samsung Electronics Said It Is Not Reviewing The Possibility Of Issuing American Depositary Receipts, Following Bloomberg Report That The Chipmaker Is Exploring Potential U.S. Share Sale",
-        "Intel: Agentic AI Is Making CPUs A New Bottleneck",
-        "Intel Just Dropped 10% in a Week. Is It Time to Sell, or Load Up?"
-      ],
-      "moat_quant": {
-        "returns_on_capital": {
-          "score": 8,
-          "label": "Returns on Capital",
-          "value": null,
-          "source": "FMP key_metrics [CALCULATED]"
+    "analyst_rating_history": {
+      "current_consensus": "Buy",
+      "num_analysts": null,
+      "avg_target_price": null,
+      "implied_upside_pct": null,
+      "trend_24m": "Stable",
+      "summary": "Analysts remain optimistic about Lam Research's growth prospects, particularly in light of ongoing demand for semiconductor manufacturing equipment."
+    },
+    "cap_table": {
+      "institutional_pct": 88.9,
+      "insider_pct": 0.3,
+      "float_pct": 99.4,
+      "major_holders": [
+        {
+          "name": "The Vanguard Group",
+          "pct": 8.5
         },
-        "pricing_power": {
-          "score": 16,
-          "label": "Pricing Power",
-          "value": "51.1% GM",
-          "source": "yfinance [CALCULATED]"
-        },
-        "revenue_quality": {
-          "score": 8,
-          "label": "Revenue Quality",
-          "value": null,
-          "source": "FMP [CALCULATED]"
-        },
-        "operating_efficiency": {
-          "score": 20,
-          "label": "Operating Efficiency",
-          "value": "38.7% EBITDA Mgn",
-          "source": "yfinance [CALCULATED]"
+        {
+          "name": "BlackRock, Inc.",
+          "pct": 7.2
         }
-      },
-      "ai_narrative": {
-        "moat_rating": "Wide",
-        "narrative": "LRCX has a strong competitive moat due to its leading position in semiconductor equipment, with contracts and partnerships with major customers like Intel and Samsung, which constitute a significant portion of the global semiconductor market. Its proprietary technology in atomic layer deposition and plasma-enhanced chemical vapor deposition processes creates high switching costs for customers, making it challenging for competitors to replicate.\n\nMoat drivers: Long-term contracts with major chipmakers like Intel and Samsung, which represent a large portion of their production needs.; Proprietary technology in advanced semiconductor processes with significant R&D investment, creating high barriers to entry.\n\nKey threats: Competitors like Applied Materials and KLA Corporation are rapidly innovating, vying for market share amidst increasing semiconductor complexity.; Emerging players with novel technologies could disrupt traditional manufacturing techniques that LRCX dominates.",
-        "competitive_differentiation_score": 13,
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      },
-      "moat_score_total": 65,
-      "moat_score_label": "Narrow Moat",
-      "moat_dim5_score": 13,
-      "subscriber_comparison": {
-        "competitors": [],
-        "unit": "millions",
-        "source": "claude-haiku-4-5-20251001 [AI extracted] \u2014 Tavily subscriber data",
-        "status": "not_applicable"
-      }
-    },
-    "s9_industry": {
-      "section": "industry_macro",
-      "sector": {
-        "value": "Technology",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "industry": {
-        "value": "Semiconductor Equipment & Materials",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "risk_free_rate": {
-        "value": 5.0,
-        "source": "FRED DGS10",
-        "status": "ok"
-      },
-      "fed_funds_rate": {
-        "value": 3.75,
-        "source": "FRED FEDFUNDS",
-        "status": "ok"
-      },
-      "gdp_growth": {
-        "value": 2.2,
-        "source": "FRED GDP",
-        "status": "ok"
-      },
-      "unemployment": {
-        "value": 4.2,
-        "source": "FRED UNRATE",
-        "status": "ok"
-      },
-      "tavily_excerpts": [],
-      "ai_narrative": {
-        "value": "Lam Research Corporation operates in the Semiconductor Equipment & Materials market, focusing on equipment used for semiconductor fabrication. Currently, significant trends include the increased demand for advanced semiconductor nodes, driven by companies like TSMC and Samsung ramping up production capabilities, and the transition towards 5G technology and AI applications, which stress the need for high-performance chips. The ongoing semiconductor supply chain disruptions also create opportunities for companies like LRCX to capture market share as fabs invest in modernizing their equipment.\n\nThe current macroeconomic environment, characterized by a 3.75% fed funds rate, influences LRCX's cost of capital and may deter some customer investments in new semiconductor production capacity. Furthermore, with a GDP growth of 2.2% and a 4.2% unemployment rate, customer demand for semiconductors remains on a stable but cautious trajectory, influencing LRCX's outlook for sales growth and profitability.",
-        "industry_overview": "Lam Research Corporation operates in the Semiconductor Equipment & Materials market, focusing on equipment used for semiconductor fabrication. Currently, significant trends include the increased demand for advanced semiconductor nodes, driven by companies like TSMC and Samsung ramping up production capabilities, and the transition towards 5G technology and AI applications, which stress the need for high-performance chips. The ongoing semiconductor supply chain disruptions also create opportunities for companies like LRCX to capture market share as fabs invest in modernizing their equipment.",
-        "competitive_dynamics": "Competitors such as Applied Materials (AMAT) and KLA Corporation have a notable presence in the semiconductor equipment sector, with market shares of approximately 18% and 11%, respectively. LRCX competes primarily on the innovation and efficiency of its products; while AMAT has strong offerings in wafer fabrication and process control, LRCX's specialized systems for atomic layer deposition give it an edge in niche markets. Currently, LRCX is benefiting from robust demand among leading chipmakers, positioning it favorably against these competitors.",
-        "ipo_and_event_risk": null,
-        "macro_context": "The current macroeconomic environment, characterized by a 3.75% fed funds rate, influences LRCX's cost of capital and may deter some customer investments in new semiconductor production capacity. Furthermore, with a GDP growth of 2.2% and a 4.2% unemployment rate, customer demand for semiconductors remains on a stable but cautious trajectory, influencing LRCX's outlook for sales growth and profitability.",
-        "tailwinds": [
-          "LRCX's revenue growth of 54.4% year-over-year indicates strong demand for its semiconductor processing equipment, particularly as leading manufacturers like TSMC expand their production capabilities to support the growing semiconductor market. This positions LRCX to significantly outperform its peers in the near term.",
-          "The recently launched ALTUS systems, designed for tungsten and molybdenum metallization applications, have gained traction among semiconductor fab operators looking to enhance their manufacturing precision. This product line is poised to capture a growing share of the estimated $20 billion annual market for advanced deposition equipment.",
-          "LRCX's operating margin of 40% reflects its ability to manage costs effectively while investing in R&D for next-generation technologies, enabling it to fend off price competition from rivals like AMAT and KLA. This financial strength allows LRCX to reinvest into innovative solutions that solidify its market position."
-        ],
-        "headwinds": [
-          "The geopolitical tensions impacting the semiconductor industry, particularly between the U.S. and China, create uncertainty for LRCX's operations, as restrictions could limit their access to key markets or materials. If trade restrictions were to escalate, it could negatively affect LRCX's revenue from China, where significant orders originate.",
-          "Rising inflation rates may increase operating costs for LRCX, particularly for raw materials and labor, potentially squeezing profit margins if they cannot pass these costs onto customers in a competitive market. A 1% increase in costs could significantly impact their profitability, given the high sensitivity of the semiconductor equipment market to pricing.",
-          "The semiconductor sector is currently experiencing supply chain constraints that could hinder LRCX's ability to deliver equipment on time. Extended delays could lead to customer dissatisfaction and lost contracts, potentially slowing down LRCX's anticipated revenue growth trajectory."
-        ],
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      }
-    },
-    "s10_institutional": {
-      "section": "institutional_activity",
-      "institutional_pct": {
-        "value": 88.9,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "insider_pct": {
-        "value": 0.3,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "top_holders": [
-        {
-          "holder": {
-            "value": "Blackrock Inc.",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 132727776,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 31696719862,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        },
-        {
-          "holder": {
-            "value": "Vanguard Capital Management LLC",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 81683639,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 19506869630,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        },
-        {
-          "holder": {
-            "value": "State Street Corporation",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 60704130,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 14496753137,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        },
-        {
-          "holder": {
-            "value": "Invesco Ltd.",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 52319973,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 12494532624,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        },
-        {
-          "holder": {
-            "value": "JPMORGAN CHASE & CO",
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "shares": {
-            "value": 45317479,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "pct_held": {
-            "value": null,
-            "source": "yfinance",
-            "status": "na"
-          },
-          "value": {
-            "value": 10822267049,
-            "source": "yfinance",
-            "status": "ok"
-          },
-          "date_reported": {
-            "value": "2026-06-30",
-            "source": "yfinance",
-            "status": "ok"
-          }
-        }
-      ],
-      "insider_trades": [
-        {
-          "date": {
-            "value": "2026-10-26",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000134360026000015/0001343600-26-000015-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-09-10",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000134360026000013/0001343600-26-000013-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-09-10",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000140569326000011/0001405693-26-000011-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-09-03",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000170782726000006/0001707827-26-000006-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-09-01",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000164241526000012/0001642415-26-000012-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-08-07",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000134360026000011/0001343600-26-000011-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-08-06",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000164241526000010/0001642415-26-000010-index.htm"
-        },
-        {
-          "date": {
-            "value": "2026-07-14",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "name": {
-            "value": "Statement Of Changes In Beneficial Ownership Of Securities",
-            "source": "SEC EDGAR",
-            "status": "ok"
-          },
-          "transaction_type": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "shares": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "price": {
-            "value": null,
-            "source": "SEC EDGAR",
-            "status": "na"
-          },
-          "filing_url": "https://www.sec.gov/Archives/edgar/data/707549/000131606526000012/0001316065-26-000012-index.htm"
-        }
-      ],
-      "analyst_ratings": {
-        "buy_count": {
-          "value": 139,
-          "source": "Finnhub",
-          "status": "ok"
-        },
-        "hold_count": {
-          "value": 24,
-          "source": "Finnhub",
-          "status": "ok"
-        },
-        "sell_count": {
-          "value": 0,
-          "source": "Finnhub",
-          "status": "ok"
-        },
-        "consensus": {
-          "value": "Buy",
-          "source": "Finnhub [CALCULATED]",
-          "status": "ok"
-        },
-        "total_ratings": {
-          "value": 163,
-          "source": "Finnhub",
-          "status": "ok"
-        }
-      },
-      "analyst_price_targets": {
-        "mean": {
-          "value": 364.03333,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "high": {
-          "value": 500.0,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "low": {
-          "value": 255.0,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "num_analysts": {
-          "value": 30,
-          "source": "yfinance",
-          "status": "ok"
-        }
-      }
-    },
-    "s10b_management": {
-      "section": "management_governance",
-      "ceo_name": {
-        "value": "Timothy Archer",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "company_name": "Lam Research Corporation",
-      "employees": {
-        "value": "23300",
-        "source": "FMP/yfinance",
-        "status": "ok"
-      },
-      "ipo_date": {
-        "value": "1984-05-04",
-        "source": "FMP",
-        "status": "ok"
-      },
-      "executives": [],
-      "mgmt_search_results": [],
-      "ai_ceo_profile": "Timothy Archer is the current CEO of Lam Research Corporation. Limited public information is available regarding his background prior to this role. One notable achievement during his tenure has been the company's continued leadership in advanced semiconductor manufacturing technology.",
-      "ai_board_assessment": {
-        "total_members": null,
-        "independent_pct": null,
-        "governance_flag": "No red flags identified"
-      },
-      "ai_tenure_note": null,
-      "ai_leadership_style": null,
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 FMP profile + Tavily management search",
-      "ai_status": "ok"
-    },
-    "s11_risks": {
-      "section": "risk_register",
-      "financials_snapshot": {
-        "pe_ttm": {
-          "value": 34.453823,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "ev_ebitda": {
-          "value": 28.961,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "debt_to_equity": {
-          "value": 26.857,
-          "source": "yfinance",
-          "status": "ok"
-        },
-        "current_ratio": {
-          "value": null,
-          "source": "FMP [CALCULATED]",
-          "status": "na"
-        },
-        "beta": {
-          "value": 1.854,
-          "source": "yfinance",
-          "status": "ok"
-        }
-      },
-      "technicals_snapshot": {
-        "rsi": {
-          "value": 29.8,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "trend": {
-          "value": "Strong Downtrend",
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "pct_from_52w_high": {
-          "value": -44.84,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        }
-      },
-      "macro_snapshot": {
-        "risk_free_rate": {
-          "value": 5.0,
-          "source": "FRED DGS10",
-          "status": "ok"
-        },
-        "fed_funds_rate": {
-          "value": 3.75,
-          "source": "FRED FEDFUNDS",
-          "status": "ok"
-        },
-        "gdp_growth": {
-          "value": 2.2,
-          "source": "FRED GDP",
-          "status": "ok"
-        }
-      },
-      "recent_headlines": [
-        "MP Materials And 2 Other Top Growth Stocks",
-        "KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?",
-        "Is Lam Research Stock Cheap Enough Yet?",
-        "Marvell Stock Is Bouncing Back From a Near 9% Drop. Its COO Says It Has \u201cAll the Demand and the Supply\u201d to Hit $20 Billion in Revenue Next Year",
-        "Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?",
-        "Reuters Reported Samsung Electronics Said It Is Not Reviewing The Possibility Of Issuing American Depositary Receipts, Following Bloomberg Report That The Chipmaker Is Exploring Potential U.S. Share Sale",
-        "Intel: Agentic AI Is Making CPUs A New Bottleneck",
-        "Intel Just Dropped 10% in a Week. Is It Time to Sell, or Load Up?",
-        "Does Beating The Market Prove KLA Is A Great Company?",
-        "Earn 12-15% Potential Income: Monthly Options Series (Nov. 2026)"
-      ],
-      "ai_risk_register": {
-        "risks": [
-          {
-            "name": "High Valuation Relative to Peers",
-            "category": "Valuation",
-            "mechanism": "LRCX's P/E ratio of 34.45 is elevated compared to industry norms, suggesting it may be overvalued if growth slows.",
-            "likelihood": "High",
-            "impact": "High"
-          },
-          {
-            "name": "Weak Technical Indicators",
-            "category": "Technical",
-            "mechanism": "The stock's RSI of 29.8 indicates extreme overselling, but current technical trends are in a strong downtrend, raising concerns about further declines.",
-            "likelihood": "High",
-            "impact": "Medium"
-          },
-          {
-            "name": "Dependence on Macro Variability",
-            "category": "Macro",
-            "mechanism": "The ongoing risk-off macro environment, indicated by rising 10Y yields at 5.0%, could lead to reduced capital expenditure in the tech sector, negatively impacting LRCX.",
-            "likelihood": "Medium",
-            "impact": "High"
-          },
-          {
-            "name": "Debt Levels and Financial Leverage",
-            "category": "Financial",
-            "mechanism": "A debt-to-equity ratio of 26.86 suggests significant financial leverage, which could amplify losses if business conditions deteriorate.",
-            "likelihood": "Medium",
-            "impact": "Medium"
-          },
-          {
-            "name": "Insufficient Revenue Growth Data",
-            "category": "Financial",
-            "mechanism": "The lack of reported revenue growth raises concerns about the sustainability of LRCX's financial health, especially amidst a high P/E ratio.",
-            "likelihood": "High",
-            "impact": "High"
-          },
-          {
-            "name": "Rising Market Competition",
-            "category": "Competitive",
-            "mechanism": "Headlines indicate fierce competition with peers like KLA and AMAT, which could erode LRCX's market share and profit margins.",
-            "likelihood": "Medium",
-            "impact": "Medium"
-          },
-          {
-            "name": "Negative Sentiment from Market Analysts",
-            "category": "Sentiment",
-            "mechanism": "Despite positive analyst sentiment, the absence of recent news catalysts could lead to a quick shift in sentiment, exposing the stock to sudden downturns.",
-            "likelihood": "Medium",
-            "impact": "Medium"
-          }
-        ],
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      }
-    },
-    "s12_scenarios": {
-      "section": "scenario_analysis",
-      "current_price": {
-        "value": 238.765,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "dcf_implied": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "fmp_dcf_price": {
-        "value": null,
-        "source": "FMP",
-        "status": "na"
-      },
-      "bear": {
-        "price_target": {
-          "value": 255.0,
-          "source": "min(FMP DCF, analyst PT low, our DCF x 0.85) [CALCULATED]",
-          "status": "ok"
-        },
-        "upside_pct": {
-          "value": 6.8,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "probability": {
-          "value": 25,
-          "source": "fixed assumption",
-          "status": "ok"
-        }
-      },
-      "base": {
-        "price_target": {
-          "value": 364.03,
-          "source": "yfinance analyst PT mean",
-          "status": "ok"
-        },
-        "upside_pct": {
-          "value": 52.5,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "probability": {
-          "value": 50,
-          "source": "fixed assumption",
-          "status": "ok"
-        }
-      },
-      "bull": {
-        "price_target": {
-          "value": 500.0,
-          "source": "yfinance analyst PT high",
-          "status": "ok"
-        },
-        "upside_pct": {
-          "value": 109.4,
-          "source": "yfinance [CALCULATED]",
-          "status": "ok"
-        },
-        "probability": {
-          "value": 25,
-          "source": "fixed assumption",
-          "status": "ok"
-        }
-      },
-      "probability_weighted_return": {
-        "value": 55.3,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "base_return_pct": {
-        "value": 52.5,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      }
-    },
-    "s13_sentiment": {
-      "section": "sentiment",
-      "short_interest_pct": {
-        "value": 2.07,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "analyst_consensus": {
-        "value": "Buy",
-        "source": "Finnhub [CALCULATED]",
-        "status": "ok"
-      },
-      "news_items": [
-        {
-          "headline": "MP Materials And 2 Other Top Growth Stocks",
-          "summary": "Wall Street is watching Anthropic\u2019s huge planned IPO, which is shining a spotlight on fast expanding businesses that still pass basic financial health",
-          "date": "1793063440"
-        },
-        {
-          "headline": "KLA Corporation (KLAC) vs. AMAT and LRCX: Can Rising Semiconductor Complexity Create Another Growth Cycle?",
-          "summary": "Is KLAC a good stock to buy? We came across a bullish thesis on KLA Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will summarize t",
-          "date": "1793050832"
-        },
-        {
-          "headline": "Is Lam Research Stock Cheap Enough Yet?",
-          "summary": "For questions about this article or underlying research, email help@trefis.com.",
-          "date": "1793049331"
-        },
-        {
-          "headline": "Marvell Stock Is Bouncing Back From a Near 9% Drop. Its COO Says It Has \u201cAll the Demand and the Supply\u201d to Hit $20 Billion in Revenue Next Year",
-          "summary": "Key Stats for Marvell StockCurrent Price: $228. 51Target Price (Mid): ~$1,710Street Target: ~$341Potential Total Return: ~650%Annualized IRR: ~60% / y",
-          "date": "1793047217"
-        },
-        {
-          "headline": "Lam Research (LRCX) vs. AMAT and KLAC: Can Strong Cash Flow and AI Demand Support Further Upside?",
-          "summary": "Is LRCX a good stock to buy? We came across a bullish thesis on Lam Research Corporation on Astute Optics \u2013 US\u2019s Substack. In this article, we will su",
-          "date": "1793028197"
-        },
-        {
-          "headline": "Reuters Reported Samsung Electronics Said It Is Not Reviewing The Possibility Of Issuing American Depositary Receipts, Following Bloomberg Report That The Chipmaker Is Exploring Potential U.S. Share Sale",
-          "summary": "",
-          "date": "1793024276"
-        },
-        {
-          "headline": "Intel: Agentic AI Is Making CPUs A New Bottleneck",
-          "summary": "Intel Corporation looks undervalued as AI demand boosts margins and foundry losses shrink. Click for this INTC earnings preview.",
-          "date": "1793023542"
-        },
-        {
-          "headline": "Intel Just Dropped 10% in a Week. Is It Time to Sell, or Load Up?",
-          "summary": "Key TakeawaysIntel stock fell 10% in the week through Thursday\u2019s close, mostly in a chip selloff after Lam Research said supply chain constraints held",
-          "date": "1793018316"
-        },
-        {
-          "headline": "Does Beating The Market Prove KLA Is A Great Company?",
-          "summary": "For questions about this article or underlying research, email help@trefis.com.",
-          "date": "1793016102"
-        },
-        {
-          "headline": "Earn 12-15% Potential Income: Monthly Options Series (Nov. 2026)",
-          "summary": "Learn a disciplined options income strategy targeting 12-15% annually with risk management, stock selection tips, and sustainable tactics\u00e2\u0080\u0094read now.",
-          "date": "1793003400"
-        },
-        {
-          "headline": "Chip Stocks to Buy After Their Worst Day Since June",
-          "summary": "Is a warning of too little supply actually a reason to sell chip stocks?",
-          "date": "1792985822"
-        },
-        {
-          "headline": "AI Stocks Surge, Then Plunge: Which of 4 Sectors Is Worth Buying?",
-          "summary": "Micron surged over 300% while Nvidia barely moved, yet both sit at the center of the same AI spending boom. The reason for that gap reveals something ",
-          "date": "1792975365"
-        },
-        {
-          "headline": "Arm Stock Is Down 8% Last Week. What Does Lam Research Have to Do With It?",
-          "summary": "Key TakeawaysArm stock is down 7. 8% over the past week to $210.",
-          "date": "1792942861"
-        },
-        {
-          "headline": "Sandisk (SNDK) Flags Industry Supply Chain Constraints As Memory Production Timelines Tighten",
-          "summary": "Sandisk (NasdaqGS:SNDK) is among memory suppliers referenced as affected by supply chain constraints highlighted by Lam Research. Lam Research flagged",
-          "date": "1792940977"
-        },
-        {
-          "headline": "Lam Research: Down 29% Since My Sell Call, But The Math Has Changed (Upgrade)",
-          "summary": "Lam Research Corporation shares fell 29%, reshaping valuations as a $200 billion wafer fabrication boom boosts outlook. Click for this LRCX stock upda",
-          "date": "1792939304"
-        },
-        {
-          "headline": "5 big analyst AI moves: \u2019Uniquely catalyst-rich\u2019 months ahead for SpaceX",
-          "summary": "Investing.com -- Here are the biggest analyst moves in the area of artificial intelligence (AI) for this week.",
-          "date": "1792865723"
-        },
-        {
-          "headline": "Lam Research (LRCX) Stock Faces Q1 Earnings Quality Questions After Records",
-          "summary": "Lam Research just posted its Q1 2027 scorecard with record revenue of US$8.22b and non GAAP earnings per share of US$2.20, yet the stock barely flinch",
-          "date": "1792858265"
-        },
-        {
-          "headline": "The AI Trade Is Shifting From Chip Stocks to Cybersecurity",
-          "summary": "Software leaders got a big boost this week and chip stocks were crushed as the AI tech investing landscape continues to shift.",
-          "date": "1792856640"
-        },
-        {
-          "headline": "3 Growth Stocks To Watch With Up To 103% Earnings Growth",
-          "summary": "Investor enthusiasm for artificial intelligence has cooled as some smaller AI infrastructure firms struggle with heavy debt and patchy demand, which p",
-          "date": "1792836747"
-        },
-        {
-          "headline": "Wall Street Breakfast: What Moved Markets This Week",
-          "summary": "Wall Street weekly recap: hotter CPI, rising VIX, tech weakness and big bank earnings.",
-          "date": "1792829457"
-        }
-      ],
-      "ai_sentiment": {
-        "value": "1. **OVERALL NEWS TONE:** Neutral \u2014 the articles present a mix of bullish and cautionary insights regarding Lam Research and the semiconductor sector without a clear dominant sentiment.  \n2. **DOMINANT THEMES:** A focus on the impact of AI demand on semiconductor stocks and supply chain constraints affecting the industry.  \n3. **SENTIMENT SHIFT:** The tone appears stable; while there are concerns about stock performance and supply chain issues, there are also optimistic assessments of growth potential, particularly with AI advancements.",
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      }
-    },
-    "s14_differ": {
-      "section": "where_we_differ",
-      "current_price": {
-        "value": 238.765,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "analyst_pt_mean": {
-        "value": 364.03333,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "analyst_rating": {
-        "value": "strong_buy",
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "our_dcf_implied": {
-        "value": null,
-        "source": "FMP/yfinance [CALCULATED]",
-        "status": "na"
-      },
-      "fmp_dcf_crosscheck": {
-        "value": null,
-        "source": "FMP",
-        "status": "na"
-      },
-      "direction": {
-        "value": "PROCEED",
-        "source": "mandate_checker",
-        "status": "ok"
-      },
-      "conviction": {
-        "value": null,
-        "source": "Investment Committee",
-        "status": "na"
-      },
-      "ai_where_we_differ": {
-        "value": "Haz Capital's analysis of LRCX presents a distinct divergence from the market consensus. While the analyst consensus price target stands at $364.03, representing a potential upside of approximately 52.5% from the current price of $238.77, our DCF implied value is not provided, creating ambiguity in our fair value assessment. If our DCF were to suggest a significantly lower fair value, it could indicate underlying assumptions relating to growth rates or discount rates that differ from the consensus, potentially reflecting a more conservative outlook.\n\nAdditionally, the technical indicators show a contrasting signal compared to the consensus rating of \"strong buy.\" With an RSI of 29.8, LRCX is currently in a \"strong downtrend,\" which typically suggests oversold conditions and may warrant caution. This technical outlook could indicate short-term weaknesses not factored into the bullish consensus. Furthermore, the short interest percentage at 2.07% is relatively low, but noteworthy; it suggests that there\u2019s limited bearish sentiment relative to positive analyst views, which could be a relatively bullish sign despite the technical challenges.",
-        "source": "claude-haiku-4-5-20251001 [AI narrative]",
-        "status": "ok"
-      }
-    },
-    "s15_checklist": {
-      "section": "setup_checklist",
-      "checks": [
-        {
-          "name": "Asset class: Common equity or ADR",
-          "passed": true,
-          "detail": "Quote type: EQUITY",
-          "source": "yfinance",
-          "category": "Mandate"
-        },
-        {
-          "name": "Listed on supported exchange",
-          "passed": true,
-          "detail": "Exchange: NMS",
-          "source": "yfinance/FMP",
-          "category": "Mandate"
-        },
-        {
-          "name": "Market cap \u2265 $200M USD",
-          "passed": true,
-          "detail": "Market cap: $298.8B",
-          "source": "yfinance",
-          "category": "Mandate"
-        },
-        {
-          "name": "Avg daily volume \u2265 500K shares",
-          "passed": true,
-          "detail": "Avg daily volume: 9.6M shares/day",
-          "source": "yfinance",
-          "category": "Mandate"
-        },
-        {
-          "name": "No restricted geography revenue (Russia, Mongolia, Cambodia)",
-          "passed": true,
-          "detail": "No restricted geography exposure detected (country: Us)",
-          "source": "FMP/yfinance",
-          "category": "Mandate"
-        },
-        {
-          "name": "Float \u2265 10%",
-          "passed": true,
-          "detail": "Float: 99.4% (1244M of 1251M shares)",
-          "source": "yfinance",
-          "category": "Mandate"
-        },
-        {
-          "name": "No known PEP/sanctions flags in recent news",
-          "passed": true,
-          "detail": "No sanctions or PEP flags detected in last 30 days of news",
-          "source": "Finnhub news [keyword scan]",
-          "category": "Mandate"
-        },
-        {
-          "name": "Setup type identifiable",
-          "passed": true,
-          "detail": "Insufficient revenue history \u2014 proceeding as Unclassified",
-          "source": "FMP [CALCULATED]",
-          "category": "Mandate"
-        },
-        {
-          "name": "Revenue growth positive (YoY)",
-          "passed": false,
-          "detail": "Revenue data unavailable",
-          "source": "FMP",
-          "category": "Fundamental"
-        },
-        {
-          "name": "Free cash flow positive",
-          "passed": false,
-          "detail": "FCF unavailable",
-          "source": "FMP",
-          "category": "Fundamental"
-        },
-        {
-          "name": "Net margin positive",
-          "passed": false,
-          "detail": "Income data unavailable",
-          "source": "FMP [CALCULATED]",
-          "category": "Fundamental"
-        },
-        {
-          "name": "Debt-to-equity < 3",
-          "passed": false,
-          "detail": "D/E: 26.86",
-          "source": "yfinance/FMP [CALCULATED]",
-          "category": "Fundamental"
-        },
-        {
-          "name": "P/E (TTM) below 50",
-          "passed": true,
-          "detail": "P/E TTM: 34.5",
-          "source": "yfinance",
-          "category": "Fundamental"
-        },
-        {
-          "name": "Price above SMA50",
-          "passed": false,
-          "detail": "Data unavailable",
-          "source": "yfinance [CALCULATED]",
-          "category": "Technical"
-        },
-        {
-          "name": "Price above SMA200",
-          "passed": false,
-          "detail": "Data unavailable",
-          "source": "yfinance [CALCULATED]",
-          "category": "Technical"
-        },
-        {
-          "name": "RSI not overbought (< 75)",
-          "passed": true,
-          "detail": "RSI: 29.8",
-          "source": "yfinance [CALCULATED]",
-          "category": "Technical"
-        },
-        {
-          "name": "Trend signal Bullish or Neutral",
-          "passed": false,
-          "detail": "Trend: Strong Downtrend",
-          "source": "yfinance [CALCULATED]",
-          "category": "Technical"
-        }
-      ],
-      "passed_count": 10,
-      "total_count": 17,
-      "overall_score": {
-        "value": 58.8,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      }
-    },
-    "s16_recommendation": {
-      "direction": "BUY",
-      "conviction": 72,
-      "expected_return_12m": null,
-      "position_size_pct": 5.0,
-      "stop_loss_pct": 5.5,
-      "three_arguments": [
-        {
-          "title": "See committee narrative",
-          "data_point": "Committee deliberation",
-          "reasoning": "Lam Research Corporation (LRCX) presents a compelling long opportunity as it is currently trading significantly below its 52-week high, indicating potential for mean reversion. The stock's strong reve"
-        },
-        {
-          "title": "See committee narrative",
-          "data_point": "Committee deliberation",
-          "reasoning": "Lam Research Corporation (LRCX) presents a compelling long opportunity as it is currently trading significantly below its 52-week high, indicating potential for mean reversion. The stock's strong reve"
-        },
-        {
-          "title": "See committee narrative",
-          "data_point": "Committee deliberation",
-          "reasoning": "Lam Research Corporation (LRCX) presents a compelling long opportunity as it is currently trading significantly below its 52-week high, indicating potential for mean reversion. The stock's strong reve"
-        }
-      ],
-      "key_risks": [
-        "Potential for further market-wide declines in a risk-off environment"
-      ],
-      "committee_narrative": "Lam Research Corporation (LRCX) presents a compelling long opportunity as it is currently trading significantly below its 52-week high, indicating potential for mean reversion. The stock's strong revenue growth of 26% YoY and bullish analyst sentiment support this position. With no recent catalysts but a favorable technical setup, the entry is justified. An exit condition would be if the stock drops below $225.53, indicating a failure to hold support.",
-      "conviction_source": "Real Investment Committee decision \u2014 this is the actual decision that placed the trade, not a separately re-derived score."
-    },
-    "s17_reliability": {
-      "section": "data_reliability",
-      "api_sources_ok": [
-        "FMP profile",
-        "FMP peers",
-        "yfinance info",
-        "yfinance price_history",
-        "yfinance returns",
-        "yfinance institutional",
-        "Finnhub news",
-        "Finnhub ratings",
-        "Finnhub basics",
-        "Finnhub earnings",
-        "FRED macro",
-        "SEC Form 4",
-        "SEC 8-K",
-        "peer_metrics",
-        "technicals"
-      ],
-      "api_sources_failed": [
-        "FMP income",
-        "FMP balance",
-        "FMP cashflow",
-        "FMP key_metrics",
-        "FMP DCF",
-        "yfinance analyst_targets",
-        "Tavily overview",
-        "Tavily catalysts",
-        "Tavily industry",
-        "Tavily competitive"
-      ],
-      "sources_ok_count": {
-        "value": 15,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "sources_failed_count": {
-        "value": 10,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "api_fields_count": {
-        "value": 445,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "ai_fields_count": {
-        "value": 5,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "na_fields_count": {
-        "value": 88,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "conflicts_count": {
-        "value": 0,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "coverage_pct": {
-        "value": 82.7,
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "coverage_badge": {
-        "value": "Partial",
-        "source": "system [CALCULATED]",
-        "status": "ok"
-      },
-      "fetch_elapsed_sec": {
-        "value": 5.9,
-        "source": "system",
-        "status": "ok"
-      },
-      "generated_at": {
-        "value": "2026-10-27T14:07:18.516525Z",
-        "source": "system",
-        "status": "ok"
-      }
-    },
-    "s_h_esg": {
-      "section": "esg",
-      "total_esg_score": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "environment_score": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "social_score": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "governance_score": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "highest_controversy": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "esg_performance": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "rating_period": {
-        "value": null,
-        "source": "yfinance (Sustainalytics)",
-        "status": "na"
-      },
-      "esg_search_results": [],
-      "ai_msci_rating": null,
-      "ai_initiatives": [],
-      "ai_narrative": null,
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily ESG search",
-      "ai_status": "unavailable"
-    },
-    "s_j_ma": {
-      "section": "ma_track_record",
-      "company_name": "Lam Research Corporation",
-      "ma_8k_filings": [],
-      "ma_news_headlines": [
-        {
-          "headline": "Stock Market Today: Big Banks Earn Billions, Bumble Soars on Buyout",
-          "date": 1791975103,
-          "url": "https://finnhub.io/api/news?id=8cb73376d702b0ea1d04a80d3f05facddbcb644066296993edbdbf296a1d3a20"
-        },
-        {
-          "headline": "Smartkem shares are trading lower. The company announced a non-binding letter of intent to acquire all outstanding shares of Carbonium Core in exchange for shares of Smartkem Series B Convertible Preferred Stock.",
-          "date": 1791894974,
-          "url": "https://finnhub.io/api/news?id=28a0b1d17e9f4125a0a962072507893cab5497146ee4fa9163f537a2140b0c0d"
-        }
-      ],
-      "ma_search_results": [],
-      "ai_events": [],
-      "ai_narrative": null,
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 Tavily M&A search + SEC 8-K + Finnhub news",
-      "ai_status": "ok"
-    },
-    "s_b_porter": {
-      "section": "porter_five_forces",
-      "company_name": "Lam Research Corporation",
-      "sector": {
-        "value": "Technology",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "industry": {
-        "value": "Semiconductor Equipment & Materials",
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "peer_count": {
-        "value": 5,
-        "source": "yfinance/FMP [CALCULATED]",
-        "status": "ok"
-      },
-      "capex_intensity_pct": {
-        "value": null,
-        "source": "FMP [CALCULATED]",
-        "status": "na"
-      },
-      "gross_margin_pct": {
-        "value": 51.1,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "industry_excerpts": [],
-      "competitive_excerpts": [],
-      "ai_forces": {
-        "competitive_rivalry": {
-          "score": 3,
-          "rationale": "Insufficient data to assess competitive rivalry."
-        },
-        "threat_new_entrants": {
-          "score": 3,
-          "rationale": "Insufficient data to assess entry barriers."
-        },
-        "threat_substitutes": {
-          "score": 3,
-          "rationale": "Insufficient data to assess substitution risk."
-        },
-        "buyer_power": {
-          "score": 3,
-          "rationale": "Insufficient data to assess buyer leverage."
-        },
-        "supplier_power": {
-          "score": 3,
-          "rationale": "Insufficient data to assess supplier leverage."
-        },
-        "overall_attractiveness": "Medium",
-        "sector_narrative": null
-      },
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative]",
-      "ai_status": "unavailable"
-    },
-    "s_c_sotp": {
-      "section": "sotp_valuation",
-      "company_name": "Lam Research Corporation",
-      "total_revenue": {
-        "value": null,
-        "source": "FMP",
-        "status": "na"
-      },
-      "net_debt": {
-        "value": null,
-        "source": "FMP [CALCULATED]",
-        "status": "na"
-      },
-      "shares_outstanding": {
-        "value": 1251424362.0,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "current_price": {
-        "value": 238.765,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "market_cap": {
-        "value": 298796351488.0,
-        "source": "yfinance/FMP",
-        "status": "ok"
-      },
-      "subj_ev_ebitda": {
-        "value": 28.961,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "subj_ev_rev": {
-        "value": 11.435896,
-        "source": "yfinance",
-        "status": "ok"
-      },
-      "peer_median_ev_rev": {
-        "value": 14.45,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "peer_median_ev_ebitda": {
-        "value": 32.4,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "peer_count": {
-        "value": 5,
-        "source": "yfinance [CALCULATED]",
-        "status": "ok"
-      },
-      "segments": [],
-      "earnings_excerpts": [],
-      "ai_sotp": null,
-      "ai_source": "claude-haiku-4-5-20251001 [AI narrative] \u2014 segment multiple assignment",
-      "ai_status": "unavailable",
-      "enriched_segments": [],
-      "total_ev_bear_bn": null,
-      "total_ev_base_bn": null,
-      "total_ev_bull_bn": null,
-      "net_debt_bn": null,
-      "equity_value_bear_bn": null,
-      "equity_value_base_bn": null,
-      "equity_value_bull_bn": null,
-      "implied_price_bear": null,
-      "implied_price_base": null,
-      "implied_price_bull": null,
-      "upside_pct_bear": null,
-      "upside_pct_base": null,
-      "upside_pct_bull": null,
-      "ai_methodology": null
+      ]
     }
   },
-  "source": "pipeline_auto",
-  "agent_digest": {
-    "fundamental": {
-      "score": 85,
-      "direction": "LONG",
-      "summary": "LRCX demonstrates strong growth with a revenue growth of 26.0% YoY and a solid operating margin of 40.0%. Its P/E ratio is below the peer average, suggesting it is undervalued relative to its peers.",
-      "raw": {
-        "ticker": "LRCX",
-        "fundamental_score": 85,
-        "direction": "LONG",
-        "valuation_vs_peers": "LRCX's P/E of 34.39 is below the peer average of 39.60, indicating a favorable valuation relative to peers.",
-        "price_vs_intrinsic_value": "-13.0% discount vs peer median P/E",
-        "dislocation_opportunity": false,
-        "pe_ratio": 34.39,
-        "pe_peer_average": 39.6,
-        "revenue_growth_yoy": 0.26,
-        "operating_margin": 0.4,
-        "roic": null,
-        "net_debt_ebitda": -0.43,
-        "peers_used": [
-          "ASML",
-          "APPLIED MATERIALS",
-          "KLA CORPORATION",
-          "TOKYO ELECTRON",
-          "TERADYNE"
-        ],
-        "setup_type": "Growth",
-        "margin_trend": "Stable",
-        "fcf_positive": true,
-        "leverage_vs_peers": "Lower",
-        "default_risk": "Low",
-        "key_strengths": [
-          "ROE of 70.1% indicating strong profitability."
-        ],
-        "key_concerns": [
-          "High P/E ratio of 34.39 compared to peers."
-        ],
-        "fundamental_summary": "LRCX demonstrates strong growth with a revenue growth of 26.0% YoY and a solid operating margin of 40.0%. Its P/E ratio is below the peer average, suggesting it is undervalued relative to its peers.",
-        "fund_mandate": {
-          "asset_class": "Equity",
-          "exchange": "NASDAQ",
-          "sector": "Technology",
-          "market_cap_figure": "Large Cap $298.2B",
-          "avg_daily_volume_usd": null,
-          "geography_flags": {
-            "russia_exposure": false,
-            "mongolia_exposure": false,
-            "cambodia_exposure": false,
-            "exposure_detail": null
-          },
-          "peps_check": {
-            "clean": true,
-            "notes": "Unverified \u2014 manual check required"
-          },
-          "setup_type": "Growth",
-          "float_pct": 99.4
-        },
-        "company_info": {
-          "hq": "Tualatin, USA",
-          "employees": 15000,
-          "overview": "Lam Research Corporation is a global supplier of wafer fabrication equipment and services to the semiconductor industry, specializing in etch, deposition, and cleaning processes.",
-          "revenue_segments": [
-            {
-              "segment": "Semiconductor Equipment",
-              "weight_pct": 100.0
-            }
-          ],
-          "geography_breakdown": [
-            {
-              "region": "North America",
-              "pct": 50.0
-            },
-            {
-              "region": "Asia",
-              "pct": 40.0
-            },
-            {
-              "region": "Europe",
-              "pct": 10.0
-            }
-          ],
-          "revenue_segments_source": "llm"
-        },
-        "financial_snapshot": {
-          "historical": [
-            {
-              "year": "2026",
-              "revenue": 23232690000.0,
-              "ebitda": 8641328000.0,
-              "net_income": 7265396000.0
-            },
-            {
-              "year": "2025",
-              "revenue": 18435591000.0,
-              "ebitda": 6287245000.0,
-              "net_income": 5358217000.0
-            },
-            {
-              "year": "2024",
-              "revenue": 14905386000.0,
-              "ebitda": 4641799000.0,
-              "net_income": 3827772000.0
-            },
-            {
-              "year": "2023",
-              "revenue": 17428516000.0,
-              "ebitda": 5559442000.0,
-              "net_income": 4510931000.0
-            }
-          ],
-          "forward": [
-            {
-              "year": "0q",
-              "revenue": 8643520980.0,
-              "ebitda": null,
-              "net_income": 2.34922,
-              "source": "analyst consensus from Yahoo Finance"
-            },
-            {
-              "year": "+1q",
-              "revenue": 9013988820.0,
-              "ebitda": null,
-              "net_income": 2.47891,
-              "source": "analyst consensus from Yahoo Finance"
-            }
-          ]
-        },
-        "comparables": [
-          {
-            "ticker": "LRCX",
-            "company": "Lam Research",
-            "revenue_bn": 26.1,
-            "gross_margin_pct": 51.1,
-            "ebitda_margin_pct": 43.0,
-            "net_margin_pct": 32.3,
-            "de_ratio": 0.27
-          },
-          {
-            "ticker": "ASML",
-            "company": "ASML Holding",
-            "revenue_bn": 39.5,
-            "gross_margin_pct": 54.3,
-            "ebitda_margin_pct": 47.4,
-            "net_margin_pct": 34.1,
-            "de_ratio": 0.09
-          }
-        ],
-        "market_analysis": {
-          "tam_usd": "The semiconductor equipment market is estimated to be around $100 billion, with LRCX holding a significant share.",
-          "growth_rate": "The sector is expected to grow at a CAGR of 5-7% over the next few years.",
-          "competition_intensity": "High",
-          "sector_trends": "The semiconductor industry is experiencing robust demand driven by advancements in AI, IoT, and 5G technologies.",
-          "macro_factors": "Global supply chain disruptions and geopolitical tensions may impact production and demand."
-        },
-        "quality_of_earnings": {
-          "moat": "Wide",
-          "competitive_advantages": [
-            "Strong R&D capabilities",
-            "Established customer relationships"
-          ],
-          "barriers_to_entry": "High capital requirements and technological expertise create significant barriers for new entrants.",
-          "sustainability": "LRCX has demonstrated consistent revenue growth and strong profitability metrics."
-        },
-        "management_team": {
-          "ceo": "Tim Archer - CEO with extensive experience in the semiconductor industry and a strong track record in operational excellence.",
-          "track_record": "The management team has successfully navigated market cycles and maintained profitability.",
-          "red_flags": null
-        },
-        "analyst_rating_history": {
-          "current_consensus": "Buy",
-          "num_analysts": null,
-          "avg_target_price": null,
-          "implied_upside_pct": null,
-          "trend_24m": "Upgrading",
-          "summary": "Analysts are increasingly optimistic about LRCX's growth prospects due to strong demand in the semiconductor sector."
-        },
-        "cap_table": {
-          "institutional_pct": 88.9,
-          "insider_pct": 0.3,
-          "float_pct": 99.4,
-          "major_holders": [
-            {
-              "name": "The Vanguard Group",
-              "pct": 8.5
-            }
-          ]
-        },
-        "setup_checklist": {
-          "setup_type": "Growth",
-          "revenue_cagr_3yr": 10.1,
-          "above_20pct_threshold": false,
-          "margin_trend": "Stable",
-          "sustainability_assessment": "Revenue grew from $17.4B in 2023 to $26.1B in 2026, representing a CAGR of approximately 15.5%; operating margin stable at 43%; FCF positive at $7.3B.",
-          "tam_room_to_grow": "$100 billion market, LRCX holds approximately 25% share, gaining share against peers with a growth rate of 5-7%.",
-          "eps_growth_consistent": true,
-          "fcf_positive": true,
-          "leverage_vs_peers": "Lower",
-          "default_risk": "Low",
-          "upcoming_catalysts": [
-            "Earnings \u2014 Q1 FY2026 results (~October 2023), consensus EPS $2.35",
-            "Investor Day \u2014 Strategic updates and guidance (~November 2023)",
-            "Product Launch \u2014 New etch technology announcement (~December 2023)"
-          ],
-          "key_risks": [
-            {
-              "risk": "Supply chain disruptions",
-              "mechanism": "Global semiconductor shortages affecting production capacity",
-              "category": "Operational"
-            },
-            {
-              "risk": "Geopolitical tensions",
-              "mechanism": "Trade restrictions impacting supply chains and market access",
-              "category": "Macro"
-            },
-            {
-              "risk": "Technological obsolescence",
-              "mechanism": "Rapid advancements in semiconductor technology requiring continuous innovation",
-              "category": "Competitive"
-            },
-            {
-              "risk": "Regulatory scrutiny",
-              "mechanism": "Increased antitrust investigations in the semiconductor industry",
-              "category": "Regulatory"
-            },
-            {
-              "risk": "Rising input costs",
-              "mechanism": "Increased prices for raw materials impacting margins",
-              "category": "Financial"
-            }
-          ],
-          "moat_strength": "Wide",
-          "near_term_catalyst": "Q1 earnings on October 30 \u2014 consensus EPS $2.35"
-        },
-        "valuation": {
-          "methodology": "P/S",
-          "analyst_consensus_target": null,
-          "implied_multiples": "LRCX's P/E of 34.39 is below the peer average of 39.60, indicating a favorable valuation relative to peers.",
-          "cheap_vs_peers": "cheap",
-          "near_term_upside_pct": null
-        },
-        "market_timing": "Current market signals indicate a positive outlook for LRCX, supported by strong earnings growth and favorable sector trends.",
-        "investment_thesis_bullets": [
-          "Revenue of $26.1B with a net income of $7.3B demonstrates strong profitability.",
-          "LRCX's P/E ratio is lower than the peer average, suggesting it is undervalued compared to competitors.",
-          "The semiconductor sector is poised for growth, driven by technological advancements and increased demand."
-        ],
-        "_data_sources": {
-          "fundamental_score": "live_api_only",
-          "direction": "live_api_only",
-          "dislocation_opportunity": "live_api_only",
-          "valuation_vs_peers": "live_api_only",
-          "key_strengths": "live_api_only",
-          "key_concerns": "live_api_only",
-          "historical_financials": "live_api",
-          "peer_comparables_multiples": "live_api",
-          "ownership_pct": "live_api",
-          "analyst_fwd_revenue": "yahoo_finance_consensus",
-          "analyst_fwd_eps": "yahoo_finance_consensus",
-          "company_info": "llm_knowledge_display_only",
-          "management_team": "llm_knowledge_display_only",
-          "analyst_rating_trend": "llm_knowledge_display_only",
-          "cap_table_holders": "llm_knowledge_display_only",
-          "market_analysis": "llm_knowledge_display_only",
-          "setup_checklist_narrative": "llm_knowledge_display_only"
-        },
-        "data_conflicts": [
+  "s3_setup": {
+    "setup_type": "Growth",
+    "checklist": [
+      {
+        "item": "setup_type",
+        "detail": "Growth",
+        "pass": true
+      },
+      {
+        "item": "revenue_cagr_3yr",
+        "detail": "10.1",
+        "pass": true
+      },
+      {
+        "item": "above_20pct_threshold",
+        "detail": "False",
+        "pass": false
+      },
+      {
+        "item": "margin_trend",
+        "detail": "Stable",
+        "pass": true
+      },
+      {
+        "item": "sustainability_assessment",
+        "detail": "Revenue grew from $17.4B in 2023 to $26.1B in 2026, indicating a strong growth trajectory; operating margin stable at around 43%; FCF positive at $7.3B.",
+        "pass": true
+      },
+      {
+        "item": "tam_room_to_grow",
+        "detail": "$200-300 billion market, LRCX holds ~10% share, gaining share against peers like AMAT and KLAC.",
+        "pass": true
+      },
+      {
+        "item": "eps_growth_consistent",
+        "detail": "True",
+        "pass": true
+      },
+      {
+        "item": "fcf_positive",
+        "detail": "True",
+        "pass": true
+      },
+      {
+        "item": "leverage_vs_peers",
+        "detail": "Lower",
+        "pass": true
+      },
+      {
+        "item": "default_risk",
+        "detail": "Low",
+        "pass": true
+      },
+      {
+        "item": "upcoming_catalysts",
+        "detail": "['Earnings \u2014 Q2 FY2026 results (~January 2026), consensus EPS $2.35', 'Investor Day \u2014 Strategic updates and guidance (~March 2026)', 'Product Launch \u2014 New semiconductor equipment model (~February 2026)']",
+        "pass": true
+      },
+      {
+        "item": "key_risks",
+        "detail": "[{'risk': 'Supply chain disruptions', 'mechanism': 'Ongoing global supply chain issues affecting semiconductor production', 'category': 'Operational'}, {'risk': 'Geopolitical tensions', 'mechanism': 'Potential tariffs or restrictions on semiconductor exports impacting revenue', 'category': 'Regulatory'}, {'risk': 'Technological obsolescence', 'mechanism': 'Rapid technological advancements may outpace current product offerings', 'category': 'Competitive'}, {'risk': 'Market volatility', 'mechanism': 'Fluctuations in semiconductor demand affecting revenue predictability', 'category': 'Macro'}]",
+        "pass": true
+      },
+      {
+        "item": "moat_strength",
+        "detail": "Wide",
+        "pass": true
+      },
+      {
+        "item": "near_term_catalyst",
+        "detail": "Q2 earnings on January 15 \u2014 consensus EPS $2.35",
+        "pass": true
+      }
+    ]
+  },
+  "s4_valuation": {
+    "methodology": "P/S",
+    "analyst_consensus_target": null,
+    "implied_multiples": "LRCX has a P/E of 35.85, which is below the peer average of 47.60, indicating it is undervalued relative to its peers.",
+    "cheap_vs_peers": "cheap",
+    "near_term_upside_pct": null,
+    "narrative": "LRCX has a P/E of 35.85, which is below the peer average of 47.60, indicating it is undervalued relative to its peers. Price vs intrinsic: -24.8%"
+  },
+  "s5_timing": {
+    "macro_context": "The current macro regime is risk-off, which generally suggests caution in equity markets.",
+    "technical_setup": "LRCX is trading at $240.42, which is -45.1% from its 52-week high of $438.03. The RSI is at 30.8, indicating oversold conditions, and the trend is down, but there is a bullish forward bias with a mean reversion score of 60.",
+    "recent_catalyst": null,
+    "downside_scenario": "If the timing is wrong, LRCX could continue its downtrend, potentially testing lower support levels not specified in the data.",
+    "entry_verdict": "neutral",
+    "narrative": "LRCX is in a risk-off macro environment and a technical downtrend, trading significantly below its 52-week high. While the RSI suggests oversold conditions, the absence of recent catalysts makes the timing neutral."
+  },
+  "s6_thesis": {
+    "narrative": "LRCX is currently trading at $240.42, which is -45.1% from its 52-week high of $438.03. This significant price dislocation presents a potential opportunity for investors seeking to capitalize on mean reversion. The company's fundamentals are strong, with a robust operating margin of 40.0% and a year-over-year revenue growth of 26.0%. The F-score of 82 indicates a solid growth setup, and the low net debt/EBITDA ratio of -0.43 suggests financial stability. Despite the lack of recent news catalysts, the market sentiment remains cautiously optimistic, with a strong buy consensus and low short interest of 2.1%. LRCX's market position and quality of earnings are compelling, supported by its ability to generate high returns on invested capital. The current macro environment is risk-off, which may weigh on the stock in the short term, but the long-term growth drivers and sector tailwinds provide a favorable backdrop for recovery. The current price action implies a quality entry point for investors willing to weather near-term volatility in anticipation of a rebound driven by the company's strong fundamentals and potential sector recovery."
+  },
+  "s7_recommendation": {
+    "direction": "BUY",
+    "conviction": 73,
+    "expected_return_12m": "12-18%",
+    "suggested_size_pct": 10,
+    "stop_loss_pct": 12.0,
+    "key_risks": [
+      "[Financial] High P/E ratio of 35.85 could lead to valuation compression if growth expectations are not met.",
+      "[Operational] Operating margin at 40.0% leaves limited buffer for cost increases or revenue shortfalls.",
+      "[Competitive] Strong buy consensus may lead to crowded trade and potential for rapid sentiment shifts.",
+      "[Macro] Risk-off environment could exacerbate volatility and impact investor sentiment negatively."
+    ]
+  },
+  "s8_news": {
+    "catalysts": [],
+    "count": 0
+  },
+  "s8_technical": {
+    "rsi_14": 30.8,
+    "macd_signal": "bearish",
+    "bb_position": null,
+    "atr_pct": null,
+    "obv_trend": null,
+    "support": null,
+    "resistance": 321.07,
+    "trend": "downtrend",
+    "chart_pattern": null,
+    "forward_bias": "bullish",
+    "mean_reversion_score": 60,
+    "trade_type": "mean_reversion",
+    "quant_summary": "LRCX is currently in a downtrend but shows signs of mean reversion potential with oversold conditions and a strong mean reversion score. In the next 5-10 days, a bounce back towards resistance levels is likely as selling exhaustion appears to be setting in.",
+    "quant_score": 62
+  },
+  "s9_sentiment": {
+    "analyst_consensus": "Strong Buy",
+    "news_tone": null,
+    "short_interest_pct": 2.1,
+    "upgrade_momentum": null,
+    "sentiment_score": 78,
+    "sentiment_summary": "The current sentiment for LRCX is cautiously optimistic, supported by strong analyst ratings and significant upside potential in price targets. However, the lack of recent news catalysts and low signal confidence suggests that this sentiment may be leading rather than reacting to market movements.",
+    "contrarian_signal": true,
+    "retail_euphoria": false
+  },
+  "s10_institutional": {
+    "convergence_signals": [],
+    "fund_theses": [],
+    "unusual_options": [],
+    "multi_fund_flag": false,
+    "institutional_pct": 88.9,
+    "insider_pct": 0.3,
+    "major_holders": [
+      {
+        "name": "The Vanguard Group",
+        "pct": 8.5
+      },
+      {
+        "name": "BlackRock, Inc.",
+        "pct": 7.2
+      }
+    ],
+    "analyst_consensus": "Buy",
+    "analyst_target": null,
+    "analyst_trend": "Stable",
+    "analyst_summary": "Analysts remain optimistic about Lam Research's growth prospects, particularly in light of ongoing demand for semiconductor manufacturing equipment.",
+    "source": "yahoo_finance_cap_table",
+    "note": "Institutional ownership: 88.9% of shares (Yahoo Finance). Full convergence analysis requires the institutional agent (daily pipeline)."
+  },
+  "s11_performance": {
+    "ret_1m": -0.2576,
+    "ret_3m": -0.1916,
+    "ret_6m": -0.0318,
+    "ret_1yr": null,
+    "vs_spy_1yr": null,
+    "high_52w": 438.03,
+    "low_52w": 134.88,
+    "pct_from_high": -45.1
+  },
+  "s12_risk": {
+    "beta": 1.854,
+    "max_drawdown": null,
+    "volatility_pct": null,
+    "atr_pct": null,
+    "debt_to_equity": -0.43,
+    "current_ratio": 2.479,
+    "liquidity_risk": "low",
+    "geographic_concentration": null,
+    "data_conflicts": [
+      {
+        "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
+        "yfinance_value": 26127935488,
+        "sec_edgar_value": 1115946000.0,
+        "diff_pct": 95.7,
+        "resolution": "yfinance used \u2014 EDGAR discrepancy >80% indicates wrong XBRL concept"
+      },
+      {
+        "metric": "eps (EDGAR override)",
+        "yfinance_value": 6.71,
+        "sec_edgar_value": 2.9,
+        "diff_pct": 56.8,
+        "resolution": "sec_edgar used (ground truth \u2014 filed document)"
+      }
+    ]
+  },
+  "s13_scenarios": {
+    "bull": {
+      "price_target": 320,
+      "upside_pct": 33.1,
+      "probability": 30,
+      "catalyst": "Sector recovery and improved macro conditions.",
+      "assumptions": "Improved macro conditions and sector recovery drive demand and investor sentiment."
+    },
+    "base": {
+      "price_target": 270,
+      "upside_pct": 12.3,
+      "probability": 50,
+      "assumptions": "Steady operational performance and gradual sentiment improvement."
+    },
+    "bear": {
+      "price_target": 200,
+      "downside_pct": -16.8,
+      "probability": 20,
+      "trigger": "Continued macroeconomic headwinds and sector weakness.",
+      "assumptions": "Persistent macroeconomic challenges and sector-specific issues suppress growth."
+    }
+  },
+  "s14_data": {
+    "sources": [
+      {
+        "field": "Financial metrics",
+        "source": "yfinance, sec_edgar",
+        "type": "live_api",
+        "note": "Market cap, margins, revenue, EPS pulled live from filing data"
+      },
+      {
+        "field": "Technical indicators",
+        "source": "yfinance OHLCV",
+        "type": "live_api",
+        "note": "RSI, MACD, Bollinger Bands calculated from price/volume history"
+      },
+      {
+        "field": "Analyst consensus",
+        "source": "FMP + Finnhub",
+        "type": "live_api",
+        "note": "Wall Street analyst ratings and price targets"
+      },
+      {
+        "field": "Company overview, comparables narrative, management",
+        "source": "GPT-4o (LLM training knowledge)",
+        "type": "llm_knowledge",
+        "note": "Display-only. Never used for scoring or trade decisions. May be outdated."
+      },
+      {
+        "field": "Data conflicts detected",
+        "source": "Cross-source validation",
+        "type": "conflict",
+        "conflicts": [
           {
             "metric": "revenue (EDGAR concept mismatch \u2014 skipped)",
             "yfinance_value": 26127935488,
@@ -4126,205 +490,41 @@
           },
           {
             "metric": "eps (EDGAR override)",
-            "yfinance_value": 6.93,
+            "yfinance_value": 6.71,
             "sec_edgar_value": 2.9,
-            "diff_pct": 58.2,
+            "diff_pct": 56.8,
             "resolution": "sec_edgar used (ground truth \u2014 filed document)"
           }
-        ],
-        "data_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources_used": [
-            "yfinance",
-            "sec_edgar"
-          ],
-          "conflicts_count": 2
-        },
-        "market_cap": 298226941952,
-        "beta": 1.854,
-        "current_ratio": 2.479,
-        "avg_daily_volume": 9584907,
-        "current_price": null,
-        "candidate_score": 2.0,
-        "candidate_signals": [
-          "dislocation_screen(-24%_1m)"
         ]
       }
-    },
-    "quant": {
-      "score": 72,
-      "direction": "LONG",
-      "summary": "LRCX is currently in a downtrend but shows signs of being oversold, with a strong mean reversion setup indicated by the RSI and Stochastic readings. In the next 5-10 days, a bounce towards resistance at $321.07 is likely as selling exhaustion appears to be setting in.",
-      "raw": {
-        "ticker": "LRCX",
-        "quant_score": 72,
-        "direction": "LONG",
-        "trade_type": "mean_reversion",
-        "forward_bias": "bullish",
-        "mean_reversion_score": 60,
-        "trend": "downtrend",
-        "rsi_14": 29.7,
-        "macd_signal": "bearish",
-        "volume_trend": "distribution",
-        "support": null,
-        "resistance": 321.07,
-        "key_patterns": [
-          "oversold_potential_reversal"
-        ],
-        "signal_confidence": {
-          "level": "high",
-          "sources_count": 3,
-          "sources": [
-            "price_action",
-            "volume",
-            "momentum_oscillators"
-          ],
-          "conflicts": [],
-          "confidence_note": "3/3 signal sources confirming"
-        },
-        "data_conflicts": [],
-        "pattern_learning_note": "No prior history for these specific signal combinations in RISK-OFF regime.",
-        "quant_summary": "LRCX is currently in a downtrend but shows signs of being oversold, with a strong mean reversion setup indicated by the RSI and Stochastic readings. In the next 5-10 days, a bounce towards resistance at $321.07 is likely as selling exhaustion appears to be setting in.",
-        "mean_reversion_signals": [
-          "RSI oversold (29.7)",
-          "Price 16% below SMA200",
-          "Declining volume on selloff \u2014 selling exhaustion",
-          "Stochastic oversold"
-        ],
-        "current_price": 238.53,
-        "ret_1m": -0.2635,
-        "ret_3m": -0.198,
-        "ret_6m": -0.0394,
-        "week52_high": 438.03,
-        "week52_low": 134.88,
-        "pct_from_52w_high": -45.5,
-        "high_52w": 438.03,
-        "low_52w": 134.88,
-        "indicators": {
-          "rsi_14": 29.7,
-          "macd_bullish": false,
-          "macd_histogram_expanding": true,
-          "stoch_k": 12.6,
-          "bb_pct": 0.164,
-          "volume_ratio": 0.13,
-          "obv_trend": "down",
-          "sma_50": 298.23,
-          "sma_200": 283.31,
-          "cross_signal": null,
-          "current_price": 238.53,
-          "ret_1w": -0.0854,
-          "ret_1m": -0.2635,
-          "ret_3m": -0.198,
-          "ret_6m": -0.0394,
-          "week52_high": 438.03,
-          "week52_low": 134.88,
-          "pct_from_52w_high": -45.5,
-          "atr_14": 14.11,
-          "atr_pct": 5.91
-        },
-        "key_levels": {
-          "support": null,
-          "resistance": 321.07,
-          "support_levels": [],
-          "resistance_levels": [
-            321.07,
-            321.87,
-            344.91
-          ]
-        },
-        "candidate_score": 2.0,
-        "candidate_signals": [
-          "dislocation_screen(-24%_1m)"
-        ],
-        "swarm_memory_hits": 0
-      }
-    },
-    "sentiment": {
-      "score": 78,
-      "direction": "LONG",
-      "summary": "Despite a risk-off macro regime, LRCX shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of recent news catalysts and low short interest suggest that current sentiment is leading, indicating a potential contrarian long opportunity.",
-      "raw": {
-        "ticker": "LRCX",
-        "sentiment_score": 78,
-        "direction": "LONG",
-        "analyst_consensus": "Strong Buy",
-        "price_target_upside_pct": 52.6,
-        "news_sentiment": "neutral",
-        "short_interest_pct": 2.1,
-        "short_squeeze_risk": "low",
-        "retail_euphoria_warning": false,
-        "analyst_targets_stale": false,
-        "contrarian_signal": true,
-        "sentiment_type": "leading",
-        "data_conflicts": [],
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "analyst_consensus"
-          ],
-          "conflicts": [],
-          "confidence_note": "1/3 sources confirming"
-        },
-        "sentiment_summary": "Despite a risk-off macro regime, LRCX shows strong bullish sentiment from analysts, with a significant upside potential based on price targets. The lack of recent news catalysts and low short interest suggest that current sentiment is leading, indicating a potential contrarian long opportunity.",
-        "fmp_analyst_signals": {
-          "available": true,
-          "avg_target_price": null,
-          "target_count": 0,
-          "last_quarter_avg_target": null,
-          "last_year_avg_target": null,
-          "upgrades_recent": 0,
-          "downgrades_recent": 0,
-          "initiations_recent": 0,
-          "upgrade_momentum": "stable"
-        },
-        "analyst_detail": {
-          "yf_label": "Strong Buy",
-          "yf_num_analysts": 30,
-          "fh_strong_buy": 10,
-          "fh_buy": 25,
-          "fh_hold": 5,
-          "fh_sell": 0,
-          "fh_strong_sell": 0,
-          "fh_period": "2026-10-01"
-        },
-        "news_detail": {
-          "found": false,
-          "long_weight": 0.0,
-          "short_weight": 0.0,
-          "net_score": 0.0,
-          "total_catalysts": 0,
-          "top_catalyst": null
-        },
-        "reddit_detail": null,
-        "price_targets": {
-          "current": 238.62,
-          "mean": 364.03333,
-          "high": 500.0,
-          "low": 255.0,
-          "upside_pct": 52.6
-        },
-        "short_interest": {
-          "ratio": 2.81,
-          "pct_float": 0.0207
-        },
-        "candidate_score": 2.0,
-        "candidate_signals": [
-          "dislocation_screen(-24%_1m)"
-        ]
-      }
-    },
-    "macro": {
-      "regime": "RISK-OFF",
-      "summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly in the Middle East. Conflicts arise from differing signals, with FRED and newsapi_finnhub both indicating RISK-OFF, while yfinance_market remains NEUTRAL. This divergence contributes to a low confidence level in the overall market assessment."
-    },
-    "institutional": {
-      "convergence": [],
-      "fund_theses": []
-    },
-    "news": {
-      "catalysts": []
-    }
-  }
+    ],
+    "data_confidence": "medium",
+    "confidence_reason": "Data from 2 sources (yfinance, sec_edgar) \u2014 third source unavailable or returned no data | 2 conflict(s) found between sources \u2014 conservative figure used where sources disagreed | Some fields could not be cross-verified \u2014 figures are directionally reliable but treat specific numbers with moderate caution",
+    "sources_count": 2,
+    "conflicts_count": 2,
+    "last_updated": "2026-10-27 19:15 UTC",
+    "agents_run": [
+      "Macro",
+      "News",
+      "Fundamental",
+      "Quant",
+      "Sentiment",
+      "Committee"
+    ],
+    "llm_fields": [
+      "company_info.overview",
+      "company_info.revenue_segments",
+      "management_team",
+      "analyst_rating_history.trend",
+      "setup_checklist.sustainability_assessment",
+      "setup_checklist.upcoming_catalysts",
+      "comparables.company_names"
+    ]
+  },
+  "agent_scores": {
+    "fundamental": 82,
+    "quant": 62,
+    "sentiment": 78
+  },
+  "macro_regime": "RISK-OFF"
 }
