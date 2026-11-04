@@ -107,8 +107,17 @@ class _AnthropicCompletions:
             create_kwargs["system"] = system
 
         ac = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-        result = ac.messages.create(**create_kwargs)
-        text = result.content[0].text
+        try:
+            result = ac.messages.create(**create_kwargs)
+        except anthropic.BadRequestError as exc:
+            # Newer Claude models reject `temperature` outright. Without this retry,
+            # every call mapped to them failed and silently fell back to OpenAI.
+            if "temperature" not in str(exc):
+                raise
+            create_kwargs.pop("temperature", None)
+            result = ac.messages.create(**create_kwargs)
+        # Newer models can return a thinking block ahead of the answer — take the text block(s).
+        text = "".join(b.text for b in result.content if getattr(b, "type", None) == "text")
         # Claude sometimes wraps JSON in ```json fences despite being told not to.
         # Strip them so agents can json.loads() directly without crashing.
         if response_format and response_format.get("type") == "json_object":

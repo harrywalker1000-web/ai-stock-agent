@@ -355,8 +355,23 @@ try:
         except Exception:
             pass
 
+        # Header counts reflect what actually EXECUTED when a briefing exists — the
+        # committee's decisions include intentions that were never filled (cut for
+        # capital, blocked, market closed), which made the header overstate activity.
+        briefing = pr.get("briefing")
+        if briefing:
+            _executed = {"enter_long": 0, "enter_short": 0, "exit": 0, "increase": 0, "decrease": 0}
+            for _t in briefing.get("trades", []):
+                if _t.get("action") in _executed:
+                    _executed[_t["action"]] += 1
+            action_counts["new_positions"] = _executed["enter_long"] + _executed["enter_short"]
+            action_counts["exits"] = _executed["exit"]
+            action_counts["increases"] = _executed["increase"]
+            action_counts["decreases"] = _executed["decrease"]
+
         daily = {
             "date": date,
+            "briefing": briefing,
             "macro_regime": cr.get("macro_regime", "NEUTRAL"),
             "new_positions": action_counts["new_positions"],
             "exits": action_counts["exits"],
@@ -372,7 +387,11 @@ try:
                 + (f" ({', '.join(deferred_tickers)})" if deferred_tickers else "") + "."
                 if market_closed else None
             ),
-            "summary": cr.get("committee_narrative", "")[:300] if cr.get("committee_narrative") else f"{len(decisions)} decisions made.",
+            "summary": (
+                briefing.get("headline") if briefing and briefing.get("headline")
+                else cr.get("committee_narrative", "")[:300] if cr.get("committee_narrative")
+                else f"{len(decisions)} decisions made."
+            ),
             "narrative": (
                 (f"⚠ Market closed on {date}. Decisions recorded but orders deferred to next session"
                  + (f": {', '.join(deferred_tickers)}" if deferred_tickers else "") + ".\n\n"

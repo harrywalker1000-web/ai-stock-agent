@@ -866,6 +866,18 @@ def run() -> dict:
         "memory": {},
     }
 
+    # --- Opening holdings snapshot (before any of today's trades) ---
+    # = what was held at the previous close; the daily briefing uses it to attribute
+    # the previous day's P&L to individual positions.
+    opening_positions: dict = {}
+    try:
+        from agents import trade_executor as _te_snap
+        for _t, _p in _te_snap._get_alpaca_positions(_te_snap._get_alpaca_client()).items():
+            _qty = abs(float(_p.get("qty") or 0))
+            opening_positions[_t] = {"qty": -_qty if _p.get("side") == "short" else _qty}
+    except Exception as exc:
+        logger.warning("Opening holdings snapshot failed: %s — briefing will omit P&L movers", exc)
+
     # --- Alpaca reconciliation: sync positions_log with what's actually held ---
     # Must run BEFORE Phase A so agents only review real Alpaca positions, not phantom
     # entries from orders logged when the market was closed.
@@ -970,49 +982,23 @@ def run() -> dict:
     # Fetch the two most recent EOD equity snapshots — close[T-1] minus close[T-2].
     # This is independent of when the pipeline runs (morning, midday, or after close)
     # and captures the full session including intraday moves, since Alpaca uses closing prices.
-    daily_pnl_abs = 0.0
-    daily_pnl_pct = 0.0
-    daily_pnl_str = "+$0"
-    daily_pnl_pct_str = "+0.00%"
-    daily_pnl_date = None  # the trading day whose P&L this represents
+    from agents import daily_briefing
+    pnl = None
     try:
-        import alpaca_trade_api as _tradeapi
-        import requests as _requests  # type: ignore[import-untyped]
-        _key    = os.environ.get("ALPACA_API_KEY")
-        _secret = os.environ.get("ALPACA_SECRET_KEY")
-        _base   = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
-        if _key and _secret:
-            _resp = _requests.get(
-                f"{_base}/v2/account/portfolio/history",
-                params={"period": "5D", "timeframe": "1D"},
-                headers={"APCA-API-KEY-ID": _key, "APCA-API-SECRET-KEY": _secret},
-                timeout=10,
-            )
-            if _resp.ok:
-                _hist = _resp.json()
-                _ts   = _hist.get("timestamp", [])
-                _eq   = _hist.get("equity", [])
-                _today_str = datetime.utcnow().strftime("%Y-%m-%d")
-                # Keep only completed trading days: positive equity AND not today
-                # (Alpaca includes today's partial intraday snapshot as the last point;
-                # at 9:45am that equals ~yesterday's close, giving a false +$0)
-                _days = [
-                    (datetime.utcfromtimestamp(t).strftime("%Y-%m-%d"), e)
-                    for t, e in zip(_ts, _eq)
-                    if e and e > 0 and datetime.utcfromtimestamp(t).strftime("%Y-%m-%d") != _today_str
-                ]
-                if len(_days) >= 2:
-                    _prev_date, _prev_eq = _days[-2]
-                    _last_date, _last_eq = _days[-1]
-                    daily_pnl_abs  = _last_eq - _prev_eq
-                    daily_pnl_pct  = (daily_pnl_abs / _prev_eq * 100) if _prev_eq else 0.0
-                    daily_pnl_date = _last_date
-                    _sign     = "+" if daily_pnl_abs >= 0 else "-"
-                    _pct_sign = "+" if daily_pnl_pct >= 0 else ""
-                    daily_pnl_str     = f"{_sign}${abs(daily_pnl_abs):,.0f}"
-                    daily_pnl_pct_str = f"{_pct_sign}{daily_pnl_pct:.2f}%"
-    except Exception:
-        pass
+        pnl = daily_briefing.compute_daily_pnl()
+    except Exception as exc:
+        logger.warning("Daily P&L fetch failed: %s", exc)
+    daily_pnl_str, daily_pnl_pct_str = daily_briefing.format_pnl(pnl)
+    daily_pnl_date = pnl["date"] if pnl else None
+
+    try:
+        summary["briefing"] = daily_briefing.build_briefing(
+            pnl, opening_positions,
+            [summary["phase_a"].get("executor"), summary["phase_b"].get("executor")],
+        )
+        logger.info("Daily briefing: %s", summary["briefing"]["headline"])
+    except Exception as exc:
+        logger.error("Daily briefing failed: %s", exc, exc_info=True)
 
     summary["pipeline_summary"] = {
         "phase_a_positions_reviewed": len(summary["phase_a"].get("held_tickers", [])),

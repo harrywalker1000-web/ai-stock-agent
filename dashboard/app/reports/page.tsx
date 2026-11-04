@@ -27,7 +27,23 @@ interface ScorecardRow {
   debate_detail: Record<string, unknown> | null;
 }
 interface PipelineFunnel { analyzed: number; debated: number; entered: number; }
+interface Mover {
+  ticker: string; contribution: number; move_pct: number;
+  sector?: string | null; sector_move_pct?: number | null; why?: string | null;
+}
+interface BriefingTrade { ticker: string; action: string; verb: string; shares: number; notional: number; why?: string | null; }
+interface Briefing {
+  headline: string;
+  pnl?: {
+    date: string; abs: number; pct: number; spy_pct?: number | null;
+    movers?: Mover[]; other?: number | null; why?: string | null;
+  } | null;
+  trades: BriefingTrade[];
+  not_executed: { ticker: string; reason: string }[];
+  watch: string[];
+}
 interface Report {
+  briefing?: Briefing | null;
   date: string; macro_regime: string; new_positions: number; exits: number;
   holds: number; increases: number; decreases: number;
   daily_pnl: string; daily_pnl_pct?: string | null; daily_pnl_date?: string | null;
@@ -248,6 +264,118 @@ function AgentFindingCard({ finding }: { finding: AgentFinding }) {
   );
 }
 
+function fmtMoney(n: number) {
+  const sign = n >= 0 ? "+" : "-";
+  return `${sign}$${Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+}
+
+const TRADE_COLORS: Record<string, string> = {
+  enter_long: "#10B981", enter_short: "#10B981", increase: "#10B981",
+  decrease: "#F5A623", exit: "#EF4444", reverse: "#F5A623",
+};
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{children}</h3>;
+}
+
+function BriefingView({ b }: { b: Briefing }) {
+  const pnl = b.pnl;
+  return (
+    <div className="space-y-6">
+      {pnl && (
+        <div>
+          <SectionTitle>How we did · {pnl.date}</SectionTitle>
+          <div className="flex items-baseline gap-3 flex-wrap mb-2">
+            <span className={`font-mono font-bold text-2xl ${pnl.abs >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+              {fmtMoney(pnl.abs)}
+            </span>
+            <span className={`font-mono text-sm ${pnl.pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+              {pnl.pct >= 0 ? "+" : ""}{pnl.pct.toFixed(2)}%
+            </span>
+            {pnl.spy_pct != null && (
+              <span className="text-xs text-[#6B7280]">
+                S&amp;P 500 {pnl.spy_pct >= 0 ? "+" : ""}{pnl.spy_pct.toFixed(2)}%
+              </span>
+            )}
+          </div>
+          {pnl.why && <p className="text-sm text-[#9CA3AF] mb-3">{pnl.why}</p>}
+          {pnl.movers && pnl.movers.length > 0 && (
+            <div className="space-y-1.5">
+              {pnl.movers.map((m) => (
+                <div key={m.ticker} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
+                  <span className="font-mono font-bold text-[#E8EDF2] w-14 shrink-0">{m.ticker}</span>
+                  <span className={`font-mono text-sm w-20 shrink-0 ${m.contribution >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                    {fmtMoney(m.contribution)}
+                  </span>
+                  <span className={`font-mono text-xs w-14 shrink-0 pt-0.5 ${m.move_pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                    {m.move_pct >= 0 ? "+" : ""}{m.move_pct.toFixed(1)}%
+                  </span>
+                  <span className="text-xs text-[#9CA3AF] pt-0.5">{m.why ?? ""}</span>
+                </div>
+              ))}
+              {pnl.other != null && Math.abs(pnl.other) >= 1 && (
+                <p className="text-[11px] text-[#4B5563] pl-1">
+                  Everything else (smaller positions, trades during the day): {fmtMoney(pnl.other)}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div>
+        <SectionTitle>What we did today</SectionTitle>
+        {b.trades.length === 0 ? (
+          <p className="text-sm text-[#6B7280]">No trades — the portfolio was left as it was.</p>
+        ) : (
+          <div className="space-y-1.5">
+            {b.trades.map((t, i) => {
+              const color = TRADE_COLORS[t.action] ?? "#6B7280";
+              return (
+                <div key={`${t.ticker}-${i}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
+                  <span
+                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md whitespace-nowrap w-20 text-center shrink-0"
+                    style={{ color, background: `${color}20` }}
+                  >
+                    {t.verb}
+                  </span>
+                  <span className="font-mono font-bold text-[#E8EDF2] w-14 shrink-0">{t.ticker}</span>
+                  <span className="font-mono text-xs text-[#6B7280] w-20 shrink-0 pt-0.5">
+                    ${Math.round(t.notional).toLocaleString("en-US")}
+                  </span>
+                  <span className="text-xs text-[#9CA3AF] pt-0.5">{t.why ?? ""}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {b.not_executed.length > 0 && (
+        <div>
+          <SectionTitle>Wanted, but didn&apos;t happen</SectionTitle>
+          <ul className="space-y-1">
+            {b.not_executed.map((n) => (
+              <li key={n.ticker} className="text-xs text-[#6B7280]">
+                <span className="font-mono font-bold text-[#9CA3AF] mr-2">{n.ticker}</span>{n.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {b.watch.length > 0 && (
+        <div>
+          <SectionTitle>What to watch</SectionTitle>
+          <ul className="space-y-1 list-disc pl-4">
+            {b.watch.map((w, i) => <li key={i} className="text-sm text-[#9CA3AF]">{w}</li>)}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ReportCard({ report }: { report: Report }) {
   const [open, setOpen] = useState(false);
 
@@ -263,17 +391,31 @@ function ReportCard({ report }: { report: Report }) {
             <span className="font-mono text-sm text-[#6B7280]">{report.date}</span>
             <RegimeBadge regime={report.macro_regime} />
             <div className="flex items-center gap-2 text-xs">
-              {report.new_positions > 0 && (
-                <span className="text-[#10B981]">+{report.new_positions} new</span>
-              )}
-              {report.exits > 0 && (
-                <span className="text-[#EF4444]">{report.exits} exits</span>
-              )}
-              {report.holds > 0 && (
-                <span className="text-[#6B7280]">{report.holds} holds</span>
-              )}
-              {report.increases > 0 && (
-                <span className="text-[#F5A623]">{report.increases} increases</span>
+              {report.briefing ? (
+                <>
+                  {report.new_positions > 0 && <span className="text-[#10B981]">{report.new_positions} bought</span>}
+                  {report.increases > 0 && <span className="text-[#10B981]">{report.increases} added to</span>}
+                  {report.decreases > 0 && <span className="text-[#F5A623]">{report.decreases} trimmed</span>}
+                  {report.exits > 0 && <span className="text-[#EF4444]">{report.exits} sold</span>}
+                  {report.new_positions + report.increases + report.decreases + report.exits === 0 && (
+                    <span className="text-[#6B7280]">no trades</span>
+                  )}
+                </>
+              ) : (
+                <>
+                  {report.new_positions > 0 && (
+                    <span className="text-[#10B981]">+{report.new_positions} new</span>
+                  )}
+                  {report.exits > 0 && (
+                    <span className="text-[#EF4444]">{report.exits} exits</span>
+                  )}
+                  {report.holds > 0 && (
+                    <span className="text-[#6B7280]">{report.holds} holds</span>
+                  )}
+                  {report.increases > 0 && (
+                    <span className="text-[#F5A623]">{report.increases} increases</span>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -302,12 +444,15 @@ function ReportCard({ report }: { report: Report }) {
             </svg>
           </div>
         </div>
-        <p className="text-sm text-[#6B7280] mt-3 text-left">{report.summary}</p>
+        <p className={`text-sm mt-3 text-left ${report.briefing ? "text-[#C9D1D9]" : "text-[#6B7280]"}`}>
+          {report.summary}
+        </p>
       </button>
 
       {/* Expanded content */}
       {open && (
         <div className="border-t border-white/06 p-6 space-y-6">
+          {report.briefing && <BriefingView b={report.briefing} />}
 
           {/* Pipeline funnel */}
           {report.pipeline_funnel && (
@@ -348,7 +493,7 @@ function ReportCard({ report }: { report: Report }) {
 
           {/* Full narrative */}
           <div>
-            <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">Committee Narrative</h3>
+            <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{report.briefing ? "Committee notes (written before sizing — intentions, not trades)" : "Committee Narrative"}</h3>
             <div className="text-sm text-[#6B7280] leading-relaxed space-y-3">
               {report.narrative.split("\n\n").map((para, i) => (
                 <p key={i}>{para}</p>
@@ -359,7 +504,7 @@ function ReportCard({ report }: { report: Report }) {
           {/* Decisions */}
           {report.decisions?.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">Decisions</h3>
+              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{report.briefing ? "Committee decisions (intent)" : "Decisions"}</h3>
               <div className="space-y-2">
                 {report.decisions.map((d) => {
                   const color = d.action === "skip" || d.action === "exit" || d.action.includes("short")
