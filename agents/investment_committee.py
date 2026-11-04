@@ -1349,6 +1349,12 @@ def construct_portfolio_allocation(
         direction = decision.get("direction") or pos.get("direction", "LONG")
 
         lines.append(f"=== {ticker} | {direction} | action={action} | conviction={conviction}/100 | current_weight={current_wt:.1f}% ===")
+        if pos.get("entry_date"):
+            try:
+                _held_days = (datetime.utcnow().date() - datetime.strptime(pos["entry_date"], "%Y-%m-%d").date()).days
+                lines.append(f"  Held: {_held_days} days (entered {pos['entry_date']})")
+            except ValueError:
+                pass
 
         # Agent scores
         fs = sc.get("fundamental_score") or decision.get("fundamental_score") or "?"
@@ -1569,6 +1575,12 @@ RULES:
 - Positions the committee decided to EXIT should not appear in your output
 - Your target_weights must be FUNDABLE with the available cash — if they aren't, trim other positions first
 - Every day is a fresh sizing decision. A position's current weight has no special claim to stay there.
+- Weights should track relative conviction across the WHOLE book, held and new alike. If a new idea
+  outranks a holding, it is normal to trim that holding to fund it — don't size a strong new idea
+  small just because cash is tight while a weaker holding keeps a large weight.
+- Trading has real costs (spread, slippage, a fresh entry price). Small day-to-day conviction moves
+  are often noise: weigh whether a change is a genuine shift in thesis before reversing a recent
+  trade. You are free to exit or resize anything at any time when the thesis really has changed.
 - Cash is fine — if allocations only sum to 70%, 30% stays in cash. That is a valid defensive decision.
 
 IMPORTANT: Do NOT include "CASH" as a ticker in target_weights. Cash allocation is implicit —

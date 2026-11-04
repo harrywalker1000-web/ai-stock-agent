@@ -287,17 +287,20 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
         existing_tickers.add(ticker)
         logger.info("Portfolio construction: adding %s rebalance %s → %.1f%%", ticker, action, to_pct)
 
+    def _buy_cost(d: dict) -> float:
+        """Cash this decision will spend. A hold resized upward or an enter on an
+        already-held ticker is converted to an increase by the executor, so both
+        only cost the gap above the current weight."""
+        action = d.get("action", "")
+        target = d.get("size_pct") or 0.0
+        current = (open_positions.get(d.get("ticker"), {}).get("size_pct") or 0.0) if d.get("ticker") in open_positions else 0.0
+        if "enter" in action or action in ("increase", "hold"):
+            return max(0.0, target - current)
+        return 0.0
+
     def _demand_pct(decisions: list[dict]) -> float:
-        """Total new buying power requested: full size for new entries, incremental for increases."""
-        total = 0.0
-        for d in decisions:
-            action = d.get("action", "")
-            if "enter" in action and d.get("size_pct"):
-                total += d["size_pct"]
-            elif action == "increase" and d.get("ticker") in open_positions:
-                current = open_positions[d["ticker"]].get("size_pct", 0.0) or 0.0
-                total += max(0.0, (d.get("size_pct") or 0.0) - current)
-        return total
+        """Total new buying power requested across every decision that spends cash."""
+        return sum(_buy_cost(d) for d in decisions)
 
     def _freed_pct(decisions: list[dict]) -> float:
         exits_freed = sum(
@@ -385,20 +388,64 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
     # this makes the final decision set mechanically fundable: rank every remaining entry/
     # increase by conviction and fund highest-conviction first. Runs unconditionally whenever
     # a shortfall remains — correctness never depends on the LLM having complied.
+    #
+    # Before cutting an idea, it may be funded by trimming held positions the
+    # committee rates clearly lower (by TRIM_CONVICTION_GAP points) — otherwise
+    # this net only ever cut the buy side, so incumbents kept their weight no
+    # matter how much stronger the new idea was. Donors are trimmed lowest
+    # conviction first, never below TRIM_FLOOR_PCT (fully exiting a holding is a
+    # thesis judgment for the committee, not a funding mechanic).
+    TRIM_CONVICTION_GAP = 5
+    TRIM_FLOOR_PCT = 2.0
     _cut: list[str] = []
+    _trimmed_to: dict[str, float] = {}
     if _shortfall > 0.5:
+        _decision_by_ticker = {d.get("ticker"): d for d in phase_b_decisions if d.get("ticker")}
+        _phase_a_by_ticker = {d.get("ticker"): d for d in phase_a_decisions if d.get("ticker")}
+
+        def _held_conviction(t: str) -> float:
+            src = _decision_by_ticker.get(t) or _phase_a_by_ticker.get(t) or open_positions.get(t, {})
+            return src.get("conviction") or open_positions.get(t, {}).get("conviction") or 50
+
         _fundable = sorted(
-            [d for d in phase_b_decisions if "enter" in d.get("action", "") or d.get("action") == "increase"],
+            [d for d in phase_b_decisions if _buy_cost(d) > 0],
             key=lambda d: -(d.get("conviction") or 50),
         )
+        _buying = {d.get("ticker") for d in _fundable}
         _remaining = _net_available
         for d in _fundable:
             ticker = d.get("ticker", "")
-            if d.get("action") == "increase":
-                current = open_positions.get(ticker, {}).get("size_pct", 0.0) or 0.0
-                cost = max(0.0, (d.get("size_pct") or 0.0) - current)
-            else:
-                cost = d.get("size_pct") or 0.0
+            current = open_positions.get(ticker, {}).get("size_pct", 0.0) or 0.0
+            cost = _buy_cost(d)
+            if cost > _remaining + 0.05:
+                need = cost - _remaining
+                d_conv = d.get("conviction") or 50
+                donors = sorted(
+                    [
+                        t for t, pos in open_positions.items()
+                        if t not in _buying
+                        and not pos.get("unanalysed_manual_entry")
+                        and (_decision_by_ticker.get(t) or {}).get("action") not in ("exit", "reverse")
+                        and _held_conviction(t) <= d_conv - TRIM_CONVICTION_GAP
+                        and _trimmed_to.get(t, pos.get("size_pct") or 0.0) > TRIM_FLOOR_PCT
+                    ],
+                    key=lambda t: (_held_conviction(t), -(open_positions[t].get("size_pct") or 0.0)),
+                )
+                plan: dict[str, float] = {}
+                for t in donors:
+                    if need <= 0.05:
+                        break
+                    weight_now = _trimmed_to.get(t, open_positions[t].get("size_pct") or 0.0)
+                    take = min(weight_now - TRIM_FLOOR_PCT, need)
+                    plan[t] = weight_now - take
+                    need -= take
+                if need <= 0.05:
+                    _remaining += sum(_trimmed_to.get(t, open_positions[t].get("size_pct") or 0.0) - w for t, w in plan.items())
+                    _trimmed_to.update(plan)
+                    logger.info(
+                        "Portfolio construction: funding %s (conviction %s) by trimming lower-conviction holdings %s",
+                        ticker, d_conv, {t: round(w, 1) for t, w in plan.items()},
+                    )
             if cost <= _remaining + 0.05:  # small epsilon for rounding
                 _remaining -= cost
             else:
@@ -419,6 +466,28 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
                     f"(conviction {d.get('conviction', '?')}, needed {cost:.1f}%)"
                 )
                 _cut.append(ticker)
+        for t, new_weight in _trimmed_to.items():
+            reason = (
+                f"Portfolio construction: trimmed to {new_weight:.1f}% to fund higher-conviction "
+                f"ideas (holding conviction {_held_conviction(t)})"
+            )
+            existing = _decision_by_ticker.get(t)
+            if existing:
+                existing["action"] = "decrease"
+                existing["size_pct"] = round(new_weight, 1)
+                existing["skip_reason"] = reason
+            else:
+                phase_b_decisions.append({
+                    "ticker": t,
+                    "action": "decrease",
+                    "conviction": _held_conviction(t),
+                    "size_pct": round(new_weight, 1),
+                    "investment_thesis": reason,
+                    "key_catalysts": [],
+                    "key_risks": [],
+                })
+        if _trimmed_to:
+            _shortfall_resolution = "funded_by_trimming"
         if _cut:
             _shortfall_resolution = "auto_cut_by_conviction"
             logger.warning(
@@ -440,6 +509,7 @@ def _run_portfolio_construction(phase_b_committee: dict, phase_a_decisions: list
                 "capital_swap_exits": [s.get("ticker") for s in capital_swap_exits if s.get("ticker")],
                 "shortfall_resolution": _shortfall_resolution,
                 "capital_cut_tickers": _cut,
+                "capital_trimmed": {t: round(w, 1) for t, w in _trimmed_to.items()},
                 "generated_at": cr.get("generated_at", ""),
             }
             with open(committee_report_path, "w") as f:
@@ -555,7 +625,10 @@ def run_phase_a() -> dict:
     # --- Trade Executor: implement hold/increase/decrease/exit decisions ---
     from agents import trade_executor
     logger.info("Phase A: Executor implementing Committee decisions...")
-    results["executor"] = _safe_run("Phase A: Trade Executor", trade_executor.run, mode="portfolio_review")
+    results["executor"] = _safe_run(
+        "Phase A: Trade Executor", trade_executor.run,
+        mode="portfolio_review", defer_capital_allocation=True,
+    )
 
     results["elapsed_sec"] = round(time.time() - t0, 1)
     logger.info("Phase A complete in %.0fs | %d positions reviewed",
@@ -645,7 +718,15 @@ def run_phase_b(
     logger.info("Phase B: %d candidates selected", n_candidates)
 
     if n_candidates == 0:
-        logger.warning("Phase B: no candidates — skipping Phase 3 and Committee")
+        # Still size the existing book — Phase A deferred all capital-spending moves
+        # to this point, so returning early would silently drop them.
+        logger.warning("Phase B: no candidates — skipping Phase 3 and Committee, sizing held positions only")
+        results["construction"] = _safe_run(
+            "Phase B: Portfolio Construction", _run_portfolio_construction,
+            {"position_decisions": []}, phase_a_decisions=phase_a_decisions or [],
+        )
+        from agents import trade_executor
+        results["executor"] = _safe_run("Phase B: Trade Executor", trade_executor.run, mode="new_opportunities")
         results["elapsed_sec"] = round(time.time() - t0, 1)
         return results
 

@@ -627,7 +627,16 @@ def reconcile_positions_with_alpaca() -> dict:
     return summary
 
 
-def run(mode: str = "new_opportunities") -> dict:
+def run(mode: str = "new_opportunities", defer_capital_allocation: bool = False) -> dict:
+    """
+    defer_capital_allocation: Phase A passes True. Only risk actions (exit, decrease,
+    reverse) execute; anything that spends cash (increase, or a hold resized by its
+    own construction pass) is deferred. Phase A sizes the book without knowing what
+    new candidates Phase B is about to find, so letting it spend first meant existing
+    holdings always had first claim on capital regardless of conviction — new
+    higher-conviction ideas got whatever scraps were left. Capital is allocated once,
+    in Phase B's construction, with held positions and candidates side by side.
+    """
     logger.info("=== Trade Executor (Agent 11) — mode: %s ===", mode)
 
     import json
@@ -793,6 +802,14 @@ def run(mode: str = "new_opportunities") -> dict:
                 logger.critical("%s: %s", ticker, reason)
                 skipped.append({"ticker": ticker, "reason": reason})
                 continue
+
+        if defer_capital_allocation and action in ("hold", "increase"):
+            if action == "increase":
+                logger.info("%s: increase deferred — capital is allocated jointly with new candidates in Phase B", ticker)
+                skipped.append({"ticker": ticker, "reason": "deferred_to_phase_b_construction"})
+            elif conviction:
+                memory.update_position(ticker, conviction=conviction)
+            continue
 
         if action == "hold":
             # If portfolio construction set a target size_pct that differs from the
