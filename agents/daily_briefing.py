@@ -40,7 +40,10 @@ TRADE_VERBS = {
 }
 
 # Skip reasons that are internal plumbing, not "the committee wanted this and didn't get it"
-_INTERNAL_SKIP_REASONS = ("deferred_to_phase_b_construction", "no size_pct", "reserved word")
+_INTERNAL_SKIP_REASONS = (
+    "deferred_to_phase_b_construction", "no size_pct", "reserved word",
+    "no shares to reduce", "no additional allocation needed",
+)
 
 
 def _load_json(path: Path, default):
@@ -185,21 +188,29 @@ def compute_movers(pnl: dict, opening_positions: dict, positions_log: dict) -> d
 # ---------------------------------------------------------------------------
 
 def collect_trades(executors: list[dict]) -> list[dict]:
-    trades = []
+    trades: list[dict] = []
+    by_key: dict[tuple, dict] = {}
     for ex in executors:
         for t in (ex or {}).get("executed_trades", []) or []:
             action = t.get("action", "")
             if not t.get("shares") or action in ("reverse_close", "reverse_open"):
                 continue  # record-keeping entries, no shares actually traded
-            trades.append({
+            notional = round(float(t.get("notional") or (t.get("shares") or 0) * (t.get("price") or 0)), 2)
+            key = (t.get("ticker"), action)
+            if key in by_key:  # same stock, same direction in Phase A and B — one line
+                by_key[key]["shares"] += t.get("shares") or 0
+                by_key[key]["notional"] = round(by_key[key]["notional"] + notional, 2)
+                continue
+            by_key[key] = {
                 "ticker": t.get("ticker"),
                 "action": action,
                 "verb": TRADE_VERBS.get(action, action.replace("_", " ").title()),
-                "shares": t.get("shares"),
-                "notional": round(float(t.get("notional") or (t.get("shares") or 0) * (t.get("price") or 0)), 2),
+                "shares": t.get("shares") or 0,
+                "notional": notional,
                 "conviction": t.get("conviction"),
                 "rationale": (t.get("rationale") or "")[:400],
-            })
+            }
+            trades.append(by_key[key])
     return trades
 
 
@@ -272,8 +283,13 @@ Rules:
   midterm results", "as oil fell"); don't force it if it didn't.
 - If a stock's move is within ~0.5 percentage points of its sector's move, say it moved with its sector.
 - Round dollar amounts to whole dollars.
-- For trades: say in ≤15 words why we did it, based on the rationale given.
-- "watch": only items still in the future relative to today; skip anything dated in the past.
+- The P&L is for pnl.date (the previous trading day) — call it "yesterday" or name the day, never
+  "today". The trades happened today.
+- For trades: say in ≤15 words why we did it, based on the rationale given. For "Trimmed"/"Added to",
+  explain why the SIZE changed (e.g. "trimmed to help fund today's new buys", "weaker outlook, so a
+  smaller position"); if the rationale only describes the company and not a reason to resize, say it
+  was resized as part of rebalancing toward stronger ideas. Never contradict the action.
+- "watch": up to 3 items, prefer upcoming_market; only things still in the future relative to today.
 
 DATA:
 {json.dumps(facts, indent=1, default=str)}
@@ -284,16 +300,22 @@ Return ONLY JSON:
   "pnl_why": "<1 sentence on what drove the day overall, e.g. broad market vs a few names>",
   "mover_why": {{"TICKER": "<≤15 words>", ...}},
   "trade_why": {{"TICKER": "<≤15 words>", ...}},
-  "watch": ["<≤20 words, only from the upcoming items given; empty list if none>"]
+  "watch": ["<≤20 words, only from upcoming_market / upcoming_for_holdings; empty list if none>"]
 }}"""
-    resp = get_llm_client().chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
-        max_tokens=1600,
-        response_format={"type": "json_object"},
-    )
-    return json.loads(resp.choices[0].message.content or "{}")
+    last_exc: Exception | None = None
+    for _ in range(2):  # one retry if the reply comes back cut off or malformed
+        resp = get_llm_client().chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            max_tokens=4000,
+            response_format={"type": "json_object"},
+        )
+        try:
+            return json.loads(resp.choices[0].message.content or "{}")
+        except json.JSONDecodeError as exc:
+            last_exc = exc
+    raise last_exc  # type: ignore[misc]
 
 
 def _fallback_headline(pnl: dict | None, movers: list[dict], trades: list[dict]) -> str:
@@ -328,15 +350,20 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
     not_executed = collect_not_executed(executors, committee_report)
 
     catalysts = _catalysts_by_ticker()
+    held_now = [t for t, p in positions_log.items() if not p.get("pending_confirmation")]
     try:
         from agents.market_backdrop import load as load_backdrop
         backdrop = load_backdrop()
     except Exception:
         backdrop = {}
-    held_now = [t for t, p in positions_log.items() if not p.get("pending_confirmation")]
+    import re
+    this_year = datetime.utcnow().year
     upcoming = []
     for t in held_now:
         for c in ((positions_log.get(t) or {}).get("setup_checklist") or {}).get("upcoming_catalysts") or []:
+            years = [int(y) for y in re.findall(r"\b(20\d\d)\b", str(c))]
+            if years and max(years) < this_year:
+                continue  # stale research from a past year
             upcoming.append(f"{t}: {str(c)[:140]}")
 
     movers = (pnl_block or {}).get("movers", [])
@@ -346,6 +373,7 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
         "trades_today": [{k: t[k] for k in ("ticker", "verb", "notional", "rationale")} for t in trades],
         "wanted_but_not_done": not_executed,
         "upcoming_for_holdings": upcoming[:12],
+        "upcoming_market": [f"{t.get('title')}: {t.get('next')}" for t in backdrop.get("themes", []) if t.get("next")],
         "market_themes": [
             {k: t.get(k) for k in ("title", "what_happened", "our_exposure")}
             for t in backdrop.get("themes", [])
