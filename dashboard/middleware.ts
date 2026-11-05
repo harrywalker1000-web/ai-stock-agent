@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/api/auth", "/logo-preview"];
+// /api/cron authenticates itself (Vercel cron secret / user agent) — it has no login cookie.
+const PUBLIC_PATHS = ["/login", "/api/auth", "/logo-preview", "/api/cron"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

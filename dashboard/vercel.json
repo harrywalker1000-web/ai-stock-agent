@@ -4,18 +4,50 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "functions": {
-    "app/api/portfolio/route.ts": { "includeFiles": "data/**" },
-    "app/api/position/[ticker]/route.ts": { "includeFiles": "data/**" },
-    "app/api/comparables/[ticker]/route.ts": { "includeFiles": "data/**" },
-    "app/api/chart/[ticker]/route.ts": { "includeFiles": "data/**" },
-    "app/api/run/route.ts": { "includeFiles": "data/**" },
-    "app/api/settings/route.ts": { "includeFiles": "data/**" },
-    "app/api/reports/route.ts": { "includeFiles": "data/**" },
-    "app/api/adhoc/route.ts": { "includeFiles": "data/**" },
-    "app/api/adhoc/[ticker]/route.ts": { "includeFiles": "data/**" },
-    "app/api/agents/route.ts": { "includeFiles": "data/**" },
-    "app/api/benchmark/route.ts": { "includeFiles": "data/**" },
-    "app/api/intraday/route.ts": { "includeFiles": "data/**" },
-    "app/api/attribution/route.ts": { "includeFiles": "data/**" }
-  }
+    "app/api/portfolio/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/position/[ticker]/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/comparables/[ticker]/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/chart/[ticker]/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/run/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/settings/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/reports/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/adhoc/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/adhoc/[ticker]/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/agents/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/benchmark/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/intraday/route.ts": {
+      "includeFiles": "data/**"
+    },
+    "app/api/attribution/route.ts": {
+      "includeFiles": "data/**"
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/daily-run",
+      "schedule": "0 13 * * 1-5"
+    }
+  ]
 }
