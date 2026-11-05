@@ -41,6 +41,11 @@ interface Briefing {
   trades: BriefingTrade[];
   not_executed: { ticker: string; reason: string }[];
   watch: string[];
+  market?: { mood?: string | null; themes: MarketTheme[] } | null;
+}
+interface MarketTheme {
+  title: string; what_happened?: string; why_it_matters?: string; next?: string;
+  our_exposure?: { ticker: string; effect: string; why?: string }[];
 }
 interface Report {
   briefing?: Briefing | null;
@@ -320,6 +325,37 @@ function BriefingView({ b }: { b: Briefing }) {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {b.market && b.market.themes.length > 0 && (
+        <div>
+          <SectionTitle>What&apos;s moving markets</SectionTitle>
+          {b.market.mood && <p className="text-sm text-[#9CA3AF] mb-3">{b.market.mood}</p>}
+          <div className="space-y-2">
+            {b.market.themes.map((t, i) => (
+              <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/06">
+                <p className="text-sm font-semibold text-[#E8EDF2]">{t.title}</p>
+                {t.what_happened && <p className="text-xs text-[#9CA3AF] mt-1">{t.what_happened}</p>}
+                {t.why_it_matters && <p className="text-xs text-[#6B7280] mt-1">{t.why_it_matters}</p>}
+                {t.our_exposure && t.our_exposure.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {t.our_exposure.map((e) => {
+                      const c = e.effect === "positive" ? "#10B981" : e.effect === "negative" ? "#EF4444" : "#F5A623";
+                      return (
+                        <span key={e.ticker} title={e.why ?? ""} className="text-[10px] font-mono px-2 py-0.5 rounded-md"
+                          style={{ color: c, background: `${c}20` }}>
+                          {e.ticker} {e.effect === "positive" ? "▲" : e.effect === "negative" ? "▼" : "◆"}
+                          {e.why ? <span className="font-sans opacity-80"> · {e.why}</span> : null}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+                {t.next && <p className="text-[11px] text-[#4B5563] mt-2">Next: {t.next}</p>}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

@@ -266,7 +266,10 @@ Rules:
 - For "why" a stock moved: cite the news given for it if there is any; otherwise say whether it simply
   moved with its sector or the market (compare move_pct to sector_move_pct and spy_pct). If neither
   explains it, say the move wasn't tied to clear news. Do not speculate beyond that.
-- Only use news listed under that same ticker; never borrow another company's news.
+- Only use news listed under that same ticker; never borrow another company's news. A market theme
+  (market_themes) may explain a move if the theme clearly names that stock or its sector.
+- In the headline, if a market theme clearly drove the day, name it in plain words (e.g. "after the
+  midterm results", "as oil fell"); don't force it if it didn't.
 - If a stock's move is within ~0.5 percentage points of its sector's move, say it moved with its sector.
 - Round dollar amounts to whole dollars.
 - For trades: say in ≤15 words why we did it, based on the rationale given.
@@ -325,6 +328,11 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
     not_executed = collect_not_executed(executors, committee_report)
 
     catalysts = _catalysts_by_ticker()
+    try:
+        from agents.market_backdrop import load as load_backdrop
+        backdrop = load_backdrop()
+    except Exception:
+        backdrop = {}
     held_now = [t for t, p in positions_log.items() if not p.get("pending_confirmation")]
     upcoming = []
     for t in held_now:
@@ -338,6 +346,10 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
         "trades_today": [{k: t[k] for k in ("ticker", "verb", "notional", "rationale")} for t in trades],
         "wanted_but_not_done": not_executed,
         "upcoming_for_holdings": upcoming[:12],
+        "market_themes": [
+            {k: t.get(k) for k in ("title", "what_happened", "our_exposure")}
+            for t in backdrop.get("themes", [])
+        ],
     }
 
     written: dict = {}
@@ -363,5 +375,9 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
         "trades": trades,
         "not_executed": not_executed,
         "watch": [str(w) for w in (written.get("watch") or [])][:3],
+        "market": {
+            "mood": backdrop.get("market_mood"),
+            "themes": backdrop.get("themes", []),
+        } if backdrop.get("themes") else None,
         "generated_at": datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
     }

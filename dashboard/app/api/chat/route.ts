@@ -7,17 +7,17 @@ import { dataDir } from "@/lib/data-path";
 // Agent personalities
 // ---------------------------------------------------------------------------
 const AGENT_PERSONALITIES: Record<string, string> = {
-  macro: "You are the Macro Analyst for Haz Capital Management. You own the market regime read — RISK-ON, RISK-OFF, or NEUTRAL — and your view drives every other agent's positioning. You speak in clear regime calls backed by specific data: Fed stance, VIX level, yield curve shape, inflation trend. You are forward-looking, not descriptive.",
-  sector: "You are the Sector Analyst for Haz Capital Management. You identify the best and worst sectors given the current macro regime. You speak in relative terms with specific sector calls, rotation signals, and valuation benchmarks. A tech P/E of 30x is normal; an industrial P/E of 30x is not.",
-  institutional: "You are the Institutional Tracker for Haz Capital Management. You track 13-F filings, dark pool activity, block trades, and smart money accumulation. You cite specific funds, position sizes, and timing. You know where the real money is moving before headlines catch up.",
-  news: "You are the News & Catalyst Agent for Haz Capital Management. You filter signal from noise — genuine market-moving catalysts vs sentiment-driven noise. You are deeply skeptical and ask: is this new information, or is the market repricing what it already knew?",
-  candidate: "You are the Candidate Generator for Haz Capital Management. You rank the 950-stock universe down to the top candidates using composite scores, signal weights, and dislocation screens. You speak in scores and filters, not opinions.",
-  fundamental: "You are the Fundamental Analyst for Haz Capital Management. You analyse balance sheets, valuations, and peer comparisons. You cite specific numbers: P/E, EV/EBITDA, revenue growth, margins, ROIC. You always benchmark within sector.",
-  quant: "You are the Quant & Technical Analyst for Haz Capital Management. You own the technical picture — RSI, MACD, SMA200, support/resistance, mean reversion scores. You speak in numbers and levels: 'RSI 28, 18% below SMA200, mean reversion score 84 — oversold, not broken.'",
-  sentiment: "You are the Sentiment Analyst for Haz Capital Management. You distinguish leading from lagging sentiment. Lagging negative sentiment on a fundamentally strong stock after a broad selloff is a contrarian buy signal. You are the team's contrarian.",
-  memory: "You are the Memory & Pattern Agent for Haz Capital Management. You remember every trade, every decision, every mistake, and surface historical patterns. You provide context and track record — you don't make decisions.",
-  committee: "You are the Investment Committee of Haz Capital Management — the final decision-maker. You hear from all agents and own every call. You classify positions as Scenario A (momentum), B (dislocation long), C (dislocation short), or D (skip). You are authoritative, direct, and brutally specific. If a question is better answered by a specialist agent, say so in one line. CRITICAL: Always use real ticker symbols — never placeholders like 'Company X'.",
-  executor: "You are the Trade Executor for Haz Capital Management. The Committee decides, you execute. You speak in operational terms: order types, position sizes, timing, slippage. You are in paper trading mode unless explicitly told otherwise by Harry Walker.",
+  macro: "You're the Macro Analyst on Harry's team. You think about the big picture — the economy, the Fed, rates, inflation, elections, wars, oil — and what it means for markets and for our positions.",
+  sector: "You're the Sector Analyst on Harry's team. You think about which parts of the market are in or out of favour and why, and how that affects what we own.",
+  institutional: "You're the Institutional Tracker on Harry's team. You follow what big funds are buying and selling (13F filings, large holders) and what that signals.",
+  news: "You're the News & Catalyst analyst on Harry's team. You separate news that genuinely changes a company's prospects from noise the market has already priced in.",
+  candidate: "You're the Candidate Generator on Harry's team. You screen the stock universe for new ideas worth a closer look, and can explain why something did or didn't make the cut.",
+  fundamental: "You're the Fundamental Analyst on Harry's team. You look at the businesses themselves — growth, margins, balance sheets, valuation versus peers.",
+  quant: "You're the Quant & Technical Analyst on Harry's team. You read price action — trends, momentum, support and resistance — and explain it in plain terms.",
+  sentiment: "You're the Sentiment Analyst on Harry's team. You read analyst views, short interest and crowd mood, and you're happy to be the contrarian.",
+  memory: "You're the team's memory. You know every past trade and decision, what worked, what didn't, and the patterns in our own track record.",
+  committee: "You're the Investment Committee chair on Harry's team — you make the final calls and can speak to any position, any decision, and the overall strategy.",
+  executor: "You're the Trade Executor on Harry's team. You know exactly what was bought and sold, when, at what size, and why some intended trades didn't happen. This is a paper-trading account.",
 };
 
 // ---------------------------------------------------------------------------
@@ -162,6 +162,28 @@ function loadReport(base: string, file: string, cap = 3000): string {
   return truncate(raw, cap);
 }
 
+// Latest daily report briefing — what actually happened most recently
+function loadLatestBriefing(base: string): string {
+  try {
+    const dir = path.join(base, "reports");
+    const files = fs.readdirSync(dir).filter((f) => /^daily_report_\d{4}-\d{2}-\d{2}\.json$/.test(f)).sort();
+    for (const f of files.reverse()) {
+      const r = safeRead(path.join(dir, f)) as Record<string, unknown> | null;
+      if (!r) continue;
+      const b = r.briefing as Record<string, unknown> | null;
+      const head = `LATEST DAILY REPORT (${r.date}): ${r.summary ?? ""}\nP&L ${r.daily_pnl} ${r.daily_pnl_pct ?? ""} for ${r.daily_pnl_date ?? "previous day"}`;
+      return b ? `${head}\n${truncate(JSON.stringify({ pnl: b.pnl, trades: b.trades, not_executed: b.not_executed, watch: b.watch }), 2500)}` : head;
+    }
+  } catch { /* none */ }
+  return "";
+}
+
+function loadMarketBackdrop(base: string): string {
+  const m = safeRead(path.join(base, "reports/market_backdrop.json")) as Record<string, unknown> | null;
+  if (!m) return "";
+  return `WHAT'S MOVING MARKETS (researched ${m.generated_at ?? m.date}):\n${truncate(JSON.stringify({ mood: m.market_mood, themes: m.themes }), 3000)}`;
+}
+
 // Build context string per agent
 function buildContext(agentId: string, base: string): { context: string; reportDate: string | null } {
   const sections: string[] = [];
@@ -216,6 +238,14 @@ function buildContext(agentId: string, base: string): { context: string; reportD
     }
   }
 
+  // Everyone on the team knows the basics: where the portfolio stands, what happened
+  // today, and what's moving markets — so any agent can answer a general question.
+  if (agentId !== "committee" && agentId !== "executor" && agentId !== "quant" && agentId !== "fundamental") {
+    sections.unshift(loadPortfolioState(base));
+  }
+  sections.unshift(loadMarketBackdrop(base));
+  sections.unshift(loadLatestBriefing(base));
+
   const context = sections.filter(Boolean).join("\n\n---\n\n");
   return { context, reportDate };
 }
@@ -255,12 +285,64 @@ async function fetchLivePrices(base: string): Promise<string> {
 }
 
 // ---------------------------------------------------------------------------
-// Model routing
+// Model calls — Claude with live web search when available, OpenAI fallback
 // ---------------------------------------------------------------------------
-const MODEL_FOR_AGENT: Record<string, string> = {
-  committee: "gpt-4o",
-  fundamental: "gpt-4o",
-};
+type Turn = { role: "user" | "assistant"; content: string };
+
+const CLAUDE_MODEL = "claude-sonnet-5-5";
+
+async function askClaude(apiKey: string, system: string, turns: Turn[]): Promise<string> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 3000,
+      system,
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 3 }],
+      messages: turns,
+    }),
+    signal: AbortSignal.timeout(55000),
+  });
+  if (!res.ok) throw new Error(`Anthropic ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const data = await res.json() as { content?: Array<{ type: string; text?: string }> };
+  return (data.content ?? []).filter((b) => b.type === "text").map((b) => b.text ?? "").join("").trim();
+}
+
+async function askOpenAI(apiKey: string, system: string, turns: Turn[]): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({ model: "gpt-4o", messages: [{ role: "system", content: system }, ...turns], max_tokens: 1000 }),
+  });
+  if (!res.ok) throw new Error(`OpenAI ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+  return data.choices?.[0]?.message?.content?.trim() ?? "";
+}
+
+// Claude needs user/assistant turns that alternate and start with the user.
+function toTurns(history: Array<{ role: "user" | "agent"; text: string }> | undefined, message: string): Turn[] {
+  const turns: Turn[] = [];
+  for (const h of (history ?? []).slice(-10)) {
+    const role = h.role === "user" ? "user" : "assistant";
+    if (!h.text?.trim()) continue;
+    if (turns.length && turns[turns.length - 1].role === role) turns[turns.length - 1].content += "\n\n" + h.text;
+    else turns.push({ role, content: h.text });
+  }
+  // The client sends history that already ends with this message — don't send it twice.
+  if (turns.length && turns[turns.length - 1].role === "user" && turns[turns.length - 1].content.trim() === message.trim()) {
+    turns.pop();
+  }
+  while (turns.length && turns[0].role === "assistant") turns.shift();
+  if (turns.length && turns[turns.length - 1].role === "user") turns[turns.length - 1].content += "\n\n" + message;
+  else turns.push({ role: "user", content: message });
+  return turns;
+}
+
+// Replies render as plain text in the chat bubble.
+function stripMarkdown(s: string): string {
+  return s.replace(/\*\*(.+?)\*\*/g, "$1").replace(/^#{1,6}\s+/gm, "").replace(/^\s*[-*]\s+/gm, "• ");
+}
 
 // ---------------------------------------------------------------------------
 // POST handler
@@ -274,72 +356,57 @@ export async function POST(request: NextRequest) {
       notifyAgent?: boolean;
     };
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ reply: "[Error]: OpenAI API key not configured on this deployment." });
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    const openaiKey = process.env.OPENAI_API_KEY;
+    if (!anthropicKey && !openaiKey) {
+      return NextResponse.json({ reply: "I can't respond right now — no AI provider key is configured on this deployment." });
     }
 
     const base = dataDir();
     const personality = AGENT_PERSONALITIES[agentId] ?? AGENT_PERSONALITIES.committee;
     const { context, reportDate } = buildContext(agentId, base);
     const liveContext = await fetchLivePrices(base);
-    const model = MODEL_FOR_AGENT[agentId] ?? "gpt-4o-mini";
+    const today = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", dateStyle: "full" });
 
-    const dataNote = reportDate
-      ? `Pipeline data below is from ${reportDate}. When you reference it, say "as of [date]" — one brief note, not a disclaimer paragraph.`
-      : "Pipeline data timestamp unknown — flag this if relevant.";
-
-    const systemPrompt = [
+    const system = [
       personality,
+      `Today is ${today}. You're chatting with Harry, who owns this fund. Talk to him like a sharp, friendly colleague would — not like a report generator.`,
       "",
-      dataNote,
+      "HOW TO ANSWER:",
+      "- Answer the question he actually asked, first, in plain English. Then the reasoning behind it.",
+      "- Have a view. If he asks what you think, say what you think and why, including the risks.",
+      "- Use the team's data below for anything about our portfolio, trades and decisions — quote real tickers and numbers from it, and never make figures up.",
+      anthropicKey
+        ? "- For current events, news, or anything the data below doesn't cover, use web search rather than guessing."
+        : "- If he asks about something the data doesn't cover, say what you don't know rather than guessing.",
+      "- You can step outside your specialty — you know what the rest of the team knows. Mention a teammate only if they'd genuinely add more.",
+      "- Match length to the question: a quick question gets a couple of sentences; a big one can get a few short paragraphs.",
+      "- Explain jargon if you use it. No markdown headings or bold — this renders as plain text.",
+      reportDate ? `- Team data is from the last pipeline run (${reportDate}); live prices below are current.` : "",
+      notifyAgent ? "- [Note mode: acknowledge that this will be logged for the next pipeline run.]" : "",
       "",
       liveContext || "",
-      context ? `=== PIPELINE DATA ===\n${context}\n=== END PIPELINE DATA ===` : "",
-      "",
-      "RESPONSE RULES — non-negotiable:",
-      "1. Answer directly. Give the number/fact first, context second. Never explain methodology.",
-      "2. Use real tickers and real numbers from the data. Never invent figures.",
-      "3. If data is missing, say so in one sentence. Don't pad.",
-      "4. Distinguish live prices (fetched now) from pipeline data (dated) — one brief note is enough.",
-      "5. If a question is out of your lane, redirect in one line: 'Check the Quant Agent for technicals.'",
-      "6. Max 3 short paragraphs unless Harry explicitly asks for more.",
-      notifyAgent ? "7. [NOTIFY MODE: Log this message for tomorrow's pipeline run and acknowledge it.]" : "",
-    ].filter(Boolean).join("\n");
+      context ? `=== TEAM DATA ===\n${context}\n=== END TEAM DATA ===` : "",
+    ].filter((l) => l !== null).join("\n");
 
-    // Build conversation history for the model
-    const priorMessages: Array<{ role: "user" | "assistant"; content: string }> = [];
-    if (Array.isArray(history)) {
-      for (const h of history.slice(-8)) { // last 8 turns max to stay within token limits
-        priorMessages.push({ role: h.role === "user" ? "user" : "assistant", content: h.text });
+    const turns = toTurns(history, message);
+    let reply = "";
+    let model = "";
+    if (anthropicKey) {
+      try {
+        reply = await askClaude(anthropicKey, system, turns);
+        model = CLAUDE_MODEL;
+      } catch (err) {
+        console.error("Chat: Claude failed, falling back to OpenAI:", err);
       }
     }
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...priorMessages,
-          { role: "user", content: message },
-        ],
-        max_tokens: 500,
-        temperature: 0.5,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      return NextResponse.json({ reply: `[API error ${response.status}]: ${err.slice(0, 300)}` });
+    if (!reply && openaiKey) {
+      reply = await askOpenAI(openaiKey, system, turns);
+      model = "gpt-4o";
     }
 
-    const data = await response.json() as { choices?: Array<{ message?: { content?: string } }> };
-    const reply = data.choices?.[0]?.message?.content?.trim() || "[No content returned]";
-
-    return NextResponse.json({ reply, model });
+    return NextResponse.json({ reply: stripMarkdown(reply) || "Sorry — I couldn't come up with an answer to that.", model });
   } catch (err) {
-    return NextResponse.json({ reply: `[Chat error]: ${String(err).slice(0, 200)}` });
+    return NextResponse.json({ reply: `Something went wrong on my end (${String(err).slice(0, 150)}).` });
   }
 }

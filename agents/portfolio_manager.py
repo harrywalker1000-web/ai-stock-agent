@@ -907,6 +907,17 @@ def run() -> dict:
         logger.warning("Portfolio Risk Snapshot failed: %s — pipeline continues without it", exc)
         summary["risk_snapshot"] = {"error": str(exc)}
 
+    # --- Market backdrop: what the market is actually trading on today ---
+    # Live web research (elections, wars, Fed, big earnings — whatever it is), mapped
+    # to our holdings. Read by the committee, construction, briefing and chat.
+    try:
+        from agents import market_backdrop
+        logger.info("Researching market backdrop...")
+        summary["market_backdrop"] = market_backdrop.run()
+    except Exception as exc:
+        logger.warning("Market backdrop failed: %s — pipeline continues without it", exc)
+        summary["market_backdrop"] = {"error": str(exc)}
+
     # --- Phase A ---
     if SKIP_PHASE_A:
         logger.info("Phase A skipped (SKIP_PHASE_A=true)")

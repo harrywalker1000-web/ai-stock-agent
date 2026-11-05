@@ -384,6 +384,14 @@ def _adjust_weights(macro_regime: str) -> dict:
 # LLM deliberation
 # ---------------------------------------------------------------------------
 
+def _market_backdrop_block() -> str:
+    try:
+        from agents.market_backdrop import format_for_prompt
+        return format_for_prompt()
+    except Exception:
+        return ""
+
+
 def _deliberate_with_llm(
     scorecards: list[dict],
     macro_regime: str,
@@ -672,6 +680,7 @@ def _deliberate_with_llm(
 Your mandate is to identify where prices are GOING, not where they have been.
 
 MACRO REGIME: {macro_regime}
+{_market_backdrop_block()}
 AVAILABLE CASH: ~{available_cash_pct:.0f}% of portfolio
 MODE: {mode_instruction}
 
@@ -1441,6 +1450,10 @@ def construct_portfolio_allocation(
             macro_block += f"\n  {str(regime_detail)[:200]}"
         if key_risks:
             macro_block += f"\n  Macro risks: {'; '.join(str(r) for r in key_risks[:3])[:150]}"
+
+    _backdrop = _market_backdrop_block()
+    if _backdrop:
+        macro_block += "\n" + _backdrop
 
     # Build capital tradeoff block: compare new entry conviction vs held position conviction
     # so the LLM can proactively decide to exit lower-conviction holds to fund better opportunities

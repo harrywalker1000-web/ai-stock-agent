@@ -76,6 +76,7 @@ REPORT_FILES = [
     "institutional_report.json",
     "backtest_result.json",
     "intraday_alerts.json",
+    "market_backdrop.json",
 ]
 
 copied = 0

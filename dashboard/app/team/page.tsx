@@ -117,16 +117,17 @@ function ChatPanel({agent}:{agent:Agent}) {
   };
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-[120px] max-h-[200px]">
+      <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-[120px] max-h-[360px]">
         {msgs.length===0&&<p className="text-[10px] text-[#6B7280] text-center py-8">Ask {agent.name.split(" ")[0]} anything.</p>}
         {msgs.map((m,i)=>(
           <div key={i} className={`flex ${m.role==="user"?"justify-end":"justify-start"}`}>
-            <div className="rounded-xl px-3 py-2 text-[11px] max-w-[85%]"
+            <div className="rounded-xl px-3 py-2 text-[12px] leading-relaxed whitespace-pre-wrap max-w-[85%]"
               style={{background:m.role==="user"?`rgba(${rgb},0.18)`:"rgba(255,255,255,0.04)",border:`1px solid rgba(${rgb},${m.role==="user"?0.4:0.1})`,color:m.role==="user"?agent.color:"#CBD5E1"}}>
               {m.text}
             </div>
           </div>
         ))}
+        {sending&&<p className="text-[10px] text-[#6B7280] pl-1 animate-pulse">{agent.name.split(" ")[0]} is thinking…</p>}
       </div>
       <div className="flex gap-2">
         <input className="flex-1 rounded-xl px-3 py-2 text-[11px] outline-none"
