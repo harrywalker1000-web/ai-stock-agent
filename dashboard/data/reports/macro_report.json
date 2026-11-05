@@ -4,42 +4,41 @@
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "high-quality bonds",
-    "commodities",
-    "healthcare investments"
+    "bonds",
+    "gold",
+    "utilities"
   ],
   "avoid_themes": [
-    "high-growth tech",
+    "high-yield bonds",
     "cyclical stocks",
     "emerging markets"
   ],
   "geopolitical_risks": [
-    "US sanctions on Indian and Turkish firms for aiding Iran",
-    "North Korea's rejection of US allegations",
-    "political uncertainty post-midterm elections"
+    "Iranian tensions in the Hormuz Strait",
+    "US debt-ceiling standoff risks",
+    "political instability in Israel"
   ],
-  "macro_summary": "The current macro environment is characterized by rising inflation, with CPI increasing to 336.3, indicating inflationary pressures. The yield curve remains positive but indicates recession risk, as evidenced by the 0.32% spread between the 10Y and 2Y Treasury yields. There are conflicting signals from sources, with FRED and newsapi_finnhub indicating a RISK-OFF sentiment, while yfinance_market remains NEUTRAL, leading to a low confidence level overall.",
+  "macro_summary": "The current macro environment is characterized by a RISK-OFF sentiment across all sources, with rising inflation indicated by a CPI increase to 336.3. The yield curve remains inverted, suggesting recession risks, while the VIX indicates elevated fear in the market. There are no conflicts among the sources, all aligning on the RISK-OFF classification.",
   "signal_confidence": {
-    "level": "low",
+    "level": "high",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [],
-    "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+    "agreements": [
+      "All 3 sources agree: RISK-OFF"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
+    "conflicts": [],
+    "confidence_note": "The confidence level is high as all sources consistently indicate a RISK-OFF environment."
   },
-  "confidence": 50,
+  "confidence": 90,
   "raw_data": {
     "fed_funds_rate": 3.88,
-    "us_10y_yield": 4.91,
-    "us_2y_yield": 4.59,
-    "yield_curve_spread": 0.32,
+    "us_10y_yield": 4.95,
+    "us_2y_yield": 4.61,
+    "yield_curve_spread": 0.34,
     "cpi_latest": 336.3,
     "cpi_prev": 334.13,
     "cpi_trend": "rising",
@@ -47,47 +46,44 @@
     "gdp_latest": 33010.0,
     "gdp_prev": 32563.0,
     "gdp_growth": 1.37,
-    "dxy_current": 101.53,
+    "dxy_current": 101.41,
     "dxy_1m_ago": 102.17,
     "dxy_trend": "weakening",
-    "vix": 16.77,
-    "tlt_1m_change_pct": 5.95,
-    "hyg_1m_change_pct": 0.73,
+    "vix": 25.38,
+    "tlt_1m_change_pct": 6.58,
+    "hyg_1m_change_pct": 0.27,
     "macro_headlines": [
-      "Why we're kicking CVS out of our Bullpen watchlist. Plus, Intel's CEO makes a stand",
-      "New Flutter CEO bets on FanDuel promotions to win customers as profits suffer",
-      "The post-election rally masks a sharp split in the AI trade. Who stands to win?",
-      "A massive trade just happened in a leading mortgage lender: Watch Options Action Live",
-      "US slaps sanctions on Indian, Turkish firms and people for aiding Iran - Reuters",
-      "Markets cheer Democratic win, betting divided Washington means fewer policy shocks - Reuters",
-      "US slaps sanctions on Indian, Turkish firms and people for aiding Iran - Reuters",
-      "Democrats map out an agenda to address affordability and corruption after midterm sweep",
-      "Bob Dylan blows in for meeting with Pope Leo at Vatican - Reuters",
-      "Trump says Republicans harmed by Iran war, inability to 'transfer the love' for him - Reuters"
+      "Wall Street's fear gauge surges the most since April. Why traders think it should be even higher",
+      "Las Vegas Raiders owner Mark Davis says he's 'not a fan' of sports gambling amid prediction market boom",
+      "Tankers hit in Hormuz as Iran keeps up pressure after US vote - Reuters",
+      "Investors eye risk of debt-ceiling standoff after Democratic sweep - Reuters",
+      "We're booking big profits in 2 outperformers in Thursday's terrible market",
+      "Bank of England raises rates for first time since 2023, warns another move likely - Reuters",
+      "Netanyahu's position weakens as rival secures broad backing to try to form government - Reuters",
+      "Expedia CEO says AI agents aren't changing booking habits \u2014 yet",
+      "Putin met Iranian security council chief Rezaei in Moscow - Reuters",
+      "New wave of bomb hoaxes hits 27 passenger flights across Europe - Reuters"
     ],
     "geopolitical_headlines": [
+      "My favorite 25W wireless power bank is down to $35",
       "This new Qi2.3 power bank puts Google's and Samsung's accessories to shame",
       "OpenAI Hires Former Trump Admin. Army Secretary for New National Security Role",
       "How do midterm candidates plan to fight inflation? Economists evaluate proposals",
+      "Democrats take control of Congress and put Trump's economic agenda in their sights",
       "North Korea rejects U.S. allegation over\u00a0$6 billion Binance crypto heist",
-      "Former Meta security chief says giving AI agents your financial logins is \u2018totally insane\u2019",
-      "The paths to Wall Street success: Where 25 rising stars went to school and started their careers",
-      "iPhone Duo: Latest Buyer Wait Times",
+      "Brigitte Bardot inheritance row deepens after private letter leaked",
       "MagSafe Monday: Pelican\u2019s MagSafe Battery Pack is the battery built to go anywhere",
-      "How Walmart heiress Alice Walton, the world's richest woman, spends her $135 billion fortune",
-      "We Can\u2019t Afford an AI Recession"
+      "An open structure-guided RNA foundation model for generalizable prediction",
+      "AI companies have reason to worry after Democrats won big in Texas"
     ],
     "central_bank_headlines": [
-      "Asia shares bend under AI stress; Apple earnings loom",
-      "Goldman Sachs expects Bank of England to raise rates again in February",
+      "Monetary Reform for the 2028 Election: Jackson\u2019s Victory in the \u201cBank War\u201d but the Money Power Strikes Back. Part 1.6",
       "Gold edges higher on softer oil; US midterm elections in focus",
-      "Shares steady as Apple earnings near, oil eases",
-      "Global Market Today: Asia shares bend under AI stress; Apple earnings loom",
-      "5 key global market themes investors will watch this week",
-      "Asian shares slide as AI spending worries mount ahead of tech earnings",
-      "Monday: Hili dialogue"
+      "Dollar declines after Democrats take US Congress in midterm elections",
+      "Dollar falls after Democrats take US Congress in midterm elections",
+      "Global markets were already fragile. Big AI bets could break them"
     ],
-    "as_of": "2026-11-04 20:33 UTC"
+    "as_of": "2026-11-05 18:03 UTC"
   },
-  "generated_at": "2026-11-04T20:33:44.039404"
+  "generated_at": "2026-11-05T18:03:32.213424"
 }
