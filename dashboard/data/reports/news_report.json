@@ -1,8 +1,26 @@
 {
   "fresh_catalysts": [
     {
-      "ticker": "V",
-      "catalyst": "Dow Jones Industrial Average ETF buys $96.4 million more Goldman.",
+      "ticker": "XOM",
+      "catalyst": "Analysts highlight XOM as a top stock pick.",
+      "catalyst_type": "analyst_action",
+      "direction": "LONG",
+      "freshness": "today",
+      "priced_in_estimate": "not priced in",
+      "signal_confidence": {
+        "level": "medium",
+        "sources_count": 2,
+        "sources": [
+          "finnhub",
+          "newsapi"
+        ],
+        "note": "multi-source confirmation"
+      },
+      "reasoning": "Analyst recommendations can drive stock interest; medium confidence due to multiple sources."
+    },
+    {
+      "ticker": "LLY",
+      "catalyst": "Eli Lilly's obesity pill shows promise in late-stage trial.",
       "catalyst_type": "FDA/regulatory",
       "direction": "LONG",
       "freshness": "today",
@@ -16,134 +34,65 @@
         ],
         "note": "multi-source confirmation"
       },
-      "reasoning": "This catalyst indicates strong institutional support, enhancing confidence in the stock."
-    },
-    {
-      "ticker": "JNJ",
-      "catalyst": "Johnson & Johnson wins FDA approval for Rybrevant cancer treatment.",
-      "catalyst_type": "FDA/regulatory",
-      "direction": "LONG",
-      "freshness": "today",
-      "priced_in_estimate": "not priced in",
-      "signal_confidence": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "finnhub"
-        ],
-        "note": "single source \u2014 treat with caution"
-      },
-      "reasoning": "FDA approval is a significant event, but low confidence due to single source."
-    },
-    {
-      "ticker": "META",
-      "catalyst": "AI Trade, Alphabet, Meta lose steam as sectors attract investors.",
-      "catalyst_type": "management_change",
-      "direction": "SHORT",
-      "freshness": "today",
-      "priced_in_estimate": "likely priced in",
-      "signal_confidence": {
-        "level": "medium",
-        "sources_count": 2,
-        "sources": [
-          "finnhub",
-          "newsapi"
-        ],
-        "note": "multi-source confirmation"
-      },
-      "reasoning": "The shift in investor focus suggests potential downward pressure on Meta."
+      "reasoning": "FDA-related news can significantly impact stock prices; medium confidence from multiple sources."
     }
   ],
   "stale_catalysts": [
     {
       "ticker": "AAPL",
-      "catalyst": "Apple is borrowing $7.5 billion, its first bond sale since 2025.",
-      "reason_stale": "This borrowing event is likely already priced in."
+      "catalyst": "Various corporate actions and earnings discussions.",
+      "reason_stale": "These events are likely already priced in due to their commonality."
     },
     {
       "ticker": "MSFT",
-      "catalyst": "Cloud infrastructure trade splits as AI hardware selloffs test investor selectivity.",
-      "reason_stale": "Market reactions to AI hardware trends are likely already reflected in the stock price."
+      "catalyst": "Management changes and contract wind-downs.",
+      "reason_stale": "Similar to AAPL, these events are likely priced in."
     },
     {
       "ticker": "NVDA",
-      "catalyst": "Marvell drops 50% in one month; analyst stands pat on gains prediction.",
-      "reason_stale": "Analyst predictions are often already factored into stock valuations."
+      "catalyst": "Regulatory risks related to CEO probe.",
+      "reason_stale": "The market may have already adjusted for these risks."
     },
     {
       "ticker": "GOOGL",
-      "catalyst": "Google parent reveals $548 million bet on beaten-down chip stock.",
-      "reason_stale": "Investor sentiment around chip stocks may have already adjusted."
+      "catalyst": "Analyst actions and price target updates.",
+      "reason_stale": "Frequent analyst updates often lead to quick price adjustments."
     }
   ],
-  "upcoming_events": [],
+  "upcoming_events": [
+    {
+      "ticker": "ASII",
+      "event": "earnings",
+      "date": "2026-11-20",
+      "days_until": 10,
+      "positioning_note": "Consider positioning for potential earnings surprise."
+    },
+    {
+      "ticker": "BJ",
+      "event": "earnings",
+      "date": "2026-11-20",
+      "days_until": 10,
+      "positioning_note": "Monitor for pre-earnings movement."
+    }
+  ],
   "reddit_unusual": [],
   "top_catalyst_tickers": [
-    "V",
-    "JNJ",
-    "META"
+    "XOM",
+    "LLY"
   ],
-  "news_summary": "Today's key catalysts include JNJ's FDA approval for a cancer treatment and V's significant investment in Goldman. META faces potential downward pressure as investor focus shifts away from tech. Overall, the market remains cautious amid geopolitical tensions and a risk-off sentiment.",
+  "news_summary": "Today's market sees XOM highlighted by analysts as a top pick, while Eli Lilly's obesity pill shows promising results in trials, potentially paving the way for FDA approval. Other tech stocks like AAPL and MSFT face various corporate actions and management changes, but these are likely already priced in.",
   "confidence": 75,
   "raw_data": {
     "company_catalysts": [
       {
-        "ticker": "MSFT",
-        "headline": "Nvidia Partner CoreWeave Ready To Report Q3 As AI Stocks Crumble; Nebius, Qualys Also Due",
-        "catalyst_type": "earnings",
+        "ticker": "XOM",
+        "headline": "5 Stock Picks Last Week From Wall Street's Most Accurate Analysts",
+        "catalyst_type": "analyst_action",
         "source": "finnhub",
-        "published": "2026-11-06T13:01:04",
+        "published": "2026-11-09T07:25:06",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=31bb6d346c71c7663a67cdd879b85fa8ab33b2264a24ea65d31000a86a24ebfe",
-        "confirmed_by_sources": [
-          "newsapi",
-          "finnhub"
-        ],
-        "source_count": 2,
-        "signal_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources": [
-            "newsapi",
-            "finnhub"
-          ],
-          "note": "multi-source confirmation"
-        }
-      },
-      {
-        "ticker": "META",
-        "headline": "AI Trade, Alphabet, Meta Lose Steam As Medical And Energy Sectors Attract Investors",
-        "catalyst_type": "management_change",
-        "source": "finnhub",
-        "published": "2026-11-06T13:00:04",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=13111bd22aeb92c2abbbd84fa29f44e8eaee8fbfcdfabb5cb74c6dd09f5f7365",
-        "confirmed_by_sources": [
-          "newsapi",
-          "finnhub"
-        ],
-        "source_count": 2,
-        "signal_confidence": {
-          "level": "medium",
-          "sources_count": 2,
-          "sources": [
-            "newsapi",
-            "finnhub"
-          ],
-          "note": "multi-source confirmation"
-        }
-      },
-      {
-        "ticker": "V",
-        "headline": "Dow Jones Industrial Average ETF (DIA) Buys $96.4 Million More Goldman on Nov. 4",
-        "catalyst_type": "FDA/regulatory",
-        "source": "finnhub",
-        "published": "2026-11-06T11:04:37",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=285a2f91534bc78ea80308c3cd87a055158b3ce62d798662d31dbc1846b54f96",
+        "url": "https://finnhub.io/api/news?id=869fe1cf8b4dec31989efb189df078aca8421d7bdba9b0d3d3a98c629fd1a086",
         "confirmed_by_sources": [
           "newsapi",
           "finnhub"
@@ -161,13 +110,79 @@
       },
       {
         "ticker": "AAPL",
-        "headline": "Apple Is Borrowing $7.5 Billion, Its First Bond Sale Since 2025",
-        "catalyst_type": "short_interest",
+        "headline": "2 Safe S&P 500 Tech Dividend Stocks Boomers Can Buy and Hold Forever",
+        "catalyst_type": "corporate_action",
         "source": "finnhub",
-        "published": "2026-11-06T13:53:35",
+        "published": "2026-11-09T13:47:55",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=dfe466ed0f8f3a60cf05a353f02c2860e6a408c8532e7f8529ccbe41c225dcb7",
+        "url": "https://finnhub.io/api/news?id=e9d8faf8e537cbaad22524031d4d74fefca7b10e39600d6496e0b73676305785",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "AAPL",
+        "headline": "Earnings Breadth Hits Near-Record Highs, But Cracks Emerge at the Margins",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-11-09T13:25:02",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=44175770f0e83af3e907f194a6fc472affa5a04db0ae2129ea5fc3596499ae93",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "AAPL",
+        "headline": "Apple's Market Value Grew From $350 Billion to $4 Trillion During Tim Cook's 15 Years as CEO. Here's What That Growth Curve Means for Apple's Next Chapter Under John Ternus.",
+        "catalyst_type": "management_change",
+        "source": "finnhub",
+        "published": "2026-11-09T13:20:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=723c72c8e220fc2e23040d5971c857873923880ac391ee267c554378aeecc5a4",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "AAPL",
+        "headline": "Apple (AAPL) Stock Gets Fair Value Bump As Analysts Debate Margins And iPhone Demand",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-09T13:07:59",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=26820577a6ed2abbc2e490d3cc7774614c9e350bd83d02741218a07063b1c4d2",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -183,13 +198,35 @@
       },
       {
         "ticker": "MSFT",
-        "headline": "Cloud Infrastructure Trade Splits as AI Hardware Selloffs Test Investor Selectivity",
-        "catalyst_type": "corporate_action",
+        "headline": "Stock Market Today: Dow Rallies As Oil Prices Slide; Nvidia Stock Dives On CEO Huang Probe (Live Coverage)",
+        "catalyst_type": "management_change",
         "source": "finnhub",
-        "published": "2026-11-06T13:06:34",
+        "published": "2026-11-09T13:53:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=3551dede1e88c519a3433b6a25ff97f66dd92a71f6b5d561e675a2d65ade8e57",
+        "url": "https://finnhub.io/api/news?id=9ed519a9581c0b645208639091ac07e8066a724f30fe3e5d74827003446af2c6",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "MSFT",
+        "headline": "Microsoft reportedly winds down Oracle AI infrastructure contract",
+        "catalyst_type": "contract/partnership",
+        "source": "finnhub",
+        "published": "2026-11-09T13:33:40",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=5ed20ce91bce970a547272724bb966bf24b7ba4e01afc8433b954aff8efff354",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -205,35 +242,13 @@
       },
       {
         "ticker": "NVDA",
-        "headline": "Here's How Many Shares of This Unstoppable Dividend Stock You'd Need for $10,000 in Yearly Passive Income",
-        "catalyst_type": "corporate_action",
+        "headline": "Gary Gensler Says Key Question In Nvidia Probe Is Whether Huang Misled Shareholders, Sees AI \u2018Repricing\u2019 Ahead",
+        "catalyst_type": "regulatory_risk",
         "source": "finnhub",
-        "published": "2026-11-06T13:50:00",
+        "published": "2026-11-09T13:54:02",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=e00bdf948b9ac4093c29f868a3552c7eecb69ccafa9570d84600841ca2a4e800",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "NVDA",
-        "headline": "Marvell Drops 50% in One Month: This Analyst Stands Pat on 195% Gains Prediction",
-        "catalyst_type": "analyst_action",
-        "source": "finnhub",
-        "published": "2026-11-06T13:45:34",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=27737b9fdae99728966d2876c21c00fec2ab466e0c9fac009f43db282765e289",
+        "url": "https://finnhub.io/api/news?id=7cb499e9304ca2f6b21f475e5eb2fc203d1df09c934725cbd36759048648f88f",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -249,13 +264,13 @@
       },
       {
         "ticker": "GOOGL",
-        "headline": "Google parent reveals $548 million bet on beaten-down chip stock",
-        "catalyst_type": "earnings",
+        "headline": "Bank of America Is Doubling Down on Apple While Tech Sells Off. Here\u2019s Its Price Target",
+        "catalyst_type": "analyst_action",
         "source": "finnhub",
-        "published": "2026-11-06T13:36:11",
+        "published": "2026-11-09T14:03:32",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=5a574fb9bcb7f2426c5a259c4821efd3aafe80dce5a3b64af917dc12a843ac5a",
+        "url": "https://finnhub.io/api/news?id=8a5a66a8a0e7728bf743194972bc55c84e70dc75c7621014f358a6ab1cb88d13",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -270,14 +285,36 @@
         }
       },
       {
-        "ticker": "TSLA",
-        "headline": "Democrats Retake the House and Senate: Here's What It Could Mean for SpaceX and Tesla",
-        "catalyst_type": "regulatory_risk",
+        "ticker": "AMZN",
+        "headline": "The Trade Desk Jumps 8% Ahead of Earnings; Magnite Gains 2%, AppLovin Dips",
+        "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T13:20:00",
+        "published": "2026-11-09T13:46:28",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=ed7b1579f3155eb402c0e995f25b6e6cc8388d2118015073a7a15c1eb32e918d",
+        "url": "https://finnhub.io/api/news?id=c14fe188fd8159cf73f32fbf06e004cd1ac72eea062dfef244f138984e4dc432",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "META",
+        "headline": "Nvidia Stock Falls 5%. What That Tells Us About CEO Jensen Huang\u2019s Future.",
+        "catalyst_type": "management_change",
+        "source": "finnhub",
+        "published": "2026-11-09T12:02:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=fce9e0bc339a08c387cc5901e3c24b8afc404737371498a431803af6682ddb80",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -293,13 +330,13 @@
       },
       {
         "ticker": "JPM",
-        "headline": "Fast-Money Systematic Funds Stoked $2.3 Trillion Tech-Stock Rout",
-        "catalyst_type": "FDA/regulatory",
+        "headline": "JPMorganChase Provides $1.75 Million to Help Thousands of Veteran and Military Spouse Entrepreneurs Grow Their Businesses, Compete for Contracts, and Create Jobs",
+        "catalyst_type": "contract/partnership",
         "source": "finnhub",
-        "published": "2026-11-06T10:30:31",
+        "published": "2026-11-09T13:00:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=4536291c70e716d5b5209e61549d68cca60f5c83906d4e6b7ced2653bca5dbe3",
+        "url": "https://finnhub.io/api/news?id=cf8a9c427b35c1ff85346a6e57d9435f178a0b3c3046e41212ccb1a3ce680044",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -314,14 +351,14 @@
         }
       },
       {
-        "ticker": "V",
-        "headline": "Mastercard's 19% Services Growth Steals the Q3 Show: Buy or Hold MA?",
-        "catalyst_type": "earnings",
+        "ticker": "JPM",
+        "headline": "DraftKings Faces Three Analyst Downgrades \u2014 JPMorgan Says It\u2019s \u2018Increasingly Difficult To Recommend\u2019 The Stock",
+        "catalyst_type": "analyst_action",
         "source": "finnhub",
-        "published": "2026-11-06T12:28:00",
+        "published": "2026-11-09T11:14:51",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=3c17501c89b14c0541c0ad15b5ce0fa979a50ef527e394f103bd2f47f243c889",
+        "url": "https://finnhub.io/api/news?id=9ab5ccb8ee7150083555fa290cd9e07d0d06de9ebb3c15cc917046c3d78ad4fe",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -336,14 +373,58 @@
         }
       },
       {
-        "ticker": "V",
-        "headline": "Financial Select Sector SPDR (XLF) Buys $70.9 Million More Berkshire on Nov. 4",
+        "ticker": "JPM",
+        "headline": "What State Street Fin Select Sector SPDR (XLF) Sold: Berkshire Leads on Thursday",
         "catalyst_type": "management_change",
         "source": "finnhub",
-        "published": "2026-11-06T11:04:56",
+        "published": "2026-11-09T11:05:08",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=f2c7765f9d7a9d509f07ca1948a338cc61f148dfecf1c7122816a8ee792885de",
+        "url": "https://finnhub.io/api/news?id=96b91162eef161aa596f577ef610aeae86eaeb752bb6f87104e9b008243830cf",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "V",
+        "headline": "Byzfunder to Participate Alongside Leading Fintech Executives and Investors at Exclusive 2026 KBW Fintech Ecosystem Conference",
+        "catalyst_type": "management_change",
+        "source": "finnhub",
+        "published": "2026-11-09T13:07:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=9bc822ccdc36bf2a5519bc8e8dbbe8dc42f083805f92b649b14d5d67f7005b3c",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "V",
+        "headline": "What SPDR Dow Jones Industrial Avg ETF (DIA) Sold: Goldman Leads on Nov. 5",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-09T11:04:45",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=fbf8d9598f5d872f1ff9150966f3d222d0944601bb18ebb7e005e8ba1831d3bc",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -359,13 +440,13 @@
       },
       {
         "ticker": "UNH",
-        "headline": "Dow Jones Top Decliners: NVIDIA and Cisco Post Steepest Losses in Today's Session",
-        "catalyst_type": "earnings",
+        "headline": "Gabelli Releases Agenda for 8th Annual Healthcare Symposium",
+        "catalyst_type": "FDA/regulatory",
         "source": "finnhub",
-        "published": "2026-11-05T20:11:07",
+        "published": "2026-11-09T13:00:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=64f655ac143a4694ef88b55b1e7fc07dbc4568eb115d25e2db6c91062ad5a2cf",
+        "url": "https://finnhub.io/api/news?id=2c1c0efdd4060cf92bbf7275d89e7bd8928526271b7c816d4dde9afc1c61a043",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -380,36 +461,14 @@
         }
       },
       {
-        "ticker": "XOM",
-        "headline": "Stock Picks From Seeking Alpha's October 2026 New Analysts",
-        "catalyst_type": "management_change",
-        "source": "finnhub",
-        "published": "2026-11-06T08:00:00",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=0536342b8d6ca6465e69017a87b005e9944ec65b66747fbbae1ea0bac7178a3d",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "XOM",
-        "headline": "Targa Resources Corp. Q3 2026 Earnings Call Summary",
+        "ticker": "UNH",
+        "headline": "UnitedHealth (UNH): A Dow Stock for 2027 Where the Margin Repair Is Starting to Show",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-05T23:02:35",
+        "published": "2026-11-08T17:36:58",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=af1f326f7b4a330980ce900a10422578e6bd191a9e85bc043c992f97ea666626",
+        "url": "https://finnhub.io/api/news?id=ead39437273b290c34023679add0f53efa0687b922757d4fe436740cddc19077",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -425,35 +484,13 @@
       },
       {
         "ticker": "CVX",
-        "headline": "Diamond Hill Large Cap Fund Q3 2026 Portfolio Update",
-        "catalyst_type": "earnings",
+        "headline": "3 Dividend Aristocrats Yielding More Than the 2027 COLA",
+        "catalyst_type": "corporate_action",
         "source": "finnhub",
-        "published": "2026-11-06T09:35:00",
+        "published": "2026-11-09T12:37:54",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=8544bd5e50101d54620f2806534dc81e9dcd756bdb6963f9f17943b4a2a864be",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "CVX",
-        "headline": "Top Stock Reports for Berkshire Hathaway, Micron & Chevron",
-        "catalyst_type": "management_change",
-        "source": "finnhub",
-        "published": "2026-11-05T20:09:00",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=de0d8bf6960bf6845c9fddd23569a4137a0e4330aac1db423a3a040fb8cb5a4c",
+        "url": "https://finnhub.io/api/news?id=d4294fb43bbe1c2e52efa3bb96ab577fead86bd9ab55592c5fb2f99599671943",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -469,145 +506,13 @@
       },
       {
         "ticker": "LLY",
-        "headline": "Eli Lilly Partners With Hims & Hers to Expand Access to Obesity Treatments Through Telehealth",
-        "catalyst_type": "FDA/regulatory",
+        "headline": "Eli Lilly Shares Rise 2.35% After Jefferies Raises Price Target to $1,700",
+        "catalyst_type": "analyst_action",
         "source": "finnhub",
-        "published": "2026-11-06T12:51:05",
+        "published": "2026-11-09T13:29:19",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=5739395478329288f84440c9ac00d031619a7df83382cfb54f8dd87e5febba64",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "JNJ",
-        "headline": "5 High-Yield Dividend Stocks That Could Hold Up When the Market Falls",
-        "catalyst_type": "corporate_action",
-        "source": "finnhub",
-        "published": "2026-11-06T13:32:58",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=ef8f6aba59bc2da9db99d6c7aa2f9ed4b819ff2b961e3899f4197cea8dce742d",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "JNJ",
-        "headline": "Johnson & Johnson wins FDA approval for Rybrevant cancer treatment",
-        "catalyst_type": "FDA/regulatory",
-        "source": "finnhub",
-        "published": "2026-11-06T02:47:17",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=02adcfc3ec463f6b89b369f3b7737badb4b53a5778766881d54031258b96ae75",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "WMT",
-        "headline": "Costco Stock: Earnings Growth Could Shape the Next Big Move",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-11-06T13:33:45",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=cc423c34517bc7b4f3f4954b5c7afe5d7c75a8fa85abef6e3cd9110e41584589",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "WMT",
-        "headline": "Best Buy\u2019s Dividend Is Barely Growing. Should Income Investors Be Worried?",
-        "catalyst_type": "corporate_action",
-        "source": "finnhub",
-        "published": "2026-11-06T12:47:27",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=8a861caf08be0cd57da15475ab4dab022aa328bd9aeb1207aca3652060a6635e",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "COIN",
-        "headline": "Democrats Reportedly Push CLARITY Act Rewrite to Expand SEC Powers",
-        "catalyst_type": "regulatory_risk",
-        "source": "finnhub",
-        "published": "2026-11-06T10:04:08",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=f9a440f4b749753a18acb291defba5d4769ef56b4d786fd67d757f2afe41b26d",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "COIN",
-        "headline": "Hyperliquid Strategies Posts $620.6 Million Profit, Applies to Become a Futures Broker",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-11-06T10:00:00",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=7ec05883e72d8f09c9c865254545a006c9150ebb4d72c2fa575dd87276b618aa",
+        "url": "https://finnhub.io/api/news?id=9a8f9db71b481f3d5b4e0c77f3fb8c68740cf9b3183886370aacf804eb0d8b91",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -623,13 +528,13 @@
       },
       {
         "ticker": "AMD",
-        "headline": "Nvidia, AMD, and Micron stocks lead chip sector higher following worst sell-off since 2020",
+        "headline": "NVIDIA Falls 5% as Board Probes Jensen Huang\u2019s Ties to Alleged Chinese Spy; AMD Rises 4%, Intel Holds Steady",
         "catalyst_type": "management_change",
         "source": "finnhub",
-        "published": "2026-11-06T13:43:36",
+        "published": "2026-11-09T13:43:56",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=fcafb421bf37c7d10fecc4053acb34663475c6f3cbab26bb12a437d2f946f831",
+        "url": "https://finnhub.io/api/news?id=aa4650f77a1393c3a32eaef59685403a315a65ab3ed4daa2d784ae2404b2392f",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -644,14 +549,102 @@
         }
       },
       {
-        "ticker": "ORCL",
-        "headline": "Michael Burry Dumps 25% of His Semiconductor Bet Amid Brutal Tech Selloff",
-        "catalyst_type": "management_change",
+        "ticker": "AMD",
+        "headline": "Oppenheimer lifts AMD to Outperform, sees data center sales more than doubling",
+        "catalyst_type": "analyst_action",
         "source": "finnhub",
-        "published": "2026-11-06T13:12:44",
+        "published": "2026-11-09T13:36:29",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=787003012fa0b45e9ab5169a32dc0ba8945ff8934c600b316137ecd56cdbf308",
+        "url": "https://finnhub.io/api/news?id=5b7f0915c80b49f64725f3422568638f7b6a370c3ae48dfe03617604113f4eab",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "AMD",
+        "headline": "Google expands AI chip lineup as Nvidia faces CEO spy scandal",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-09T13:14:04",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=83e8d1d86eb0f439bdd3c94ce1032bd9e776c950c36a0800513a70561351e43e",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "INTC",
+        "headline": "Micron Has Lost Over 40% Since June. Where Does Its Price Target Stand Now?",
+        "catalyst_type": "analyst_action",
+        "source": "finnhub",
+        "published": "2026-11-09T13:47:17",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=adf5b37d00f0b8787019aa73817d9664bd2d521b1fd7f0707aacd2cd0cb707e9",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "QCOM",
+        "headline": "Alphabet Makes $548 Million In Major Tech Stock, Keeps Massive SpaceX Stake",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-11-09T13:30:14",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=855f04fbbc9548b572911a1358296cb2147c765da3ebbe8fccfe3fa284fefada",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "AVGO",
+        "headline": "Broadcom Inc. to Announce Fourth Quarter and Fiscal Year 2026 Financial Results on Wednesday, December 9, 2026",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-11-09T13:00:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=7b9d6e0efd6b41b192a10ace8946c31493808777feb31da9028e3b0d5461d74a",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -667,13 +660,13 @@
       },
       {
         "ticker": "BA",
-        "headline": "Defense Watch: Strong Q3 Earnings, New Military Contracts,\u00a0But Democrats\u2019 Sweep Poses Spending Hurdles",
-        "catalyst_type": "earnings",
+        "headline": "How much SpaceX stock does CEO Elon Musk actually own?",
+        "catalyst_type": "management_change",
         "source": "finnhub",
-        "published": "2026-11-06T12:00:00",
+        "published": "2026-11-09T00:42:41",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=da4e98194b4a180cc73f370e30e6572cf5272ec888a59a94cff567a65d8a9807",
+        "url": "https://finnhub.io/api/news?id=9cc362e9dd434891f823cfd847f28230d4f8e2b96218cf2f08814e34bb3f18c6",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -688,14 +681,36 @@
         }
       },
       {
-        "ticker": "GS",
-        "headline": "Goldman Sachs promotes 109 executives to partner rank",
-        "catalyst_type": "management_change",
+        "ticker": "CAT",
+        "headline": "Cummins After Q3: Is the Stock a Buy on AI Data Center Boom?",
+        "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T12:17:00",
+        "published": "2026-11-09T12:45:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=09df1ba101cf95d00e9e19bd7103261dca7f5f9e8c146e6a47052012ee14ff07",
+        "url": "https://finnhub.io/api/news?id=20397e4739cb5467358401935f31ed2509e0ad0962616f2658410198e2fa90e7",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "CAT",
+        "headline": "What State Street Industrial Select SPDR (XLI) Sold: GE Leads on Nov. 5",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-09T11:05:48",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=257d735f76dc8e21cda679b447ecbf78934146cf2b6882c4257539bf993eb366",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -711,13 +726,13 @@
       },
       {
         "ticker": "MS",
-        "headline": "Glanbia shares tumble 6% after Morgan Stanley cuts rating to underweight",
-        "catalyst_type": "analyst_action",
+        "headline": "Morgan Stanley backs Iberdrola on accelerating earnings growth",
+        "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T09:20:06",
+        "published": "2026-11-09T11:11:38",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=b958cbb071b8ffadf768b8696ab0ce4532d7815fa8a8339ef70549e6294326a0",
+        "url": "https://finnhub.io/api/news?id=a49cb7113fa499b921ec0948bc3ef2c22f211f9fcdd8bfa2f4750235a9c97165",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -733,13 +748,13 @@
       },
       {
         "ticker": "LMT",
-        "headline": "Lockheed Martin's Sikorsky Selected To Provide S-92A+ Helicopter To South Korea For Its Presidential Helicopter II Program",
+        "headline": "Teledyne Brown Engineering Awarded Subcontract for Next Generation Interceptor Ground Support Equipment",
         "catalyst_type": "contract/partnership",
         "source": "finnhub",
-        "published": "2026-11-06T08:53:02",
+        "published": "2026-11-09T13:00:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=f2c38bded6b11636d7c68a207b42243fd2d779410d3ee10861d8c730000bac79",
+        "url": "https://finnhub.io/api/news?id=863745b097a02cfeb99123e62f5ca9bebf521ba7cae68920ecc2d6c0f6b476cf",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -755,13 +770,13 @@
       },
       {
         "ticker": "LMT",
-        "headline": "Defence row erupts over American bid to build Britain\u2019s military satellites",
-        "catalyst_type": "M&A",
+        "headline": "Wall Street Breakfast Podcast: The Spy Who Loved Nvidia",
+        "catalyst_type": "FDA/regulatory",
         "source": "finnhub",
-        "published": "2026-11-06T07:00:00",
+        "published": "2026-11-09T06:30:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=dbdc3b44d0eb81fb5f9a19e9d7be49d23094dbb1dc36b7d6545fb7db9e5418b5",
+        "url": "https://finnhub.io/api/news?id=c2a64147185315ce3fef75d6784d724cd2acddc78567762af30d444b7b0fce74",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -777,13 +792,35 @@
       },
       {
         "ticker": "NVO",
-        "headline": "What Lexicon Pharmaceuticals (LXRX) Said on Its Q3 Earnings Call",
+        "headline": "Novo Nordisk: Q3 Earnings Bust The Cannibalization Myth",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T09:14:51",
+        "published": "2026-11-09T02:56:35",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=9348380a9e4d4b20782f851c99b4ad62911452d7811e12856d03ce81334c6e0e",
+        "url": "https://finnhub.io/api/news?id=a258925294f25988e7901820a90ea515ce874b4eaaae52645bf282e2dabce7f6",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "NVO",
+        "headline": "Amgen's new drug could mean fewer shots for obesity patients",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-08T22:47:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=c2a3fcd86353563549164ee43e28757f54182bbf471b00b9a503631f745a6874",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -799,13 +836,13 @@
       },
       {
         "ticker": "ABBV",
-        "headline": "3 Dividend Kings to Buy in November and Never Sell",
-        "catalyst_type": "corporate_action",
+        "headline": "What Happens To Pfizer Stock If Patent Losses Outpace New Drugs?",
+        "catalyst_type": "FDA/regulatory",
         "source": "finnhub",
-        "published": "2026-11-05T20:05:00",
+        "published": "2026-11-09T12:45:56",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=d83da81015849764417872059b1a32cdbdaf5741f3875c5b1ce34e17e841ee08",
+        "url": "https://finnhub.io/api/news?id=895c30a604c642d18adc2ca87464c2cbaadd23a49ebbd1555a7b2fbae9351dbd",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -821,13 +858,13 @@
       },
       {
         "ticker": "MRK",
-        "headline": "Moderna Stock Is Up 700% on Cancer Vaccine Hype. Earnings Reveal That Covid Still Counts.",
+        "headline": "MRK's 2027 Outlook Challenging, Long-Term Prospects Promising",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T13:04:00",
+        "published": "2026-11-09T12:48:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=2b868db8192e78ffcd31a073ba0cafa51122346de7263e4ab3aae00db576766b",
+        "url": "https://finnhub.io/api/news?id=fc1c421dcf026b168b548e7f5ee646291ddd3e3f68810ef48f87932ed2a5b0ed",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -843,13 +880,13 @@
       },
       {
         "ticker": "PFE",
-        "headline": "Buy, Sell, or Hold? Friday\u2019s Top Upgrades and Downgrades: Becton Dickinson, BJ\u2019s Wholesale Club, Cogent Communications, Fervo Energy, JinkoSolar, Molson-Coors, Pfizer, SiTime, Steven Madden, and More",
-        "catalyst_type": "management_change",
+        "headline": "Medicus Pharma sharpens focus on Pfizer-licensed cancer drug CD228V, trims costs in Q3",
+        "catalyst_type": "FDA/regulatory",
         "source": "finnhub",
-        "published": "2026-11-06T13:00:10",
+        "published": "2026-11-09T13:33:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=ba906ff1eb7f88936b6a073cbb7dd3c83db9bbcd6c8a546471ff88233a97cc39",
+        "url": "https://finnhub.io/api/news?id=078b85315fff1b423ee39f55e3580600fa40b32821cfafdc99464f71442bd0dd",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -865,13 +902,13 @@
       },
       {
         "ticker": "PFE",
-        "headline": "November Buy: 6 IDEAL S&P 500 'Safer' Dividend Dogs",
-        "catalyst_type": "M&A",
+        "headline": "Medicus Pharma to Highlight Rationale for CD228V Co-Development and License Agreement",
+        "catalyst_type": "contract/partnership",
         "source": "finnhub",
-        "published": "2026-11-06T10:00:00",
+        "published": "2026-11-09T12:30:00",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=cd5280782e88bd36c8a2b3e80634759ea321aba0512712c145c12490097fa652",
+        "url": "https://finnhub.io/api/news?id=220778f9448b6adaad1b31cb9b493d98589ff8fa8caaa8e3bd297aa48cb98c65",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -887,123 +924,101 @@
       },
       {
         "ticker": "MRNA",
-        "headline": "Moderna Stock Soars After $162 Million Profit Reverses Last Year's Loss",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-11-06T13:30:21",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=5a8a20ee0bf55b2c1aeb596d12ef38d39e7219d36579cfcdcb48359aca324dd5",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "RIVN",
-        "headline": "Zero To Sixty: Fort Worth Gets Tesla Robotaxi While UBS Upgrades Rivian And Citigroup Shuffles EV Holdings",
-        "catalyst_type": "analyst_action",
-        "source": "finnhub",
-        "published": "2026-11-06T00:54:24",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=14a991b8f5572a0e542975741a6a8ccbeb9fd866414d6f4998a909ed809cd615",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "RIVN",
-        "headline": "Citi Loads Up On Tesla, Lucid And Rivian In Q3 While Slashing XPeng, General Motors",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-11-05T17:14:38",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=77a15cc6acdfe88dce6e4fcc2ce99a3e512c1e0c085d2acef037c2117be94d72",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "F",
-        "headline": "Who Is Paying For Rivian's Cash Burn?",
-        "catalyst_type": "FDA/regulatory",
-        "source": "finnhub",
-        "published": "2026-11-06T12:21:19",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=ccd2fbcfcd3a057b5497a08471292fcf76b89ce1c134c319a17e57e3261d0438",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "F",
-        "headline": "Stark-based Timken Co. suing to prevent auto 'supply chain hostage'",
-        "catalyst_type": "operational_event",
-        "source": "finnhub",
-        "published": "2026-11-06T10:59:31",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=6c4af40d50735835250df30feaedeb61b42f89e3d19414b6706f21c8c3001809",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "GM",
-        "headline": "Elon Musk Confirms Cybertruck Production Wind-Down at Texas Factory as Tesla Makes Room for Cybercab",
+        "headline": "Stock Market Today: Nvidia Board Opens Probe Into Jensen Huang as Wall Street Licks Its AI Wounds",
         "catalyst_type": "management_change",
         "source": "finnhub",
-        "published": "2026-11-06T04:02:09",
+        "published": "2026-11-09T08:40:38",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=97191dacee47faa0f42659e088660ee289eb5dec451e2ec6e377140ae5411c39",
+        "url": "https://finnhub.io/api/news?id=037d5a7497094658b8f5ca3f4adab844ede8aff4ac0d2ad7143c0d53e11672dd",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "BNTX",
+        "headline": "HC Wainwright & Co. Maintains Buy on BioNTech, Lowers Price Target to $110",
+        "catalyst_type": "analyst_action",
+        "source": "finnhub",
+        "published": "2026-11-09T08:40:51",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=54d4282f91931fa3ec95c15e45881edb3fc6be529a63c33a495803c107eb3a7f",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "RIVN",
+        "headline": "EV Company News For The Month Of October 2026",
+        "catalyst_type": "management_change",
+        "source": "finnhub",
+        "published": "2026-11-08T23:06:32",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=0df355ef4d97d302f00835da7fe6e66ad22fa0cfa9ce13c597f7d784387ffcef",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "F",
+        "headline": "Can OnStar and Super Cruise Drive GM's Digital Revenue Growth?",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-11-09T12:49:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=49fee895784f9f012eaf3c5bb69316b1e0a273b861e6036eebfe8da93cfd0556",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "F",
+        "headline": "Car shoppers hunt for a bargain, yet pickups remain immune to inflation",
+        "catalyst_type": "FDA/regulatory",
+        "source": "finnhub",
+        "published": "2026-11-09T11:02:19",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=acd6b8dbd197ae73ea47de701e993d956f9f5f3d2013d74a4f9bcd697e20a545",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1019,13 +1034,13 @@
       },
       {
         "ticker": "GM",
-        "headline": "MP Materials Rare Earth Earnings Were Rock Solid. What\u2019s Up With the Stock?",
-        "catalyst_type": "earnings",
+        "headline": "General Motors (GM) Could Be 17% Undervalued After $220 Million OnStar Settlement",
+        "catalyst_type": "regulatory_risk",
         "source": "finnhub",
-        "published": "2026-11-05T21:32:00",
+        "published": "2026-11-08T21:09:07",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=70e43b9efa4cfbb9d4c9e7593c4e0a308f1bf1a30561ac8d25384b5a66e85646",
+        "url": "https://finnhub.io/api/news?id=c2780decb7e8c9d2e5e1e9a4d595700647c7d41ac8d039007fb7f5d61451fdbe",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1040,36 +1055,36 @@
         }
       },
       {
-        "ticker": "LYFT",
-        "headline": "DraftKings Posts Downbeat Q3 Results, Joins Atlassian, Natera And Other Big Stocks Moving Lower In Friday\u2019s Pre-Market Session",
-        "catalyst_type": "earnings",
-        "source": "finnhub",
-        "published": "2026-11-06T09:03:06",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=e405cfc8a0c96beb47ba5c6844abeedd9c119814a4e45cc3a5672d557969b2de",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low_fresh",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "LYFT",
-        "headline": "Rosenblatt Maintains Neutral on Lyft, Lowers Price Target to $18",
+        "ticker": "UBER",
+        "headline": "Waymo Faces a Recall Query on 2,895 Robotaxis. Alphabet\u2019s Earnings Won\u2019t Feel It, but Its $126 Billion Bet Might",
         "catalyst_type": "FDA/regulatory",
         "source": "finnhub",
-        "published": "2026-11-06T08:36:02",
+        "published": "2026-11-09T13:15:53",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=cd08dcfcf7e4276fa2a9a1339c60e912bb19888f9a8e48e54ee76969f6d647bd",
+        "url": "https://finnhub.io/api/news?id=37181097a3a0f2354d4910e1bae91a70ae8f99b6fefed54f42eb01de79108499",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "UBER",
+        "headline": "McDonald\u2019s and Uber Expand Global Partnership Across Delivery and Loyalty in 14 Markets",
+        "catalyst_type": "contract/partnership",
+        "source": "finnhub",
+        "published": "2026-11-09T13:00:00",
+        "freshness": "today",
+        "freshness_score": 3,
+        "url": "https://finnhub.io/api/news?id=17965c99727b260c9b661f7f0c8f52c2b72ed98ccf3f7d4e509bbdaf1262c305",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1088,10 +1103,10 @@
         "headline": "Robotaxis Aren't Killing Lyft's Business: CEO Says Company Is Growing in AV Markets, Details Waymo Partnership",
         "catalyst_type": "contract/partnership",
         "source": "finnhub",
-        "published": "2026-11-06T06:27:04",
+        "published": "2026-11-09T01:30:05",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=040b018be0488cfcef58ec60e7f8f672902620b8de041e53c4d7182c89225582",
+        "url": "https://finnhub.io/api/news?id=12c53c5470529279644b15ef638d4ce7303615539f23559eb8a66dab65dd468d",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1106,20 +1121,42 @@
         }
       },
       {
-        "ticker": "PYPL",
-        "headline": "PayPal Is Up 15% in Six Months After a Q3 Beat: Take Profits, or Buy More?",
+        "ticker": "SHOP",
+        "headline": "3 Growth Stocks With Earnings Growth Over 20%",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T11:04:54",
+        "published": "2026-11-08T22:07:19",
         "freshness": "today",
         "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=f2cc6151c6c4579c082059749262d8423e3eb661e51d53b66877ffde596dfee9",
+        "url": "https://finnhub.io/api/news?id=74e4b38d9e8d21cf03198f1ccdd19973972a05bf3e7288e7984faf1791c2b650",
         "confirmed_by_sources": [
           "finnhub"
         ],
         "source_count": 1,
         "signal_confidence": {
           "level": "low_fresh",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "CRM",
+        "headline": "Braze (BRZE) Stock May Be 17% Undervalued Following Its Cash Takeover Offer",
+        "catalyst_type": "M&A",
+        "source": "finnhub",
+        "published": "2026-11-08T06:11:08",
+        "freshness": "yesterday",
+        "freshness_score": 2,
+        "url": "https://finnhub.io/api/news?id=35d07f771d13fe5f9b9887e8faad0282d1b3a40ae4410627297ea584f0c0314b",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low",
           "sources_count": 1,
           "sources": [
             "finnhub"
@@ -1129,19 +1166,19 @@
       },
       {
         "ticker": "SNOW",
-        "headline": "eGain (EGAN) Q1 Earnings and Revenues Top Estimates",
+        "headline": "What Teradata (TDC) Said on Its Q3 Earnings Call",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-06T00:00:18",
-        "freshness": "today",
-        "freshness_score": 3,
-        "url": "https://finnhub.io/api/news?id=630a4eccd58dd806907fa410f602f3cc317f4c6d0c8ef19d6edb0e2124abc313",
+        "published": "2026-11-08T07:14:12",
+        "freshness": "yesterday",
+        "freshness_score": 2,
+        "url": "https://finnhub.io/api/news?id=4cf6ab5fd2b231f817c5baac5e11114f493f7600e46bf18fc2f1585f65cd7ecb",
         "confirmed_by_sources": [
           "finnhub"
         ],
         "source_count": 1,
         "signal_confidence": {
-          "level": "low_fresh",
+          "level": "low",
           "sources_count": 1,
           "sources": [
             "finnhub"
@@ -1150,14 +1187,58 @@
         }
       },
       {
-        "ticker": "AMZN",
-        "headline": "Amazon Stock Fell After Earnings. Should Investors Be Worried?",
+        "ticker": "GOOGL",
+        "headline": "Are Big Tech stock buybacks officially dead?",
+        "catalyst_type": "corporate_action",
+        "source": "newsapi",
+        "published": "2026-11-05T16:41:01",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://biztoc.com/x/c8b8b2bfc4cb238e",
+        "confirmed_by_sources": [
+          "newsapi"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low",
+          "sources_count": 1,
+          "sources": [
+            "newsapi"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "META",
+        "headline": "Report: Apple\u2019s planned $7 billion bond sale attracts four times as much demand",
+        "catalyst_type": "FDA/regulatory",
+        "source": "newsapi",
+        "published": "2026-11-05T19:43:10",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://9to5mac.com/2026/11/05/report-apples-planned-7-billion-bond-sale-attracts-four-times-as-much-demand/",
+        "confirmed_by_sources": [
+          "newsapi"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low",
+          "sources_count": 1,
+          "sources": [
+            "newsapi"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "JPM",
+        "headline": "JPMorgan stock (JPM) slides as Democrats plan probe into Jeffrey Epstein ties: Could bank executives face Senate scrutiny?",
         "catalyst_type": "earnings",
         "source": "newsapi",
-        "published": "2026-11-04T15:45:38",
-        "freshness": "yesterday",
-        "freshness_score": 2,
-        "url": "https://biztoc.com/x/6117002de37753a5",
+        "published": "2026-11-05T19:39:15",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://economictimes.indiatimes.com/news/international/us/jpmorgan-stock-jpm-slides-as-democrats-plan-probe-into-jeffrey-epstein-ties-could-bank-executives-face-senate-scrutiny/articleshow/135585450.cms",
         "confirmed_by_sources": [
           "newsapi"
         ],
@@ -1177,8 +1258,8 @@
         "catalyst_type": "analyst_action",
         "source": "newsapi",
         "published": "2026-11-04T19:50:02",
-        "freshness": "yesterday",
-        "freshness_score": 2,
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
         "url": "https://biztoc.com/x/6e60783f059e8585",
         "confirmed_by_sources": [
           "newsapi"
@@ -1194,36 +1275,14 @@
         }
       },
       {
-        "ticker": "NVO",
-        "headline": "Novo Nordisk A/S: Trading in Novo Nordisk shares by board members, executives and associated persons",
-        "catalyst_type": "management_change",
-        "source": "finnhub",
-        "published": "2026-11-05T15:02:00",
-        "freshness": "yesterday",
-        "freshness_score": 2,
-        "url": "https://finnhub.io/api/news?id=288fab30aeb2c9d31c677a49fb23ff2db7b4453a239d3d386999d1991c2d59bd",
-        "confirmed_by_sources": [
-          "finnhub"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "finnhub"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "BNTX",
-        "headline": "BioNTech SE 2026 Q3 - Results - Earnings Call Presentation",
+        "ticker": "RTX",
+        "headline": "Ducommun Q3 Earnings Call Highlights",
         "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-04T23:06:37",
-        "freshness": "yesterday",
-        "freshness_score": 2,
-        "url": "https://finnhub.io/api/news?id=5227da18ad74290e9231003375942d7563d878a7924e13bc2ffcbdf22577c3a1",
+        "published": "2026-11-07T08:16:24",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://finnhub.io/api/news?id=681634fef426319f8cd6a211716ee6b712f9f2952df36151f20b25bceb8c627f",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1239,13 +1298,35 @@
       },
       {
         "ticker": "BNTX",
-        "headline": "UBS Maintains Buy on BioNTech, Lowers Price Target to $125",
-        "catalyst_type": "analyst_action",
+        "headline": "Moderna Climbs 5% as Surprise Profit and Raised Outlook Beat Forecasts; Pfizer Dips, BioNTech Edges Higher",
+        "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-04T19:14:42",
-        "freshness": "yesterday",
-        "freshness_score": 2,
-        "url": "https://finnhub.io/api/news?id=41564fcb03f4e792802f9cefbeb7a090b05f8854183d1d1409dfb3809ee228b1",
+        "published": "2026-11-06T16:05:54",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://finnhub.io/api/news?id=a19bfe307f06da5eb3ae0c2e12bd5b888502c4c6a9d21ae92ffe1c196a51c09d",
+        "confirmed_by_sources": [
+          "finnhub"
+        ],
+        "source_count": 1,
+        "signal_confidence": {
+          "level": "low",
+          "sources_count": 1,
+          "sources": [
+            "finnhub"
+          ],
+          "note": "single source \u2014 treat with caution"
+        }
+      },
+      {
+        "ticker": "RIVN",
+        "headline": "Is Rivian Automotive (RIVN) A Bargain As Cash Flow Improves?",
+        "catalyst_type": "earnings",
+        "source": "finnhub",
+        "published": "2026-11-06T19:15:12",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://finnhub.io/api/news?id=f6e90b83723af008aa065bb28611058f531c504fb461a4f6438d02e6a3a5c78e",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1261,13 +1342,13 @@
       },
       {
         "ticker": "PYPL",
-        "headline": "2 Fintech Stocks to Buy After They Raised Their 2026 Forecasts in October",
-        "catalyst_type": "management_change",
+        "headline": "PayPal Holdings (PYPL) Could Be 13% Undervalued On Mixed Third Quarter Earnings",
+        "catalyst_type": "earnings",
         "source": "finnhub",
-        "published": "2026-11-05T10:50:00",
-        "freshness": "yesterday",
-        "freshness_score": 2,
-        "url": "https://finnhub.io/api/news?id=65592dbd1c4837df54eda96383401d9a1254aea7077cad7268b310433ead9866",
+        "published": "2026-11-06T23:09:44",
+        "freshness": "2-5 days ago",
+        "freshness_score": 1,
+        "url": "https://finnhub.io/api/news?id=b95a50801ef1acc47e26cd5959d43e43f809fa4ba2db23f24381b765901bfd03",
         "confirmed_by_sources": [
           "finnhub"
         ],
@@ -1282,101 +1363,13 @@
         }
       },
       {
-        "ticker": "AAPL",
-        "headline": "Despite posting record earnings, Apple stock swoons",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-11-03T14:06:30",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://macdailynews.com/2026/11/03/despite-posting-record-earnings-apple-stock-swoons/",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "AMZN",
-        "headline": "Stock Market Today: Dow Rallies As Amazon Pops; Oil Stocks Skid On These Hopes (Live Coverage)",
-        "catalyst_type": "analyst_action",
-        "source": "newsapi",
-        "published": "2026-11-02T17:22:38",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://biztoc.com/x/6e96a655dddf9c37",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "JPM",
-        "headline": "Titan Q2 preview: Brokerages see up to 27% PAT growth, led by jewellery biz",
-        "catalyst_type": "earnings",
-        "source": "newsapi",
-        "published": "2026-11-04T05:13:22",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://www.business-standard.com/markets/news/titan-q2-preview-brokerages-see-up-to-27-pat-growth-led-by-jewellery-biz-126110400475_1.html",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
-        "ticker": "XOM",
-        "headline": "Securitize expands tokenized US stock offering to 25 equities",
-        "catalyst_type": "M&A",
-        "source": "newsapi",
-        "published": "2026-11-02T19:19:21",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
-        "url": "https://cryptobriefing.com/securitize-expands-tokenized-stocks-25-equities/",
-        "confirmed_by_sources": [
-          "newsapi"
-        ],
-        "source_count": 1,
-        "signal_confidence": {
-          "level": "low",
-          "sources_count": 1,
-          "sources": [
-            "newsapi"
-          ],
-          "note": "single source \u2014 treat with caution"
-        }
-      },
-      {
         "ticker": "BNTX",
         "headline": "Human Genome Sciences Announces Rejects Offer from GlaxoSmithKline; HGS Board of Directors Authorizes Exploration of Strategic Alternatives   ",
         "catalyst_type": "M&A",
         "source": "finnhub",
         "published": "2026-11-04T14:25:08",
-        "freshness": "2-5 days ago",
-        "freshness_score": 1,
+        "freshness": "stale (>5 days)",
+        "freshness_score": 0,
         "url": "https://finnhub.io/api/news?id=767034aa492baf2d4eabfc6e27c7e418c0ed1536957fecf956e1cf8d1747ddfc",
         "confirmed_by_sources": [
           "finnhub"
@@ -1394,130 +1387,152 @@
     ],
     "market_catalysts": [
       {
-        "headline": "Watch live: Jim Cramer shares his next investing moves for this tough market",
+        "headline": "Eli Lilly\u2019s Foundayo obesity pill eases sleep apnea in late-stage trial, paving way for approval",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Family offices boost startup investments in October, backing women's health and caregivers",
+        "headline": "Goodyear Tire CEO Mark Stewart steps down as company continues turnaround plan",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Wall Street's fear gauge may be flashing a buy sign",
+        "headline": "Jim Cramer's top 10 things to watch in the stock market Monday",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Our top 10 things to watch in the stock market Friday",
+        "headline": "Home listings pile up in October, but sellers won't slash prices",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Iran war spurs crackdown on clerics in tiny Gulf state Bahrain - Reuters",
+        "headline": "Trump to meet Iran war mediator Qatar, no imminent deal seen to end the war - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Market sell-off hits hard: Advisors say 'stay the course with an eye on buying'",
+        "headline": "Iran defends two-day proposal for peace talks after US rejects conditions - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "'The whole landscape changed': Gaming CEOs see new opportunities post-midterms",
+        "headline": "Saudi Arabia says danger passed in Riyadh after alert, day after Houthi attack - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Tesla to wind down Cybertruck production in Texas next year to ramp Cybercab, Musk says",
+        "headline": "UAE's Gargash warns of prolonged regional uncertainty, says US-Iran settlement appears difficult - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Small retailers brace for 'huge hit' this holiday season as shipping costs spike",
+        "headline": "Iran says no unauthorised vessels transited Strait of Hormuz overnight after navigation aids destroyed - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Could CRISPR cure rare diseases before birth? Scientists are getting closer",
+        "headline": "Gold gains as lower oil prices ease inflation fears - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Outside groups urge congressional Dems to target corporate interests over Trump",
+        "headline": "Indian shares inch higher to close at 8-month high as crude oil drops - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Montana votes to ban corporate political money. Next stop? Probably the Supreme Court",
+        "headline": "Asian stocks steady as AI, Mideast jitters recede; dollar firm on Fed bets - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Pakistan's leaders dread US Democrats' win but its households are praying for it - Reuters",
+        "headline": "Trump to meet Qatar's prime minister as Iran diplomacy faces hurdles - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Markets fret over growth and inflation, just as tech rout gains speed - Reuters",
+        "headline": "COP31 to open in Turkey, with climate goals under pressure from war and AI - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Brent oil price benchmark set for biggest weekly drop since 2020 - Reuters",
+        "headline": "Trump thinks he will meet Xi and Putin at China APEC summit - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "As high oil prices curb demand, fresh signs of glut appear - Reuters",
+        "headline": "Oil falls as Trump signals restraint on Iran despite fresh shipping attacks - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Hegseth vows to keep fighting from Pentagon, defends Iran war - Reuters",
+        "headline": "Iraq's Khor Mor gas field suspends output after drone attack, operator says - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Nasdaq drops into correction territory \u2014 here\u2019s what typically happens next",
+        "headline": "Iraq has reached understandings with US to allow oil exports through Hormuz, minister says - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Retail traders dump the most stocks in a single day since Covid sell-off",
+        "headline": "US asks Iraq to shut most Iran border crossings, Iraqi foreign minister says - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       },
       {
-        "headline": "Israel's president pledges to pick candidate on Sunday to form government - Reuters",
+        "headline": "Trump says he is unlikely to order Iran attack if talks progress, CNN reports - Reuters",
         "source": "finnhub",
         "freshness": "today",
         "freshness_score": 3
       }
     ],
-    "upcoming_earnings": [],
+    "upcoming_earnings": [
+      {
+        "ticker": "ASII",
+        "date": "2026-11-20",
+        "days_until": 10,
+        "eps_estimate": null,
+        "source": "finnhub"
+      },
+      {
+        "ticker": "BJ",
+        "date": "2026-11-20",
+        "days_until": 10,
+        "eps_estimate": 1.278,
+        "source": "finnhub"
+      },
+      {
+        "ticker": "BMNR",
+        "date": "2026-11-20",
+        "days_until": 10,
+        "eps_estimate": 0.0153,
+        "source": "finnhub"
+      }
+    ],
     "reddit_mentions": {},
     "reddit_enabled": false,
-    "as_of": "2026-11-06 15:39 UTC"
+    "as_of": "2026-11-09 15:40 UTC"
   },
-  "generated_at": "2026-11-06T15:39:34.228729"
+  "generated_at": "2026-11-09T15:40:14.464756"
 }
