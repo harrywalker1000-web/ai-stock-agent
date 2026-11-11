@@ -1,23 +1,24 @@
 {
   "regime": "RISK-OFF",
-  "interest_rate_direction": "rising",
+  "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
     "high-quality bonds",
     "commodities",
-    "inflation-protected securities"
+    "healthcare"
   ],
   "avoid_themes": [
     "high-yield bonds",
-    "growth stocks",
+    "cyclical stocks",
     "emerging markets"
   ],
   "geopolitical_risks": [
-    "US-Iran tensions impacting oil prices",
-    "political instability in Paraguay affecting regional markets"
+    "Iran's nuclear material situation",
+    "Gulf market instability due to regional conflicts",
+    "US inflation impacting consumer spending"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and a negative yield curve suggesting recession risks. Conflicts arise from the differing signals between FRED and yfinance_market, with FRED and newsapi_finnhub both indicating RISK-OFF while yfinance_market remains NEUTRAL. This divergence contributes to a low confidence level in the overall market assessment.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, primarily driven by rising inflation and geopolitical tensions, particularly surrounding Iran. Conflicts arise from differing signals, with FRED and newsapi_finnhub indicating RISK-OFF, while yfinance_market remains NEUTRAL, leading to a low confidence level overall.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -31,14 +32,14 @@
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
       "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from different sources lead to a low confidence level for downstream agents."
+    "confidence_note": "The conflicting signals from the data sources contribute to a low confidence level for market predictions."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.88,
-    "us_10y_yield": 4.86,
-    "us_2y_yield": 4.51,
-    "yield_curve_spread": 0.35,
+    "us_10y_yield": 4.88,
+    "us_2y_yield": 4.56,
+    "yield_curve_spread": 0.32,
     "cpi_latest": 337.48,
     "cpi_prev": 336.3,
     "cpi_trend": "rising",
@@ -46,42 +47,47 @@
     "gdp_latest": 33010.0,
     "gdp_prev": 32563.0,
     "gdp_growth": 1.37,
-    "dxy_current": 102.08,
+    "dxy_current": 102.86,
     "dxy_1m_ago": 102.58,
-    "dxy_trend": "weakening",
-    "vix": 20.18,
-    "tlt_1m_change_pct": 3.62,
-    "hyg_1m_change_pct": -0.14,
+    "dxy_trend": "strengthening",
+    "vix": 18.22,
+    "tlt_1m_change_pct": 3.22,
+    "hyg_1m_change_pct": -0.05,
     "macro_headlines": [
-      "Does anyone feel safe from layoffs right now?",
-      "Jim Cramer's top 10 things to watch in the stock market Tuesday",
-      "Pentagon chief Hegseth calls moves to impeach him a farce that will fail - Reuters",
-      "S&P 500 futures fall sharply after October inflation data - Reuters",
-      "France summons Iran envoy over supermarket fridge hack, warns of response - Reuters",
-      "'Markets bottom on bad news' maxim rings true as chip stocks rally amid Nvidia scandal",
-      "Fed to raise rates once more in December as inflation risks stay high: Reuters poll - Reuters",
-      "Gulf stocks close higher as Trump dials back Iran strike talk - Reuters",
-      "Rubio tells G7 US will keep imposing 'devastating' costs on Iran, diplomats say - Reuters",
-      "Most Americans want new Democratic Congress to end Trump's Iran war, Reuters/Ipsos poll finds - Reuters"
+      "JetBlue's CEO has pushed back on creditor fears and is betting on premium to return to profitability",
+      "Jim Cramer's top 10 things to watch in the stock market Wednesday",
+      "Hoax bomb alerts sent to schools in Italy, UK and Ireland in latest disruption - Reuters",
+      "Gulf markets rise as investors assess Iran war, shipping risks - Reuters",
+      "Mortgage rates jump sharply higher, after easing for four straight weeks. Here's why",
+      "Consumers are showing signs of strain even as they keep spending, CNBC/NRF Retail Monitor shows",
+      "Iran will not allow enriched nuclear material to leave the country, security chief says - Reuters",
+      "Measles is surging in the U.S. \u2014 and outbreaks can cost millions",
+      "Iran warns of domestic gas shortages from war this winter - Reuters",
+      "How Democrats could snarl Trump administration stakes in private-sector companies"
     ],
     "geopolitical_headlines": [
       "How a bank collapse left millions in limbo and toppled Paraguay's president",
-      "Hands-on: Anker\u2019s 10K MagGo 2 Pro offers fast 25W MagSafe charging with a kickstand",
-      "Netanyahu rival given first chance at forming new government",
-      "Paraguay\u2019s ousted president charged over banking scandal",
+      "The future of AI hinges on\u2026 Jensen Huang\u2019s sex life?",
+      "Firms tied to West Bank settlements win $15m UK deals despite sanctions",
+      "Gas prices dip below $4 but inflation remains stubbornly high",
+      "Inflation report to provide 1st snapshot of prices since midterm elections",
+      "Canada reimposes sanctions on Iran for violating nuclear non-proliferation commitments",
+      "Israeli soldiers are also settlers in West Bank: Al Jazeera investigation",
       "I\u2019m Done Supporting My Adult Niece. But Cutting Her Off Is Going to Hurt Someone Else, Too.",
       "Paraguay raids ex-president\u2019s home: Why a bank crash brought down Pena",
-      "I used to work in long-term care. When my mom needed memory care, that experience helped me navigate the costs.",
-      "How Israel\u2019s separation wall compares with the Berlin Wall",
-      "Former Palestinian detainees at mercy of Israel amid perpetual detention",
-      "Goldman Sachs Is Pulling Claude Code from Its Bankers and Traders"
+      "Surface Mouse 2 review: An absolute yes, for the haptics alone"
     ],
     "central_bank_headlines": [
+      "Bitcoin price eyes $74K as Fed rate-hike bets hit 96% after Waller speech",
+      "AI Bubble Tracker",
+      "Dollar sellers hit pause for US inflation data",
       "BTC price eyes $73K amid Nvidia volatility: Three things to know in Bitcoin this week",
-      "US inflation set to cool in October after two months of sharp increases",
-      "FEDS Note: The Effect of Oil Prices on Core Inflation: Recent Evidence from the Advanced Economies"
+      "Dollar sellers hit pause for US inflation data",
+      "Fine in Theory: A Rejoinder to Richard Lyon",
+      "FEDS Note: The Effect of Oil Prices on Core Inflation: Recent Evidence from the Advanced Economies",
+      "Inflation rose 0.4% last month, more than expected | CNN Business"
     ],
-    "as_of": "2026-11-10 15:31 UTC"
+    "as_of": "2026-11-11 15:32 UTC"
   },
-  "generated_at": "2026-11-10T15:32:03.968857"
+  "generated_at": "2026-11-11T15:32:15.309167"
 }
