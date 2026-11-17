@@ -1,25 +1,22 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "inflation-hedged assets",
-    "defensive equities",
-    "commodities",
-    "high-quality bonds"
+    "technology investments",
+    "AI startups",
+    "high-yield bonds"
   ],
   "avoid_themes": [
-    "high-yield bonds",
-    "growth stocks",
-    "emerging markets",
-    "cryptocurrencies"
+    "real estate",
+    "defensive stocks",
+    "commodities"
   ],
   "geopolitical_risks": [
-    "regional security fears in the Gulf",
-    "Iran's influence in Bahrain",
-    "potential economic fallout from inflation"
+    "Iranian dirty bomb plot",
+    "Iraqi crackdown on militias"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF regime, primarily driven by rising inflation and a stable interest rate environment. The FRED data suggests a cautious outlook, contrasting with neutral signals from yfinance_market and newsapi_finnhub, leading to a low confidence level due to conflicting signals. The yield curve remains positive but indicates recession risks, further complicating the growth outlook.",
+  "macro_summary": "The current macro environment shows mixed signals with FRED indicating a RISK-OFF stance while yfinance_market is NEUTRAL and newsapi_finnhub suggests RISK-ON. Inflation is rising, as indicated by the CPI increase, and the yield curve remains slightly positive, suggesting stable interest rates. However, geopolitical tensions, particularly regarding Iran and Iraq, pose significant risks to market stability.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -31,16 +28,17 @@
     "agreements": [],
     "conflicts": [
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "FRED signals RISK-OFF but newsapi_finnhub signals NEUTRAL"
+      "FRED signals RISK-OFF but newsapi_finnhub signals RISK-ON",
+      "newsapi_finnhub signals RISK-ON but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The low confidence level reflects significant conflicts among the sources regarding the current market regime."
+    "confidence_note": "The low confidence level reflects significant conflicts among the sources regarding the market regime."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.88,
-    "us_10y_yield": 5.1,
-    "us_2y_yield": 4.86,
-    "yield_curve_spread": 0.24,
+    "us_10y_yield": 5.15,
+    "us_2y_yield": 4.88,
+    "yield_curve_spread": 0.27,
     "cpi_latest": 337.48,
     "cpi_prev": 336.3,
     "cpi_trend": "rising",
@@ -48,41 +46,40 @@
     "gdp_latest": 33010.0,
     "gdp_prev": 32563.0,
     "gdp_growth": 1.37,
-    "dxy_current": 103.47,
-    "dxy_1m_ago": 101.84,
+    "dxy_current": 103.62,
+    "dxy_1m_ago": 101.98,
     "dxy_trend": "strengthening",
-    "vix": 21.6,
-    "tlt_1m_change_pct": -0.11,
-    "hyg_1m_change_pct": 0.57,
+    "vix": 22.9,
+    "tlt_1m_change_pct": 0.35,
+    "hyg_1m_change_pct": 0.4,
     "macro_headlines": [
-      "Novo says Wegovy injection lowers BMI and obesity rates in children in trial",
-      "Bitcoin slides to $62,000 following liquidation cascade, then rebounds slightly",
-      "Scores of Bahraini Shi'ite clerics get life in jail, accused of plotting with Iran - Reuters",
-      "Jim Cramer's top 10 things to watch in the stock market Monday",
-      "A major NFT marketplace is shutting down\u20145 years after the boom, there's a lesson for investors",
-      "Gulf bourses recover losses amid regional security fears - Reuters",
-      "Bulgaria rescues crew from capsized wheat ship in Black Sea, transport ministry says - Reuters",
-      "Nvidia's Colette Kress confronts key questions in first earnings report since Jensen Huang\u2019s exit",
-      "Big-ticket holiday items may be harder to find as shipping costs rise",
-      "PODCAST: Trump in Asia, Bahrain and Ukraine's fading EU accession hopes - Reuters"
+      "Homebuilder sentiment plunges to 14-year low, leading more builders to drop prices",
+      "Nasdaq set for higher open as tech steadies ahead of Nvidia results, Anthropic IPO - Reuters",
+      "Jim Cramer's top 10 things to watch in the stock market Tuesday",
+      "Iraqi leader's planned crackdown on pro-Iran militias is riskiest move yet - Reuters",
+      "Anthropic IPO: For hundreds of billions of dollars flowing into AI startups, a big debut is a must",
+      "'Big Short' investor Steve Eisman to discuss Nvidia, Anthropic and AI bull on CNBC",
+      "Investors look to Nvidia's earnings and Anthropic's IPO to refresh the tech rally",
+      "Trump says US taking seriously report of possible Iranian dirty bomb plot in Washington - Reuters",
+      "Nike hosts first investor day in 9 years as it tries to rightsize its business",
+      "JD Vance says he'll decide 'sometime next year' about 2028 presidential run"
     ],
     "geopolitical_headlines": [
-      "'Police launch investigation' into Walliams and Piddington asylum 'betrayal'",
       "Mecanoo transforms former gold vault into \"city\u2019s living room\" in renovation of De Nederlandsche Bank in Amsterdam",
-      "Inflation is pushing consumers to trade down and hunt for value",
-      "What's Trump's strategy now with Iran? To keep things as they are",
-      "Floods Force Gaza to Choose Between Clean Water and Pumping Out Sewage",
-      "Gemini can now tap into Google Wallet to help manage your money",
-      "Here are our favorite deals from REI\u2019s giant Holiday Sale",
-      "Razer\u2019s Wild $1,000 Gaming Chair Has Six Motors, Built-in Speakers, RGB Lighting",
-      "Paraguay\u2019s ex-president Pena faces new charge over Ueno bank collapse",
-      "Microsoft's Global Outage May Be Worse Than Amazon's Or Crowdstrike's, Expert Says"
+      "Russian diesel under Trump deal struggles to reach U.S. market amid legal fears and criticism",
+      "Loop Antennas for Transmitting",
+      "Onetime 'SNL' host Elon Musk didn't love its parody of tech's wild week",
+      "Anthropic's blockbuster IPO will test Wall Street's cooling enthusiasm for AI",
+      "Siege on Hebron\u2019s Beit Ula industrial zone threatens Palestinian economy",
+      "Jerusalem Daily: Israeli forces occupy Palestinian-American\u2019s home",
+      "As homes seized, Jericho\u2019s Palestinian residents fear settler takeover",
+      "No, the World Won\u2019t Shut Down on Nov. 17. What the Blackout Rumors Get Wrong",
+      "How To Rob A Bank Pays Tribute To A Bruce Willis Movie With A Clever Easter Egg"
     ],
     "central_bank_headlines": [
-      "Albanese's salad days have wilted into a long list of woe",
-      "Boston Fed\u2019s Collins Says Tighter Policy Is Worth the Housing Hit as Mortgage Rates Top 7%"
+      "Weekly Climate and Energy News Roundup #715"
     ],
-    "as_of": "2026-11-16 15:32 UTC"
+    "as_of": "2026-11-17 15:32 UTC"
   },
-  "generated_at": "2026-11-16T15:32:12.442177"
+  "generated_at": "2026-11-17T15:32:16.561294"
 }
