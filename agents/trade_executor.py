@@ -139,8 +139,97 @@ def _available_capital(portfolio: dict) -> float:
     return max(0.0, available)
 
 
+SPLIT_LOOKBACK_DAYS = 60  # Corporate-action window checked for stock splits
+
+
+def _fetch_recent_splits(symbols: list[str]) -> list[dict]:
+    """
+    Forward/reverse splits for `symbols` with ex_date in the last SPLIT_LOOKBACK_DAYS
+    (up to today), from Alpaca's corporate-actions API. Each item:
+    {symbol, id, ex_date, ratio} where ratio = new_rate / old_rate (8.0 for an 8:1 split,
+    0.1 for a 1:10 reverse split). Returns [] on any failure — callers must treat
+    "no data" as "no split", never block trading on a fetch error.
+    """
+    if not symbols:
+        return []
+    import requests
+    from datetime import timedelta
+    key = os.environ.get("ALPACA_API_KEY", "")
+    secret = os.environ.get("ALPACA_SECRET_KEY", "")
+    if not key or not secret:
+        return []
+    today = datetime.utcnow().date()
+    out: list[dict] = []
+    try:
+        resp = requests.get(
+            "https://data.alpaca.markets/v1/corporate-actions",
+            headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret},
+            params={
+                "symbols": ",".join(sorted(set(symbols))),
+                "types": "forward_split,reverse_split",
+                "start": (today - timedelta(days=SPLIT_LOOKBACK_DAYS)).isoformat(),
+                "end": today.isoformat(),
+                "limit": 1000,
+            },
+            timeout=15,
+        )
+        resp.raise_for_status()
+        actions = resp.json().get("corporate_actions", {}) or {}
+        for kind in ("forward_splits", "reverse_splits"):
+            for ca in actions.get(kind, []) or []:
+                old_rate = float(ca.get("old_rate") or 0)
+                new_rate = float(ca.get("new_rate") or 0)
+                ex_date = ca.get("ex_date")
+                if old_rate <= 0 or new_rate <= 0 or not ex_date or ex_date > today.isoformat():
+                    continue
+                out.append({
+                    "symbol": ca.get("symbol"), "id": ca.get("id"),
+                    "ex_date": ex_date, "ratio": new_rate / old_rate,
+                })
+    except Exception as exc:
+        logger.warning("Split check: could not fetch corporate actions: %s", exc)
+    return out
+
+
+def _broker_split_pending(api, symbol: str, position_qty: float, split: dict) -> bool:
+    """
+    True if Alpaca has NOT yet applied `split` to the position's share count.
+    Deterministic check from the filled-order history: if the split hasn't been
+    applied, position qty == (net filled qty before ex_date) + (net filled after);
+    if it has, position qty == pre * ratio + post.
+    """
+    try:
+        orders = api.list_orders(status="all", symbols=[symbol], limit=500, direction="asc")
+    except Exception as exc:
+        logger.warning("Split check: could not list orders for %s: %s", symbol, exc)
+        return False
+    pre = post = 0.0
+    for o in orders:
+        filled = float(getattr(o, "filled_qty", 0) or 0)
+        if not filled or not getattr(o, "filled_at", None):
+            continue
+        signed = filled if o.side == "buy" else -filled
+        fill_date = str(o.filled_at)[:10]
+        if fill_date < split["ex_date"]:
+            pre += signed
+        else:
+            post += signed
+    unadjusted = pre + post
+    adjusted = pre * split["ratio"] + post
+    return abs(position_qty - unadjusted) < 1e-6 and abs(position_qty - adjusted) > 1e-6
+
+
 def _get_alpaca_positions(api) -> dict[str, dict]:
-    """Return currently held positions as {ticker: {qty, avg_entry_price, market_value}}."""
+    """
+    Return currently held positions as {ticker: {qty, avg_entry_price, market_value}}.
+
+    Stock-split guard: on a split's ex-date Alpaca (paper especially) can report the
+    post-split price against the PRE-split share count and cost basis for a day or
+    more (e.g. SNDK 8:1 on 2026-11-20 showed 8 sh @ $850 avg vs $89 price → a fake
+    −89%). When that's detected, qty/avg/MV are corrected here using the split ratio
+    and the position is flagged `split_pending` so run() won't trade it until the
+    broker's own book catches up (its sellable qty is still the stale number).
+    """
     positions = {}
     try:
         for pos in api.list_positions():
@@ -154,6 +243,26 @@ def _get_alpaca_positions(api) -> dict[str, dict]:
             }
     except Exception as exc:
         logger.error("Failed to fetch Alpaca positions: %s", exc)
+        return positions
+
+    for split in _fetch_recent_splits(list(positions)):
+        sym = split["symbol"]
+        p = positions.get(sym)
+        if not p or p.get("split_pending"):
+            continue
+        if _broker_split_pending(api, sym, p["qty"], split):
+            ratio = split["ratio"]
+            p["broker_qty"] = p["qty"]
+            p["qty"] = p["qty"] * ratio
+            p["avg_entry_price"] = p["avg_entry_price"] / ratio
+            p["market_value"] = p["qty"] * p["current_price"] * (1 if p["side"] == "long" else -1)
+            p["unrealized_pnl"] = (p["current_price"] - p["avg_entry_price"]) * p["qty"] * (1 if p["side"] == "long" else -1)
+            p["split_pending"] = {"ratio": ratio, "ex_date": split["ex_date"], "id": split["id"]}
+            logger.warning(
+                "SPLIT PENDING AT BROKER: %s %.4g:1 (ex %s) — Alpaca still shows %.4g sh; "
+                "corrected to %.4g sh @ $%.2f avg. Trading on %s is blocked until Alpaca applies it.",
+                sym, ratio, split["ex_date"], p["broker_qty"], p["qty"], p["avg_entry_price"], sym,
+            )
     return positions
 
 
@@ -391,6 +500,49 @@ def _log_trade(trade: dict) -> None:
 # Main run function
 # ---------------------------------------------------------------------------
 
+def _rescale_log_for_splits(log_path: Path) -> list[str]:
+    """
+    entry_price / stop_loss / targets in positions_log are per-share and pre-split. Left
+    alone, every downstream agent sees e.g. "entry $836, now $89" for an 8:1 split and
+    reasons about a fake −89% loss. Each split is applied once (tracked by its
+    corporate-action id in `splits_applied`) and only to entries opened before ex-date.
+    Returns the tickers whose prices were rescaled.
+    """
+    import json as _spjson
+    adjusted: list[str] = []
+    try:
+        with open(log_path) as f:
+            all_pos = _spjson.load(f)
+        dirty = False
+        held = [t for t, e in all_pos.items() if not e.get("pending_confirmation")]
+        for split in _fetch_recent_splits(held):
+            entry = all_pos.get(split["symbol"])
+            if not entry or entry.get("pending_confirmation"):
+                continue
+            applied = entry.setdefault("splits_applied", [])
+            if split["id"] in applied:
+                continue
+            dirty = True
+            applied.append(split["id"])
+            if (entry.get("entry_date") or "") >= split["ex_date"]:
+                continue  # opened on/after ex-date — prices are already post-split
+            ratio = split["ratio"]
+            for field in ("entry_price", "stop_loss", "target_price", "price_target", "take_profit"):
+                if isinstance(entry.get(field), (int, float)) and entry[field]:
+                    entry[field] = round(entry[field] / ratio, 4)
+            adjusted.append(split["symbol"])
+            logger.warning(
+                "Reconcile: %s %.4g:1 split (ex %s) — rescaled entry/stop in positions_log (entry now $%.2f)",
+                split["symbol"], ratio, split["ex_date"], entry.get("entry_price") or 0,
+            )
+        if dirty:
+            with open(log_path, "w") as f:
+                _spjson.dump(all_pos, f, indent=2, allow_nan=False)
+    except Exception as exc:
+        logger.warning("Split rescale of positions_log failed: %s", exc)
+    return adjusted
+
+
 def reconcile_positions_with_alpaca() -> dict:
     """
     Synchronise positions_log.json with actual Alpaca holdings.
@@ -589,6 +741,11 @@ def reconcile_positions_with_alpaca() -> dict:
                 logger.warning("Reconcile: could not correct direction for %s: %s", ticker, _exc)
                 summary["errors"].append(ticker)
 
+    # --- Case 4b: Stock splits — rescale per-share prices in positions_log ---
+    _adjusted = _rescale_log_for_splits(ROOT / "data" / "memory" / "positions_log.json")
+    if _adjusted:
+        summary["splits_adjusted"] = _adjusted
+
     # --- Case 5: Sync size_pct drift — update positions_log with live Alpaca weights ---
     # positions_log stores entry-time weights; price drift means they go stale fast.
     # Portfolio Construction and the concentration check need accurate current weights.
@@ -710,7 +867,7 @@ def run(mode: str = "new_opportunities", defer_capital_allocation: bool = False)
                     break
                 qty_u = int(float(pos_u.get("qty", 0)))
                 mv_u = abs(float(pos_u.get("market_value", 0)))
-                if qty_u < 1:
+                if qty_u < 1 or pos_u.get("split_pending"):
                     continue
                 order_u = _place_order(api, ticker_u, qty_u, "sell",
                                        "No-leverage unwind — exposure exceeds equity")
@@ -767,6 +924,24 @@ def run(mode: str = "new_opportunities", defer_capital_allocation: bool = False)
 
         if action == "skip":
             skipped.append({"ticker": ticker, "reason": decision.get("skip_reason", "")})
+            continue
+
+        # Split in flight at the broker: Alpaca's sellable qty and weight are stale, so
+        # any order (or a hold auto-converted to a rebalance) would be sized off wrong
+        # numbers. Leave the position untouched until the broker applies the split.
+        _split = alpaca_positions.get(ticker, {}).get("split_pending")
+        if _split and action != "hold":
+            reason = (
+                f"split_pending: {_split['ratio']:g}:1 split (ex {_split['ex_date']}) not yet applied "
+                f"by Alpaca — {action} deferred to a later run"
+            )
+            logger.warning("%s: %s", ticker, reason)
+            skipped.append({"ticker": ticker, "reason": reason})
+            continue
+        if _split:
+            logger.info("%s: HOLD — split pending at broker, no rebalance this run", ticker)
+            if conviction:
+                memory.update_position(ticker, conviction=conviction)
             continue
 
         # Block management of positions flagged as unanalysed manual entries — UNLESS
