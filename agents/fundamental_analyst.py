@@ -1253,7 +1253,7 @@ Return ONLY valid JSON:
     "exchange": "<NYSE|NASDAQ|null — from training knowledge>",
     "sector": "{metrics.get('sector', 'N/A')}",
     "market_cap_figure": "<size + figure from live data above>",
-    "avg_daily_volume_usd": "<from training knowledge, or null>",
+    "avg_daily_volume_usd": null,
     "geography_flags": {{"russia_exposure": <bool>, "mongolia_exposure": <bool>, "cambodia_exposure": <bool>, "exposure_detail": "<revenue geography — training knowledge, null if unsure>"}},
     "peps_check": {{"clean": <bool or null>, "notes": "<from training knowledge, or 'Unverified — manual check required'>"}},
     "setup_type": "{score_result.get('setup_type', 'N/A')}",
@@ -1524,6 +1524,11 @@ def run(mode: str = "new_opportunities") -> dict:
         if llm_result.get("current_price") is None:
             llm_result["current_price"] = reconciled.get("current_price")
         _apply_live_analyst_data(llm_result, reconciled)
+        # Liquidity for the mandate check: average shares/day × price (was left to the
+        # LLM's "training knowledge" → always null → liquidity check could never pass)
+        _adv, _px = reconciled.get("avg_daily_volume"), reconciled.get("current_price")
+        if _adv and _px and isinstance(llm_result.get("fund_mandate"), dict):
+            llm_result["fund_mandate"]["avg_daily_volume_usd"] = round(float(_adv) * float(_px))
 
         # Compute all null setup_checklist fields from live API data
         hist = reconciled.get("historical_financials") or []
