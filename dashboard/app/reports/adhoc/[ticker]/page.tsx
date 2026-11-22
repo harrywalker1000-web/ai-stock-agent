@@ -12,7 +12,7 @@ import {
 } from "recharts";
 
 // ─── Helper functions ────────────────────────────────────────────────────────
-const NP = "Not publicly disclosed";
+const NP = "—"; // data unavailable marker (tables stay one line tall)
 
 function fv(f: any): any {
   if (f !== null && typeof f === "object" && "value" in f) return f.value;
@@ -86,16 +86,15 @@ const PIPELINE_STEPS = [
 
 function TagBadge({ source }: { source: string }) {
   if (!source) return null;
-  // Word-boundary match: "Tavily" or "detailed" must not count as AI
+  // Real-data sources are the default and need no badge (checklist 1). Only AI-written
+  // values are marked, so they can't be mistaken for reported figures.
+  // Word-boundary match: "Tavily" or "detailed" must not count as AI.
   const isAI = /\b(llm|ai|gpt|gpt-4o|sonnet|claude|haiku|estimated?)\b|\[ai/i.test(source);
+  if (!isAI) return null;
   return (
-    <span className={`ml-1 inline-block text-micro font-bold px-1 py-0 rounded leading-5 align-middle border
- ${isAI
- ?"bg-caution text-caution border-caution/30"
- :"bg-line text-accent border-accent/30"
- }`}
-    >
-      {isAI ? "AI" : source.toUpperCase().slice(0, 6)}
+    <span title={`AI estimate — ${source}`}
+      className="ml-1.5 inline-block rounded-sm border border-dashed border-caution/60 px-1 align-middle text-micro font-medium leading-4 text-caution">
+      AI
     </span>
   );
 }
@@ -104,42 +103,28 @@ function StatCard({ label, value, source, color, large }: {
   label: string; value: React.ReactNode; source?: string; color?: string; large?: boolean;
 }) {
   return (
-    <div className="rounded-xl p-4 flex flex-col gap-1" style={{ backgroundColor: "var(--bg-card)", border: "1px solid var(--border)" }}>
-      <p className="text-micro font-medium" style={{ color: "var(--text-muted)" }}>{label}</p>
-      <p className={`font-bold ${large ?"text-2xl":"text-lg"}`} style={{ color: color ?? "var(--text-primary)" }}>
-        {value ?? "Not publicly disclosed"}
+    <div className="flex flex-col gap-1 rounded-md bg-raised/60 px-4 py-3">
+      <p className="text-label text-ink-3">{label}</p>
+      <p className={`tabular font-medium ${large ? "font-serif text-h2" : "text-h3"}`} style={color ? { color } : undefined}>
+        {value ?? <span className="text-body text-ink-3">Not disclosed</span>}
         {source && <TagBadge source={source} />}
       </p>
     </div>
   );
 }
 
-function SectionHeader({ n, title, color = "#C8A15A" }: { n: number; title: string; color?: string }) {
-  const c = `var(--section-accent, ${color})`;
-  return (
-    <div className="rounded-t-xl overflow-hidden" style={{ backgroundColor: "var(--bg-section-header)", border: "1px solid var(--border)" }}>
-      <div className="h-0.5 w-full" style={{ background: `linear-gradient(90deg, ${c}, transparent 60%)` }} />
-      <div className="px-5 py-3.5 flex items-center gap-3">
-        <span className="flex items-center justify-center w-7 h-7 rounded-full text-micro font-bold shrink-0"
-          style={{ background: `color-mix(in srgb, ${c} 10%, transparent)`, color: c, border: `1px solid color-mix(in srgb, ${c} 25%, transparent)` }}>
-          {String(n).padStart(2, "0")}
-        </span>
-        <h2 className="text-sm font-bold text-white">{title}</h2>
-      </div>
-    </div>
-  );
-}
-
-function Section({ id, n, title, color, children }: {
-  id: string; n: number; title: string; color?: string; children: React.ReactNode;
+// Sections are separated by spacing and a hairline, not boxed (checklist 8). The old
+// section numbers (01, 4b, 0C…) weren't a real sequence, so they're gone (checklist 1).
+function Section({ id, title, children }: {
+  id: string; n?: number; title: string; color?: string; children: React.ReactNode;
 }) {
   return (
-    <div id={id} className="mb-7 rounded-xl overflow-hidden shadow-lg shadow-black/20">
-      <SectionHeader n={n} title={title} color={color} />
-      <div className="px-5 py-5" style={{ backgroundColor: "var(--bg-section-body)", borderLeft: "1px solid var(--border)", borderRight: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-        {children}
+    <section id={id} data-section aria-labelledby={`${id}-title`} className="mb-14 scroll-mt-28">
+      <div className="mb-5 border-t border-line pt-6">
+        <h2 id={`${id}-title`} className="font-serif text-h2 font-medium text-ink-1">{title}</h2>
       </div>
-    </div>
+      {children}
+    </section>
   );
 }
 
@@ -249,7 +234,7 @@ function PriceRangeChart({ bearPrice, basePrice, bullPrice, currentPrice, bearUp
       {/* Current price label */}
       <div className="relative h-8">
         <div className="absolute text-center" style={{ left: `${curPct}%`, transform: "translateX(-50%)" }}>
-          <p className="text-micro font-bold text-white">{fmt$(currentPrice)}</p>
+          <p className="text-micro font-bold text-ink-1">{fmt$(currentPrice)}</p>
           <p className="text-micro text-ink-3">current</p>
         </div>
       </div>
@@ -460,7 +445,7 @@ function RevenueBarChart({ years, viewLabel = "Annual" }: { years: any[], viewLa
                   </text>
                 )}
                 {/* Revenue label */}
-                <text x={cx} y={by - 8} textAnchor="middle" fill="#ECEDEE" fontSize={9} fontFamily="monospace">
+                <text x={cx} y={by - 8} textAnchor="middle" style={{ fill: "rgb(var(--ink-1))" }} fontSize={9} fontFamily="monospace">
                   {fmtRev(rev)}
                 </text>
                 {/* Year label */}
@@ -542,8 +527,8 @@ function MarginChart({ years }: { years: any[] }) {
         <div className="grid text-micro font-bold px-3 py-2"
           style={{ gridTemplateColumns: `80px repeat(${ordered.length}, 1fr)`, backgroundColor: "var(--bg-card-dark)", color: "var(--text-muted)" }}>
           <span>Metric</span>
-          {ordered.map((yr: any) => (
-            <span key={fv(yr.year)} className="text-center">{yr.label ?? fv(yr.year)}</span>
+          {ordered.map((yr: any, yi: number) => (
+            <span key={yi} className="text-center">{yr.label ?? fv(yr.year)}</span>
           ))}
         </div>
         {/* Metric rows */}
@@ -559,11 +544,11 @@ function MarginChart({ years }: { years: any[] }) {
                 borderTop: "1px solid var(--border)",
               }}>
               <span className="font-medium" style={{ color }}>{label}</span>
-              {ordered.map((yr: any) => {
+              {ordered.map((yr: any, yi: number) => {
                 const v = Number(fv(yr[key]) ?? NaN);
                 const vColor = isNaN(v) ? "var(--text-muted)" : v < 0 ? "#E2706A" : v < 5 ? "#E39A57" : color;
                 return (
-                  <span key={fv(yr.year)} className="text-center" style={{ color: vColor }}>
+                  <span key={yi} className="text-center" style={{ color: vColor }}>
                     {isNaN(v) ? "—" : fmtPctVal(v)}
                   </span>
                 );
@@ -651,7 +636,7 @@ function OwnershipDonut({ instPct, insiderPct, instSource, insiderSource }: {
               <title>{arc.label}: {arc.pct.toFixed(1)}%</title>
             </path>
           ))}
-          <text x={cx} y={cy - 4} textAnchor="middle" fill="#ECEDEE" fontSize={13} fontWeight="bold" fontFamily="monospace">
+          <text x={cx} y={cy - 4} textAnchor="middle" style={{ fill: "rgb(var(--ink-1))" }} fontSize={13} fontWeight="bold" fontFamily="monospace">
             {inst.toFixed(0)}%
           </text>
           <text x={cx} y={cy + 10} textAnchor="middle" fill="#8E959D" fontSize={8} fontFamily="monospace">Inst.</text>
@@ -893,15 +878,15 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-line shrink-0">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-white text-micro font-black">
+              <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-accent-ink text-micro font-black">
                 AI
               </div>
               <div>
-                <p className="text-micro font-bold text-white">Research AI</p>
+                <p className="text-micro font-bold text-ink-1">Research AI</p>
                 <p className="text-micro text-ink-3">{ticker.toUpperCase()} · Haz Capital</p>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-ink-3 hover:text-white text-lg leading-none cursor-pointer">×</button>
+            <button onClick={() => setOpen(false)} className="text-ink-3 hover:text-ink-1 text-lg leading-none cursor-pointer">×</button>
           </div>
 
           {/* Messages */}
@@ -924,10 +909,10 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role ==="user"?"justify-end":"justify-start"}`}>
                 <div className={[
-                  "max-w-[88%] rounded-2xl px-3 py-2 text-[11px] leading-relaxed",
+                  "max-w-[88%] rounded-2xl px-3 py-2 text-micro leading-relaxed",
                   m.role === "user"
                     ? "bg-accent text-white rounded-br-sm"
-                    : "bg-[#0F1929] border border-line text-ink-1 rounded-bl-sm",
+                    : "bg-[#171A1D] border border-line text-ink-1 rounded-bl-sm",
                 ].join(" ")}>
                   {m.content}
                 </div>
@@ -935,7 +920,7 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-[#0F1929] border border-line rounded-2xl rounded-bl-sm px-4 py-2.5 flex gap-1.5 items-center">
+                <div className="bg-[#171A1D] border border-line rounded-2xl rounded-bl-sm px-4 py-2.5 flex gap-1.5 items-center">
                   {[0,1,2].map(i => (
                     <div key={i} className="w-1.5 h-1.5 rounded-full bg-accent"
                       style={{ animation: `bounce 1s ease-in-out ${i * 0.2}s infinite` }} />
@@ -948,11 +933,11 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
 
           {/* Input */}
           <div className="px-3 pb-3 shrink-0">
-            <div className="flex gap-2 bg-[#0F1929] border border-line rounded-xl px-3 py-2 focus-within:border-accent transition-colors">
+            <div className="flex gap-2 bg-[#171A1D] border border-line rounded-xl px-3 py-2 focus-within:border-accent transition-colors">
               <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder={`Ask about ${ticker.toUpperCase()}…`}
-                className="flex-1 bg-transparent text-micro text-white placeholder-ink-3 outline-none min-w-0" />
+                className="flex-1 bg-transparent text-micro text-ink-1 placeholder-ink-3 outline-none min-w-0" />
               <button onClick={send} disabled={!input.trim() || loading}
                 className="shrink-0 w-6 h-6 rounded-lg bg-accent flex items-center justify-center disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed hover:bg-[#4B7FFF] transition-colors">
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -969,7 +954,7 @@ function ResearchChatbot({ ticker, report }: { ticker: string; report: Record<st
       <button onClick={() => setOpen(o => !o)}
         className={[
           "w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all cursor-pointer",
-          open ? "bg-[#0F1929] border-2 border-accent" : "bg-accent hover:bg-[#4B7FFF]",
+          open ? "bg-[#171A1D] border-2 border-accent" : "bg-accent hover:bg-[#4B7FFF]",
         ].join(" ")}
         style={{ boxShadow: "0 0 20px rgba(45,107,255,0.4)" }}>
         {open ? (
@@ -1009,7 +994,7 @@ function ValuationThermometer({ label, range }: {
         <span className="text-micro text-ink-3 font-medium">{label}</span>
         <div className="flex items-center gap-2">
           <span className="text-micro font-medium" style={{ color: dotColor }}>{label_pct}</span>
-          <span className="text-sm font-bold text-white">
+          <span className="text-sm font-bold text-ink-1">
             {current.toFixed(1)}x <span className="text-micro text-ink-3 font-normal">({pct}th pctile)</span>
           </span>
         </div>
@@ -1041,12 +1026,12 @@ function DPSBarChart({ data }: { data: { year: string; dps: number }[] }) {
   return (
     <ResponsiveContainer width="100%" height={120}>
       <BarChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
-        <XAxis dataKey="year" tick={{ fontSize: 9, fill: "#8E959D" }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fontSize: 9, fill: "#8E959D" }} tickFormatter={(v: number) => `$${v.toFixed(2)}`} width={44} axisLine={false} tickLine={false} />
+        <XAxis dataKey="year" tick={{ fontSize: 12, fill: "#8E959D" }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fontSize: 12, fill: "#8E959D" }} tickFormatter={(v: number) => `$${v.toFixed(2)}`} width={44} axisLine={false} tickLine={false} />
         <Tooltip
-          contentStyle={{ background: "#111315", border: "1px solid #2A2F35", borderRadius: 8, fontSize: 11, padding: "8px 12px" }}
-          labelStyle={{ color: "#B3B8BE", marginBottom: 4 }}
-          cursor={{ fill: "#1E2D4A44" }}
+          contentStyle={{ background: "rgb(var(--canvas))", border: "1px solid rgb(var(--line))", borderRadius: 8, fontSize: 11, padding: "8px 12px" }}
+          labelStyle={{ color: "rgb(var(--ink-2))", marginBottom: 4 }}
+          cursor={{ fill: "#2A2F3544" }}
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formatter={(v: any) => [`$${Number(v).toFixed(4)}`, "Annual DPS"]}
         />
@@ -1089,7 +1074,7 @@ function SOTPSection({ s_c }: { s_c: any }) {
   const hasSegments = segments.length > 0;
   const hasMults = segments.some((s: any) => s.multiple_base != null);
 
-  const AiBadge = () => <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>;
+  const AiBadge = () => <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>;
   const CalcBadge = () => <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-[#0F2A50] text-accent border border-accent/30">CALC</span>;
 
   const upsideColor = (pct: number | null) =>
@@ -1194,7 +1179,7 @@ function SOTPSection({ s_c }: { s_c: any }) {
               { label: "Base", color: "#C8A15A", ev: s_c.total_ev_base_bn, eq: s_c.equity_value_base_bn, ip: s_c.implied_price_base, up: s_c.upside_pct_base },
               { label: "Bull", color: "#4DB887", ev: s_c.total_ev_bull_bn, eq: s_c.equity_value_bull_bn, ip: s_c.implied_price_bull, up: s_c.upside_pct_bull },
             ] as { label: string; color: string; ev: number | null; eq: number | null; ip: number | null; up: number | null }[]).map(({ label, color, ev, eq, ip, up }) => (
-              <div key={label} className="bg-[#0B1628] rounded-xl p-4 border border-line/60">
+              <div key={label} className="bg-[#111315] rounded-xl p-4 border border-line/60">
                 <div className="text-xs font-semibold mb-3" style={{ color }}>{label} Case</div>
                 <div className="space-y-2">
                   {ev != null && (
@@ -1253,7 +1238,7 @@ function SOTPSection({ s_c }: { s_c: any }) {
 
       {/* Methodology note */}
       {s_c.ai_methodology && (
-        <div className="bg-[#0B1628] rounded-xl p-4 border border-accent/20">
+        <div className="bg-[#111315] rounded-xl p-4 border border-accent/20">
           <div className="text-micro text-accent font-semibold mb-1">Methodology Note <AiBadge /></div>
           <p className="text-xs text-ink-2 leading-relaxed">{s_c.ai_methodology}</p>
         </div>
@@ -1317,7 +1302,7 @@ function PorterFiveForcesSection({ s_porter }: { s_porter: any }) {
               <PolarGrid stroke="#2A2F35" />
               <PolarAngleAxis
                 dataKey="subject"
-                tick={{ fill: "#8E959D", fontSize: 9, fontFamily: "monospace" }}
+                tick={{ fill: "#8E959D", fontSize: 12, fontFamily: "monospace" }}
               />
               <Radar
                 dataKey="score"
@@ -1327,8 +1312,8 @@ function PorterFiveForcesSection({ s_porter }: { s_porter: any }) {
                 strokeWidth={1.5}
               />
               <Tooltip
-                contentStyle={{ background: "#171A1D", border: "1px solid #2A2F35", borderRadius: 8, fontSize: 11 }}
-                labelStyle={{ color: "#B3B8BE" }}
+                contentStyle={{ background: "rgb(var(--surface))", border: "1px solid rgb(var(--line))", borderRadius: 8, fontSize: 11 }}
+                labelStyle={{ color: "rgb(var(--ink-2))" }}
                 formatter={(v: any) => [`${v} / 5`, "Threat score"]}
               />
             </RadarChart>
@@ -1398,7 +1383,7 @@ function PorterFiveForcesSection({ s_porter }: { s_porter: any }) {
 const MA_TYPE_STYLE: Record<string, { color: string; bg: string; border: string }> = {
   Acquisition:          { color: "#C8A15A", bg: "#2D6BFF14", border: "#2D6BFF40" },
   Divestiture:          { color: "#E39A57", bg: "#F9731614", border: "#F9731640" },
-  Merger:               { color: "#B3B8BE", bg: "#A78BFA14", border: "#A78BFA40" },
+  Merger:               { color: "rgb(var(--ink-2))", bg: "#A78BFA14", border: "#A78BFA40" },
   "Strategic Partnership": { color: "#4DB887", bg: "#34D39914", border: "#34D39940" },
   "Spin-off":           { color: "#E39A57", bg: "#F59E0B14", border: "#F59E0B40" },
   "Joint Venture":      { color: "#E879F9", bg: "#E879F914", border: "#E879F940" },
@@ -1408,7 +1393,7 @@ const MA_STATUS_STYLE: Record<string, { color: string }> = {
   Completed: { color: "#4DB887" },
   Pending:   { color: "#E39A57" },
   Cancelled: { color: "#E2706A" },
-  Rumoured:  { color: "#B3B8BE" },
+  Rumoured:  { color: "rgb(var(--ink-2))" },
 };
 
 function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
@@ -1441,8 +1426,8 @@ function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
           </div>
           <div className="space-y-2">
             {events.map((ev, i) => {
-              const typeStyle = MA_TYPE_STYLE[ev.type ?? ""] ?? { color: "#B3B8BE", bg: "#94A3B814", border: "#94A3B840" };
-              const statusStyle = MA_STATUS_STYLE[ev.status ?? ""] ?? { color: "#B3B8BE" };
+              const typeStyle = MA_TYPE_STYLE[ev.type ?? ""] ?? { color: "rgb(var(--ink-2))", bg: "#94A3B814", border: "#94A3B840" };
+              const statusStyle = MA_STATUS_STYLE[ev.status ?? ""] ?? { color: "rgb(var(--ink-2))" };
               return (
                 <div key={i} className="flex items-start gap-3 bg-canvas border border-line rounded-xl p-3 motion-safe:hover:border-ink-3/30 transition-colors">
                   {/* Year pill */}
@@ -1504,7 +1489,7 @@ function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
                 <span className="text-ink-3 shrink-0">{f.date}</span>
                 <span className="text-ink-3 shrink-0">Items: {f.items}</span>
                 <a href={f.url} target="_blank" rel="noreferrer"
-                  className="text-accent hover:text-white truncate transition-colors">
+                  className="text-accent hover:text-ink-1 truncate transition-colors">
                   SEC EDGAR →
                 </a>
               </div>
@@ -1527,7 +1512,7 @@ function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
                 </span>
                 {n.url ? (
                   <a href={n.url} target="_blank" rel="noreferrer"
-                    className="text-ink-2 hover:text-white transition-colors leading-snug">
+                    className="text-ink-2 hover:text-ink-1 transition-colors leading-snug">
                     {n.headline}
                   </a>
                 ) : (
@@ -1545,7 +1530,7 @@ function MaTrackRecordSection({ s_ma }: { s_ma: any }) {
 // ─── ESG & Sustainability ─────────────────────────────────────────────────────
 
 function esgRiskBand(score: number | null): { label: string; color: string } {
-  if (score === null) return { label: "No data", color: "#8E959D" };
+  if (score === null) return { label: "No data", color: "rgb(var(--ink-3))" };
   if (score < 10)    return { label: "Negligible Risk", color: "#4DB887" };
   if (score < 20)    return { label: "Low Risk",        color: "#4DB887" };
   if (score < 30)    return { label: "Medium Risk",     color: "#E39A57" };
@@ -1565,7 +1550,7 @@ function esgPerfLabel(raw: string | null | undefined): string {
 }
 
 function controversyLabel(level: number | null): { text: string; color: string } {
-  if (level === null) return { text: "—", color: "#8E959D" };
+  if (level === null) return { text: "—", color: "rgb(var(--ink-3))" };
   const levels = ["None", "Low", "Moderate", "Significant", "High", "Severe"];
   const colors  = ["#4DB887", "#4DB887", "#E39A57", "#E39A57", "#E2706A", "#E2706A"];
   return { text: levels[level] ?? `Level ${level}`, color: colors[level] ?? "#8E959D" };
@@ -1621,7 +1606,7 @@ function ESGSection({ s_esg }: { s_esg: any }) {
             return (
               <div key={label} className="bg-canvas border border-line rounded-xl p-3 flex flex-col gap-1">
                 <span className="text-micro font-medium" style={{ color: accent }}>{label}</span>
-                <span className="text-2xl font-bold text-white">
+                <span className="text-2xl font-bold text-ink-1">
                   {num != null ? num.toFixed(1) : NP}
                 </span>
                 {num != null && (
@@ -1735,7 +1720,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
             <div className="w-1 self-stretch rounded-full bg-accent" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm font-semibold text-white">{ceoName ?? "CEO"}</p>
+                <p className="text-sm font-semibold text-ink-1">{ceoName ?? "CEO"}</p>
                 <span className="text-micro px-2 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-accent font-medium">
                   Chief Executive Officer
                 </span>
@@ -1775,7 +1760,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-line bg-surface px-4 py-3 text-center">
           <p className="text-micro text-ink-3 mb-1">Board Size</p>
-          <p className="text-lg font-bold text-white">
+          <p className="text-lg font-bold text-ink-1">
             {board.total_members != null ? board.total_members : "—"}
           </p>
           <p className="text-micro text-ink-3 mt-0.5">
@@ -1826,7 +1811,7 @@ function ManagementGovernanceSection({ s10b }: { s10b: any }) {
                       key={i}
                       className="transition-colors duration-150 hover:bg-line/20 cursor-default"
                     >
-                      <td className="px-4 py-2.5 font-medium text-white">{exec.name || "—"}</td>
+                      <td className="px-4 py-2.5 font-medium text-ink-1">{exec.name || "—"}</td>
                       <td className="px-4 py-2.5 text-accent/70">{exec.title || "—"}</td>
                       <td className="px-4 py-2.5 text-right text-accent">
                         {pay != null
@@ -1858,10 +1843,10 @@ const DRIVER_CATEGORY: Record<string, { label: string; color: string; bg: string
   pricing:    { label: "Pricing",      color: "#C8A15A", bg: "#2D6BFF1A", border: "#2D6BFF40" },
   volume:     { label: "Volume",       color: "#818CF8", bg: "#6366F11A", border: "#6366F140" },
   geographic: { label: "Geographic",   color: "#4DB887", bg: "#10B9811A", border: "#10B98140" },
-  product:    { label: "Product",      color: "#B3B8BE", bg: "#8B5CF61A", border: "#8B5CF640" },
+  product:    { label: "Product",      color: "rgb(var(--ink-2))", bg: "#8B5CF61A", border: "#8B5CF640" },
   m_and_a:    { label: "M&A",          color: "#E39A57", bg: "#F59E0B1A", border: "#F59E0B40" },
   efficiency: { label: "Efficiency",   color: "#4DB887", bg: "#10B9811A", border: "#10B98140" },
-  regulatory: { label: "Regulatory",   color: "#B3B8BE", bg: "#4758691A", border: "#47586940" },
+  regulatory: { label: "Regulatory",   color: "rgb(var(--ink-2))", bg: "#4758691A", border: "#47586940" },
 };
 
 function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
@@ -1908,8 +1893,8 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
               key={i}
               className="relative flex flex-col gap-3 rounded-2xl border p-5 transition-all duration-200 motion-safe:hover:scale-[1.015] cursor-default group"
               style={{
-                background: "#171A1D",
-                borderColor: "#2A2F35",
+                background: "rgb(var(--surface))",
+                borderColor: "rgb(var(--line))",
               }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.borderColor = cat.border.replace("40", "80");
@@ -1917,7 +1902,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLElement).style.borderColor = "#2A2F35";
-                (e.currentTarget as HTMLElement).style.background = "#171A1D";
+                (e.currentTarget as HTMLElement).style.background = "rgb(var(--surface))";
               }}
             >
               {/* Number + AI badge row */}
@@ -1934,7 +1919,7 @@ function RevenueGrowthDriversSection({ s4b }: { s4b: any }) {
               </div>
 
               {/* Driver name */}
-              <p className="text-sm font-semibold text-white leading-snug">{d.name}</p>
+              <p className="text-sm font-semibold text-ink-1 leading-snug">{d.name}</p>
 
               {/* Mechanism */}
               <p className="text-xs text-accent/75 leading-relaxed flex-1">{d.mechanism}</p>
@@ -2007,10 +1992,10 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
             <button key={v} onClick={() => setView(v)}
               disabled={v === "quarterly" && !hasQoQ}
               className={[
-                "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-all duration-150",
+                "px-3 py-1 rounded-full text-micro font-bold  tracking-wide transition-all duration-150",
                 view === v
                   ? "bg-accent text-white"
-                  : "bg-[#0F1929] text-ink-3 border border-line hover:border-accent hover:text-ink-2",
+                  : "bg-[#171A1D] text-ink-3 border border-line hover:border-accent hover:text-ink-2",
                 v === "quarterly" && !hasQoQ ? "opacity-30 cursor-not-allowed" : "cursor-pointer",
               ].join(" ")}>
               {v === "annual" ? "Annual" : "Quarterly"}
@@ -2050,7 +2035,7 @@ function HistoricalFinancialsSection({ s4 }: { s4: any }) {
                       isMostRecent ? "bg-line/20 hover:bg-line/35" : "hover:bg-line/15",
                     ].join(" ")}
                   >
-                    <td className={`py-2.5 px-3 font-bold ${isMostRecent ?"text-white":"text-ink-2"}`}>
+                    <td className={`py-2.5 px-3 font-bold ${isMostRecent ?"text-ink-1":"text-ink-2"}`}>
                       {row.label ?? fv(row.year)}
                       {isMostRecent && <span className="ml-2 text-micro text-accent font-normal">latest</span>}
                     </td>
@@ -2174,7 +2159,7 @@ function LoadingScreen({ ticker }: { ticker: string }) {
     <div className="min-h-screen bg-canvas flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
-          <div className="inline-block text-5xl font-bold text-white mb-3
+          <div className="inline-block text-5xl font-bold text-ink-1 mb-3
  border border-line bg-surface rounded-2xl px-6 py-3">
             {ticker}
           </div>
@@ -2207,7 +2192,7 @@ function LoadingScreen({ ticker }: { ticker: string }) {
  ${done ?"text-gain": active ?"text-accent":"text-ink-3"}`}>
                   {done ? "+" : active ? ">" : "o"}
                 </span>
-                <span className={`text-xs ${done ?"text-ink-3 line-through": active ?"text-white":"text-ink-3"}`}>
+                <span className={`text-xs ${done ?"text-ink-3 line-through": active ?"text-ink-1":"text-ink-3"}`}>
                   {step}
                 </span>
                 {active && (
@@ -2349,7 +2334,7 @@ export default function AdhocTickerPage() {
         <div className="flex gap-3">
           <button
             onClick={() => setReloadKey((k) => k + 1)}
-            className="text-xs px-4 py-2 rounded-lg bg-surface border border-line text-ink-2 hover:text-white hover:border-accent transition-all"
+            className="text-xs px-4 py-2 rounded-lg bg-surface border border-line text-ink-2 hover:text-ink-1 hover:border-accent transition-all"
           >
             Retry
           </button>
@@ -2357,7 +2342,7 @@ export default function AdhocTickerPage() {
             <button
               onClick={queueRun}
               disabled={runState === "sending"}
-              className="text-xs px-4 py-2 rounded-lg bg-surface border border-line text-ink-2 hover:text-white hover:border-accent transition-all disabled:opacity-50"
+              className="text-xs px-4 py-2 rounded-lg bg-surface border border-line text-ink-2 hover:text-ink-1 hover:border-accent transition-all disabled:opacity-50"
             >
               {runState === "sending" ? "Queuing…" : runState === "error" ? `Couldn't queue (${runError}) — retry` : `Run analysis for ${ticker}`}
             </button>
@@ -2438,36 +2423,38 @@ export default function AdhocTickerPage() {
     api_error:    { label: `${llmProviderLabel} API Error`, detail: `An unexpected ${llmProviderLabel} API error occurred. AI narrative sections may be incomplete. Check logs for details.`, color: "#E39A57", border: "#F59E0B40", bg: "#F59E0B0A" },
   };
 
+  // Legacy report variables now point at the design tokens; light mode swaps the token
+  // values via the .theme-light class on the root, so every component follows.
   const cssVars = {
-    "--section-accent": (brandMode && brandColors.primary) ? brandColors.primary : "#C8A15A",
-    "--bg-page":           lightMode ? "#F0F4F8" : "#111315",
-    "--bg-section-header": lightMode ? "#171A1D" : "#171A1D",
-    "--bg-section-body":   lightMode ? "#ECEDEE" : "#171A1D",
-    "--bg-card":           lightMode ? "#ECEDEE" : "#171A1D",
-    "--bg-card-dark":      lightMode ? "#E2EBF4" : "#111315",
-    "--border":            lightMode ? "#ECEDEE" : "#2A2F35",
-    "--text-primary":      lightMode ? "#1E293B" : "#ECEDEE",
-    "--text-secondary":    lightMode ? "#8E959D" : "#B3B8BE",
-    "--text-muted":        lightMode ? "#8E959D" : "#8E959D",
+    "--section-accent": (brandMode && brandColors.primary) ? brandColors.primary : "rgb(var(--accent))",
+    "--bg-page":           "rgb(var(--canvas))",
+    "--bg-section-header": "transparent",
+    "--bg-section-body":   "transparent",
+    "--bg-card":           "rgb(var(--raised) / 0.6)",
+    "--bg-card-dark":      "rgb(var(--canvas))",
+    "--border":            "rgb(var(--line))",
+    "--text-primary":      "rgb(var(--ink-1))",
+    "--text-secondary":    "rgb(var(--ink-2))",
+    "--text-muted":        "rgb(var(--ink-3))",
   } as React.CSSProperties;
 
   return (
-    <div className="adhoc-report min-h-screen pb-20" ref={sectionRefs}
+    <div className={`adhoc-report min-h-screen pb-20 ${lightMode ? "theme-light" : ""}`} ref={sectionRefs}
       style={{ ...cssVars, backgroundColor: "var(--bg-page)" }}>
 
       {/* ── Theme CSS overrides: converts all hardcoded dark-theme colors to CSS vars ── */}
       <style>{`
         .adhoc-report .text-\\[#475569\\] { color: var(--text-muted) !important; }
-        .adhoc-report .text-\\[#1E2D4A\\] { color: var(--border) !important; }
+        .adhoc-report .text-\\[#2A2F35\\] { color: var(--border) !important; }
         .adhoc-report .bg-\\[#131929\\] { background-color: var(--bg-card) !important; }
         .adhoc-report .bg-\\[#0D1626\\] { background-color: var(--bg-card) !important; }
         .adhoc-report .bg-\\[#0F1623\\] { background-color: var(--bg-section-body) !important; }
         .adhoc-report .bg-\\[#080C14\\] { background-color: var(--bg-card-dark) !important; }
-        .adhoc-report .border-\\[#1E2D4A\\] { border-color: var(--border) !important; }
-        .adhoc-report .divide-\\[#1E2D4A\\] > * + * { border-color: var(--border) !important; }
+        .adhoc-report .border-\\[#2A2F35\\] { border-color: var(--border) !important; }
+        .adhoc-report .divide-\\[#2A2F35\\] > * + * { border-color: var(--border) !important; }
         .adhoc-report .text-\\[#94A3B8\\] { color: var(--text-secondary) !important; }
         .adhoc-report .text-\\[#E2E8F0\\] { color: var(--text-primary) !important; }
-        .adhoc-report .bg-\\[#1E2D4A\\] { background-color: var(--bg-card-dark) !important; }
+        .adhoc-report .bg-\\[#2A2F35\\] { background-color: var(--bg-card-dark) !important; }
         .adhoc-report table thead th { background-color: var(--bg-card-dark) !important; }
       `}</style>
 
@@ -2481,11 +2468,11 @@ export default function AdhocTickerPage() {
                 <img
                   src={s1.company_image}
                   alt=""
-                  className="w-7 h-7 rounded object-contain bg-white/5 shrink-0"
+                  className="w-7 h-7 rounded object-contain bg-raised/50 shrink-0"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               )}
-              <span className="text-xl font-bold text-white">{ticker}</span>
+              <span className="text-xl font-bold text-ink-1">{ticker}</span>
               <span
                 className="text-sm font-bold px-3 py-0.5 rounded-lg"
                 style={{ background: `${dirColor}18`, color: dirColor, border: `1px solid ${dirColor}40` }}
@@ -2507,7 +2494,7 @@ export default function AdhocTickerPage() {
           </div>
           <div className="flex items-center gap-x-4 gap-y-2 flex-wrap">
             {currentPrice && (
-              <span className="text-lg font-bold text-white">{fmt$(currentPrice)}</span>
+              <span className="text-lg font-bold text-ink-1">{fmt$(currentPrice)}</span>
             )}
             {conviction > 0 && (
               <div className="flex gap-0.5 items-center">
@@ -2523,10 +2510,10 @@ export default function AdhocTickerPage() {
               title={lightMode ? "Switch to dark theme" : "Switch to light theme"}
               className="flex items-center gap-1.5 text-micro px-3 py-1.5 rounded border transition-all"
               style={lightMode
-                ? { background: "#E2EBF4", color: "#171A1D", borderColor: "#ECEDEE" }
+                ? { background: "var(--bg-card)", color: "var(--text-primary)", borderColor: "var(--border)" }
                 : { background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }
               }>
-              {lightMode ? "☀ Light" : "◐ Dark"}
+              {lightMode ? "Light theme" : "Dark theme"}
             </button>
             {/* Brand color toggle — only when brand colors are available */}
             {brandColors.primary ? (
@@ -2584,10 +2571,10 @@ export default function AdhocTickerPage() {
                   href={`#${item.id}`}
                   className="flex items-center gap-2 px-2 py-1.5 rounded text-micro transition-all"
                   style={activeSection === item.id
-                    ? { color: "#fff", backgroundColor: "var(--bg-card)", borderLeft: "2px solid #C8A15A" }
+                    ? { color: "rgb(var(--ink-1))", backgroundColor: "var(--bg-card)", borderLeft: "2px solid #C8A15A" }
                     : { color: "var(--text-muted)" }}
                 >
-                  <span className="text-micro shrink-0 opacity-50 w-6 text-right">{String(item.n).padStart(2, "0")}</span>
+                  
                   <span className="text-micro">{item.label}</span>
                 </a>
               ))}
@@ -2679,21 +2666,21 @@ export default function AdhocTickerPage() {
             const posSz   = fv(rec.position_size_pct);
             const stopLs  = fv(rec.stop_loss_pct);
             const heroStats = [
-              { label: "Price",        val: currentPrice ? fmt$(currentPrice) : null, color: "#ECEDEE" },
-              { label: "Market Cap",   val: fmtBn(s1.market_cap) !== NP ? fmtBn(s1.market_cap) : null, color: "#B3B8BE" },
-              { label: "Exp. Return",  val: expRet,   color: expRet && String(expRet).startsWith("-") ? "#E2706A" : "#4DB887" },
-              { label: "Position",     val: posSz != null ? `${posSz}%` : null, color: "#B3B8BE" },
-              { label: "Stop Loss",    val: stopLs != null ? `-${stopLs}%` : null, color: "#E2706A" },
+              { label: "Price",        val: currentPrice ? fmt$(currentPrice) : null, color: "rgb(var(--ink-1))" },
+              { label: "Market Cap",   val: fmtBn(s1.market_cap) !== NP ? fmtBn(s1.market_cap) : null, color: "rgb(var(--ink-2))" },
+              { label: "Exp. Return",  val: expRet,   color: expRet && String(expRet).startsWith("-") ? "rgb(var(--loss))" : "rgb(var(--gain))" },
+              { label: "Position",     val: posSz != null ? `${posSz}%` : null, color: "rgb(var(--ink-2))" },
+              { label: "Stop Loss",    val: stopLs != null ? `-${stopLs}%` : null, color: "rgb(var(--loss))" },
             ].filter(s => s.val != null);
             return (
               <div className="mb-8 rounded-2xl overflow-hidden border border-line shadow-2xl shadow-black/40 print:mb-4">
                 <div className="h-1" style={{ background: `linear-gradient(90deg, ${dirColor} 0%, ${dirColor}60 50%, transparent 100%)` }} />
-                <div className="px-6 py-6" style={{ background: "linear-gradient(135deg, #111315 0%, #171A1D 60%, #111315 100%)" }}>
+                <div className="px-6 py-6" style={{ background: "rgb(var(--surface))" }}>
                   {/* Top row */}
                   <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">
-                        <span className="text-4xl font-bold text-white tracking-tight">{ticker}</span>
+                        <span className="text-4xl font-bold text-ink-1 tracking-tight">{ticker}</span>
                         <span className="text-lg font-bold px-4 py-1.5 rounded-xl"
                           style={{ background: `${dirColor}20`, color: dirColor, border: `1px solid ${dirColor}50` }}>
                           {direction}
@@ -2719,7 +2706,7 @@ export default function AdhocTickerPage() {
                   {heroStats.length > 0 && (
                     <div className="grid gap-3 mb-5" style={{ gridTemplateColumns: `repeat(${Math.min(heroStats.length, 5)}, 1fr)` }}>
                       {heroStats.map(({ label, val, color }) => (
-                        <div key={label} className="rounded-xl px-4 py-3 border" style={{ background: "#111315", borderColor: "#2A2F35" }}>
+                        <div key={label} className="rounded-xl px-4 py-3 border" style={{ background: "rgb(var(--canvas))", borderColor: "rgb(var(--line))" }}>
                           <p className="text-micro text-ink-3 mb-1.5">{label}</p>
                           <p className="text-xl font-bold" style={{ color }}>{val}</p>
                         </div>
@@ -2740,7 +2727,7 @@ export default function AdhocTickerPage() {
                         <p className="text-micro text-ink-3 mb-1.5">Core Thesis</p>
                         {title && <p className="text-sm font-semibold text-ink-1 mb-1">{title}</p>}
                         {lead && <p className="text-xs text-ink-3 leading-relaxed">{lead}</p>}
-                        <span className="mt-1.5 inline-block text-micro font-bold px-1.5 py-0 rounded leading-5 bg-caution text-caution border border-caution/30">AI-generated</span>
+                        <span className="mt-1.5 inline-block text-micro font-bold px-1.5 py-0 rounded leading-5 bg-caution/12 text-caution border border-caution/30">AI-generated</span>
                       </div>
                     );
                   })()}
@@ -2819,7 +2806,7 @@ export default function AdhocTickerPage() {
                       <div className="mb-5">
                         <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-wrap">
                           {narrative}
-                          <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                          <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                         </p>
                       </div>
                     ) : fmpDesc ? (
@@ -2858,14 +2845,14 @@ export default function AdhocTickerPage() {
                           <p className="text-micro font-semibold text-accent mb-2">Market Position</p>
                           <div className="flex flex-wrap gap-3">
                             {msPct && src === "tavily" && (
-                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                              <div className="bg-[#111315] rounded-lg px-3 py-2 text-xs">
                                 <span className="text-ink-3">Market Share: </span>
                                 <span className="font-bold text-accent">{msPct}</span>
                                 <TagBadge source={src} />
                               </div>
                             )}
                             {compRank && (
-                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                              <div className="bg-[#111315] rounded-lg px-3 py-2 text-xs">
                                 <span className="text-ink-3">Position: </span>
                                 <span className="font-bold text-gain">{compRank}</span>
                                 {src && <TagBadge source={src} />}
@@ -2921,7 +2908,7 @@ export default function AdhocTickerPage() {
                         {String(synthesis).split(/\n\n+/).map((para, pi) => (
                           <p key={pi} className="text-xs text-ink-2 leading-relaxed">
                             {para}
-                            {pi === 0 && <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>}
+                            {pi === 0 && <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>}
                           </p>
                         ))}
                       </div>
@@ -3120,7 +3107,7 @@ export default function AdhocTickerPage() {
                                         <div key={i} className={`flex items-center gap-3 ${row.sum ?"border-t border-line pt-2":""}`}>
                                           <span className={`text-micro w-5 text-center shrink-0 ${row.sum ?"text-accent":"text-ink-3"}`}>{row.sign}</span>
                                           <span className="text-micro text-ink-2 flex-1">{row.label}</span>
-                                          <span className={`text-micro tabular-nums ${row.sum ?"font-bold text-white":"text-ink-3"}`}>
+                                          <span className={`text-micro tabular-nums ${row.sum ?"font-bold text-ink-1":"text-ink-3"}`}>
                                             {Number(row.val) < 0 ? `-$${Math.abs(Number(row.val)).toFixed(0)}B` : `$${Number(row.val).toFixed(0)}B`}
                                           </span>
                                         </div>
@@ -3437,13 +3424,13 @@ export default function AdhocTickerPage() {
                           <p className="text-micro font-semibold text-accent mb-2">Brand Value</p>
                           <div className="flex flex-wrap gap-3">
                             {bv && (
-                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                              <div className="bg-[#111315] rounded-lg px-3 py-2 text-xs">
                                 <span className="text-ink-3">Brand Value: </span>
                                 <span className="font-bold text-gain">{bv}</span>
                               </div>
                             )}
                             {br && (
-                              <div className="bg-[#0B1628] rounded-lg px-3 py-2 text-xs">
+                              <div className="bg-[#111315] rounded-lg px-3 py-2 text-xs">
                                 <span className="text-ink-3">{rl ?? "Brand Ranking"}: </span>
                                 <span className="font-bold text-accent">{br}</span>
                               </div>
@@ -3491,7 +3478,7 @@ export default function AdhocTickerPage() {
                   <>
                     {leadSentence && (
                       <blockquote className="mb-5 pl-4 py-3 pr-4 rounded-r-xl border-l-4 border-caution"
-                        style={{ background: "linear-gradient(90deg, #1C160A 0%, #171A1D 100%)" }}>
+                        style={{ background: "rgb(var(--accent) / 0.06)" }}>
                         <p className="text-sm font-semibold text-caution leading-relaxed">{leadSentence}</p>
                         <p className="text-micro text-[#92400E] mt-1">Haz Capital view — where we differ from consensus</p>
                       </blockquote>
@@ -3520,7 +3507,7 @@ export default function AdhocTickerPage() {
                     {narrative && (
                       <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-wrap">
                         {narrative}
-                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                       </p>
                     )}
                     {!hasData && <p className="text-xs text-ink-3">Data unavailable</p>}
@@ -3746,7 +3733,7 @@ export default function AdhocTickerPage() {
                               <span className="text-ink-2">{dim.label}</span>
                               <div className="flex items-center gap-2">
                                 {dim.value && <span className="text-ink-3">{dim.value}</span>}
-                                <span className="font-bold text-white">{dim.score}<span className="text-ink-3">/20</span></span>
+                                <span className="font-bold text-ink-1">{dim.score}<span className="text-ink-3">/20</span></span>
                               </div>
                             </div>
                             <div className="h-1.5 bg-line rounded-full overflow-hidden">
@@ -3762,7 +3749,7 @@ export default function AdhocTickerPage() {
                                 Competitive Position
                                 <span className="text-micro font-bold px-1 py-px rounded bg-caution/10 text-caution border border-caution/20">AI</span>
                               </span>
-                              <span className="font-bold text-white">{dim5}<span className="text-ink-3">/20</span></span>
+                              <span className="font-bold text-ink-1">{dim5}<span className="text-ink-3">/20</span></span>
                             </div>
                             <div className="h-1.5 bg-line rounded-full overflow-hidden">
                               <div className="h-full rounded-full transition-all"
@@ -3785,7 +3772,7 @@ export default function AdhocTickerPage() {
                     {narrative && (
                       <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-wrap">
                         {narrative}
-                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                       </p>
                     )}
                     {!hasAi && headlines.length > 0 && (
@@ -3866,7 +3853,7 @@ export default function AdhocTickerPage() {
                 const tailwinds     = aiNarr?.tailwinds ?? [];
                 const headwinds     = aiNarr?.headwinds ?? [];
                 const AiBadge = () => (
-                  <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                  <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                 );
                 // Macro stats from direct FRED fields on the section
                 const macroFields = ([
@@ -3888,7 +3875,7 @@ export default function AdhocTickerPage() {
                         </div>
                         <p className="text-micro text-ink-3">
                           Exposure for <span className="text-accent">{ticker}</span> to these macro factors — see Tailwinds &amp; Headwinds below.
-                          <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                          <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                         </p>
                       </div>
                     )}
@@ -4023,7 +4010,7 @@ export default function AdhocTickerPage() {
                                   <td className="py-2 px-2 text-ink-3">{fv(t.date) ?? "—"}</td>
                                   <td className="py-2 px-2 text-ink-2">
                                     {url && nameVal
-                                      ? <a href={url} target="_blank" rel="noreferrer" className="hover:text-white underline underline-offset-2">{nameVal}</a>
+                                      ? <a href={url} target="_blank" rel="noreferrer" className="hover:text-ink-1 underline underline-offset-2">{nameVal}</a>
                                       : (nameVal ?? "—")}
                                   </td>
                                   <td className={`py-2 px-2 text-right font-bold ${isBuy ?"text-gain": txn ?"text-loss":"text-ink-3"}`}>
@@ -4119,7 +4106,7 @@ export default function AdhocTickerPage() {
                               <div className="flex items-start justify-between gap-3 mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-micro font-bold text-ink-3 w-5">{i + 1}.</span>
-                                  <span className="text-xs font-bold text-white">{r.name ?? r.risk}</span>
+                                  <span className="text-xs font-bold text-ink-1">{r.name ?? r.risk}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
                                   {r.category && (
@@ -4144,14 +4131,14 @@ export default function AdhocTickerPage() {
                                   {r.mechanism ?? r.detail ?? r.description}
                                 </p>
                               )}
-                              <span className="ml-7 mt-1 inline-block text-micro font-bold px-1 py-0 rounded leading-5 bg-caution text-caution border border-caution/30">AI</span>
+                              <span className="ml-7 mt-1 inline-block text-micro font-bold px-1 py-0 rounded leading-5 bg-caution/12 text-caution border border-caution/30">AI</span>
                             </div>
                           );
                         })}
                       </div>
                     ) : rawText ? (
                       <p className="text-xs text-ink-2 leading-relaxed whitespace-pre-wrap mb-4">{rawText}
-                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                       </p>
                     ) : headlines.length > 0 ? (
                       <div className="mb-4">
@@ -4261,7 +4248,7 @@ export default function AdhocTickerPage() {
                     {summary && (
                       <p className="text-xs text-ink-2 leading-relaxed mb-5 whitespace-pre-wrap">
                         {summary}
-                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution text-caution border border-caution/30">AI</span>
+                        <span className="ml-1 text-micro font-bold px-1 py-0 rounded leading-5 inline-block align-middle bg-caution/12 text-caution border border-caution/30">AI</span>
                       </p>
                     )}
                     {!summary && newsItems.length > 0 && (
@@ -4336,14 +4323,14 @@ export default function AdhocTickerPage() {
               <div className="h-1" style={{ background: `linear-gradient(90deg, ${dirColor} 0%, ${dirColor}80 40%, transparent 100%)` }} />
               {/* Header */}
               <div className="px-6 py-4 flex items-center gap-3"
-                style={{ background: "#111315", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                style={{ background: "rgb(var(--canvas))", borderBottom: "1px solid rgb(var(--line))" }}>
                 <span className="flex items-center justify-center w-7 h-7 rounded-full text-micro font-bold shrink-0"
                   style={{ background: `${dirColor}18`, color: dirColor, border: `1px solid ${dirColor}40` }}>16</span>
-                <h2 className="text-sm font-bold text-white">Investment Committee Recommendation</h2>
-                <span className="ml-auto text-micro font-bold px-2 py-0.5 rounded border bg-caution text-caution border-caution/30">AI-generated</span>
+                <h2 className="text-sm font-bold text-ink-1">Investment Committee Recommendation</h2>
+                <span className="ml-auto text-micro font-bold px-2 py-0.5 rounded border bg-caution/12 text-caution border-caution/30">AI-generated</span>
               </div>
 
-              <div className="px-6 py-6" style={{ background: "linear-gradient(180deg, #111315 0%, #171A1D 100%)", border: `1px solid ${dirColor}20`, borderTop: "none" }}>
+              <div className="px-6 py-6" style={{ background: "rgb(var(--surface))", border: `1px solid ${dirColor}20`, borderTop: "none" }}>
                 {/* Investment arguments — shown FIRST, most important output of the report */}
                 {(() => {
                   const args = s16.three_arguments ?? s16.investment_arguments ?? s16.arguments ?? rec.arguments ?? [];
@@ -4360,7 +4347,7 @@ export default function AdhocTickerPage() {
                             : (typeof arg === "string" ? arg : (arg.argument ?? arg.thesis ?? arg.text ?? JSON.stringify(arg)));
                           return (
                             <div key={i} className="rounded-xl p-4 border flex flex-col"
-                              style={{ background: "#111315", borderColor: "#2A2F35" }}>
+                              style={{ background: "rgb(var(--canvas))", borderColor: "rgb(var(--line))" }}>
                               <div className="flex items-center gap-2 mb-2.5">
                                 <span className="w-6 h-6 rounded-full flex items-center justify-center text-micro font-bold shrink-0"
                                   style={{ background: "#2D6BFF20", color: "#C8A15A", border: "1px solid #2D6BFF30" }}>{i + 1}</span>
@@ -4399,7 +4386,7 @@ export default function AdhocTickerPage() {
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { label: "Exp. Return 12M", value: fv(s16.expected_return_12m ?? rec.expected_return_12m), color: (() => { const v = fv(s16.expected_return_12m ?? rec.expected_return_12m); return v && String(v).startsWith("-") ? "#E2706A" : "#4DB887"; })() },
-                      { label: "Position Size",   value: fv(s16.position_size_pct ?? rec.suggested_size_pct) != null ? `${fv(s16.position_size_pct ?? rec.suggested_size_pct)}%` : null, color: "#B3B8BE" },
+                      { label: "Position Size",   value: fv(s16.position_size_pct ?? rec.suggested_size_pct) != null ? `${fv(s16.position_size_pct ?? rec.suggested_size_pct)}%` : null, color: "rgb(var(--ink-2))" },
                       { label: "Stop Loss",       value: fv(s16.stop_loss_pct ?? rec.stop_loss_pct) != null ? `-${fv(s16.stop_loss_pct ?? rec.stop_loss_pct)}%` : null, color: "#E2706A" },
                     ].filter(({ value }) => value != null).map(({ label, value, color }) => (
                       <StatCard key={label} label={label} value={value} color={color} />
@@ -4433,11 +4420,11 @@ export default function AdhocTickerPage() {
                   const paras = String(narrative).split(/\n\n+/);
                   return (
                     <div className="rounded-xl border border-line overflow-hidden">
-                      <div className="px-5 py-3 flex items-center gap-2" style={{ background: "#111315", borderBottom: "1px solid #2A2F35" }}>
+                      <div className="px-5 py-3 flex items-center gap-2" style={{ background: "rgb(var(--canvas))", borderBottom: "1px solid rgb(var(--line))" }}>
                         <span className="text-micro font-bold text-ink-3">Committee Narrative</span>
-                        <span className="text-micro font-bold px-1.5 py-0 rounded leading-5 bg-caution text-caution border border-caution/30">Sonnet</span>
+                        <span className="text-micro font-bold px-1.5 py-0 rounded leading-5 bg-caution/12 text-caution border border-caution/30">Sonnet</span>
                       </div>
-                      <div className="px-5 py-4 space-y-4" style={{ background: "#111315" }}>
+                      <div className="px-5 py-4 space-y-4" style={{ background: "rgb(var(--canvas))" }}>
                         {paras.map((p, i) => (
                           <p key={i} className="text-xs text-ink-2 leading-relaxed">{p}</p>
                         ))}
@@ -4495,7 +4482,7 @@ export default function AdhocTickerPage() {
                       {[
                         { label: "API Fields",  value: apiCount,   color: "#C8A15A" as const },
                         { label: "AI Fields",   value: aiCount,    color: "#E39A57" as const },
-                        { label: "N/A Fields",  value: naCount,    color: "#8E959D" as const },
+                        { label: "N/A Fields",  value: naCount,    color: "rgb(var(--ink-3))" as const },
                         { label: "Conflicts",   value: conflicts,  color: (Number(conflicts) > 0 ? "#E2706A" : "#4DB887") as string },
                       ].filter(({ value }) => value != null).map(({ label, value, color }) => (
                         <StatCard key={label} label={label} value={value} color={color} />

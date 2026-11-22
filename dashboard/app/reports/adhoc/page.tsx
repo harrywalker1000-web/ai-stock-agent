@@ -39,7 +39,7 @@ const DIRECTION_STYLE: Record<string, string> = {
   BUY:  "text-gain bg-gain/10",
   HOLD: "text-caution bg-caution/10",
   SELL: "text-loss bg-loss/10",
-  PASS: "text-ink-3 bg-white/05",
+  PASS: "text-ink-3 bg-raised/50",
 };
 
 // 6 real workflow steps — matches adhoc_report.yml exactly (no sync step)
@@ -137,7 +137,7 @@ function ProgressBar({ pct, queuedAt, active }: { pct: number; queuedAt: number 
         <span>{active ? "Analysis running…" : pct >= 100 ? "Complete" : "Waiting"}</span>
         <span className="">{shown}%</span>
       </div>
-      <div className="h-2 bg-white/05 rounded-full overflow-hidden">
+      <div className="h-2 bg-raised/50 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
           style={{
@@ -366,9 +366,9 @@ export default function AdhocInputPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-ink-1">Deep-Dive Research</h1>
-          <p className="text-ink-3 text-sm mt-1">
-            Full institutional research report on any ticker. No positions modified.
+          <h1 className="font-serif text-h1 font-medium text-ink-1">Research a stock</h1>
+          <p className="mt-2 text-lead text-ink-2">
+            A full equity research report on any US-listed stock, in about ten minutes. Running a report never changes the portfolio.
           </p>
         </div>
 
@@ -382,7 +382,7 @@ export default function AdhocInputPage() {
               onKeyDown={(e) => e.key === "Enter" && run()}
               placeholder="Ticker (e.g. NVDA)"
               maxLength={6}
-              className="flex-1 bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-ink-1 placeholder-ink-3 focus:outline-none focus:border-accent/50 transition-all"
+              className="flex-1 bg-surface border border-line rounded-xl px-4 py-3 text-sm text-ink-1 placeholder-ink-3 focus:outline-none focus:border-accent/50 transition-all"
             />
             <button
               onClick={run}
@@ -400,7 +400,7 @@ export default function AdhocInputPage() {
               className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
  useCache
  ?"border-accent/50 text-accent bg-accent/10"
- :"border-white/10 text-ink-3 bg-white/03"
+ :"border-line text-ink-3 bg-raised/50"
  }`}
             >
               Use cached (7 days)
@@ -410,7 +410,7 @@ export default function AdhocInputPage() {
               className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
  !useCache
  ?"border-caution/50 text-caution bg-caution/10"
- :"border-white/10 text-ink-3 bg-white/03"
+ :"border-line text-ink-3 bg-raised/50"
  }`}
             >
               Force refresh
@@ -447,7 +447,7 @@ export default function AdhocInputPage() {
               active={progress?.status === "in_progress" || progress?.status === "queued" || !progress}
             />
             {(progress?.steps?.commit === "done" || progress?.status === "completed") && (
-              <div className="pt-3 border-t border-white/05">
+              <div className="pt-3 border-t border-line">
                 <Link
                   href={`/reports/adhoc/${queued}`}
                   className="text-xs text-accent hover:underline"
@@ -501,7 +501,7 @@ export default function AdhocInputPage() {
             return (
               <div className="relative group">
                 <Link href={r.filename ? `/reports/adhoc/${r.ticker}?file=${encodeURIComponent(r.filename)}` : `/reports/adhoc/${r.ticker}`} onClick={() => markSeen(seenKey)}>
-                  <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ?"opacity-40":""}`}>
+                  <div className={`card p-4 hover:border-line-strong transition-colors cursor-pointer flex flex-wrap items-center justify-between gap-x-4 gap-y-2 ${isDeleting ?"opacity-40":""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
                       <div>
@@ -555,7 +555,7 @@ export default function AdhocInputPage() {
                   className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
  tab ==="manual"
  ?"border-accent/50 text-accent bg-accent/10"
- :"border-white/10 text-ink-3 bg-white/03 hover:border-white/20 hover:text-ink-2"
+ :"border-line text-ink-3 bg-raised/50 hover:border-line hover:text-ink-2"
  }`}
                 >
                   My Research{manualReports.length > 0 ? ` (${manualReports.length})` : ""}
@@ -565,7 +565,7 @@ export default function AdhocInputPage() {
                   className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
  tab ==="pipeline"
  ?"border-ink-3/50 text-ink-2 bg-ink-3/10"
- :"border-white/10 text-ink-3 bg-white/03 hover:border-white/20 hover:text-ink-2"
+ :"border-line text-ink-3 bg-raised/50 hover:border-line hover:text-ink-2"
  }`}
                 >
                   Pipeline Research{pipelineReports.length > 0 ? ` (${pipelineReports.length})` : ""}
@@ -617,7 +617,7 @@ export default function AdhocInputPage() {
                             <span className="text-micro text-ink-3 whitespace-nowrap">
                               ({reports.length})
                             </span>
-                            <div className="flex-1 border-t border-white/05 ml-1" />
+                            <div className="flex-1 border-t border-line ml-1" />
                           </button>
                           {isExpanded && (
                             <div className="space-y-2 mb-3">

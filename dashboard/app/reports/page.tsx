@@ -71,7 +71,7 @@ function ScoreBar({ score }: { score: number | null }) {
   const color = score >= 70 ? "#4DB887" : score >= 50 ? "#C8A15A" : "#E2706A";
   return (
     <div className="flex items-center gap-1.5">
-      <div className="w-12 h-1 rounded-full bg-white/08 overflow-hidden">
+      <div className="w-12 h-1 rounded-full bg-raised overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${score}%`, background: color }} />
       </div>
       <span className="text-micro" style={{ color }}>{score}</span>
@@ -100,7 +100,7 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
-          <tr className="text-micro text-ink-3 border-b border-white/06">
+          <tr className="text-micro text-ink-3 border-b border-line">
             <th className="text-left py-2 pr-3 font-semibold">Ticker</th>
             <th className="text-center py-2 px-2 font-semibold">Score</th>
             <th className="text-center py-2 px-2 font-semibold hidden sm:table-cell">Fund</th>
@@ -118,7 +118,7 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
             return (
               <React.Fragment key={row.ticker}>
                 <tr
-                  className={`border-b border-white/04 ${hasDetail ?"cursor-pointer hover:bg-white/[0.02]":""}`}
+                  className={`border-b border-line ${hasDetail ?"cursor-pointer hover:bg-white/[0.02]":""}`}
                   onClick={() => hasDetail && setExpanded(isOpen ? null : row.ticker)}
                 >
                   <td className="py-2.5 pr-3">
@@ -186,7 +186,7 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                                 const isBull = (score ?? 0) >= 65;
                                 const isBear = (score ?? 0) < 50;
                                 return (
-                                  <div key={agent} className={`rounded-lg p-3 border ${isBull ?"border-gain/20 bg-gain/5": isBear ?"border-loss/20 bg-loss/5":"border-white/06 bg-white/02"}`}>
+                                  <div key={agent} className={`rounded-lg p-3 border ${isBull ?"border-gain/20 bg-gain/5": isBear ?"border-loss/20 bg-loss/5":"border-line bg-raised/50"}`}>
                                     <div className="flex items-center justify-between mb-1.5">
                                       <span className="text-micro font-bold text-ink-1">{agent}</span>
                                       <span className={`text-micro font-bold ${isBull ?"text-gain": isBear ?"text-loss":"text-accent"}`}>
@@ -307,7 +307,7 @@ function BriefingView({ b }: { b: Briefing }) {
           {pnl.movers && pnl.movers.length > 0 && (
             <div className="space-y-1.5">
               {pnl.movers.map((m) => (
-                <div key={m.ticker} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
+                <div key={m.ticker} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-line">
                   <span className="font-bold text-ink-1 w-14 shrink-0">{m.ticker}</span>
                   <span className={`text-sm w-20 shrink-0 ${m.contribution >= 0 ?"text-gain":"text-loss"}`}>
                     {fmtMoney(m.contribution)}
@@ -341,7 +341,7 @@ function BriefingView({ b }: { b: Briefing }) {
           {b.market.mood && <p className="text-sm text-ink-2 mb-3">{b.market.mood}</p>}
           <div className="space-y-2">
             {b.market.themes.map((t, i) => (
-              <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/06">
+              <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-line">
                 <p className="text-sm font-semibold text-ink-1">{t.title}</p>
                 {t.what_happened && <p className="text-xs text-ink-2 mt-1">{t.what_happened}</p>}
                 {t.why_it_matters && <p className="text-xs text-ink-3 mt-1">{t.why_it_matters}</p>}
@@ -375,7 +375,7 @@ function BriefingView({ b }: { b: Briefing }) {
             {b.trades.map((t, i) => {
               const color = TRADE_COLORS[t.action] ?? "#8E959D";
               return (
-                <div key={`${t.ticker}-${i}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
+                <div key={`${t.ticker}-${i}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-line">
                   <span
                     className="text-micro font-bold px-2 py-0.5 rounded-md whitespace-nowrap w-20 text-center shrink-0"
                     style={{ color, background: `${color}20` }}
@@ -494,7 +494,7 @@ function ReportCard({ report }: { report: Report }) {
 
       {/* Expanded content */}
       {open && (
-        <div className="border-t border-white/06 p-6 space-y-6">
+        <div className="border-t border-line p-6 space-y-6">
           {report.briefing && <BriefingView b={report.briefing} />}
 
           {/* Pipeline funnel */}
@@ -508,7 +508,7 @@ function ReportCard({ report }: { report: Report }) {
                   { label: "Entered", value: report.pipeline_funnel.entered, color: "#4DB887" },
                 ].map(({ label, value, color }, i, arr) => (
                   <React.Fragment key={label}>
-                    <div className="flex flex-col items-center px-4 py-2 rounded-xl bg-white/[0.02] border border-white/06">
+                    <div className="flex flex-col items-center px-4 py-2 rounded-xl bg-white/[0.02] border border-line">
                       <span className="font-bold text-lg" style={{ color }}>{value}</span>
                       <span className="text-micro text-ink-3 mt-0.5">{label}</span>
                     </div>
@@ -556,7 +556,7 @@ function ReportCard({ report }: { report: Report }) {
                     : a === "hold" ? "#B3B8BE"
                     : "#4DB887";
                   return (
-                    <div key={`${d.ticker}-${di}`} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/06">
+                    <div key={`${d.ticker}-${di}`} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-line">
                       <span className="font-bold text-ink-1 w-12">{d.ticker}</span>
                       <span
                         className="text-xs font-bold px-2 py-0.5 rounded-md self-start whitespace-nowrap"
@@ -637,9 +637,9 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-ink-1">Daily Reports</h1>
-            <p className="text-ink-3 text-sm mt-1">
-              Committee narratives and daily pipeline decisions
+            <h1 className="font-serif text-h1 font-medium text-ink-1">Daily reports</h1>
+            <p className="mt-2 text-lead text-ink-2">
+              What the committee decided each weekday, and how the portfolio performed the day before.
             </p>
           </div>
           <a
@@ -668,12 +668,12 @@ export default function ReportsPage() {
           </div>
         ) : error && reports.length === 0 ? (
           <div className="card p-10 text-center border border-loss/30">
-            <h3 className="font-display text-lg font-bold text-loss mb-2">Data unavailable</h3>
+            <h3 className="font-serif text-h3 font-medium text-loss mb-2">Data unavailable</h3>
             <p className="text-ink-3 text-sm">{error}</p>
           </div>
         ) : reports.length === 0 ? (
           <div className="card p-16 text-center">
-            <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/05">
+            <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-raised/50">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="1.5">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14,2 14,8 20,8" />
@@ -681,7 +681,7 @@ export default function ReportsPage() {
                 <line x1="16" y1="17" x2="8" y2="17" />
               </svg>
             </div>
-            <h3 className="font-display text-lg font-bold text-ink-1 mb-2">No reports yet</h3>
+            <h3 className="font-serif text-h3 font-medium text-ink-1 mb-2">No reports yet</h3>
             <p className="text-ink-3 text-sm">Daily reports will appear here after each pipeline run.</p>
           </div>
         ) : (

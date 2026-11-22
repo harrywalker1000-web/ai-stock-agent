@@ -140,8 +140,8 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-canvas pb-16">
       <div className="max-w-3xl mx-auto px-6 pt-8">
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-ink-1">Settings</h1>
-          <p className="text-ink-3 text-sm mt-1">Configure pipeline behaviour and analysis depth. Saved to the repo, so the next pipeline run uses it.</p>
+          <h1 className="font-serif text-h1 font-medium text-ink-1">Settings</h1>
+          <p className="mt-2 text-lead text-ink-2">Configure pipeline behaviour and analysis depth. Saved to the repo, so the next pipeline run uses it.</p>
         </div>
 
         {errorMsg && (
@@ -153,7 +153,7 @@ export default function SettingsPage() {
         {/* Analysis Mode */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="font-display text-lg font-bold text-ink-1">Analysis Mode</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Analysis Mode</h2>
             {saved && (
               <span className="text-xs font-bold text-gain bg-gain/10 px-2 py-0.5 rounded-md">
                 Saved
@@ -178,12 +178,12 @@ export default function SettingsPage() {
                   className={`text-left p-5 rounded-xl border transition-all duration-200 ${
  isSelected
  ? isAuto ?"border-accent bg-accent/8":"border-accent bg-accent/8"
- :"border-white/08 bg-white/02 hover:border-white/15 hover:bg-white/04"
+ :"border-line bg-raised/50 hover:border-line hover:bg-raised/50"
  }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? (isAuto ?"border-accent":"border-accent") :"border-white/20"}`}>
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? (isAuto ?"border-accent":"border-accent") :"border-line"}`}>
                         {isSelected && <div className={`w-2 h-2 rounded-full ${isAuto ?"bg-accent":"bg-accent"}`} />}
                       </div>
                       <div className="flex items-center gap-2">
@@ -229,7 +229,7 @@ export default function SettingsPage() {
         {/* Phase B Candidate Limits */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="font-display text-lg font-bold text-ink-1">Phase B Candidate Limits</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Phase B Candidate Limits</h2>
             <div className="flex items-center gap-2">
               {savedLimits && (
                 <span className="text-xs font-bold text-gain bg-gain/10 px-2 py-0.5 rounded-md">Saved</span>
@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 <>
                   <button
                     onClick={() => { setDraftLimits({ ...limits }); setEditingLimits(false); }}
-                    className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                    className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-line transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -253,7 +253,7 @@ export default function SettingsPage() {
               ) : (
                 <button
                   onClick={() => setEditingLimits(true)}
-                  className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                  className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-line transition-colors cursor-pointer"
                 >
                   Edit
                 </button>
@@ -261,7 +261,7 @@ export default function SettingsPage() {
             </div>
           </div>
           {/* Phase B flow explanation */}
-          <div className="flex items-start gap-3 mb-5 p-4 rounded-xl bg-white/03 border border-white/06">
+          <div className="flex items-start gap-3 mb-5 p-4 rounded-xl bg-raised/50 border border-line">
             <div className="flex-1 min-w-0">
               <p className="text-xs text-ink-3 leading-relaxed mb-2">Phase B runs in three stages. Only configurable columns affect cost — <span className="text-ink-1">Max Contested</span> is fixed at 10 in code.</p>
               <div className="flex items-center gap-2 flex-wrap text-xs">
@@ -279,10 +279,10 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-white/08">
+          <div className="overflow-hidden rounded-xl border border-line">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/08 bg-white/02">
+                <tr className="border-b border-line bg-raised/50">
                   <th className="text-left px-4 py-3 text-ink-3 text-xs font-semibold">Mode</th>
                   <th className="text-center px-4 py-3 text-accent text-xs font-semibold">① Analyse</th>
                   <th className="text-center px-4 py-3 text-accent text-xs font-semibold">② Committee</th>
@@ -297,7 +297,7 @@ export default function SettingsPage() {
                   const def = DEFAULT_LIMITS[m];
                   const changed = limits[m].analyze !== def.analyze || limits[m].debate !== def.debate || limits[m].contested !== def.contested;
                   return (
-                    <tr key={m} className={`border-b border-white/05 last:border-0 ${i % 2 === 0 ?"bg-white/01":""} ${isActive ?"bg-accent/4":""}`}>
+                    <tr key={m} className={`border-b border-line last:border-0 ${i % 2 === 0 ?"bg-raised/50":""} ${isActive ?"bg-accent/4":""}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <span className={`font-semibold text-sm ${isActive ?"text-accent":"text-ink-1"}`}>{m}</span>
@@ -313,7 +313,7 @@ export default function SettingsPage() {
                             max={200}
                             value={draftLimits[m].analyze}
                             onChange={(e) => updateDraft(m, "analyze", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
                           />
                         ) : (
                           <span className="text-accent font-semibold">{row.analyze}</span>
@@ -327,7 +327,7 @@ export default function SettingsPage() {
                             max={draftLimits[m].analyze}
                             value={draftLimits[m].debate}
                             onChange={(e) => updateDraft(m, "debate", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
                           />
                         ) : (
                           <span className="text-accent font-semibold">{row.debate}</span>
@@ -341,7 +341,7 @@ export default function SettingsPage() {
                             max={draftLimits[m].debate}
                             value={draftLimits[m].contested}
                             onChange={(e) => updateDraft(m, "contested", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-loss/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-loss/60"
                           />
                         ) : (
                           <span className="text-loss font-semibold">{row.contested}</span>

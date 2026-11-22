@@ -3,6 +3,8 @@
 
 import { useEffect, useState, lazy, Suspense } from "react";
 import Link from "next/link";
+import { AIEstimate, KpiRail, Stat, Signed } from "@/components/ui/primitives";
+import { IconArrowLeft, IconCheck, IconCross } from "@/components/ui/icons";
 const CandlestickChart = lazy(() => import("@/components/CandlestickChart"));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,41 +13,29 @@ type PositionDetail = Record<string, any>;
 // ── Small reusable components ────────────────────────────────────────────────
 
 function SectionCard({ title, children, dataSource }: { title: string; children: React.ReactNode; dataSource?: "live" | "llm" | "mixed" }) {
-  const badge = dataSource === "live"
-    ? { label: "Live API", color: "#4DB887" }
-    : dataSource === "llm"
-    ? { label: "LLM estimate — may be stale", color: "#E39A57" }
-    : dataSource === "mixed"
-    ? { label: "Live + LLM", color: "#C8A15A" }
-    : null;
+  // Live data is the default and needs no label; AI-written content is marked (owner's rule)
   return (
-    <div className="card p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-lg font-bold text-ink-1">{title}</h2>
-        {badge && (
-          <span className="text-xs font-medium px-2 py-0.5 rounded-md" style={{ color: badge.color, background: `${badge.color}18` }}>
-            {badge.label}
-          </span>
-        )}
+    <section className="rounded-lg border border-line bg-surface p-6">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <h2 className="font-serif text-h3 font-medium text-ink-1">{title}</h2>
+        {dataSource === "llm" && <AIEstimate note="Written by the AI model from its own knowledge — may be out of date" />}
+        {dataSource === "mixed" && <span className="pt-1 text-micro text-ink-3">Live data, AI commentary</span>}
       </div>
       {children}
-    </div>
+    </section>
   );
 }
 
 function CheckRow({ item, pass, detail }: { item: string; pass: boolean; detail?: string }) {
   return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-white/05 last:border-0">
-      <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 ${pass ?"bg-gain/20":"bg-loss/20"}`}>
-        {pass ? (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4DB887" strokeWidth="3"><polyline points="20,6 9,17 4,12" /></svg>
-        ) : (
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E2706A" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-        )}
-      </div>
-      <div className="flex-1">
-        <p className="text-sm text-ink-1 font-medium">{item}</p>
-        {detail && <p className="text-xs text-ink-3 mt-0.5">{detail}</p>}
+    <div className="flex items-start gap-3 border-b border-line py-2.5 last:border-0">
+      <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-sm ${pass ? "bg-gain/15 text-gain" : "bg-loss/15 text-loss"}`}
+        aria-label={pass ? "Pass" : "Fail"}>
+        {pass ? <IconCheck size={14} /> : <IconCross size={14} />}
+      </span>
+      <div className="min-w-0">
+        <p className="text-body text-ink-1">{item}</p>
+        {detail && <p className="mt-0.5 text-label text-ink-3">{detail}</p>}
       </div>
     </div>
   );
@@ -54,13 +44,13 @@ function CheckRow({ item, pass, detail }: { item: string; pass: boolean; detail?
 function AgentScoreBar({ agent, score, view }: { agent: string; score: number; view: string }) {
   const color = score >= 70 ? "#4DB887" : score >= 50 ? "#E39A57" : "#E2706A";
   return (
-    <div className="flex items-start gap-4 py-3 border-b border-white/06 last:border-0">
+    <div className="flex items-start gap-4 py-3 border-b border-line last:border-0">
       <div className="w-24 flex-shrink-0">
         <span className="text-xs font-semibold text-ink-1">{agent}</span>
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-1">
-          <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+          <div className="flex-1 h-1.5 rounded-full bg-raised overflow-hidden">
             <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
           </div>
           <span className="text-xs font-bold w-6" style={{ color }}>{score}</span>
@@ -143,8 +133,6 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
     );
   }
 
-  const isProfit = (position.pct_change ?? 0) >= 0;
-  const pnlColor = isProfit ? "#4DB887" : "#E2706A";
   const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
   const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 65).map((a: {agent:string}) => a.agent);
   const bearishAgents = allAgentScores.filter((a: {score:number}) => a.score < 50).map((a: {agent:string}) => a.agent);
@@ -214,64 +202,46 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   }
 
   return (
-    <div className="min-h-screen bg-canvas pb-20">
-      <div className="max-w-7xl mx-auto px-6 pt-8">
+    <main className="min-h-screen pb-24">
+      <div className="mx-auto max-w-[1280px] px-4 pt-8 sm:px-6">
 
-        {/* Breadcrumb */}
-        <Link href="/dashboard" className="flex items-center gap-2 text-ink-3 hover:text-ink-1 transition-colors mb-6 text-sm w-fit">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6" /></svg>
-          Back to Dashboard
+        <Link href="/dashboard" className="mb-8 inline-flex items-center gap-2 rounded-sm text-label text-ink-3 transition-colors hover:text-ink-1">
+          <IconArrowLeft size={16} /> Portfolio
         </Link>
 
-        {/* ── Position header ── */}
-        <div className="card p-6 mb-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="font-display text-4xl font-bold text-ink-1">{position.ticker}</h1>
-                <span className={position.direction === "long" ? "badge-long" : "badge-short"}>{position.direction}</span>
-                <span className="text-xs font-medium text-ink-3 px-2.5 py-1 rounded-lg bg-white/05 border border-white/08">{position.sector}</span>
-                <span className="text-xs font-bold text-accent px-2.5 py-1 rounded-lg bg-accent/10">
-                  Scenario {position.scenario ?? "B"}
-                </span>
-                {fm?.setup_type && (
-                  <span className="text-xs font-bold text-ink-2 px-2.5 py-1 rounded-lg bg-ink-3/10">{fm.setup_type}</span>
-                )}
-              </div>
-              <p className="text-ink-3">{position.company}</p>
+        {/* ── Position header: the ticker is the hero ── */}
+        <header className="mb-10">
+          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+            <div className="min-w-0">
+              <h1 className="font-serif text-[48px] font-medium leading-none tracking-tight text-ink-1">{position.ticker}</h1>
+              <p className="mt-3 text-lead text-ink-2">{position.company}</p>
+              <p className="mt-2 text-label text-ink-3">
+                {[position.direction === "long" ? "Long" : "Short", position.sector, fm?.setup_type ? `${fm.setup_type} setup` : null, position.scenario ? `Scenario ${position.scenario}` : null]
+                  .filter(Boolean).join(" · ")}
+              </p>
             </div>
             <div className="text-right">
-              <p className="font-display text-4xl font-bold" style={{ color: pnlColor }}>
-                {(position.pct_change ?? 0) >= 0 ? "+" : ""}{(position.pct_change ?? 0).toFixed(2)}%
-              </p>
-              <p className="text-sm mt-0.5" style={{ color: pnlColor }}>
-                {(position.pnl_absolute ?? 0) >= 0 ? "+$" : "-$"}{Math.abs(position.pnl_absolute ?? 0).toLocaleString()}
+              <p className="font-serif text-figure font-medium tabular"><Signed value={position.pct_change ?? 0} /></p>
+              <p className={`text-body tabular ${(position.pnl_absolute ?? 0) >= 0 ? "text-gain" : "text-loss"}`}>
+                {(position.pnl_absolute ?? 0) >= 0 ? "+" : "−"}${Math.abs(position.pnl_absolute ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })} unrealised
               </p>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-6 pt-6 border-t border-white/06">
-            {[
-              { label: "Entry Price", value: `$${(position.entry_price ?? 0).toFixed(2)}` },
-              { label: "Current Price", value: `$${(position.current_price ?? 0).toFixed(2)}` },
-              { label: "Position Size", value: `$${((position.position_size ?? 0) / 1000).toFixed(1)}K` },
-              { label: "% Portfolio", value: `${(position.pct_portfolio ?? 0).toFixed(1)}%` },
-              { label: "Entry Date", value: position.entry_date },
-              { label: "Conviction", value: `${position.conviction}/100` },
-            ].map(({ label, value }) => (
-              <div key={label}>
-                <p className="text-xs text-ink-3 mb-1">{label}</p>
-                <p className="font-semibold text-ink-1">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+          <KpiRail className="mt-8 border-t border-line pt-6">
+            <Stat label="Entry price" value={`$${(position.entry_price ?? 0).toFixed(2)}`} />
+            <Stat label="Current price" value={`$${(position.current_price ?? 0).toFixed(2)}`} />
+            <Stat label="Position size" value={`$${((position.position_size ?? 0) / 1000).toFixed(1)}K`} sub={`${(position.pct_portfolio ?? 0).toFixed(1)}% of portfolio`} />
+            <Stat label="Entered" value={position.entry_date} />
+            <Stat label="Conviction" value={<>{position.conviction}<span className="text-ink-3">/100</span></>} />
+          </KpiRail>
+        </header>
 
         {/* ── Company Snapshot ── */}
         {(ci || newsCatalysts.length > 0 || sentimentData) && (
           <div className="card p-6 mb-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-bold text-ink-1">Company Snapshot</h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-md text-caution bg-caution/10">LLM estimate — may be stale</span>
+              <h2 className="font-serif text-h3 font-medium text-ink-1">Company Snapshot</h2>
+              <AIEstimate note="Written by the AI model from its own knowledge — may be out of date" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -293,7 +263,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                             <span className="text-ink-1">{seg.segment}</span>
                             <span className="text-ink-3">{seg.weight_pct}%</span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-white/08 overflow-hidden">
+                          <div className="h-1.5 rounded-full bg-raised overflow-hidden">
                             <div className="h-full rounded-full bg-accent" style={{ width: `${seg.weight_pct}%` }} />
                           </div>
                         </div>
@@ -317,15 +287,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   </ul>
                 </div>
                 {sentimentData && (
-                  <div className="pt-3 border-t border-white/06 flex flex-wrap gap-3">
+                  <div className="pt-3 border-t border-line flex flex-wrap gap-3">
                     {sentimentData.analyst_consensus && (
-                      <div className="bg-white/04 rounded-lg px-3 py-2">
+                      <div className="bg-raised/50 rounded-lg px-3 py-2">
                         <p className="text-micro text-ink-3 mb-0.5">Analyst consensus</p>
                         <p className="text-sm font-bold text-gain">{sentimentData.analyst_consensus}</p>
                       </div>
                     )}
                     {(sentimentData.price_target_upside_pct ?? sentimentData.analyst_target_live) && (
-                      <div className="bg-white/04 rounded-lg px-3 py-2">
+                      <div className="bg-raised/50 rounded-lg px-3 py-2">
                         <p className="text-micro text-ink-3 mb-0.5">Analyst upside</p>
                         <p className="text-sm font-bold text-gain">
                           {sentimentData.price_target_upside_pct != null
@@ -350,7 +320,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       const conf = typeof confRaw === "object" ? (confRaw?.level ?? "medium") : (confRaw ?? "medium");
                       const isPos = String(c.direction ?? "LONG").toUpperCase() === "LONG";
                       return (
-                        <div key={i} className="flex items-start gap-2 py-2 border-b border-white/05 last:border-0">
+                        <div key={i} className="flex items-start gap-2 py-2 border-b border-line last:border-0">
                           <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPos ?"bg-gain":"bg-loss"}`} />
                           <div>
                             <p className="text-xs font-semibold text-ink-1 leading-snug mb-0.5">{c.catalyst}</p>
@@ -373,7 +343,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Recommendation badge */}
           <div className="card p-6 flex flex-col justify-between">
-            <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Recommendation</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1 mb-4">Recommendation</h2>
             <div className="flex items-center gap-4 mb-5">
               <div className={`px-5 py-3 rounded-xl text-2xl font-display font-bold ${(rec?.direction ?? position.direction?.toUpperCase()) ==="LONG"?"bg-gain/20 text-gain":"bg-loss/20 text-loss"}`}>
                 {rec?.direction ?? position.direction?.toUpperCase() ?? "LONG"}
@@ -388,7 +358,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 <span className="text-ink-3">Conviction</span>
                 <span className="font-bold text-ink-1">{(rec?.conviction ?? position.conviction ?? 0)}/100</span>
               </div>
-              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-2 rounded-full bg-raised overflow-hidden">
                 <div className="h-full rounded-full bg-accent" style={{ width: `${rec?.conviction ?? position.conviction ?? 0}%` }} />
               </div>
               {rec?.stop_loss_note && (
@@ -398,18 +368,18 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           </div>
 
           {/* Investment thesis bullets + narrative */}
-          <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-accent/10 to-transparent border border-accent/20">
+          <div className="lg:col-span-2 card p-6 bg-surface border border-accent/20">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <h2 className="font-display text-lg font-bold text-ink-1">Investment Thesis</h2>
+              <h2 className="font-serif text-h3 font-medium text-ink-1">Investment Thesis</h2>
               {(position as any).adhoc_generated_at && (
-                <span className="text-micro text-ink-3 px-2 py-0.5 rounded bg-white/05">
-                  Deep-dive: {(position as any).adhoc_generated_at}
+                <span className="text-micro text-ink-3 px-2 py-0.5 rounded bg-raised/50">
+                  Research from {(() => { const g = String((position as any).adhoc_generated_at); const d = new Date(g.replace(" UTC", "Z").replace(" ", "T")); return isNaN(d.getTime()) ? g.slice(0, 10) : d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); })()}
                 </span>
               )}
             </div>
             {/* GPT-4o narrative (from adhoc report) */}
             {(position as any).thesis_narrative && (
-              <p className="text-sm text-ink-1 leading-relaxed mb-5 border-b border-white/06 pb-5">
+              <p className="text-sm text-ink-1 leading-relaxed mb-5 border-b border-line pb-5">
                 {(position as any).thesis_narrative}
               </p>
             )}
@@ -432,7 +402,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           return (
             <div className="card p-6 mb-6">
               <div className="flex items-center gap-2 mb-5 flex-wrap">
-                <h2 className="font-display text-lg font-bold text-ink-1">Scenario Analysis</h2>
+                <h2 className="font-serif text-h3 font-medium text-ink-1">Scenario Analysis</h2>
                 {isFlat ? (
                   <span className="text-micro text-caution px-2 py-0.5 rounded bg-caution/10">AI estimate — targets &amp; probabilities generated by GPT-4o</span>
                 ) : (
@@ -461,7 +431,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                         </span>
                       </div>
                       {priceTgt != null ? (
-                        <p className="font-display text-2xl font-bold mb-1" style={{ color }}>
+                        <p className="font-serif text-h2 font-medium mb-1" style={{ color }}>
                           ${Number(priceTgt).toFixed(0)}
                         </p>
                       ) : (
@@ -478,9 +448,9 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 })}
               </div>
               {(position as any).adhoc_entry_verdict && (
-                <div className="mt-4 pt-4 border-t border-white/06 flex items-center gap-3">
+                <div className="mt-4 pt-4 border-t border-line flex items-center gap-3">
                   <span className="text-xs text-ink-3">Entry timing verdict:</span>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${(position as any).adhoc_entry_verdict ==="favourable"?"bg-gain/20 text-gain": (position as any).adhoc_entry_verdict ==="unfavourable"?"bg-loss/20 text-loss":"bg-white/05 text-ink-3"}`}>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${(position as any).adhoc_entry_verdict ==="favourable"?"bg-gain/20 text-gain": (position as any).adhoc_entry_verdict ==="unfavourable"?"bg-loss/20 text-loss":"bg-raised/50 text-ink-3"}`}>
                     {(position as any).adhoc_entry_verdict}
                   </span>
                 </div>
@@ -503,7 +473,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <CheckRow key={item.item} item={item.item} pass={item.pass} />
             ))}
             {fm && (
-              <div className="mt-4 pt-4 border-t border-white/06 grid grid-cols-2 gap-3">
+              <div className="mt-4 pt-4 border-t border-line grid grid-cols-2 gap-3">
                 {[
                   { label: "Market Cap", value: fm.market_cap_figure },
                   { label: "Avg Daily Volume", value: fm.avg_daily_volume_usd },
@@ -529,7 +499,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
           <SectionCard title="Setup Checklist" dataSource="mixed">
             {(sc as Array<{ item: string; detail: string }>).map((item) => (
-              <div key={item.item} className="py-2.5 border-b border-white/05 last:border-0">
+              <div key={item.item} className="py-2.5 border-b border-line last:border-0">
                 <p className="text-xs font-semibold text-ink-1 mb-0.5">{item.item}</p>
                 <p className="text-xs text-ink-3 leading-relaxed">{item.detail}</p>
               </div>
@@ -544,7 +514,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-white/08">
+                  <tr className="border-b border-line">
                     <th className="text-left text-ink-3 pb-2 font-semibold">Period</th>
                     <th className="text-right text-ink-3 pb-2 font-semibold">Revenue</th>
                     <th className="text-right text-ink-3 pb-2 font-semibold">EBITDA</th>
@@ -553,7 +523,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 </thead>
                 <tbody>
                   {((fs?.historical ?? []) as any[]).map((row) => (
-                    <tr key={row.year} className="border-b border-white/04">
+                    <tr key={row.year} className="border-b border-line">
                       <td className="py-2 text-ink-3">{row.year}</td>
                       <td className="py-2 text-right text-ink-1">{FmtBn(row.revenue)}</td>
                       <td className="py-2 text-right text-ink-1">{FmtBn(row.ebitda)}</td>
@@ -566,7 +536,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     const periodLabel: Record<string, string> = { "0q": "This qtr (est)", "+1q": "Next qtr (est)", "0y": "This FY (est)", "+1y": "Next FY (est)" };
                     const eps = typeof row.net_income === "number" ? row.net_income : null;
                     return (
-                      <tr key={row.year} className="border-b border-white/04 border-dashed">
+                      <tr key={row.year} className="border-b border-line border-dashed">
                         <td className="py-2 text-caution">{periodLabel[row.year] ?? row.year}</td>
                         <td className="py-2 text-right text-caution/80">{FmtBn(row.revenue)}</td>
                         <td className="py-2 text-right text-caution/80">{row.ebitda != null ? FmtBn(row.ebitda) : "n/a"}</td>
@@ -607,7 +577,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="border-b border-white/08">
+                    <tr className="border-b border-line">
                       <th className="text-left text-ink-3 pb-2 font-semibold">Ticker</th>
                       <th className="text-right text-ink-3 pb-2 font-semibold">Rev</th>
                       <th className="text-right text-ink-3 pb-2 font-semibold">P/E</th>
@@ -628,7 +598,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                         return sv <= peer.pe_ratio ? "text-gain" : "text-loss";
                       }
                       return (
-                        <tr key={c.ticker} className={`border-b border-white/04 ${isSubject ?"bg-accent/5":""}`}>
+                        <tr key={c.ticker} className={`border-b border-line ${isSubject ?"bg-accent/5":""}`}>
                           <td className="py-2">
                             <span className={`font-bold ${isSubject ?"text-accent":"text-ink-1"}`}>{c.ticker}</span>
                             {isSubject && <span className="ml-1 text-accent text-xs">(us)</span>}
@@ -669,7 +639,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 { label: "Growth Rate", value: ma?.growth_rate ?? "—" },
                 { label: "Competition", value: ma?.competition_intensity ?? "—" },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-white/03 rounded-xl p-3">
+                <div key={label} className="bg-raised/50 rounded-xl p-3">
                   <p className="text-xs text-ink-3 mb-1">{label}</p>
                   <p className="text-sm font-semibold text-ink-1">{value}</p>
                 </div>
@@ -688,7 +658,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           </SectionCard>
 
           <SectionCard title="Quality of Earnings" dataSource="mixed">
-            <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-white/03">
+            <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-raised/50">
               <div>
                 <p className="text-xs text-ink-3 mb-0.5">Economic Moat</p>
                 <p className={`text-xl font-display font-bold ${qe?.moat ==="Wide"?"text-gain": qe?.moat ==="Narrow"?"text-caution":"text-loss"}`}>{qe?.moat ?? "—"}</p>
@@ -727,7 +697,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 { label: "P/E vs Peers", value: (fs as unknown as {pe_ratio?: number; pe_peer_avg?: number})?.pe_ratio != null && (fs as unknown as {pe_peer_avg?: number})?.pe_peer_avg != null ? `${((fs as unknown as {pe_ratio: number}).pe_ratio).toFixed(1)}x vs ${((fs as unknown as {pe_peer_avg: number}).pe_peer_avg).toFixed(1)}x avg` : "—" },
                 { label: "Expected ROI 12M", value: val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? "—" },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-white/03 rounded-xl p-3">
+                <div key={label} className="bg-raised/50 rounded-xl p-3">
                   <p className="text-xs text-ink-3 mb-1">{label}</p>
                   <p className="text-sm font-semibold text-ink-1">{value}</p>
                 </div>
@@ -762,7 +732,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     { label: "Analysts", value: arh.num_analysts != null ? String(arh.num_analysts) : "—", color: "#ECEDEE" },
                     { label: "Avg Target", value: arh.avg_target_price != null ? `$${arh.avg_target_price}` : "—", color: "#ECEDEE" },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="bg-white/03 rounded-xl p-2.5 text-center">
+                    <div key={label} className="bg-raised/50 rounded-xl p-2.5 text-center">
                       <p className="text-xs text-ink-3 mb-1">{label}</p>
                       <p className="text-sm font-bold" style={{ color }}>{value}</p>
                     </div>
@@ -781,10 +751,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Agent scores ── */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-bold text-ink-1">Agent Scores at Entry</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Agent Scores at Entry</h2>
             <div className="flex items-center gap-2">
               {agentSpread != null && (
-                <span className={`text-micro px-2 py-0.5 rounded ${agentSpread >= 20 ?"bg-caution/15 text-caution":"bg-white/05 text-ink-3"}`}>
+                <span className={`text-micro px-2 py-0.5 rounded ${agentSpread >= 20 ?"bg-caution/15 text-caution":"bg-raised/50 text-ink-3"}`}>
                   Spread {agentSpread}pts
                 </span>
               )}
@@ -799,15 +769,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           {/* Bulls vs Bears summary */}
           {allAgentScores.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className={`rounded-xl p-3 border ${bullishAgents.length > 0 ?"border-gain/25 bg-gain/6":"border-white/05 bg-white/02"}`}>
+              <div className={`rounded-xl p-3 border ${bullishAgents.length > 0 ?"border-gain/25 bg-gain/6":"border-line bg-raised/50"}`}>
                 <p className="text-micro text-gain font-bold mb-1">Bulls ({bullishAgents.length})</p>
                 <p className="text-xs text-ink-3">{bullishAgents.length > 0 ? bullishAgents.join(", ") : "—"}</p>
               </div>
-              <div className={`rounded-xl p-3 border ${neutralAgents.length > 0 ?"border-accent/20 bg-accent/5":"border-white/05 bg-white/02"}`}>
+              <div className={`rounded-xl p-3 border ${neutralAgents.length > 0 ?"border-accent/20 bg-accent/5":"border-line bg-raised/50"}`}>
                 <p className="text-micro text-accent font-bold mb-1">Neutral ({neutralAgents.length})</p>
                 <p className="text-xs text-ink-3">{neutralAgents.length > 0 ? neutralAgents.join(", ") : "—"}</p>
               </div>
-              <div className={`rounded-xl p-3 border ${bearishAgents.length > 0 ?"border-loss/25 bg-loss/6":"border-white/05 bg-white/02"}`}>
+              <div className={`rounded-xl p-3 border ${bearishAgents.length > 0 ?"border-loss/25 bg-loss/6":"border-line bg-raised/50"}`}>
                 <p className="text-micro text-loss font-bold mb-1">Bears ({bearishAgents.length})</p>
                 <p className="text-xs text-ink-3">{bearishAgents.length > 0 ? bearishAgents.join(", ") : "—"}</p>
               </div>
@@ -824,7 +794,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <div className="card p-6 mb-6 border border-caution/20">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <h2 className="font-display text-lg font-bold text-ink-1">Agent Debate</h2>
+                <h2 className="font-serif text-h3 font-medium text-ink-1">Agent Debate</h2>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-caution/15 text-caution">
                   Spread {agentDebate.spread ?? "≥20"} pts
                 </span>
@@ -842,7 +812,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
             {/* Tension identified */}
             {agentDebate.tension_identified && (
-              <div className="mb-4 px-4 py-3 rounded-xl bg-white/03 border border-white/06">
+              <div className="mb-4 px-4 py-3 rounded-xl bg-raised/50 border border-line">
                 <p className="text-micro text-ink-3 mb-1">Tension identified</p>
                 <p className="text-xs text-ink-2">{agentDebate.tension_identified}</p>
               </div>
@@ -855,7 +825,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 flex items-center justify-center">
                   <span className="text-micro font-bold text-accent">C</span>
                 </div>
-                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                <div className="flex-1 bg-raised/50 rounded-xl p-4">
                   <p className="text-micro text-accent font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
                   <p className="text-sm text-ink-1 leading-relaxed">{agentDebate.committee_challenge}</p>
                 </div>
@@ -866,13 +836,13 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-caution/15 flex items-center justify-center">
                   <span className="text-micro font-bold text-caution">A</span>
                 </div>
-                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                <div className="flex-1 bg-raised/50 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-micro text-caution font-bold">{agentDebate.dissenter} response</p>
                     <div className="flex items-center gap-2 text-xs">
                       <span className={`px-1.5 py-0.5 rounded font-bold text-micro ${
  agentDebate.analyst_outcome ==="held"
- ?"bg-white/08 text-ink-3"
+ ?"bg-raised text-ink-3"
  : agentDebate.analyst_outcome ==="revised_up"
  ?"bg-gain/10 text-gain"
  :"bg-loss/10 text-loss"
@@ -891,7 +861,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 flex items-center justify-center">
                   <span className="text-micro font-bold text-accent">R</span>
                 </div>
-                <div className="flex-1 bg-white/03 rounded-xl p-4">
+                <div className="flex-1 bg-raised/50 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-micro text-accent font-bold">Committee resolution</p>
                     <div className="flex items-center gap-2 text-xs">
@@ -917,7 +887,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Committee Risk & Catalyst Assessment ── */}
         {(committeeRisks.length > 0 || committeeCatalysts.length > 0) && (
           <div className="card p-6 mb-6">
-            <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Committee Risk &amp; Catalyst Assessment</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1 mb-4">Committee Risk &amp; Catalyst Assessment</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {committeeCatalysts.length > 0 && (
                 <div>
@@ -963,7 +933,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     { label: "Support", value: technicalData.support != null ? `$${technicalData.support.toFixed(2)}` : "—", color: "#4DB887" },
                     { label: "Resistance", value: technicalData.resistance != null ? `$${technicalData.resistance.toFixed(2)}` : "—", color: "#E2706A" },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="bg-white/03 rounded-lg p-2">
+                    <div key={label} className="bg-raised/50 rounded-lg p-2">
                       <p className="text-xs text-ink-3 mb-0.5">{label}</p>
                       <p className="text-sm font-semibold" style={{ color }}>{value}</p>
                     </div>
@@ -979,7 +949,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     <p className="text-xs text-ink-3 mb-1">Patterns</p>
                     <div className="flex flex-wrap gap-1">
                       {technicalData.key_patterns.map((p: string) => (
-                        <span key={p} className="text-xs text-ink-3 bg-white/05 px-1.5 py-0.5 rounded">{p.replace(/_/g, " ")}</span>
+                        <span key={p} className="text-xs text-ink-3 bg-raised/50 px-1.5 py-0.5 rounded">{p.replace(/_/g, " ")}</span>
                       ))}
                     </div>
                   </div>
@@ -996,7 +966,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     { label: "Short Interest", value: sentimentData.short_interest_pct != null ? `${sentimentData.short_interest_pct.toFixed(1)}%` : "—", color: "#ECEDEE" },
                     { label: "Squeeze Risk", value: sentimentData.short_squeeze_risk ?? "—", color: sentimentData.short_squeeze_risk === "high" ? "#E2706A" : sentimentData.short_squeeze_risk === "medium" ? "#E39A57" : "#4DB887" },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="bg-white/03 rounded-lg p-2">
+                    <div key={label} className="bg-raised/50 rounded-lg p-2">
                       <p className="text-xs text-ink-3 mb-0.5">{label}</p>
                       <p className="text-sm font-semibold" style={{ color }}>{value}</p>
                     </div>
@@ -1019,7 +989,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <SectionCard title="News Catalysts" dataSource="live">
                 <div className="space-y-3">
                   {newsCatalysts.map((c, i) => (
-                    <div key={i} className="py-2 border-b border-white/05 last:border-0">
+                    <div key={i} className="py-2 border-b border-line last:border-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${c.direction ==="LONG"?"bg-gain/10 text-gain":"bg-loss/10 text-loss"}`}>{c.direction}</span>
                         <span className="text-xs text-ink-3">{c.catalyst_type?.replace(/_/g, " ")}</span>
@@ -1075,7 +1045,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     { label: "Insiders", value: ct.insider_pct != null ? `${ct.insider_pct}%` : "—" },
                     { label: "Float", value: ct.float_pct != null ? `${ct.float_pct}%` : "—" },
                   ].map(({ label, value }) => (
-                    <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
+                    <div key={label} className="bg-raised/50 rounded-xl p-3 text-center">
                       <p className="text-xs text-ink-3 mb-1">{label}</p>
                       <p className="text-lg font-display font-bold text-ink-1">{value}</p>
                     </div>
@@ -1088,7 +1058,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     <div key={h.name} className="flex items-center justify-between">
                       <span className="text-xs text-ink-1">{h.name}</span>
                       <div className="flex items-center gap-2">
-                        <div className="w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div className="w-20 h-1.5 rounded-full bg-raised overflow-hidden">
                           <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(h.pct * 3, 100)}%` }} />
                         </div>
                         <span className="text-xs text-ink-3 w-8 text-right">{h.pct}%</span>
@@ -1104,7 +1074,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Company Info ── */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-bold text-ink-1">Company Overview</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Company Overview</h2>
             <span className="text-xs font-medium px-2 py-0.5 rounded-md text-caution bg-caution/10">LLM estimate — may be stale</span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1132,7 +1102,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                         <span className="text-ink-1">{seg.segment}</span>
                         <span className="text-ink-3">{seg.weight_pct}%</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-1.5 rounded-full bg-raised overflow-hidden">
                         <div className="h-full rounded-full bg-accent" style={{ width: `${seg.weight_pct}%` }} />
                       </div>
                     </div>
@@ -1169,14 +1139,14 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       { label: "6 Month", value: hp.ret_6m != null ? `${Number(hp.ret_6m) >= 0 ? "+" : ""}${Number(hp.ret_6m).toFixed(1)}%` : "—", positive: Number(hp.ret_6m) >= 0 },
                       { label: "1 Year",  value: hp.ret_1yr != null ? `${Number(hp.ret_1yr) >= 0 ? "+" : ""}${Number(hp.ret_1yr).toFixed(1)}%` : "—", positive: Number(hp.ret_1yr) >= 0 },
                     ].map(({ label, value, positive }) => (
-                      <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
+                      <div key={label} className="bg-raised/50 rounded-xl p-3 text-center">
                         <p className="text-xs text-ink-3 mb-1">{label}</p>
                         <p className={`text-lg font-display font-bold ${positive ?"text-gain":"text-loss"}`}>{value}</p>
                       </div>
                     ))}
                   </div>
                   {hp.vs_spy_1yr != null && (
-                    <div className="px-3 py-2.5 rounded-xl bg-white/03 flex justify-between items-center mb-3">
+                    <div className="px-3 py-2.5 rounded-xl bg-raised/50 flex justify-between items-center mb-3">
                       <span className="text-xs text-ink-3">vs S&P 500 (1yr)</span>
                       <span className={`text-sm font-bold ${Number(hp.vs_spy_1yr) >= 0 ?"text-gain":"text-loss"}`}>
                         {Number(hp.vs_spy_1yr) >= 0 ? "+" : ""}{Number(hp.vs_spy_1yr).toFixed(1)}%
@@ -1217,14 +1187,14 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       { label: "Debt/Equity",  value: rd.debt_to_equity != null ? Number(rd.debt_to_equity).toFixed(2) : "—" },
                       { label: "Current Ratio", value: rd.current_ratio != null ? Number(rd.current_ratio).toFixed(2) : "—" },
                     ].map(({ label, value }) => (
-                      <div key={label} className="bg-white/03 rounded-xl p-3">
+                      <div key={label} className="bg-raised/50 rounded-xl p-3">
                         <p className="text-xs text-ink-3 mb-1">{label}</p>
                         <p className="text-sm font-semibold text-ink-1">{value}</p>
                       </div>
                     ))}
                   </div>
                   {rd.liquidity_risk && (
-                    <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03 mb-2">
+                    <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-raised/50 mb-2">
                       <span className="text-xs text-ink-3">Liquidity risk</span>
                       <span className={`text-xs font-bold ${rd.liquidity_risk ==="low"?"text-gain": rd.liquidity_risk ==="medium"?"text-caution":"text-loss"}`}>{rd.liquidity_risk}</span>
                     </div>
@@ -1263,7 +1233,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           return (
             <div className="card p-6 mb-6">
               <div className="flex items-center gap-2 mb-5">
-                <h2 className="font-display text-lg font-bold text-ink-1">Institutional Activity</h2>
+                <h2 className="font-serif text-h3 font-medium text-ink-1">Institutional Activity</h2>
                 {inst.multi_fund_flag && (
                   <span className="text-xs font-bold px-2 py-0.5 rounded bg-accent/15 text-accent">Multi-fund convergence</span>
                 )}
@@ -1273,7 +1243,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   <p className="text-xs font-semibold text-ink-3 mb-3">Fund Theses</p>
                   <div className="space-y-3">
                     {(inst.fund_theses as any[]).map((ft: any, i: number) => (
-                      <div key={i} className="p-3 rounded-xl bg-white/03 border border-white/06">
+                      <div key={i} className="p-3 rounded-xl bg-raised/50 border border-line">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-xs font-bold text-ink-1">{ft.fund_name ?? ft.fund ?? "Unknown fund"}</span>
                           {ft.stake_pct && <span className="text-xs text-accent">{ft.stake_pct}% stake</span>}
@@ -1289,7 +1259,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   <p className="text-xs font-semibold text-ink-3 mb-3">Unusual Options Activity</p>
                   <div className="space-y-2">
                     {(inst.unusual_options as any[]).slice(0, 4).map((o: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03">
+                      <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-raised/50">
                         <span className="text-xs text-ink-1">{o.description ?? o.type ?? "—"}</span>
                         {o.premium && <span className="text-xs text-caution">${o.premium}</span>}
                       </div>
@@ -1303,7 +1273,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
         {/* ── Review timeline ── */}
         <div className="card p-6">
-          <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Daily Review Timeline</h2>
+          <h2 className="font-serif text-h3 font-medium text-ink-1 mb-4">Daily Review Timeline</h2>
           <div className="space-y-3">
             {(position.review_timeline && position.review_timeline.length > 0
               ? position.review_timeline
@@ -1314,10 +1284,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 ? "#4DB887" : r.decision === "decrease" ? "#E39A57" : "#E2706A";
               const timelineLength = position.review_timeline?.length ?? 0;
               return (
-                <div key={i} className="flex gap-4 pb-3 border-b border-white/06 last:border-0">
+                <div key={i} className="flex gap-4 pb-3 border-b border-line last:border-0">
                   <div className="flex flex-col items-center gap-1">
                     <div className="w-2.5 h-2.5 rounded-full mt-1.5" style={{ background: actionColor }} />
-                    {i < timelineLength - 1 && <div className="w-px flex-1 bg-white/08" />}
+                    {i < timelineLength - 1 && <div className="w-px flex-1 bg-raised" />}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1 flex-wrap">
@@ -1341,6 +1311,6 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         </div>
 
       </div>
-    </div>
+    </main>
   );
 }

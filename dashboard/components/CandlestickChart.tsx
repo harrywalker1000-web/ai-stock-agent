@@ -255,7 +255,7 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice, tra
               className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
  tf === t
  ?"bg-accent/20 text-accent"
- :"text-ink-3 hover:text-ink-1 hover:bg-white/5"
+ :"text-ink-3 hover:text-ink-1 hover:bg-raised/50"
  }`}
             >
               {t}

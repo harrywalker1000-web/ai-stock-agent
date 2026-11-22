@@ -34,7 +34,7 @@ export default function HomePage() {
   }, []);
 
   const s = data?.stats;
-  const history = data?.history ?? [];
+  const history = useMemo(() => data?.history ?? [], [data]);
   const values = useMemo(() => history.map((h) => h.value), [history]);
   const top = useMemo(() => [...(data?.positions ?? [])].sort((a, b) => b.pct_portfolio - a.pct_portfolio).slice(0, 8), [data]);
   const since = history[0]?.date;
@@ -48,7 +48,7 @@ export default function HomePage() {
   return (
     <main className="mx-auto max-w-[1280px] px-4 pb-24 sm:px-6">
       {/* Terrain band — contour lines drawn from the portfolio's own equity history */}
-      <div aria-hidden className="pointer-events-none -mx-4 h-24 overflow-hidden sm:-mx-6 sm:h-28">
+      <div aria-hidden className="pointer-events-none -mx-4 h-24 overflow-hidden sm:-mx-6 sm:h-28 [mask-image:linear-gradient(to_bottom,black_30%,transparent)]">
         {values.length > 2 && <Contours values={values} lines={11} className="h-full w-full" height={120} />}
       </div>
 

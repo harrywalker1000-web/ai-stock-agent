@@ -93,7 +93,7 @@ function Slide({ id, children }: { id?: string; children: React.ReactNode }) {
 function SourceBadge({ src, href }: { src: string; href?: string }) {
   const isAI = /llm|ai|gpt|committee/i.test(src);
   const cls = isAI ? "bg-amber-50 text-amber-600 border-amber-200" : "bg-sky-50 text-sky-600 border-sky-200";
-  const badge = <span className={`inline-flex items-center text-[8px] px-1.5 py-0.5 rounded border ${cls} print:hidden ml-1 shrink-0`}>{isAI ? "AI" : src}{!isAI && href ? " ↗" : ""}</span>;
+  const badge = <span className={`inline-flex items-center text-micro px-1.5 py-0.5 rounded border ${cls} print:hidden ml-1 shrink-0`}>{isAI ? "AI" : src}{!isAI && href ? " ↗" : ""}</span>;
   if (!isAI && href) return <a href={href} target="_blank" rel="noreferrer" className="print:hidden">{badge}</a>;
   return badge;
 }
@@ -1558,7 +1558,7 @@ export default function FullReportPage() {
                 <div className="text-right">
                   <p className="text-xs text-blue-300 mb-1">Conviction Score</p>
                   <p className="text-6xl font-bold">{conviction}<span className="text-2xl text-blue-300">/100</span></p>
-                  <div className="w-48 h-2.5 bg-white/20 rounded-full overflow-hidden mt-3">
+                  <div className="w-48 h-2.5 bg-raised rounded-full overflow-hidden mt-3">
                     <div className={`h-2.5 rounded-full ${convBar(conviction)}`} style={{ width: `${conviction}%` }} />
                   </div>
                 </div>

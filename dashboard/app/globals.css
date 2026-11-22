@@ -62,7 +62,9 @@
     --texture-grain: none;
   }
 
-  * { box-sizing: border-box; }
+  /* Any border without an explicit colour uses the token hairline (Tailwind's
+     preflight default is a light grey, which glares on graphite) */
+  *, ::before, ::after { box-sizing: border-box; border-color: rgb(var(--line)); }
 
   html {
     background-color: rgb(var(--canvas));
