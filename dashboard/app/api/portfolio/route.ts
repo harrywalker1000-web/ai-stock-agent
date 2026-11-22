@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { findPendingSplits, correctPosition, fetchDailyCloses, nyDate } from "@/lib/splits";
 
 // Static JSON imports — guaranteed bundled by Next.js/Vercel
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,8 +102,10 @@ async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // Alpaca stamps each daily point at 20:00 New York time (01:00 UTC next day) —
+    // the UTC date is the following calendar day, so label in New York time.
     return (data.timestamp ?? []).map((ts: number, i: number) => ({
-      date: new Date(ts * 1000).toISOString().split("T")[0],
+      date: nyDate(new Date(ts * 1000)),
       value: data.equity[i] ?? 0,
     })).filter((d: { value: number }) => d.value > 0);
   } catch { return []; }
@@ -180,12 +183,57 @@ const SECTOR_COLORS: Record<string, string> = {
 export async function GET() {
 
   // Fetch live data from Alpaca in parallel
-  const [alpacaPositions, alpacaAccount, alpacaHistory, stopOrders] = await Promise.all([
+  const [rawPositions, rawAccount, rawHistory, stopOrders] = await Promise.all([
     fetchAlpacaPositions(),
     fetchAlpacaAccount(),
     fetchAlpacaHistory(),
     fetchAlpacaStopOrders(),
   ]);
+
+  // ── Stock-split correction (see lib/splits.ts) ────────────────────────────
+  // Positions Alpaca hasn't re-based after a split are corrected, and account
+  // equity / history are shifted by the same deterministic market-value delta.
+  const pendingSplits = rawPositions ? await findPendingSplits(rawPositions) : {};
+  let mvDeltaTotal = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const alpacaPositions = rawPositions?.map((p: any) => {
+    const s = pendingSplits[p.symbol];
+    if (!s) return p;
+    const { position, mvDelta } = correctPosition(p, s);
+    mvDeltaTotal += mvDelta;
+    return position;
+  }) ?? null;
+
+  let alpacaHistory = rawHistory;
+  const historyDelta: Record<string, number> = {};
+  for (const s of Object.values(pendingSplits)) {
+    const closes = await fetchDailyCloses(s.symbol, s.ex_date);
+    const sign = rawPositions?.find((p) => p.symbol === s.symbol)?.side === "short" ? -1 : 1;
+    for (const [d, close] of Object.entries(closes)) {
+      if (d >= s.ex_date) historyDelta[d] = (historyDelta[d] ?? 0) + sign * (s.ratio - 1) * s.broker_qty * close;
+    }
+  }
+  if (Object.keys(historyDelta).length) {
+    alpacaHistory = rawHistory.map((h) => ({ ...h, value: h.value + (historyDelta[h.date] ?? 0) }));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let alpacaAccount: any = rawAccount;
+  if (rawAccount && mvDeltaTotal !== 0) {
+    const eq = parseFloat(rawAccount.equity);
+    const lastEq = parseFloat(rawAccount.last_equity ?? rawAccount.equity);
+    // last_equity is the previous close; correct it only if that close was itself post-split.
+    const prevIdx = rawHistory.findIndex((h) => Math.abs(h.value - lastEq) < 0.01);
+    const lastEqDelta = prevIdx >= 0 ? (historyDelta[rawHistory[prevIdx].date] ?? 0) : 0;
+    alpacaAccount = {
+      ...rawAccount,
+      equity: String(eq + mvDeltaTotal),
+      portfolio_value: String(eq + mvDeltaTotal),
+      last_equity: String(lastEq + lastEqDelta),
+      long_market_value: String(parseFloat(rawAccount.long_market_value ?? "0") + Math.max(mvDeltaTotal, 0)),
+      short_market_value: String(parseFloat(rawAccount.short_market_value ?? "0") + Math.min(mvDeltaTotal, 0)),
+    };
+  }
 
   // ── Positions: Alpaca is source of truth ──────────────────────────────────
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -241,11 +289,16 @@ export async function GET() {
         sentiment_score:    sc?.sentiment_score ?? null,
         composite_score:    sc?.composite_score ?? null,
         // Stop-loss: Alpaca open stop orders are source of truth
-        stop_price:         stopOrders[ticker]?.stop_price ?? logEntry?.stop_loss ?? null,
+        stop_price:         stopOrders[ticker]?.stop_price ?? (
+          // Log stop is per-share pre-split until the pipeline rescales it (splits_applied)
+          p._split_correction && logEntry?.stop_loss && !(logEntry?.splits_applied ?? []).length
+            ? parseFloat((logEntry.stop_loss / p._split_correction.ratio).toFixed(2))
+            : logEntry?.stop_loss ?? null),
         has_native_stop:    ticker in stopOrders,
         native_order_type:  stopOrders[ticker]?.order_type ?? null,
         native_trail_pct:   stopOrders[ticker]?.trail_percent ?? null,
         native_limit_price: stopOrders[ticker]?.limit_price ?? null,
+        split_correction:   p._split_correction ?? null,
       };
     });
   } else if (positionsLog && Object.keys(positionsLog).length > 0) {
@@ -299,6 +352,7 @@ export async function GET() {
       pipeline_status:    "success",
       pipeline_last_run:  committeeReport?.generated_at ?? "—",
       margin_warning:     usingMargin,
+      split_corrections:  Object.values(pendingSplits),
       _source:            "alpaca_live",
     };
   } else {

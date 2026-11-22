@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import YahooFinanceClass from "yahoo-finance2";
+import { findPendingSplits, correctPosition } from "@/lib/splits";
 
 // Static JSON imports — bundler includes these in the serverless function.
 // fs.readFileSync at runtime is NOT reliably bundled by Next.js/Vercel.
@@ -39,6 +40,21 @@ async function fetchAlpacaPosition(ticker: string): Promise<any | null> {
     if (!res.ok) return null;
     return await res.json();
   } catch { return null; }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAllAlpacaPositions(): Promise<any[]> {
+  const key    = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return [];
+  try {
+    const res = await fetch(`${base}/v2/positions`, {
+      headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
+      next: { revalidate: 60 },
+    });
+    return res.ok ? await res.json() : [];
+  } catch { return []; }
 }
 
 async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
@@ -92,7 +108,7 @@ export async function GET(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const positionsLog = positionsLogData as any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const positionEntry = (positionsLog as any)?.[ticker] ?? null;
+  let positionEntry = (positionsLog as any)?.[ticker] ?? null;
 
   // Build review timeline from decision_log filtered to this ticker
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,10 +162,32 @@ export async function GET(
   const hasPipelineData = !!(scorecard || fundamental || quant || sentiment);
 
   // ── Fetch live data in parallel: Yahoo Finance + Alpaca ───────────────────
-  const [alpacaPosition, alpacaAccount] = await Promise.all([
+  const [rawAlpacaPosition, rawAlpacaAccount, allAlpacaPositions] = await Promise.all([
     fetchAlpacaPosition(ticker),
     fetchAlpacaAccount(),
+    fetchAllAlpacaPositions(),
   ]);
+
+  // ── Stock-split correction (lib/splits.ts) — Alpaca can lag a split by days ──
+  const pendingSplits = await findPendingSplits(allAlpacaPositions);
+  let equityDelta = 0;
+  for (const p of allAlpacaPositions) {
+    if (pendingSplits[p.symbol]) equityDelta += correctPosition(p, pendingSplits[p.symbol]).mvDelta;
+  }
+  const thisSplit = pendingSplits[ticker];
+  const alpacaPosition = rawAlpacaPosition && thisSplit
+    ? correctPosition(rawAlpacaPosition, thisSplit).position
+    : rawAlpacaPosition;
+  const alpacaAccount = rawAlpacaAccount ? { equity: rawAlpacaAccount.equity + equityDelta } : null;
+  // positions_log prices are per-share pre-split until the pipeline rescales them
+  if (thisSplit && positionEntry && !(positionEntry.splits_applied ?? []).length) {
+    const r = thisSplit.ratio;
+    positionEntry = {
+      ...positionEntry,
+      entry_price: positionEntry.entry_price ? positionEntry.entry_price / r : positionEntry.entry_price,
+      stop_loss:   positionEntry.stop_loss ? parseFloat((positionEntry.stop_loss / r).toFixed(2)) : positionEntry.stop_loss,
+    };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let liveQuote: any = null;
