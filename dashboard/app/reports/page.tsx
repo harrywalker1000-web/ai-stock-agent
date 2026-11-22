@@ -1,600 +1,413 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+/**
+ * Daily reports — "the morning note".
+ * Left: a ledger of sessions (date, regime, P&L with a diverging bar — the real run of
+ * good and bad days at a glance). Right: the selected day as an editorial note.
+ * The committee's working sits behind one disclosure; it is reference, not the story.
+ */
+import React, { Suspense, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Alert, Button, EmptyState, Skeleton, Ticker } from "@/components/ui/primitives";
+import { IconChevronDown } from "@/components/ui/icons";
 
 interface AgentFinding { agent: string; finding: string; }
 interface Decision { ticker: string; action: string; conviction: number; thesis: string; }
 interface ScorecardRow {
-  ticker: string;
-  composite_score: number | null;
-  fundamental_score: number | null;
-  quant_score: number | null;
-  sentiment_score: number | null;
-  agent_spread: number | null;
-  conflict_flag: boolean;
-  direction: string | null;
-  was_debated: boolean;
-  debate_reason: string | null;
-  action: string;
-  investment_thesis: string | null;
-  key_risks: string[];
-  key_catalysts: string[];
-  conviction: number | null;
-  fundamental_summary: string | null;
-  quant_summary: string | null;
-  sentiment_summary: string | null;
-  upside_pct: number | null;
+  ticker: string; composite_score: number | null; fundamental_score: number | null; quant_score: number | null;
+  sentiment_score: number | null; agent_spread: number | null; conflict_flag: boolean; direction: string | null;
+  was_debated: boolean; debate_reason: string | null; action: string; investment_thesis: string | null;
+  key_risks: string[]; key_catalysts: string[]; conviction: number | null; fundamental_summary: string | null;
+  quant_summary: string | null; sentiment_summary: string | null; upside_pct: number | null;
   debate_detail: Record<string, unknown> | null;
 }
 interface PipelineFunnel { analyzed: number; debated: number; entered: number; }
-interface Mover {
-  ticker: string; contribution: number; move_pct: number;
-  sector?: string | null; sector_move_pct?: number | null; why?: string | null;
-}
+interface Mover { ticker: string; contribution: number; move_pct: number; sector?: string | null; sector_move_pct?: number | null; why?: string | null; }
 interface BriefingTrade { ticker: string; action: string; verb: string; shares: number; notional: number; why?: string | null; }
+interface MarketTheme { title: string; what_happened?: string; why_it_matters?: string; next?: string; our_exposure?: { ticker: string; effect: string; why?: string }[]; }
 interface Briefing {
   headline: string;
-  pnl?: {
-    date: string; abs: number; pct: number; spy_pct?: number | null;
-    movers?: Mover[]; other?: number | null; why?: string | null;
-  } | null;
-  trades: BriefingTrade[];
-  not_executed: { ticker: string; reason: string }[];
-  watch: string[];
+  pnl?: { date: string; abs: number; pct: number; spy_pct?: number | null; movers?: Mover[]; other?: number | null; why?: string | null } | null;
+  trades: BriefingTrade[]; not_executed: { ticker: string; reason: string }[]; watch: string[];
   market?: { mood?: string | null; themes: MarketTheme[] } | null;
-}
-interface MarketTheme {
-  title: string; what_happened?: string; why_it_matters?: string; next?: string;
-  our_exposure?: { ticker: string; effect: string; why?: string }[];
 }
 interface Report {
   briefing?: Briefing | null;
-  date: string; macro_regime: string; new_positions: number; exits: number;
-  holds: number; increases: number; decreases: number;
+  date: string; macro_regime: string; new_positions: number; exits: number; holds: number; increases: number; decreases: number;
   daily_pnl: string; daily_pnl_pct?: string | null; daily_pnl_date?: string | null;
-  summary: string; narrative: string; agent_findings: AgentFinding[];
-  decisions: Decision[];
-  open_positions_after?: number; market_closed?: boolean;
-  benchmark_summary?: string | null; benchmark_alpha_1w?: number | null;
-  pipeline_funnel?: PipelineFunnel | null;
+  summary: string; narrative: string; agent_findings: AgentFinding[]; decisions: Decision[];
+  open_positions_after?: number; market_closed?: boolean; pipeline_funnel?: PipelineFunnel | null;
   scorecards_summary?: ScorecardRow[] | null;
 }
 
-function RegimeBadge({ regime }: { regime: string }) {
-  if (regime === "RISK-ON") return <span className="badge-risk-on">{regime}</span>;
-  if (regime === "RISK-OFF") return <span className="badge-risk-off">{regime}</span>;
-  return <span className="badge-neutral">{regime}</span>;
+/* ── helpers ─────────────────────────────────────────────────────────────── */
+const day = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
+const money = (n: number) => `${n > 0 ? "+" : n < 0 ? "−" : ""}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`;
+const pct = (n: number, d = 2) => `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(d)}%`;
+const tone = (n: number) => (n > 0 ? "text-gain" : n < 0 ? "text-loss" : "text-ink-2");
+const regimeWord = (r: string) => (r === "RISK-ON" ? "Risk-on" : r === "RISK-OFF" ? "Risk-off" : r ? r.charAt(0) + r.slice(1).toLowerCase() : "—");
+
+/** Day P&L in dollars: briefing figure if present, else parsed from the legacy "+$1,234" string. */
+function dayPnl(r: Report): number | null {
+  if (r.briefing?.pnl && typeof r.briefing.pnl.abs === "number") return r.briefing.pnl.abs;
+  const m = String(r.daily_pnl ?? "").replace(/,/g, "").match(/([+-−]?)\$?(\d+(?:\.\d+)?)/);
+  if (!m) return null;
+  const v = parseFloat(m[2]);
+  return m[1] === "-" || m[1] === "−" ? -v : v;
+}
+function dayPct(r: Report): number | null {
+  if (r.briefing?.pnl && typeof r.briefing.pnl.pct === "number") return r.briefing.pnl.pct;
+  const m = String(r.daily_pnl_pct ?? "").match(/([+-−]?)(\d+(?:\.\d+)?)/);
+  if (!m) return null;
+  const v = parseFloat(m[2]);
+  return m[1] === "-" || m[1] === "−" ? -v : v;
 }
 
-function ScoreBar({ score }: { score: number | null }) {
-  if (score == null) return <span className="text-ink-3 text-micro">—</span>;
-  const color = score >= 70 ? "#4DB887" : score >= 50 ? "#C8A15A" : "#E2706A";
+/* ── Ledger ──────────────────────────────────────────────────────────────── */
+function Ledger({ reports, selected, onSelect, maxAbs }: { reports: Report[]; selected: string | null; onSelect: (d: string) => void; maxAbs: number }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="w-12 h-1 rounded-full bg-raised overflow-hidden">
-        <div className="h-full rounded-full" style={{ width: `${score}%`, background: color }} />
-      </div>
-      <span className="text-micro" style={{ color }}>{score}</span>
-    </div>
-  );
-}
-
-function ActionBadge({ action }: { action: string }) {
-  if (!action) return null;
-  const isEntry = action.includes("enter");
-  const isExit  = action.includes("exit");
-  const isHold  = action.includes("hold");
-  const color   = isEntry ? "#4DB887" : isExit ? "#E2706A" : isHold ? "#8E959D" : "#8E959D";
-  const label   = action.replace(/_/g, " ");
-  return (
-    <span className="text-micro font-bold px-1.5 py-0.5 rounded"
-      style={{ color, background: `${color}20` }}>
-      {label}
-    </span>
-  );
-}
-
-function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
-        <thead>
-          <tr className="text-micro text-ink-3 border-b border-line">
-            <th className="text-left py-2 pr-3 font-semibold">Ticker</th>
-            <th className="text-center py-2 px-2 font-semibold">Score</th>
-            <th className="text-center py-2 px-2 font-semibold hidden sm:table-cell">Fund</th>
-            <th className="text-center py-2 px-2 font-semibold hidden sm:table-cell">Quant</th>
-            <th className="text-center py-2 px-2 font-semibold hidden sm:table-cell">Sent</th>
-            <th className="text-center py-2 px-2 font-semibold hidden md:table-cell">Spread</th>
-            <th className="text-center py-2 px-2 font-semibold">Debated</th>
-            <th className="text-left py-2 pl-2 font-semibold">Outcome</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const isOpen = expanded === row.ticker;
-            const hasDetail = !!(row.investment_thesis || row.fundamental_summary || row.quant_summary || row.sentiment_summary || row.key_risks?.length || row.key_catalysts?.length);
-            return (
-              <React.Fragment key={row.ticker}>
-                <tr
-                  className={`border-b border-line ${hasDetail ?"cursor-pointer hover:bg-white/[0.02]":""}`}
-                  onClick={() => hasDetail && setExpanded(isOpen ? null : row.ticker)}
-                >
-                  <td className="py-2.5 pr-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-bold text-ink-1">{row.ticker}</span>
-                      {row.conflict_flag && (
-                        <span className="text-micro font-bold px-1 py-0.5 rounded bg-loss/15 text-loss">conflict</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="text-center py-2.5 px-2">
-                    <span className={`font-bold ${(row.composite_score ?? 0) >= 65 ?"text-gain": (row.composite_score ?? 0) >= 50 ?"text-accent":"text-loss"}`}>
-                      {row.composite_score ?? "—"}
-                    </span>
-                  </td>
-                  <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.fundamental_score} />
-                  </td>
-                  <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.quant_score} />
-                  </td>
-                  <td className="text-center py-2.5 px-2 hidden sm:table-cell">
-                    <ScoreBar score={row.sentiment_score} />
-                  </td>
-                  <td className="text-center py-2.5 px-2 hidden md:table-cell">
-                    <span className={`text-micro ${(row.agent_spread ?? 0) >= 20 ?"text-caution":"text-ink-3"}`}>
-                      {row.agent_spread ?? "—"}
-                    </span>
-                  </td>
-                  <td className="text-center py-2.5 px-2">
-                    {row.was_debated ? (
-                      <span className="text-micro font-bold px-1.5 py-0.5 rounded bg-caution/15 text-caution">
-                        {row.debate_reason === "likely_entry" ? "mandatory" : "contested"}
-                      </span>
-                    ) : (
-                      <span className="text-ink-3 text-micro">—</span>
-                    )}
-                  </td>
-                  <td className="py-2.5 pl-2">
-                    <div className="flex items-center gap-1.5">
-                      <ActionBadge action={row.action} />
-                      {hasDetail && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="2"
-                          className={`transition-transform duration-150 ${isOpen ?"rotate-180":""}`}>
-                          <polyline points="6,9 12,15 18,9" />
-                        </svg>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-                {isOpen && hasDetail && (
-                  <tr key={`${row.ticker}-detail`} className="bg-white/[0.015]">
-                    <td colSpan={8} className="px-4 py-4">
-                      <div className="space-y-3">
-                        {/* Agent views — bull vs bear framing */}
-                        {(row.fundamental_score != null || row.quant_score != null || row.sentiment_score != null) && (
-                          <div>
-                            <p className="text-micro text-ink-3 font-semibold mb-2">Agent views</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                              {[
-                                { agent: "Fundamental", score: row.fundamental_score, view: row.fundamental_summary },
-                                { agent: "Quant", score: row.quant_score, view: row.quant_summary },
-                                { agent: "Sentiment", score: row.sentiment_score, view: row.sentiment_summary },
-                              ].map(({ agent, score, view }) => {
-                                const isBull = (score ?? 0) >= 65;
-                                const isBear = (score ?? 0) < 50;
-                                return (
-                                  <div key={agent} className={`rounded-lg p-3 border ${isBull ?"border-gain/20 bg-gain/5": isBear ?"border-loss/20 bg-loss/5":"border-line bg-raised/50"}`}>
-                                    <div className="flex items-center justify-between mb-1.5">
-                                      <span className="text-micro font-bold text-ink-1">{agent}</span>
-                                      <span className={`text-micro font-bold ${isBull ?"text-gain": isBear ?"text-loss":"text-accent"}`}>
-                                        {score ?? "—"}/100
-                                        {isBull ? " ▲" : isBear ? " ▼" : ""}
-                                      </span>
-                                    </div>
-                                    {view && <p className="text-micro text-ink-3 leading-relaxed">{view}</p>}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                        {/* Investment thesis */}
-                        {row.investment_thesis && (
-                          <div>
-                            <p className="text-micro text-ink-3 font-semibold mb-1">Committee thesis</p>
-                            <p className="text-xs text-ink-3 leading-relaxed">{row.investment_thesis}</p>
-                          </div>
-                        )}
-                        {/* Catalysts */}
-                        {row.key_catalysts?.length > 0 && (
-                          <div>
-                            <p className="text-micro text-ink-3 font-semibold mb-1">Key catalysts</p>
-                            <ul className="space-y-0.5">
-                              {row.key_catalysts.map((c, i) => (
-                                <li key={i} className="text-micro text-ink-3 flex gap-1.5">
-                                  <span className="text-gain flex-shrink-0">→</span> {c}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {/* Risks */}
-                        {row.key_risks?.length > 0 && (
-                          <div>
-                            <p className="text-micro text-ink-3 font-semibold mb-1">Key risks</p>
-                            <ul className="space-y-0.5">
-                              {row.key_risks.map((r, i) => (
-                                <li key={i} className="text-micro text-ink-3 flex gap-1.5">
-                                  <span className="text-loss flex-shrink-0">⚠</span> {r}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+    <ol aria-label="Sessions" className="divide-y divide-line border-y border-line">
+      {reports.map((r) => {
+        const v = dayPnl(r);
+        const w = v == null || maxAbs === 0 ? 0 : Math.max(2, (Math.abs(v) / maxAbs) * 50);
+        const active = r.date === selected;
+        return (
+          <li key={r.date}>
+            <button onClick={() => onSelect(r.date)} aria-current={active ? "true" : undefined}
+              className={`group grid w-full grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 px-3 py-3 text-left transition-colors duration-fast ${
+                active ? "bg-raised" : "hover:bg-raised/50"}`}>
+              <span className="flex items-baseline gap-2">
+                <span className={`text-body ${active ? "text-ink-1 font-medium" : "text-ink-1"}`}>{day(r.date, { weekday: "short", day: "numeric", month: "short" })}</span>
+                <span className="text-micro text-ink-3">{regimeWord(r.macro_regime)}</span>
+              </span>
+              <span className={`text-body tabular ${v == null ? "text-ink-3" : tone(v)}`}>{v == null ? "—" : money(v)}</span>
+              {/* diverging bar: centre line = $0 */}
+              <span aria-hidden className="relative col-span-2 h-1 rounded-full bg-line/60">
+                <span className="absolute inset-y-0 left-1/2 w-px bg-line-strong/60" />
+                {v != null && v !== 0 && (
+                  <span className={`absolute inset-y-0 rounded-full ${v > 0 ? "left-1/2 bg-gain" : "right-1/2 bg-loss"}`} style={{ width: `${w}%` }} />
                 )}
-              </React.Fragment>
-            );
-          })}
-        </tbody>
-      </table>
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/* ── Attribution: movers + everything else, summing to the day ─────────── */
+const GRID = "grid-cols-[112px_88px_minmax(0,1fr)] sm:grid-cols-[120px_96px_minmax(0,200px)_minmax(0,1fr)]";
+function Attribution({ pnl }: { pnl: NonNullable<Briefing["pnl"]> }) {
+  const movers = pnl.movers ?? [];
+  const other = pnl.abs - movers.reduce((s, m) => s + (m.contribution ?? 0), 0);
+  const rows = [
+    ...movers.map((m) => ({ key: m.ticker, label: <Ticker>{m.ticker}</Ticker>, value: m.contribution, move: m.move_pct, why: m.why })),
+    ...(Math.abs(other) >= 1 ? [{ key: "_other", label: <span className="text-label text-ink-3">Everything else</span>, value: other, move: null as number | null, why: "Smaller positions and intraday trades" }] : []),
+  ];
+  const max = Math.max(1, ...rows.map((r) => Math.abs(r.value)));
+  return (
+    <div>
+      <ul className="space-y-4">
+        {rows.map((r) => (
+          <li key={r.key} className={`grid ${GRID} items-center gap-x-4 gap-y-1`}>
+            <span className="whitespace-nowrap">{r.label}</span>
+            <span className={`text-right text-body tabular ${tone(r.value)}`}>
+              {money(r.value)}
+              {r.move != null && <span className="block text-micro text-ink-3">{pct(r.move, 1)} price</span>}
+            </span>
+            <span aria-hidden className="relative h-2">
+              <span className="absolute inset-y-0 left-1/2 w-px bg-line-strong/70" />
+              <span className={`absolute inset-y-0 rounded-sm ${r.value >= 0 ? "left-1/2 bg-gain/80" : "right-1/2 bg-loss/80"}`}
+                style={{ width: `${(Math.abs(r.value) / max) * 50}%` }} />
+            </span>
+            <span className="col-span-3 text-label text-ink-2 sm:col-span-1">{r.why ?? ""}</span>
+          </li>
+        ))}
+      </ul>
+      <div className={`mt-4 grid ${GRID} items-baseline gap-x-4 border-t border-line pt-3`}>
+        <span className="text-label text-ink-3">Day total</span>
+        <span className={`text-right text-body font-medium tabular ${tone(pnl.abs)}`}>{money(pnl.abs)}</span>
+      </div>
     </div>
   );
 }
 
-function AgentFindingCard({ finding }: { finding: AgentFinding }) {
-  const [expanded, setExpanded] = useState(false);
-  const isLong = finding.finding.length > 160;
+/* ── Note sections ───────────────────────────────────────────────────────── */
+function NoteSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <button
-      className="flex gap-3 p-3 rounded-xl bg-white/[0.02] text-left w-full hover:bg-white/[0.04] transition-colors"
-      onClick={() => isLong && setExpanded(!expanded)}
-    >
-      <div className="w-1 rounded-full bg-accent/40 flex-shrink-0 mt-0.5" />
-      <div className="min-w-0">
-        <p className="text-xs font-semibold text-ink-1 mb-0.5">{finding.agent}</p>
-        <p className="text-xs text-ink-3 leading-relaxed">
-          {expanded || !isLong ? finding.finding : finding.finding.slice(0, 160) + "…"}
-        </p>
-        {isLong && (
-          <p className="text-micro text-accent mt-1">{expanded ? "Show less" : "Show more"}</p>
-        )}
-      </div>
-    </button>
+    <section className="border-t border-line pt-6">
+      <h3 className="mb-4 font-serif text-h3 text-ink-1">{title}</h3>
+      {children}
+    </section>
   );
 }
 
-function fmtMoney(n: number) {
-  const sign = n >= 0 ? "+" : "-";
-  return `${sign}$${Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
-}
-
-const TRADE_COLORS: Record<string, string> = {
-  enter_long: "#4DB887", enter_short: "#4DB887", increase: "#4DB887",
-  decrease: "#C8A15A", exit: "#E2706A", reverse: "#C8A15A",
+const VERB_TONE: Record<string, string> = {
+  enter_long: "text-gain", enter_short: "text-gain", increase: "text-gain", decrease: "text-caution", exit: "text-loss", reverse: "text-caution",
 };
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-xs font-bold text-ink-3 mb-3">{children}</h3>;
-}
+function Note({ r }: { r: Report }) {
+  const b = r.briefing;
+  const v = dayPnl(r);
+  const p = dayPct(r);
+  const [working, setWorking] = useState(false);
+  useEffect(() => { setWorking(false); }, [r.date]);
 
-function BriefingView({ b }: { b: Briefing }) {
-  const pnl = b.pnl;
   return (
-    <div className="space-y-6">
-      {pnl && (
-        <div>
-          <SectionTitle>How we did · {pnl.date}</SectionTitle>
-          <div className="flex items-baseline gap-3 flex-wrap mb-2">
-            <span className={`font-bold text-2xl ${pnl.abs >= 0 ?"text-gain":"text-loss"}`}>
-              {fmtMoney(pnl.abs)}
-            </span>
-            <span className={`text-sm ${pnl.pct >= 0 ?"text-gain":"text-loss"}`}>
-              {pnl.pct >= 0 ? "+" : ""}{pnl.pct.toFixed(2)}%
-            </span>
-            {pnl.spy_pct != null && (
-              <span className="text-xs text-ink-3">
-                S&amp;P 500 {pnl.spy_pct >= 0 ? "+" : ""}{pnl.spy_pct.toFixed(2)}%
-              </span>
-            )}
-          </div>
-          {pnl.why && <p className="text-sm text-ink-2 mb-3">{pnl.why}</p>}
-          {pnl.movers && pnl.movers.length > 0 && (
-            <div className="space-y-1.5">
-              {pnl.movers.map((m) => (
-                <div key={m.ticker} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-line">
-                  <span className="font-bold text-ink-1 w-14 shrink-0">{m.ticker}</span>
-                  <span className={`text-sm w-20 shrink-0 ${m.contribution >= 0 ?"text-gain":"text-loss"}`}>
-                    {fmtMoney(m.contribution)}
-                  </span>
-                  <span className={`text-xs w-14 shrink-0 pt-0.5 ${m.move_pct >= 0 ?"text-gain":"text-loss"}`}>
-                    {m.move_pct >= 0 ? "+" : ""}{m.move_pct.toFixed(1)}%
-                  </span>
-                  <span className="text-xs text-ink-2 pt-0.5">{m.why ?? ""}</span>
-                </div>
-              ))}
-              {(() => {
-                // Recomputed so the rows always add up to the day's P&L — older reports
-                // stored a residual after ALL positions while listing only the top movers.
-                const other = typeof pnl.abs === "number"
-                  ? pnl.abs - pnl.movers!.reduce((sum, m) => sum + (m.contribution ?? 0), 0)
-                  : pnl.other;
-                return other != null && Math.abs(other) >= 1 ? (
-                  <p className="text-micro text-ink-3 pl-1">
-                    Everything else (smaller positions, trades during the day): {fmtMoney(other)}
-                  </p>
-                ) : null;
-              })()}
-            </div>
-          )}
-        </div>
-      )}
+    <article aria-labelledby="note-title" className="min-w-0">
+      <p className="text-label text-ink-3">
+        {day(r.date, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · {regimeWord(r.macro_regime)} market
+        {r.open_positions_after != null ? ` · ${r.open_positions_after} positions after trading` : ""}
+      </p>
+      <h2 id="note-title" className="mt-3 max-w-[44ch] font-serif text-[22px] font-medium leading-[1.3] text-ink-1 sm:text-[26px]">
+        {b?.headline || r.summary || "No summary recorded for this session."}
+      </h2>
 
-      {b.market && b.market.themes.length > 0 && (
-        <div>
-          <SectionTitle>What&apos;s moving markets</SectionTitle>
-          {b.market.mood && <p className="text-sm text-ink-2 mb-3">{b.market.mood}</p>}
-          <div className="space-y-2">
-            {b.market.themes.map((t, i) => (
-              <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-line">
-                <p className="text-sm font-semibold text-ink-1">{t.title}</p>
-                {t.what_happened && <p className="text-xs text-ink-2 mt-1">{t.what_happened}</p>}
-                {t.why_it_matters && <p className="text-xs text-ink-3 mt-1">{t.why_it_matters}</p>}
-                {t.our_exposure && t.our_exposure.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {t.our_exposure.map((e) => {
-                      const c = e.effect === "positive" ? "#4DB887" : e.effect === "negative" ? "#E2706A" : "#C8A15A";
-                      return (
-                        <span key={e.ticker} title={e.why ?? ""} className="text-micro px-2 py-0.5 rounded-md"
-                          style={{ color: c, background: `${c}20` }}>
-                          {e.ticker} {e.effect === "positive" ? "▲" : e.effect === "negative" ? "▼" : "◆"}
-                          {e.why ? <span className="font-sans opacity-80"> · {e.why}</span> : null}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
-                {t.next && <p className="text-micro text-ink-3 mt-2">Next: {t.next}</p>}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div>
-        <SectionTitle>What we did today</SectionTitle>
-        {b.trades.length === 0 ? (
-          <p className="text-sm text-ink-3">No trades — the portfolio was left as it was.</p>
-        ) : (
-          <div className="space-y-1.5">
-            {b.trades.map((t, i) => {
-              const color = TRADE_COLORS[t.action] ?? "#8E959D";
-              return (
-                <div key={`${t.ticker}-${i}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-line">
-                  <span
-                    className="text-micro font-bold px-2 py-0.5 rounded-md whitespace-nowrap w-20 text-center shrink-0"
-                    style={{ color, background: `${color}20` }}
-                  >
-                    {t.verb}
-                  </span>
-                  <span className="font-bold text-ink-1 w-14 shrink-0">{t.ticker}</span>
-                  <span className="text-xs text-ink-3 w-20 shrink-0 pt-0.5">
-                    ${Math.round(t.notional).toLocaleString("en-US")}
-                  </span>
-                  <span className="text-xs text-ink-2 pt-0.5">{t.why ?? ""}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      {/* Result line */}
+      <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <p className={`font-serif text-figure font-medium tabular ${v == null ? "text-ink-3" : tone(v)}`}>{v == null ? "—" : money(v)}</p>
+        <p className="text-lead text-ink-2">
+          {p != null && <span className={`tabular ${tone(p)}`}>{pct(p)}</span>}
+          {b?.pnl?.spy_pct != null && <span className="text-ink-3"> · S&amp;P 500 <span className="tabular">{pct(b.pnl.spy_pct)}</span></span>}
+          <span className="block text-label text-ink-3">
+            Result for {r.daily_pnl_date ? day(r.daily_pnl_date, { weekday: "long", day: "numeric", month: "short" }) : "the previous session"}
+          </span>
+        </p>
       </div>
 
-      {b.not_executed.length > 0 && (
+      <div className="mt-10 space-y-10">
+        {b?.pnl && (b.pnl.movers?.length ?? 0) > 0 && (
+          <NoteSection title="What moved the portfolio">
+            {b.pnl.why && <p className="mb-5 max-w-[65ch] text-body text-ink-2">{b.pnl.why}</p>}
+            <Attribution pnl={b.pnl} />
+          </NoteSection>
+        )}
+
+        {b && (
+          <NoteSection title={b.trades.length ? `Trades placed (${b.trades.length})` : "Trades placed"}>
+            {b.trades.length === 0 ? (
+              <p className="text-body text-ink-2">No trades. The portfolio was left as it was.</p>
+            ) : (
+              <ul className="divide-y divide-line border-y border-line">
+                {b.trades.map((t, i) => (
+                  <li key={`${t.ticker}-${i}`} className="grid grid-cols-[88px_64px_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1 py-2.5 text-body sm:grid-cols-[96px_72px_88px_minmax(0,1fr)]">
+                    <span className={`whitespace-nowrap ${VERB_TONE[t.action] ?? "text-ink-2"}`}>{t.verb}</span>
+                    <Ticker>{t.ticker}</Ticker>
+                    <span className="text-right tabular text-ink-1">${Math.round(t.notional).toLocaleString("en-US")}</span>
+                    <span className="col-span-3 text-label text-ink-2 sm:col-span-1">{t.why ?? ""}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {b.not_executed.length > 0 && (
+              <div className="mt-5">
+                <p className="mb-2 text-label text-ink-3">Wanted, but not placed</p>
+                <ul className="space-y-1.5">
+                  {b.not_executed.map((n) => (
+                    <li key={n.ticker} className="grid grid-cols-[72px_1fr] gap-x-4 text-label">
+                      <Ticker className="text-ink-2">{n.ticker}</Ticker><span className="text-ink-2">{n.reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </NoteSection>
+        )}
+
+        {b?.market && b.market.themes.length > 0 && (
+          <NoteSection title="What moved markets">
+            {b.market.mood && <p className="mb-5 max-w-[65ch] text-body text-ink-2">{b.market.mood}</p>}
+            <div className="grid gap-x-10 gap-y-6 md:grid-cols-2">
+              {b.market.themes.map((t, i) => (
+                <div key={i} className="min-w-0">
+                  <p className="text-body font-medium text-ink-1">{t.title}</p>
+                  {t.what_happened && <p className="mt-1 text-label text-ink-2">{t.what_happened}</p>}
+                  {t.why_it_matters && <p className="mt-1 text-label text-ink-3">{t.why_it_matters}</p>}
+                  {t.our_exposure && t.our_exposure.length > 0 && (
+                    <p className="mt-2 text-label text-ink-3">
+                      Our exposure:{" "}
+                      {t.our_exposure.map((e, j) => (
+                        <span key={e.ticker} title={e.why ?? undefined}>
+                          {j > 0 && ", "}
+                          <span className={e.effect === "positive" ? "text-gain" : e.effect === "negative" ? "text-loss" : "text-ink-2"}>
+                            {e.ticker} {e.effect === "positive" ? "helped" : e.effect === "negative" ? "hurt" : "mixed"}
+                          </span>
+                        </span>
+                      ))}
+                    </p>
+                  )}
+                  {t.next && <p className="mt-1 text-label text-ink-3">Next: {t.next}</p>}
+                </div>
+              ))}
+            </div>
+          </NoteSection>
+        )}
+
+        {b && b.watch.length > 0 && (
+          <NoteSection title="What to watch">
+            <ul className="max-w-[65ch] space-y-2">
+              {b.watch.map((w, i) => (
+                <li key={i} className="grid grid-cols-[16px_1fr] text-body text-ink-2"><span aria-hidden className="text-ink-3">–</span>{w}</li>
+              ))}
+            </ul>
+          </NoteSection>
+        )}
+
+        {!b && (
+          <NoteSection title="Committee summary">
+            <p className="max-w-[65ch] text-body text-ink-2">{r.summary}</p>
+          </NoteSection>
+        )}
+
+        {/* ── The committee's working: reference material behind one control ── */}
+        <section className="border-t border-line pt-6">
+          <Button variant="ghost" onClick={() => setWorking((w) => !w)} aria-expanded={working} className="-ml-3">
+            {working ? "Hide the committee's working" : "Show the committee's working"}
+            <IconChevronDown size={16} className={`transition-transform duration-base ${working ? "rotate-180" : ""}`} />
+          </Button>
+          {working && <Working r={r} />}
+        </section>
+      </div>
+    </article>
+  );
+}
+
+/* ── Committee working ───────────────────────────────────────────────────── */
+function Working({ r }: { r: Report }) {
+  const [openRow, setOpenRow] = useState<string | null>(null);
+  const f = r.pipeline_funnel;
+  return (
+    <div className="mt-6 space-y-10">
+      {f && (
         <div>
-          <SectionTitle>Wanted, but didn&apos;t happen</SectionTitle>
-          <ul className="space-y-1">
-            {b.not_executed.map((n) => (
-              <li key={n.ticker} className="text-xs text-ink-3">
-                <span className="font-bold text-ink-2 mr-2">{n.ticker}</span>{n.reason}
+          <p className="mb-3 text-label text-ink-3">Shortlist</p>
+          <p className="text-body text-ink-2">
+            <span className="text-ink-1 tabular">{f.analyzed}</span> stocks analysed, <span className="text-ink-1 tabular">{f.debated}</span> debated by the committee,{" "}
+            <span className="text-ink-1 tabular">{f.entered}</span> bought.
+          </p>
+        </div>
+      )}
+
+      {r.scorecards_summary && r.scorecards_summary.length > 0 && (
+        <div>
+          <p className="mb-3 text-label text-ink-3">Stocks reviewed ({r.scorecards_summary.length}) · select a row for the agents&rsquo; views</p>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-body">
+              <thead>
+                <tr className="border-b border-line text-left text-label text-ink-3">
+                  <th scope="col" className="py-2 pr-4 font-medium">Stock</th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">Score</th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">Fundamental</th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">Quant</th>
+                  <th scope="col" className="py-2 pr-4 text-right font-medium">Sentiment</th>
+                  <th scope="col" className="py-2 pr-4 font-medium">Debate</th>
+                  <th scope="col" className="py-2 font-medium">Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                {r.scorecards_summary.map((row) => {
+                  const open = openRow === row.ticker;
+                  const detail = !!(row.investment_thesis || row.fundamental_summary || row.quant_summary || row.sentiment_summary || row.key_risks?.length || row.key_catalysts?.length);
+                  return (
+                    <React.Fragment key={row.ticker}>
+                      <tr className={`border-b border-line ${detail ? "tr-hover" : ""}`} onClick={() => detail && setOpenRow(open ? null : row.ticker)}
+                        tabIndex={detail ? 0 : undefined}
+                        onKeyDown={(e) => { if (detail && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setOpenRow(open ? null : row.ticker); } }}
+                        aria-expanded={detail ? open : undefined}>
+                        <td className="py-2.5 pr-4"><Ticker>{row.ticker}</Ticker></td>
+                        <td className="py-2.5 pr-4 text-right font-medium tabular text-ink-1">{row.composite_score ?? "—"}</td>
+                        <td className="py-2.5 pr-4 text-right tabular text-ink-2">{row.fundamental_score ?? "—"}</td>
+                        <td className="py-2.5 pr-4 text-right tabular text-ink-2">{row.quant_score ?? "—"}</td>
+                        <td className="py-2.5 pr-4 text-right tabular text-ink-2">{row.sentiment_score ?? "—"}</td>
+                        <td className="py-2.5 pr-4 text-label text-ink-2">{row.was_debated ? (row.debate_reason === "likely_entry" ? "Required" : "Contested") : "—"}
+                          {row.conflict_flag && <span className="text-ink-3"> · agents split</span>}</td>
+                        <td className="py-2.5 text-label text-ink-1">
+                          <span className="inline-flex items-center gap-1.5">
+                            {String(row.action ?? "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase()) || "—"}
+                            {detail && <IconChevronDown size={14} className={`text-ink-3 transition-transform duration-fast ${open ? "rotate-180" : ""}`} />}
+                          </span>
+                        </td>
+                      </tr>
+                      {open && detail && (
+                        <tr className="border-b border-line bg-raised/40">
+                          <td colSpan={7} className="px-4 py-5">
+                            <dl className="grid gap-x-8 gap-y-4 md:grid-cols-3">
+                              {[["Fundamental", row.fundamental_score, row.fundamental_summary], ["Quant", row.quant_score, row.quant_summary], ["Sentiment", row.sentiment_score, row.sentiment_summary]].map(([a, sc, view]) => (
+                                <div key={a as string}>
+                                  <dt className="text-label text-ink-3">{a as string} · <span className="tabular text-ink-1">{(sc as number | null) ?? "—"}</span></dt>
+                                  <dd className="mt-1 text-label text-ink-2">{(view as string | null) ?? "No summary"}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                            {row.investment_thesis && <p className="mt-5 max-w-[70ch] text-label text-ink-2"><span className="text-ink-3">Committee thesis: </span>{row.investment_thesis}</p>}
+                            <div className="mt-4 grid gap-x-8 gap-y-3 md:grid-cols-2">
+                              {row.key_catalysts?.length > 0 && (
+                                <div><p className="text-label text-ink-3">Catalysts</p><ul className="mt-1 space-y-0.5">{row.key_catalysts.map((c, i) => <li key={i} className="text-label text-ink-2">{c}</li>)}</ul></div>
+                              )}
+                              {row.key_risks?.length > 0 && (
+                                <div><p className="text-label text-ink-3">Risks</p><ul className="mt-1 space-y-0.5">{row.key_risks.map((c, i) => <li key={i} className="text-label text-ink-2">{c}</li>)}</ul></div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {r.narrative && (
+        <div>
+          <p className="mb-3 text-label text-ink-3">{r.briefing ? "Committee notes, written before sizing (intentions, not trades)" : "Committee narrative"}</p>
+          <div className="max-w-[70ch] space-y-3 text-body text-ink-2">
+            {r.narrative.split("\n\n").map((para, i) => <p key={i}>{para}</p>)}
+          </div>
+        </div>
+      )}
+
+      {r.decisions?.length > 0 && (
+        <div>
+          <p className="mb-3 text-label text-ink-3">{r.briefing ? "Committee decisions (intent)" : "Decisions"}</p>
+          <ul className="divide-y divide-line border-y border-line">
+            {r.decisions.map((d, i) => (
+              <li key={`${d.ticker}-${i}`} className="grid grid-cols-[72px_96px_1fr_auto] gap-x-4 py-2.5 text-label">
+                <Ticker>{d.ticker}</Ticker>
+                <span className={VERB_TONE[d.action] ?? "text-ink-2"}>{String(d.action ?? "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase())}</span>
+                <span className="text-ink-2">{d.thesis}</span>
+                <span className="tabular text-ink-3">{d.conviction}/100</span>
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      {b.watch.length > 0 && (
+      {r.agent_findings?.length > 0 && (
         <div>
-          <SectionTitle>What to watch</SectionTitle>
-          <ul className="space-y-1 list-disc pl-4">
-            {b.watch.map((w, i) => <li key={i} className="text-sm text-ink-2">{w}</li>)}
-          </ul>
+          <p className="mb-3 text-label text-ink-3">What each agent found</p>
+          <dl className="grid gap-x-10 gap-y-5 md:grid-cols-2">
+            {r.agent_findings.map((f) => (
+              <div key={f.agent} className="min-w-0">
+                <dt className="text-label font-medium text-ink-1">{f.agent}</dt>
+                <dd className="mt-1 text-label text-ink-2">{f.finding}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       )}
     </div>
   );
 }
 
-function ReportCard({ report }: { report: Report }) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="card overflow-hidden">
-      {/* Header row — always visible */}
-      <button
-        className="w-full text-left p-6 hover:bg-white/[0.02] transition-colors"
-        onClick={() => setOpen(!open)}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm text-ink-3">{report.date}</span>
-            <RegimeBadge regime={report.macro_regime} />
-            <div className="flex items-center gap-2 text-xs">
-              {report.briefing ? (
-                <>
-                  {report.new_positions > 0 && <span className="text-gain">{report.new_positions} bought</span>}
-                  {report.increases > 0 && <span className="text-gain">{report.increases} added to</span>}
-                  {report.decreases > 0 && <span className="text-accent">{report.decreases} trimmed</span>}
-                  {report.exits > 0 && <span className="text-loss">{report.exits} sold</span>}
-                  {report.new_positions + report.increases + report.decreases + report.exits === 0 && (
-                    <span className="text-ink-3">no trades</span>
-                  )}
-                </>
-              ) : (
-                <>
-                  {report.new_positions > 0 && (
-                    <span className="text-gain">+{report.new_positions} new</span>
-                  )}
-                  {report.exits > 0 && (
-                    <span className="text-loss">{report.exits} exits</span>
-                  )}
-                  {report.holds > 0 && (
-                    <span className="text-ink-3">{report.holds} holds</span>
-                  )}
-                  {report.increases > 0 && (
-                    <span className="text-accent">{report.increases} increases</span>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <span className={`font-semibold text-sm ${
- report.daily_pnl.startsWith("+") ?"text-gain":"text-loss"
- }`}>
-                {report.daily_pnl}
-                {report.daily_pnl_pct && (
-                  <span className="font-normal opacity-70 ml-1">{report.daily_pnl_pct}</span>
-                )}
-              </span>
-              <span className="block text-micro text-ink-3 mt-0.5">
-                {report.daily_pnl_date
-                  ? `${report.daily_pnl_date} full day`
-                  : "prev trading day"}
-              </span>
-            </div>
-            <svg
-              width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#8E959D" strokeWidth="2"
-              className={`transition-transform duration-200 ${open ?"rotate-180":""}`}
-            >
-              <polyline points="6,9 12,15 18,9" />
-            </svg>
-          </div>
-        </div>
-        <p className={`text-sm mt-3 text-left ${report.briefing ?"text-[#C9D1D9]":"text-ink-3"}`}>
-          {report.summary}
-        </p>
-      </button>
-
-      {/* Expanded content */}
-      {open && (
-        <div className="border-t border-line p-6 space-y-6">
-          {report.briefing && <BriefingView b={report.briefing} />}
-
-          {/* Pipeline funnel */}
-          {report.pipeline_funnel && (
-            <div>
-              <h3 className="text-xs font-bold text-ink-3 mb-3">Pipeline Funnel</h3>
-              <div className="flex items-center gap-2 flex-wrap">
-                {[
-                  { label: "Analysed", value: report.pipeline_funnel.analyzed, color: "#8E959D" },
-                  { label: "Debated", value: report.pipeline_funnel.debated, color: "#E39A57" },
-                  { label: "Entered", value: report.pipeline_funnel.entered, color: "#4DB887" },
-                ].map(({ label, value, color }, i, arr) => (
-                  <React.Fragment key={label}>
-                    <div className="flex flex-col items-center px-4 py-2 rounded-xl bg-white/[0.02] border border-line">
-                      <span className="font-bold text-lg" style={{ color }}>{value}</span>
-                      <span className="text-micro text-ink-3 mt-0.5">{label}</span>
-                    </div>
-                    {i < arr.length - 1 && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="2">
-                        <polyline points="9,18 15,12 9,6" />
-                      </svg>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Stocks reviewed this run */}
-          {report.scorecards_summary && report.scorecards_summary.length > 0 && (
-            <div>
-              <h3 className="text-xs font-bold text-ink-3 mb-3">
-                Stocks Reviewed ({report.scorecards_summary.length})
-                <span className="ml-2 font-normal text-ink-3 normal-case tracking-normal">click a row to expand agent views &amp; risks</span>
-              </h3>
-              <ScorecardTable rows={report.scorecards_summary} />
-            </div>
-          )}
-
-          {/* Full narrative */}
-          <div>
-            <h3 className="text-xs font-bold text-ink-3 mb-3">{report.briefing ? "Committee notes (written before sizing — intentions, not trades)" : "Committee Narrative"}</h3>
-            <div className="text-sm text-ink-3 leading-relaxed space-y-3">
-              {report.narrative.split("\n\n").map((para, i) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
-          </div>
-
-          {/* Decisions */}
-          {report.decisions?.length > 0 && (
-            <div>
-              <h3 className="text-xs font-bold text-ink-3 mb-3">{report.briefing ? "Committee decisions (intent)" : "Decisions"}</h3>
-              <div className="space-y-2">
-                {report.decisions.map((d, di) => {
-                  const a = String(d.action ?? "");
-                  const color = a === "skip" || a === "exit" || a.includes("short") ? "#E2706A"
-                    : a === "decrease" ? "#E39A57"
-                    : a === "hold" ? "#B3B8BE"
-                    : "#4DB887";
-                  return (
-                    <div key={`${d.ticker}-${di}`} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-line">
-                      <span className="font-bold text-ink-1 w-12">{d.ticker}</span>
-                      <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-md self-start whitespace-nowrap"
-                        style={{ color, background: `${color}20` }}
-                      >
-                        {a.replace("_", " ")}
-                      </span>
-                      <div className="flex-1">
-                        <p className="text-xs text-ink-3">{d.thesis}</p>
-                      </div>
-                      <div className="text-xs text-accent self-start whitespace-nowrap">
-                        {d.conviction}/100
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Agent findings */}
-          {report.agent_findings?.length > 0 && (
-            <div>
-              <h3 className="text-xs font-bold text-ink-3 mb-3">Agent Findings</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {report.agent_findings.map((f) => (
-                  <AgentFindingCard key={f.agent} finding={f} />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function ReportsPage() {
+/* ── Page ────────────────────────────────────────────────────────────────── */
+function ReportsInner() {
+  const router = useRouter();
+  const params = useSearchParams();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -614,8 +427,8 @@ export default function ReportsPage() {
 
   useEffect(() => {
     loadPage(0)
-      .then((rs) => setReports(rs))
-      .catch((e) => setError(`Could not load reports — ${e instanceof Error ? e.message : String(e)}`))
+      .then(setReports)
+      .catch((e) => setError(`Could not load reports: ${e instanceof Error ? e.message : String(e)}`))
       .finally(() => setLoading(false));
   }, []);
 
@@ -625,85 +438,77 @@ export default function ReportsPage() {
       const more = await loadPage(reports.length);
       setReports((prev) => [...prev, ...more]);
     } catch (e) {
-      setError(`Could not load older reports — ${e instanceof Error ? e.message : String(e)}`);
+      setError(`Could not load older reports: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setLoadingMore(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-canvas pb-16">
-      <div className="max-w-5xl mx-auto px-6 pt-8">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="font-serif text-h1 font-medium text-ink-1">Daily reports</h1>
-            <p className="mt-2 text-lead text-ink-2">
-              What the committee decided each weekday, and how the portfolio performed the day before.
-            </p>
-          </div>
-          <a
-            href="/reports/adhoc"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-accent border border-accent/30 bg-accent/8 hover:bg-accent/14 transition-all"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Research any ticker
-          </a>
-        </div>
+  const selectedDate = params.get("date") ?? reports[0]?.date ?? null;
+  const selected = reports.find((r) => r.date === selectedDate) ?? reports[0] ?? null;
+  const maxAbs = useMemo(() => Math.max(0, ...reports.map((r) => Math.abs(dayPnl(r) ?? 0))), [reports]);
+  const select = (d: string) => {
+    router.replace(`/reports?date=${d}`, { scroll: false });
+    if (typeof window !== "undefined" && window.innerWidth < 1024) document.getElementById("note")?.scrollIntoView({ behavior: "smooth" });
+  };
 
-        {loading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="card p-6">
-                <div className="flex gap-4 mb-3">
-                  <div className="skeleton h-4 w-24" />
-                  <div className="skeleton h-4 w-16" />
-                </div>
-                <div className="skeleton h-3 w-full mb-2" />
-                <div className="skeleton h-3 w-2/3" />
-              </div>
-            ))}
-          </div>
-        ) : error && reports.length === 0 ? (
-          <div className="card p-10 text-center border border-loss/30">
-            <h3 className="font-serif text-h3 font-medium text-loss mb-2">Data unavailable</h3>
-            <p className="text-ink-3 text-sm">{error}</p>
-          </div>
-        ) : reports.length === 0 ? (
-          <div className="card p-16 text-center">
-            <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-raised/50">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="1.5">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14,2 14,8 20,8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-              </svg>
+  return (
+    <main className="mx-auto max-w-[1280px] px-4 pb-24 pt-10 sm:px-6">
+      <header className="flex flex-wrap items-end justify-between gap-6 pb-8">
+        <div className="max-w-2xl">
+          <h1 className="font-serif text-h1 font-medium text-ink-1">Daily reports</h1>
+          <p className="mt-2 text-lead text-ink-2">The committee&rsquo;s note for each weekday: how the portfolio did, what moved it, and what was traded.</p>
+        </div>
+        <Button variant="ghost" href="/reports/adhoc">Research a stock</Button>
+      </header>
+
+      {error && reports.length === 0 ? (
+        <Alert tone="loss" title="Data unavailable">{error}</Alert>
+      ) : !loading && reports.length === 0 ? (
+        <EmptyState title="No reports yet">A note appears here after each weekday pipeline run.</EmptyState>
+      ) : (
+        <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[300px_minmax(0,1fr)]">
+          {/* Ledger — sticky on desktop */}
+          <aside aria-label="Sessions" className="order-2 lg:order-1 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:pr-1">
+            <div className="mb-3 flex items-baseline justify-between">
+              <h2 className="text-label font-medium text-ink-2">Sessions</h2>
+              {total > 0 && <span className="text-micro text-ink-3 tabular">{reports.length} of {total}</span>}
             </div>
-            <h3 className="font-serif text-h3 font-medium text-ink-1 mb-2">No reports yet</h3>
-            <p className="text-ink-3 text-sm">Daily reports will appear here after each pipeline run.</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {reports.map((r, i) => (
-              <ReportCard key={r.date ?? i} report={r} />
-            ))}
-            {error && <p className="text-xs text-loss text-center">{error}</p>}
-            {hasMore && (
-              <div className="text-center pt-2">
-                <button
-                  onClick={loadMore}
-                  disabled={loadingMore}
-                  className="text-sm text-accent hover:text-accent font-medium transition-colors disabled:opacity-50"
-                >
-                  {loadingMore ? "Loading…" : `Load older reports (${total - reports.length} more)`}
-                </button>
+            {loading ? (
+              <div className="space-y-3">{Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+            ) : (
+              <>
+                <Ledger reports={reports} selected={selected?.date ?? null} onSelect={select} maxAbs={maxAbs} />
+                {error && <p className="mt-3 text-label text-loss">{error}</p>}
+                {hasMore && (
+                  <Button size="sm" variant="ghost" className="mt-3 w-full" onClick={loadMore} disabled={loadingMore}>
+                    {loadingMore ? "Loading…" : "Load older sessions"}
+                  </Button>
+                )}
+              </>
+            )}
+          </aside>
+
+          <div id="note" className="order-1 min-w-0 scroll-mt-20 lg:order-2">
+            {loading || !selected ? (
+              <div className="space-y-4">
+                <Skeleton className="h-4 w-64" /><Skeleton className="h-10 w-full max-w-xl" /><Skeleton className="h-10 w-3/4 max-w-lg" />
+                <Skeleton className="mt-6 h-12 w-48" />
               </div>
+            ) : (
+              <Note r={selected} />
             )}
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </main>
+  );
+}
+
+export default function ReportsPage() {
+  return (
+    <Suspense fallback={<main className="mx-auto max-w-[1280px] px-4 pt-10 sm:px-6"><Skeleton className="h-10 w-64" /></main>}>
+      <ReportsInner />
+    </Suspense>
   );
 }
