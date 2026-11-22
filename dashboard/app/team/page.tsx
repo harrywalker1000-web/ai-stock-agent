@@ -78,23 +78,57 @@ function AnimatedEdge({x1,y1,x2,y2,color,active}:{x1:number;y1:number;x2:number;
   );
 }
 
+// Readable rendering of an agent's report: text as text, numbers as numbers, lists as
+// "N items" with their key fields — never raw JSON.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function describeItem(x: any): string {
+  if (x == null) return "—";
+  if (typeof x !== "object") return String(x);
+  const label = x.ticker ?? x.symbol ?? x.sector ?? x.name ?? x.theme ?? x.title ?? x.headline ?? x.catalyst ?? x.fund_name ?? x.item;
+  const extras: string[] = [];
+  for (const k of ["action", "direction", "score", "composite_score", "conviction", "rank", "confidence", "shares", "price", "reason", "rationale", "summary", "description"]) {
+    const v = x[k];
+    if (v == null || typeof v === "object" || k === "name") continue;
+    extras.push(typeof v === "number" ? `${k.replace(/_/g, " ")} ${v}` : String(v).slice(0, 90));
+    if (extras.length >= 2) break;
+  }
+  return [label != null ? String(label) : null, ...extras].filter(Boolean).join(" · ") || "(item)";
+}
+
+const HIDDEN_KEYS = new Set(["generated_at", "error", "raw_data", "signal_confidence", "weights_used", "portfolio_construction"]);
+
 function ReportViewer({agentId,color}:{agentId:string;color:string}) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [report,setReport]=useState<any>(null); const [loading,setLoading]=useState(true);
+  const [report,setReport]=useState<any>(null); const [loading,setLoading]=useState(true); const [err,setErr]=useState<string|null>(null);
   const rgb=hexToRgb(color);
-  useEffect(()=>{setLoading(true);setReport(null);fetch(`/api/agent-report/${agentId}`).then(r=>r.ok?r.json():Promise.reject()).then(d=>{setReport(d);setLoading(false);}).catch(()=>setLoading(false));},[agentId]);
+  useEffect(()=>{setLoading(true);setReport(null);setErr(null);fetch(`/api/agent-report/${agentId}`).then(async r=>{const d=await r.json().catch(()=>null); if(!r.ok) throw new Error(d?.error ?? `HTTP ${r.status}`); setReport(d);}).catch(e=>setErr(String(e?.message ?? e))).finally(()=>setLoading(false));},[agentId]);
   if(loading) return <p className="text-[11px] text-[#6B7280] font-mono py-8 text-center tracking-widest">LOADING...</p>;
-  if(!report) return <p className="text-[11px] text-[#6B7280] py-4 text-center">No report available.</p>;
+  if(!report) return <p className="text-[11px] text-[#6B7280] py-4 text-center">Report unavailable{err ? ` — ${err}` : ""}.</p>;
+  const keys = Object.keys(report).filter(k=>!HIDDEN_KEYS.has(k));
   return (
     <div className="space-y-2">
-      {report.generated_at&&<p className="text-[9px] font-mono text-[#6B7280] mb-3">GENERATED {new Date(report.generated_at).toLocaleString()}</p>}
-      {Object.keys(report).filter(k=>k!=="generated_at"&&k!=="error").slice(0,8).map((key,i)=>{
+      {report.generated_at&&<p className="text-[9px] font-mono text-[#6B7280] mb-3">GENERATED {String(report.generated_at)}</p>}
+      {keys.map((key,i)=>{
         const v=report[key];
-        const txt=Array.isArray(v)?v.slice(0,4).map((x:unknown)=>(typeof x==="object"?JSON.stringify(x):String(x)).slice(0,90)).join("\n"):String(typeof v==="object"?JSON.stringify(v):v).slice(0,200);
+        let body: React.ReactNode;
+        if (Array.isArray(v)) {
+          body = v.length === 0 ? <span className="text-[#4B5563]">None</span> : (
+            <>
+              <span className="text-[#6B7280]">{v.length} item{v.length!==1?"s":""}</span>
+              <ul className="mt-1 space-y-0.5">{v.slice(0,6).map((x,j)=><li key={j}>• {describeItem(x)}</li>)}</ul>
+              {v.length>6&&<span className="text-[#4B5563]">+{v.length-6} more</span>}
+            </>
+          );
+        } else if (v && typeof v === "object") {
+          const flat = Object.entries(v).filter(([,x])=>x==null||typeof x!=="object");
+          body = flat.length ? flat.slice(0,8).map(([k,x])=><div key={k}>{k.replace(/_/g," ")}: {x==null?"—":String(x)}</div>) : <span className="text-[#4B5563]">{Object.keys(v).length} fields</span>;
+        } else {
+          body = String(v ?? "—");
+        }
         return (
           <div key={key} className="rounded-xl p-3 tm-stagger" style={{background:`rgba(${rgb},0.05)`,border:`1px solid rgba(${rgb},0.12)`,animationDelay:`${i*40}ms`}}>
             <p className="text-[9px] font-mono tracking-widest mb-1 uppercase" style={{color}}>{key.replace(/_/g," ")}</p>
-            <p className="text-[10px] text-[#9CA3AF] leading-relaxed whitespace-pre-wrap">{txt}</p>
+            <div className="text-[10px] text-[#9CA3AF] leading-relaxed whitespace-pre-wrap">{body}</div>
           </div>
         );
       })}
@@ -301,8 +335,8 @@ export default function TeamPage() {
               </div>
             ) : (
               <div className="flex flex-col py-6 px-2">
-                <p className="text-[10px] font-mono tracking-widest text-[#111827] mb-1">SELECT AN AGENT</p>
-                <p className="text-[11px] text-[#0D1117] mb-6">Click any node to inspect it.</p>
+                <p className="text-[10px] font-mono tracking-widest text-[#6B7280] mb-1">SELECT AN AGENT</p>
+                <p className="text-[11px] text-[#4B5563] mb-6">Click any node to inspect it.</p>
                 <div className="grid grid-cols-2 gap-2">
                   {agents.map((a,i)=>(
                     <button key={a.id} onClick={()=>{setSelected(a);setTab("overview");}}

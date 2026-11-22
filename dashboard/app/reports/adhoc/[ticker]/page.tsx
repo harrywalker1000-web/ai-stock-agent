@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
+import { flatToSections } from "@/lib/adhoc-normalize";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, Radar,
@@ -18,8 +19,9 @@ function fv(f: any): any {
   return f;
 }
 function fs(f: any): string { return f?.source ?? ""; }
-function fmt$(n: any): string { return n == null ? NP : `$${Number(fv(n)).toFixed(2)}`; }
-function fmtPct(n: any): string { const v = fv(n); return v == null ? NP : `${Number(v).toFixed(1)}%`; }
+// Unwrap first: {value: null} must read as missing, not $0.00
+function fmt$(n: any): string { const v = fv(n); return v == null || v === "" || isNaN(Number(v)) ? NP : `$${Number(v).toFixed(2)}`; }
+function fmtPct(n: any): string { const v = fv(n); return v == null || v === "" || isNaN(Number(v)) ? NP : `${Number(v).toFixed(1)}%`; }
 function fmtBn(n: any): string {
   const raw = fv(n);
   if (raw == null) return NP;
@@ -29,7 +31,7 @@ function fmtBn(n: any): string {
   if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toFixed(1)}B`;
   return `$${(v / 1e6).toFixed(0)}M`;
 }
-function fmtN(n: any, dp = 1): string { const v = fv(n); return v == null ? NP : Number(v).toFixed(dp); }
+function fmtN(n: any, dp = 1): string { const v = fv(n); return v == null || v === "" || isNaN(Number(v)) ? NP : Number(v).toFixed(dp); }
 function usd(n: any) { return fmt$(n); }
 
 // ─── Nav sections ────────────────────────────────────────────────────────────
@@ -84,7 +86,8 @@ const PIPELINE_STEPS = [
 
 function TagBadge({ source }: { source: string }) {
   if (!source) return null;
-  const isAI = /llm|ai|gpt|sonnet|claude|estimated/i.test(source);
+  // Word-boundary match: "Tavily" or "detailed" must not count as AI
+  const isAI = /\b(llm|ai|gpt|gpt-4o|sonnet|claude|haiku|estimated?)\b|\[ai/i.test(source);
   return (
     <span className={`ml-1 inline-block text-[10px] font-bold px-1 py-0 rounded leading-5 align-middle border
       ${isAI
@@ -290,9 +293,10 @@ function ScenarioCard({ type, price, upside, probability, source, trigger }: {
     >
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold" style={{ color: cfg.color }}>{cfg.label}</span>
-        {probability != null && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-card-dark)", color: "var(--text-secondary)" }}>
-            {fv(probability)}% prob
+        {fv(probability) != null && (
+          <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--bg-card-dark)", color: "var(--text-secondary)" }}
+            title={/fixed/i.test(fs(probability)) ? "Fixed 25/50/25 weighting used for every report — not a forecast" : fs(probability) || undefined}>
+            {fv(probability)}% prob{/fixed/i.test(fs(probability)) ? " (assumed)" : /ai|gpt|estimate/i.test(fs(probability)) ? " (AI estimate)" : ""}
           </span>
         )}
       </div>
@@ -1275,12 +1279,16 @@ function PorterFiveForcesSection({ s_porter }: { s_porter: any }) {
     rationale: forces[m.key]?.rationale ?? null,
   }));
 
-  const hasData = forceEntries.some(f => f.score !== null);
+  // The pipeline writes a 3/5 + "Insufficient data…" placeholder for every force when the
+  // AI step had nothing to work with — that's not an assessment, so don't chart it.
+  const isPlaceholder = forceEntries.every(f =>
+    f.score === null || (f.score === 3 && /insufficient data/i.test(String(f.rationale ?? ""))));
+  const hasData = forceEntries.some(f => f.score !== null) && !isPlaceholder;
 
   if (!hasData) {
     return (
       <p className="text-xs text-[#475569]">
-        Porter&apos;s Five Forces requires pipeline data. Re-run to populate this section.
+        Data unavailable — the AI assessment had insufficient industry data for this report, so no Five Forces scores are shown.
       </p>
     );
   }
@@ -2284,7 +2292,8 @@ export default function AdhocTickerPage() {
       .then((data) => {
         if (cancelled) return;
         if (data.error) { setError(data.error); return; }
-        setReport(data);
+        // Older flat-format reports are mapped into the sections layout this page renders
+        setReport(flatToSections(data));
       })
       .catch((e) => {
         if (!cancelled) setError(String(e));
@@ -2697,7 +2706,7 @@ export default function AdhocTickerPage() {
                         <p className="text-[#60A5FA] text-sm font-medium">{report.company_name}</p>
                       )}
                       {report.generated_at && (
-                        <p className="text-[#1E3A5F] text-[10px] mt-1">Generated {String(report.generated_at).slice(0, 19).replace("T", " ")} UTC</p>
+                        <p className="text-[#1E3A5F] text-[10px] mt-1">Generated {String(report.generated_at).replace(/\s*UTC\s*$/i, "").slice(0, 19).replace("T", " ")} UTC</p>
                       )}
                     </div>
                     <div>
@@ -2731,7 +2740,7 @@ export default function AdhocTickerPage() {
                         <p className="text-[10px] text-[#334155] uppercase tracking-wider mb-1.5">Core Thesis</p>
                         {title && <p className="text-sm font-semibold text-[#CBD5E1] mb-1">{title}</p>}
                         {lead && <p className="text-xs text-[#475569] leading-relaxed">{lead}</p>}
-                        <span className="mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI · Sonnet 4.6</span>
+                        <span className="mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0 rounded leading-5 bg-[#78350F] text-[#FBBF24] border border-[#F59E0B]/30">AI-generated</span>
                       </div>
                     );
                   })()}
@@ -3151,8 +3160,17 @@ export default function AdhocTickerPage() {
                               ["Net Debt",             (dcf as any).net_debt ?? s5.net_debt],
                             ] as [string, any][]).filter(([, v]) => fv(v) != null).map(([label, v]) => {
                               const raw = fv(v);
+                              // A "Median" row may hold the peer list itself — show the median of it
+                              const median = (xs: number[]) => {
+                                const a = xs.filter((n) => typeof n === "number" && isFinite(n)).sort((p, q) => p - q);
+                                if (!a.length) return null;
+                                const m = Math.floor(a.length / 2);
+                                return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+                              };
                               const formatted = Array.isArray(raw)
-                                ? (raw as number[]).map(n => n.toFixed(1)).join(", ")
+                                ? (label.includes("Median")
+                                    ? (median(raw as number[]) != null ? `${median(raw as number[])!.toFixed(1)}x (median of ${(raw as number[]).length} peers)` : "—")
+                                    : (raw as number[]).map(n => Number(n).toFixed(1)).join(", "))
                                 : typeof raw === "number" && (label.includes("PV") || label.includes("Value") || label.includes("Debt"))
                                   ? fmtBnDcf(raw)
                                   : typeof raw === "number" && label.includes("Margin")
@@ -3160,7 +3178,7 @@ export default function AdhocTickerPage() {
                                   : typeof raw === "number" && label.includes("Growth")
                                     ? `${raw}%`
                                   : typeof raw === "number" && label.includes("EV/EBITDA")
-                                    ? `${raw}`
+                                    ? `${raw.toFixed(1)}x`
                                   : raw;
                               return (
                                 <KV key={label} label={label}
@@ -3318,7 +3336,7 @@ export default function AdhocTickerPage() {
                         <div className="flex items-center justify-between mb-3">
                           <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">Peer Comparison</p>
                           <span className="text-[10px] text-[#334155] px-2 py-0.5 rounded bg-[#1E2D4A]/60">
-                            Primary: <span className="text-[#60A5FA] font-bold">{primaryLabel}</span> · vs ASTS = cheap/pricey on {primaryLabel}
+                            Primary: <span className="text-[#60A5FA] font-bold">{primaryLabel}</span> · vs {ticker.toUpperCase()} = cheap/pricey on {primaryLabel}
                           </span>
                         </div>
                         <div className="overflow-x-auto rounded-xl border border-[#1E2D4A]">
@@ -3359,9 +3377,10 @@ export default function AdhocTickerPage() {
                                     <td className={`py-2.5 px-3 font-mono font-bold sticky left-0 ${isSubject ? "text-[#60A5FA] bg-[#0A1628]" : "text-[#94A3B8]"}`}>{sym}</td>
                                     {PEER_COLS.map((c) => {
                                       const raw = getRaw(row, c);
-                                      const txt = raw == null ? "—" : /margin|ebitda/i.test(c) ? `${raw.toFixed(1)}%` : raw.toFixed(1);
+                                      // Margins are %, EV/EBITDA is a multiple (x) — the old /ebitda/ test made it a %
+                                      const txt = raw == null ? "—" : /margin/i.test(c) ? `${raw.toFixed(1)}%` : c === "ev_ebitda" ? `${raw.toFixed(1)}x` : raw.toFixed(1);
                                       const isPrimary = c === primaryKey;
-                                      const neg = raw != null && (/margin|ebitda/i.test(c) || c === "ev_ebitda") && raw < 0;
+                                      const neg = raw != null && (/margin/i.test(c) || c === "ev_ebitda") && raw < 0;
                                       return (
                                         <td key={c} className={`py-2.5 px-3 font-mono text-right ${
                                           isPrimary
@@ -4177,7 +4196,7 @@ export default function AdhocTickerPage() {
                             <div className="mb-5">
                               <PriceRangeChart
                                 bearPrice={bearP} basePrice={baseP} bullPrice={bullP} currentPrice={curP}
-                                bearUpside={fv(bear.upside_pct) ?? (bear.downside_pct != null ? -Number(fv(bear.downside_pct)) : null)}
+                                bearUpside={fv(bear.upside_pct) ?? (bear.downside_pct != null ? -Math.abs(Number(fv(bear.downside_pct))) : null)}
                                 baseUpside={fv(base.upside_pct)}
                                 bullUpside={fv(bull.upside_pct)}
                                 bearProb={fv(bear.probability)} baseProb={fv(base.probability)} bullProb={fv(bull.probability)}
@@ -4186,7 +4205,7 @@ export default function AdhocTickerPage() {
                             </div>
                           )}
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                            <ScenarioCard type="bear" price={bear.price_target} upside={bear.downside_pct != null ? -Number(fv(bear.downside_pct)) : bear.upside_pct} probability={bear.probability} source={bear.source} trigger={bear.trigger ?? bear.assumptions ?? bear.catalyst} />
+                            <ScenarioCard type="bear" price={bear.price_target} upside={bear.downside_pct != null ? -Math.abs(Number(fv(bear.downside_pct))) : bear.upside_pct} probability={bear.probability} source={bear.source} trigger={bear.trigger ?? bear.assumptions ?? bear.catalyst} />
                             <ScenarioCard type="base" price={base.price_target} upside={base.upside_pct} probability={base.probability} source={base.source} trigger={base.trigger ?? base.assumptions} />
                             <ScenarioCard type="bull" price={bull.price_target} upside={bull.upside_pct} probability={bull.probability} source={bull.source} trigger={bull.trigger ?? bull.assumptions ?? bull.catalyst} />
                           </div>
@@ -4225,7 +4244,7 @@ export default function AdhocTickerPage() {
                         <SemiGauge value={sentScore} max={100} color={sentColor} size={88} />
                         <div>
                           <p className="text-[10px] text-[#475569] uppercase tracking-wider mb-0.5">Sentiment Score</p>
-                          <p className="text-xs text-[#94A3B8]">[CALCULATED] from analyst consensus + short interest</p>
+                          <p className="text-xs text-[#94A3B8]">Rule-of-thumb score from analyst consensus + short interest — not a model output</p>
                         </div>
                       </div>
                     )}
@@ -4321,7 +4340,7 @@ export default function AdhocTickerPage() {
                 <span className="flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-mono font-bold shrink-0"
                   style={{ background: `${dirColor}18`, color: dirColor, border: `1px solid ${dirColor}40` }}>16</span>
                 <h2 className="text-sm font-bold text-white tracking-wide">Investment Committee Recommendation</h2>
-                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded border bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30">Sonnet 4.6</span>
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded border bg-[#78350F] text-[#FBBF24] border-[#F59E0B]/30">AI-generated</span>
               </div>
 
               <div className="px-6 py-6" style={{ background: "linear-gradient(180deg, #0A0E1A 0%, #0D1626 100%)", border: `1px solid ${dirColor}20`, borderTop: "none" }}>
@@ -4434,14 +4453,32 @@ export default function AdhocTickerPage() {
           <div id="s17" data-section>
             <Section n={17} id="s17" title="Data Reliability" color="#475569">
               {(() => {
-                const coverage   = fv(s17.coverage ?? s17.data_confidence);
-                const explanation = fv(s17.explanation ?? s17.confidence_reason);
+                // Field names as the pipeline writes them (coverage_badge, coverage_pct,
+                // na_fields_count, api_sources_ok/failed, fetch_elapsed_sec) + older aliases
+                const coverageBadge = fv(s17.coverage_badge ?? s17.coverage ?? s17.data_confidence);
+                const coveragePct   = fv(s17.coverage_pct);
+                const coverage   = coverageBadge != null
+                  ? `${coverageBadge}${coveragePct != null ? ` · ${Number(coveragePct).toFixed(1)}% of fields` : ""}`
+                  : null;
+                const failedSrc  = (s17.api_sources_failed ?? []) as string[];
+                const explanation = fv(s17.explanation ?? s17.confidence_reason)
+                  ?? (failedSrc.length ? `Unavailable sources: ${failedSrc.join(", ")}` : null);
                 const apiCount   = fv(s17.api_fields_count ?? s17.api_count);
                 const aiCount    = fv(s17.ai_fields_count  ?? s17.ai_count);
-                const naCount    = fv(s17.na_count);
+                const naCount    = fv(s17.na_fields_count ?? s17.na_count);
                 const conflicts  = fv(s17.conflicts_count  ?? s17.conflicts);
-                const sources    = s17.sources ?? s17.api_sources ?? [];
-                const elapsed    = fv(s17.fetch_elapsed_seconds ?? s17.elapsed_seconds);
+                // Normalise to {name, status}: OK/failed string lists, or {field, source, type} rows
+                const sources: Array<{ name: string; status: string }> = s17.api_sources_ok || s17.api_sources_failed
+                  ? [
+                      ...((s17.api_sources_ok ?? []) as string[]).map((n) => ({ name: String(n), status: "ok" })),
+                      ...failedSrc.map((n) => ({ name: String(n), status: "failed" })),
+                    ]
+                  : ((s17.sources ?? s17.api_sources ?? []) as any[]).map((src) =>
+                      typeof src === "string"
+                        ? { name: src, status: "ok" }
+                        : { name: src.name ?? (src.field ? `${src.field}: ${src.source}` : String(src.source ?? "source")),
+                            status: src.status ?? (src.responded === false ? "failed" : src.type === "llm" ? "AI" : "ok") });
+                const elapsed    = fv(s17.fetch_elapsed_sec ?? s17.fetch_elapsed_seconds ?? s17.elapsed_seconds);
                 const coverageColor = /full/i.test(coverage ?? "") ? "#10B981" : /partial/i.test(coverage ?? "") ? "#F59E0B" : "#EF4444";
                 return (
                   <>
@@ -4468,11 +4505,11 @@ export default function AdhocTickerPage() {
                       <div className="mb-4">
                         <p className="text-[10px] font-bold text-[#475569] uppercase tracking-wider mb-2">API Sources</p>
                         <div className="grid grid-cols-2 gap-2">
-                          {(sources as any[]).map((src: any, i: number) => {
-                            const ok = src.status === "ok" || src.responded === true;
+                          {sources.map((src, i: number) => {
+                            const ok = src.status === "ok";
                             return (
                               <div key={i} className="flex items-center justify-between bg-[#0D1626] border border-[#1E2D4A] rounded-lg px-3 py-2">
-                                <span className="text-xs text-[#94A3B8]">{src.name ?? src.source ?? src}</span>
+                                <span className="text-xs text-[#94A3B8]">{src.name}</span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${ok ? "text-[#10B981] bg-[#10B981]/10" : "text-[#EF4444] bg-[#EF4444]/10"}`}>
                                   {ok ? "OK" : src.status ?? "ERR"}
                                 </span>

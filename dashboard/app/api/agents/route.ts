@@ -103,7 +103,7 @@ const AGENT_PROFILES = [
     personality: "Implements Committee decisions via the Alpaca API. Reconciles positions_log against live Alpaca holdings each morning before any agent runs, sizes orders against live equity, and places native protective orders — stop, stop-limit, trailing stop, or bracket — where the Committee has requested them. All execution feeds the Memory Agent for post-trade tracking.",
     feeds: "Memory Agent",
     color: "#EF4444",
-    report_file: null,
+    report_file: "pipeline_result.json",
   },
   {
     id: "memory",
@@ -113,9 +113,12 @@ const AGENT_PROFILES = [
     personality: "Runs after every closed trade to produce a structured post-mortem: thesis verdict, what worked, what failed, key learning. These are distilled into a learning brief injected into the Fundamental Analyst and Committee prompts the following morning. It also tracks each agent's directional accuracy over time and adjusts the composite weighting of Fundamental, Quant, and Sentiment signals accordingly.",
     feeds: "Fundamental Analyst, Investment Committee",
     color: "#6B7280",
-    report_file: null,
+    report_file: "pipeline_result.json",
   },
 ];
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Any = any;
 
 // Extract a brief summary from a report for display
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -123,7 +126,7 @@ function extractSummary(report: any, agentId: string): { current_focus: string; 
   if (!report) return {
     current_focus: "Awaiting next pipeline run",
     market_view: "No data yet",
-    recent_activity: "Pipeline has not run today",
+    recent_activity: "No report published to the dashboard yet",
   };
 
   switch (agentId) {
@@ -133,66 +136,83 @@ function extractSummary(report: any, agentId: string): { current_focus: string; 
         market_view: report.macro_summary?.slice(0, 120) ?? "No summary available",
         recent_activity: `Inflation: ${report.inflation_trend ?? "?"} | Rates: ${report.interest_rate_direction ?? "?"}`,
       };
-    case "sector":
+    // Field names below are the ones each agent actually writes (see data/reports/*.json)
+    case "sector": {
+      const ranked = report.sector_rankings ?? [];
+      const top = (report.top_sectors ?? []).map((t: Any) => (typeof t === "string" ? t : t?.sector ?? t?.name)).filter(Boolean);
       return {
-        current_focus: "Sector rotation and relative strength analysis",
-        market_view: report.sector_summary?.slice(0, 120) ?? report.summary?.slice(0, 120) ?? "Analysing sector flows",
-        recent_activity: `${Object.keys(report.sectors ?? report.sector_scores ?? {}).length} sectors evaluated`,
+        current_focus: top.length ? `Favouring: ${top.slice(0, 3).join(", ")}` : "Sector rotation and relative strength analysis",
+        market_view: report.sector_summary?.slice(0, 120) ?? "No summary available",
+        recent_activity: `${ranked.length} sectors ranked · ${(report.avoid_sectors ?? []).length} to avoid`,
       };
+    }
     case "institutional":
       return {
-        current_focus: "13F filings, dark pool flow, smart money positioning",
-        market_view: report.summary?.slice(0, 120) ?? "Tracking institutional activity",
-        recent_activity: `${(report.top_holdings ?? report.stocks ?? []).length} holdings analysed`,
+        current_focus: "13F filings, analyst moves, unusual options, insider activity",
+        market_view: report.institutional_summary?.slice(0, 120) ?? "No summary available",
+        recent_activity: `${(report.institutional_buys ?? []).length} institutional buys · ${(report.analyst_upgrades ?? []).length} upgrades · ${(report.unusual_options_signals ?? []).length} options signals`,
       };
     case "news":
       return {
         current_focus: "Overnight catalysts, earnings, regulatory events",
-        market_view: report.market_summary?.slice(0, 120) ?? report.summary?.slice(0, 120) ?? "Scanning news flow",
-        recent_activity: `${(report.articles ?? report.news_items ?? []).length} articles processed`,
+        market_view: report.news_summary?.slice(0, 120) ?? "No summary available",
+        recent_activity: `${(report.fresh_catalysts ?? []).length} fresh catalysts · ${(report.upcoming_events ?? []).length} upcoming events`,
       };
     case "candidate":
       return {
-        current_focus: `${(report.candidates ?? []).length} candidates selected from universe scan`,
+        current_focus: `${(report.candidates ?? []).length} candidates selected${report.mode ? ` (${report.mode} run)` : ""}`,
         market_view: report.selection_rationale?.slice(0, 120) ?? "Filtering opportunity universe",
-        recent_activity: `Screened ${report.universe_size ?? "—"} tickers`,
+        recent_activity: report.universe_size != null ? `Screened ${report.universe_size} tickers` : `${(report.candidates ?? []).length} candidates passed to analysts`,
       };
     case "fundamental":
       return {
         current_focus: "Revenue growth, margins, ROIC, balance sheet quality",
-        market_view: report.summary?.slice(0, 120) ?? "Deep fundamental analysis",
-        recent_activity: `${(report.scored_tickers ?? report.analyses ?? []).length} companies analysed`,
+        market_view: report.macro_regime ? `Analysed under ${report.macro_regime} regime` : "Deep fundamental analysis",
+        recent_activity: `${report.total_analysed ?? (report.fundamental_analyses ?? []).length} companies analysed`,
       };
     case "quant":
       return {
         current_focus: "RSI, momentum, support/resistance, trend confirmation",
-        market_view: report.summary?.slice(0, 120) ?? "Technical signal analysis",
-        recent_activity: `${(report.signals ?? report.scored_tickers ?? []).length} tickers assessed`,
+        market_view: report.macro_regime ? `Analysed under ${report.macro_regime} regime` : "Technical signal analysis",
+        recent_activity: `${report.total_analysed ?? (report.quant_analyses ?? []).length} tickers assessed`,
       };
     case "sentiment":
       return {
-        current_focus: "Options flow, short interest, retail vs institutional positioning",
-        market_view: report.summary?.slice(0, 120) ?? "Sentiment and positioning data",
-        recent_activity: `${(report.scored_tickers ?? []).length} tickers scored`,
+        current_focus: "Analyst consensus, short interest, news tone, positioning",
+        market_view: report.macro_regime ? `Analysed under ${report.macro_regime} regime` : "Sentiment and positioning data",
+        recent_activity: `${report.total_analysed ?? (report.sentiment_analyses ?? []).length} tickers scored`,
       };
-    case "committee":
+    case "committee": {
+      const a = report.actions_taken ?? {};
+      const acted = ["enter", "increase", "decrease", "exit"].reduce((n, k) => n + (Number(a[k]) || 0), 0);
       return {
-        current_focus: "Multi-agent deliberation and final position decisions",
+        current_focus: `${report.candidates_evaluated ?? "—"} candidates evaluated · ${report.candidates_debated ?? "—"} debated`,
         market_view: report.committee_narrative?.slice(0, 120) ?? "Committee deliberation complete",
-        recent_activity: `${(report.position_decisions ?? []).filter((d: { action?: string }) => d.action && !["skip", "hold"].includes(d.action)).length} decisions executed`,
+        recent_activity: `${acted} trade decisions (${a.enter ?? 0} enter, ${a.increase ?? 0} increase, ${a.decrease ?? 0} decrease, ${a.exit ?? 0} exit) · ${a.hold ?? 0} holds`,
       };
-    case "executor":
+    }
+    case "executor": {
+      const ex = [report.phase_a?.executor, report.phase_b?.executor].filter(Boolean);
+      const trades = ex.flatMap((e: Any) => e.executed_trades ?? []);
+      const errors = ex.reduce((n: number, e: Any) => n + (e.errors ?? []).length, 0);
+      const skipped = ex.reduce((n: number, e: Any) => n + (e.skipped ?? []).length, 0);
+      const tickers = trades.map((t: Any) => `${t.action} ${t.ticker}`).slice(0, 3).join(", ");
       return {
-        current_focus: "Order routing, stop placement, position reconciliation",
-        market_view: "Executing committee decisions via Alpaca API",
-        recent_activity: "Live order management active",
+        current_focus: "Order routing, sizing, position reconciliation",
+        market_view: trades.length ? `Last run: ${tickers}${trades.length > 3 ? "…" : ""}` : "No orders placed in the last run",
+        recent_activity: `${trades.length} orders executed · ${skipped} skipped · ${errors} errors (${report.date ?? "last run"})`,
       };
-    case "memory":
+    }
+    case "memory": {
+      const m = report.memory ?? {};
       return {
-        current_focus: "Post-mortem analysis, learning brief, pattern tracking",
-        market_view: "Consolidating learnings from closed trades",
-        recent_activity: "Memory and attribution log updated",
+        current_focus: "Post-mortems on closed trades, learning brief, agent weights",
+        market_view: m.agent_weights?.closed_trade_count != null
+          ? `Agent weights based on ${m.agent_weights.closed_trade_count} closed trades`
+          : "Consolidating learnings from closed trades",
+        recent_activity: `${m.total_completed_trades ?? 0} post-mortems completed (${report.date ?? "last run"})`,
       };
+    }
     default:
       return {
         current_focus: "Active",
@@ -227,7 +247,7 @@ export async function GET() {
       number: profile.number,
       personality: profile.personality,
       color: profile.color,
-      accuracy: 0,  // real accuracy comes from /api/attribution — left at 0 until trades close
+      feeds: profile.feeds ?? null,
       current_focus,
       market_view,
       recent_activity,

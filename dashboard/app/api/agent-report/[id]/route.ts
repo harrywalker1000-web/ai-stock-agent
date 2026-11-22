@@ -13,8 +13,8 @@ const REPORT_FILES: Record<string, string | null> = {
   quant:         "quant_report.json",
   sentiment:     "sentiment_report.json",
   committee:     "committee_report.json",
-  executor:      null,
-  memory:        null,
+  executor:      "pipeline_result.json",
+  memory:        "pipeline_result.json",
 };
 
 export async function GET(
@@ -33,8 +33,22 @@ export async function GET(
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ error: "Report not yet generated", agentId }, { status: 404 });
     }
-    const raw = fs.readFileSync(filePath, "utf-8");
-    return NextResponse.json(JSON.parse(raw));
+    const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    // Executor and Memory have no report of their own — serve their slice of the run result
+    if (agentId === "executor") {
+      const ex = [data.phase_a?.executor, data.phase_b?.executor].filter(Boolean);
+      return NextResponse.json({
+        generated_at: data.date ?? null,
+        executed_trades: ex.flatMap((e: Record<string, unknown[]>) => e.executed_trades ?? []),
+        skipped: ex.flatMap((e: Record<string, unknown[]>) => e.skipped ?? []),
+        errors: ex.flatMap((e: Record<string, unknown[]>) => e.errors ?? []),
+        not_executed: data.briefing?.not_executed ?? [],
+      });
+    }
+    if (agentId === "memory") {
+      return NextResponse.json({ generated_at: data.date ?? null, ...(data.memory ?? {}) });
+    }
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Failed to read report" }, { status: 500 });
   }

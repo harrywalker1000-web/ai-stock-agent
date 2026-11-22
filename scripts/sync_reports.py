@@ -66,6 +66,7 @@ def _merge_decisions(phase_a: list, phase_b: list) -> list:
 REPORT_FILES = [
     "pipeline_result.json",
     "portfolio_state.json",
+    "candidates_report.json",   # read by the dashboard's Meet the Team page
     "committee_report.json",
     "fundamental_report.json",
     "quant_report.json",

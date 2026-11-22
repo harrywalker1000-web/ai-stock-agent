@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { dataDir } from "@/lib/data-path";
+import { findPendingSplits, correctPosition } from "@/lib/splits";
 
 // ---------------------------------------------------------------------------
 // Agent personalities
@@ -56,7 +57,48 @@ function loadPortfolioState(base: string): string {
 
   const portfolioValue = ps.portfolio_value ?? ps.equity;
   const cash = ps.cash;
-  return `LIVE PORTFOLIO (from Alpaca, as of ${ps.generated_at ?? ps.date ?? "last sync"}):\nTotal equity: $${Number(portfolioValue).toLocaleString()} | Cash: $${Number(cash).toLocaleString()}\n${JSON.stringify(rows, null, 2)}`;
+  return `PORTFOLIO SNAPSHOT (saved by the last pipeline run, ${ps.generated_at ?? ps.date ?? "date unknown"} — the LIVE section above is current):\nTotal equity: $${Number(portfolioValue).toLocaleString()} | Cash: $${Number(cash).toLocaleString()}\n${JSON.stringify(rows, null, 2)}`;
+}
+
+// Live account + positions straight from Alpaca (split-corrected, see lib/splits)
+async function fetchLiveAlpaca(): Promise<string> {
+  const key = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return "";
+  const headers = { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret };
+  try {
+    const [aRes, pRes] = await Promise.all([
+      fetch(`${base}/v2/account`, { headers, cache: "no-store", signal: AbortSignal.timeout(5000) }),
+      fetch(`${base}/v2/positions`, { headers, cache: "no-store", signal: AbortSignal.timeout(5000) }),
+    ]);
+    if (!aRes.ok || !pRes.ok) return "";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const acct: any = await aRes.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const raw: any[] = await pRes.json();
+    const pending = await findPendingSplits(raw);
+    let delta = 0;
+    const rows = raw.map((p) => {
+      const c = pending[p.symbol] ? correctPosition(p, pending[p.symbol]) : null;
+      if (c) delta += c.mvDelta;
+      const q = c?.position ?? p;
+      return {
+        ticker: q.symbol, side: q.side, qty: Number(q.qty), avg_entry: Number(Number(q.avg_entry_price).toFixed(2)),
+        current_price: Number(q.current_price), market_value: Number(Number(q.market_value).toFixed(2)),
+        unrealized_pnl: Number(Number(q.unrealized_pl).toFixed(2)),
+        unrealized_pct: Number((Number(q.unrealized_plpc) * 100).toFixed(2)),
+      };
+    });
+    const equity = Number(acct.equity) + delta;
+    const last = Number(acct.last_equity ?? acct.equity);
+    const splitNote = Object.values(pending).length
+      ? `\nNote: ${Object.values(pending).map((s) => `${s.symbol} ${s.ratio}:1 split (ex ${s.ex_date})`).join(", ")} not yet applied by Alpaca — figures above are corrected for it.`
+      : "";
+    return `LIVE PORTFOLIO (Alpaca, fetched ${new Date().toISOString()}):\nTotal equity: $${equity.toLocaleString(undefined, { maximumFractionDigits: 2 })} | Cash: $${Number(acct.cash).toLocaleString()} | Previous close equity: $${last.toLocaleString()}${splitNote}\n${JSON.stringify(rows)}`;
+  } catch {
+    return "";
+  }
 }
 
 // Entry thesis + signals from positions_log
@@ -364,7 +406,10 @@ export async function POST(request: NextRequest) {
 
     const base = dataDir();
     const personality = AGENT_PERSONALITIES[agentId] ?? AGENT_PERSONALITIES.committee;
-    const { context, reportDate } = buildContext(agentId, base);
+    const built = buildContext(agentId, base);
+    const reportDate = built.reportDate;
+    const live = await fetchLiveAlpaca();
+    const context = [live, built.context].filter(Boolean).join("\n\n---\n\n");
     const liveContext = await fetchLivePrices(base);
     const today = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", dateStyle: "full" });
 

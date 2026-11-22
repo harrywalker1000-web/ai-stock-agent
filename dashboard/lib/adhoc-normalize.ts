@@ -72,6 +72,122 @@ function sectionScenario(s: Any): NormalizedScenario {
   };
 }
 
+/**
+ * Map a flat (older) report into the `sections` schema the research report page
+ * renders. Only data the flat report actually contains is mapped — anything it never
+ * had stays absent so the page shows "Data unavailable". Every value carries a source;
+ * LLM-generated values are tagged "[AI estimate]" so the page badges them as AI.
+ * Derived ratios (margins, YoY) are plain arithmetic on the reported figures.
+ */
+export function flatToSections(r: Any): Any {
+  if (!r || typeof r !== "object" || isSectionsReport(r)) return r;
+  const AI = "GPT-4o [AI estimate]";
+  const SRC = "report (yfinance/SEC)";
+  const w = (value: Any, source = SRC) =>
+    value === undefined || value === null || value === "N/A" ? undefined : { value, source, status: "ok" };
+  const s2c = r.s2_company ?? {};
+  const bg = s2c.background ?? {};
+  const mgmt = s2c.management_team ?? {};
+  const qoe = s2c.quality_of_earnings ?? {};
+  const cap = s2c.cap_table ?? {};
+  const tech = r.s8_technical ?? {};
+  const sent = r.s9_sentiment ?? {};
+  const inst = r.s10_institutional ?? {};
+  const risk = r.s12_risk ?? {};
+  const rec = r.s7_recommendation ?? {};
+  const sc = r.s13_scenarios ?? {};
+  const dataS = r.s14_data ?? {};
+
+  // Annual financials, oldest → newest, with deterministic margins / YoY
+  const hist = [...((s2c.financial_snapshot?.historical ?? []) as Any[])]
+    .filter((h) => h && h.year != null)
+    .sort((a, b) => String(a.year).localeCompare(String(b.year)));
+  const years = hist.map((h, i) => {
+    const prev = hist[i - 1];
+    const rev = typeof h.revenue === "number" ? h.revenue : null;
+    return {
+      year: String(h.year),
+      revenue: rev,
+      ebitda_margin: rev && typeof h.ebitda === "number" ? (h.ebitda / rev) * 100 : null,
+      net_margin: rev && typeof h.net_income === "number" ? (h.net_income / rev) * 100 : null,
+      revenue_yoy: rev && prev && typeof prev.revenue === "number" && prev.revenue ? ((rev - prev.revenue) / prev.revenue) * 100 : null,
+    };
+  });
+
+  const scen = (s: Any, bear: boolean) => s ? {
+    price_target: w(s.price_target, AI),
+    upside_pct: w(bear ? -Math.abs(Number(s.downside_pct ?? s.upside_pct ?? 0)) : s.upside_pct, AI),
+    probability: w(s.probability, AI),
+    rationale: w(s.catalyst ?? s.trigger ?? s.assumptions, AI),
+  } : undefined;
+
+  const ceoName = typeof mgmt.ceo === "string" ? mgmt.ceo.split(/\s[-—]\s/)[0] : undefined;
+  const sector = r.sector && r.sector !== "N/A" ? r.sector : undefined;
+
+  return {
+    ...r,
+    _converted_from: "flat",
+    mandate: { passed: r.mandate_pass ?? r.s1_mandate?.pass ?? null, checks: r.s1_mandate?.checks ?? [], setup_type: r.s1_mandate?.setup_type },
+    sections: {
+      s1_cover: {
+        company_name: w(r.company_name), sector: w(sector), current_price: w(r.current_price),
+        market_cap: w(r.market_cap), setup_type: r.s1_mandate?.setup_type, mandate_passed: r.mandate_pass,
+        checks: r.s1_mandate?.checks ?? [], institutional_pct: w(cap.institutional_pct),
+      },
+      s2_overview: {
+        company_name: w(r.company_name), sector: w(sector), market_cap: w(r.market_cap),
+        employees: w(bg.employees), ceo: w(ceoName, AI), country: w(typeof bg.hq === "string" ? bg.hq.split(",").pop()?.trim() : undefined, AI),
+        ai_narrative: w(bg.overview, AI),
+      },
+      s4_financials: years.length ? { years, data_coverage_note: "Annual figures from the original report; quarterly data not captured in this report version." } : {},
+      s6_valuation: { beta: w(risk.beta) },
+      s7_technicals: {
+        rsi: w(tech.rsi_14), macd_signal: w(tech.macd_signal), bb_position: w(tech.bb_position), atr_pct: w(tech.atr_pct),
+        support: w(tech.support), resistance: w(tech.resistance), trend: tech.trend ?? undefined,
+        quant_score: w(tech.quant_score, "Quant agent"), quant_summary: w(tech.quant_summary, AI),
+      },
+      s8_competitive: {
+        // Page reads ai_narrative as {moat_rating, narrative} (both LLM text in this report version)
+        ai_narrative: qoe.moat || qoe.barriers_to_entry ? {
+          moat_rating: qoe.moat ?? null,
+          narrative: [qoe.barriers_to_entry, ...(qoe.competitive_advantages ?? [])].filter(Boolean).join(" · ") || null,
+          source: AI,
+        } : undefined,
+      },
+      s10_institutional: {
+        institutional_pct: w(inst.institutional_pct ?? cap.institutional_pct),
+        insider_pct: w(inst.insider_pct ?? cap.insider_pct),
+        major_holders: inst.major_holders ?? cap.major_holders ?? [],
+        price_target_mean: w(inst.analyst_target),
+      },
+      s10b_management: { ceo_name: w(ceoName, AI), ai_ceo_profile: mgmt.ceo ?? undefined, ai_source: AI, employees: w(bg.employees) },
+      s11_risks: {
+        key_risks: rec.key_risks ?? [],
+        beta: w(risk.beta), current_ratio: w(risk.current_ratio), debt_to_equity: w(risk.debt_to_equity),
+      },
+      s12_scenarios: sc.bull || sc.base || sc.bear ? { bull: scen(sc.bull, false), base: scen(sc.base, false), bear: scen(sc.bear, true) } : {},
+      s13_sentiment: {
+        analyst_consensus: w(sent.analyst_consensus), short_interest_pct: w(sent.short_interest_pct),
+        sentiment_score: w(sent.sentiment_score, "Sentiment agent"), contrarian_signal: w(sent.contrarian_signal),
+        news_tone: w(sent.news_tone, AI), ai_sentiment: w(sent.sentiment_summary, AI),
+      },
+      s15_checklist: { items: r.s3_setup?.checklist ?? [] },
+      s16_recommendation: {
+        direction: rec.direction ?? r.direction, conviction: rec.conviction ?? r.conviction,
+        // Plain values (the page renders these directly); LLM-generated in this report version
+        expected_return_12m: rec.expected_return_12m ?? r.expected_return_12m ?? null,
+        position_size_pct: rec.suggested_size_pct ?? null, stop_loss_pct: rec.stop_loss_pct ?? null,
+        _ai_estimate_fields: ["expected_return_12m", "position_size_pct", "stop_loss_pct"],
+        key_risks: rec.key_risks ?? [], committee_narrative: r.s6_thesis?.narrative ?? null,
+      },
+      s17_reliability: {
+        sources: dataS.sources ?? [], data_confidence: w(dataS.data_confidence), confidence_reason: w(dataS.confidence_reason),
+        conflicts_count: w(dataS.conflicts_count),
+      },
+    },
+  };
+}
+
 export function normalizeAdhoc(r: Any): NormalizedAdhoc | null {
   if (!r || typeof r !== "object") return null;
 
