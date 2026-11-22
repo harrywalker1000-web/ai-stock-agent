@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
+import { adhocTimestamp, isAdhocFilename, listAdhocFiles, readAdhocFile } from "@/lib/adhoc-files";
+
+const CACHE_DAYS = 7;
 
 const REPO  = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
 const BRANCH = "main";
@@ -17,19 +20,14 @@ function getAdhocDir(): string {
   return fs.existsSync(local) ? local : path.join(process.cwd(), "..", "data", "adhoc_reports");
 }
 
-/** Delete a single file from GitHub via Contents API. Returns true if deleted (or already gone). */
-async function deleteFromGitHub(repoPath: string, token: string): Promise<boolean> {
+/** Delete one file via the Contents API: "deleted" | "absent" | "error". */
+async function deleteFromGitHub(repoPath: string, token: string): Promise<"deleted" | "absent" | "error"> {
   const url = `https://api.github.com/repos/${REPO}/contents/${repoPath}`;
   const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
-
-  // 1. Get the file's SHA (required for deletion)
-  const getRes = await fetch(url, { headers });
-  if (getRes.status === 404) return true; // already gone — not an error
-  if (!getRes.ok) return false;
-
+  const getRes = await fetch(url, { headers, cache: "no-store" });
+  if (getRes.status === 404) return "absent";
+  if (!getRes.ok) return "error";
   const { sha } = await getRes.json();
-
-  // 2. Delete the file
   const delRes = await fetch(url, {
     method: "DELETE",
     headers: { ...headers, "Content-Type": "application/json" },
@@ -39,72 +37,54 @@ async function deleteFromGitHub(repoPath: string, token: string): Promise<boolea
       branch: BRANCH,
     }),
   });
-  return delRes.ok || delRes.status === 404;
+  if (delRes.ok) return "deleted";
+  return delRes.status === 404 ? "absent" : "error";
 }
 
-/** List all adhoc report filenames from GitHub (reads the directory tree via Contents API). */
-async function listFromGitHub(token: string): Promise<string[]> {
-  const headers = { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" };
-  const files: string[] = [];
-  for (const dir of REPO_DIRS) {
-    const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${dir}?ref=${BRANCH}`, { headers });
-    if (!res.ok) continue;
-    const items = await res.json();
-    if (Array.isArray(items)) {
-      for (const item of items) {
-        if (item.name?.endsWith(".json") && item.type === "file") {
-          files.push(item.name);
-        }
-      }
-    }
-  }
-  // Deduplicate by filename
-  return Array.from(new Set(files));
-}
+const MAX_BATCH = 300;
 
+/**
+ * DELETE — removes exactly the named report files (from both repo copies).
+ *   ?filename=TICKER_….json            one report (row delete)
+ *   body {"filenames": [...]}          a batch (the "Clear all" of one tab)
+ * Every name is validated against the report filename pattern; there is no
+ * "delete everything" mode.
+ */
 export async function DELETE(req: NextRequest) {
-  const ticker   = req.nextUrl.searchParams.get("ticker")?.toUpperCase().replace(/[^A-Z]/g, "");
-  const filename = req.nextUrl.searchParams.get("filename");  // exact filename preferred
-  const all      = req.nextUrl.searchParams.get("all") === "1";
-  const token    = process.env.GITHUB_DISPATCH_TOKEN;
-
-  if (!ticker && !all) {
-    return NextResponse.json({ error: "ticker or all=1 required" }, { status: 400 });
+  const token = process.env.GITHUB_DISPATCH_TOKEN;
+  const single = req.nextUrl.searchParams.get("filename");
+  let names: string[] = [];
+  if (single) {
+    names = [single];
+  } else {
+    const body = await req.json().catch(() => null);
+    names = Array.isArray(body?.filenames) ? body.filenames.map(String) : [];
   }
-  if (!token) {
-    return NextResponse.json({ error: "GITHUB_DISPATCH_TOKEN not set" }, { status: 503 });
-  }
+  names = Array.from(new Set(names));
+  if (names.length === 0) return NextResponse.json({ error: "filename or filenames required" }, { status: 400 });
+  if (names.length > MAX_BATCH) return NextResponse.json({ error: `At most ${MAX_BATCH} files per request` }, { status: 400 });
+  const invalid = names.filter((n) => !isAdhocFilename(n));
+  if (invalid.length) return NextResponse.json({ error: `Invalid report filename(s): ${invalid.slice(0, 3).join(", ")}` }, { status: 400 });
+  if (!token) return NextResponse.json({ error: "GITHUB_DISPATCH_TOKEN not set" }, { status: 503 });
 
-  // Determine which filenames to delete
-  let filenames: string[] = [];
-  if (all) {
-    filenames = await listFromGitHub(token);
-  } else if (filename) {
-    // Exact filename passed — use it directly (avoids format mismatch bugs)
-    filenames = [filename];
-  } else if (ticker) {
-    // Fallback: delete all reports for this ticker (any date/timestamp format)
-    const all_files = await listFromGitHub(token);
-    filenames = all_files.filter((f) => f.startsWith(`${ticker}_`));
-  }
-
-  // Delete each file from all repo dirs
-  let totalDeleted = 0;
+  let deleted = 0;
+  const notFound: string[] = [];
   const errors: string[] = [];
-
-  for (const filename of filenames) {
+  for (const name of names) {
+    let found = false;
     for (const dir of REPO_DIRS) {
-      const repoPath = `${dir}/${filename}`;
-      try {
-        const ok = await deleteFromGitHub(repoPath, token);
-        if (ok) totalDeleted++;
-      } catch (err) {
-        errors.push(`${repoPath}: ${err}`);
-      }
+      const r = await deleteFromGitHub(`${dir}/${name}`, token).catch(() => "error" as const);
+      if (r === "deleted") { deleted++; found = true; }
+      else if (r === "error") errors.push(`${dir}/${name}`);
     }
+    if (!found) notFound.push(name);
   }
-
-  return NextResponse.json({ deleted: totalDeleted, errors: errors.length ? errors : undefined });
+  const status = errors.length ? 502 : notFound.length === names.length ? 404 : 200;
+  return NextResponse.json(
+    { deleted, not_found: notFound.length ? notFound : undefined, errors: errors.length ? errors : undefined,
+      ...(status !== 200 ? { error: errors.length ? "Some deletions failed" : "Report not found in the repo" } : {}) },
+    { status },
+  );
 }
 
 export async function GET() {
@@ -170,11 +150,21 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const ticker = String(body.ticker ?? "").toUpperCase().replace(/[^A-Z]/g, "");
+    // Letters plus "." / "-" share-class separators (BRK-B), max 6 chars
+    const ticker = String(body.ticker ?? "").toUpperCase().replace(/[^A-Z.\-]/g, "");
     const forceRefresh = Boolean(body.forceRefresh);
 
-    if (!ticker || ticker.length > 5) {
+    if (!ticker || ticker.length > 6 || !/^[A-Z]/.test(ticker)) {
       return NextResponse.json({ error: "Invalid ticker" }, { status: 400 });
+    }
+
+    // "Use cached (7 days)": a report for this ticker under 7 days old is reused, no new run
+    if (!forceRefresh) {
+      const cutoff = new Date(Date.now() - CACHE_DAYS * 86400_000).toISOString().slice(0, 10);
+      for (const name of listAdhocFiles(ticker)) {
+        if (adhocTimestamp(name).slice(0, 10) < cutoff) break; // newest-first
+        if (readAdhocFile(name)) return NextResponse.json({ cached: true, ticker, filename: name });
+      }
     }
 
     const token = process.env.GITHUB_DISPATCH_TOKEN;

@@ -3,21 +3,22 @@ import { NextRequest, NextResponse } from "next/server";
 const REPO = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
 const WORKFLOW = "adhoc_report.yml";
 
-// 6 real steps that actually exist in the workflow (no sync step)
-type StepKey = "checkout" | "python" | "install" | "analysis" | "commit" | "deploy";
+// The steps that exist in adhoc_report.yml (deploy is a separate workflow, so a
+// finished run is 100% — it can't wait on a step this job never has)
+type StepKey = "checkout" | "python" | "install" | "analysis" | "commit";
 
 function classifyStep(rawName: string): StepKey | null {
   const n = rawName.toLowerCase();
   if (n.includes("checkout")) return "checkout";
   if (n.includes("set up python") || n.includes("setup python")) return "python";
   if (n.includes("install")) return "install";
+  if (n.includes("commit")) return "commit";          // before "report" — "Commit … report"
+  if (n.includes("verify")) return "analysis";
   if (n.includes("run") || n.includes("adhoc") || n.includes("ad-hoc") || n.includes("analysis") || n.includes("report")) return "analysis";
-  if (n.includes("commit")) return "commit";
-  if (n.includes("deploy")) return "deploy";
   return null;
 }
 
-const ALL_STEPS: StepKey[] = ["checkout", "python", "install", "analysis", "commit", "deploy"];
+const ALL_STEPS: StepKey[] = ["checkout", "python", "install", "analysis", "commit"];
 
 export async function GET(req: NextRequest) {
   const ticker   = req.nextUrl.searchParams.get("ticker")?.toUpperCase();
@@ -40,11 +41,11 @@ export async function GET(req: NextRequest) {
     const runs: any[] = runsData.workflow_runs ?? [];
 
     const cutoff = queuedAt ? parseInt(queuedAt) - 30_000 : Date.now() - 15 * 60_000;
+    // Runs are titled "Ad-Hoc Research Report — TICKER": match ours exactly
     const run = runs.find((r) => {
-      const createdMs = new Date(r.created_at).getTime();
-      if (createdMs < cutoff) return false;
-      const title = (r.display_title ?? r.name ?? "").toUpperCase();
-      return title.includes(ticker) || createdMs > cutoff;
+      if (new Date(r.created_at).getTime() < cutoff) return false;
+      const title = String(r.display_title ?? r.name ?? "").toUpperCase();
+      return title.endsWith(`— ${ticker}`) || title.endsWith(` ${ticker}`);
     });
 
     if (!run) {
@@ -76,7 +77,8 @@ export async function GET(req: NextRequest) {
     }
 
     const total = ALL_STEPS.length;
-    const done  = Object.values(steps).filter(v => v === "done").length;
+    const finishedOk = run.status === "completed" && run.conclusion === "success";
+    const done  = finishedOk ? total : Object.values(steps).filter(v => v === "done").length;
     const pct   = Math.round((done / total) * 100);
 
     let status: string = run.status;

@@ -45,7 +45,7 @@ const DIRECTION_STYLE: Record<string, string> = {
 // 6 real workflow steps — matches adhoc_report.yml exactly (no sync step)
 const SETUP_STEPS    = [{ key: "checkout", label: "Checkout" }, { key: "python", label: "Python" }, { key: "install", label: "Dependencies" }];
 const ANALYSIS_STEPS = [{ key: "analysis", label: "Run Analysis\n(6 agents)" }];
-const FINALIZE_STEPS = [{ key: "commit", label: "Commit" }, { key: "deploy", label: "Deploy" }];
+const FINALIZE_STEPS = [{ key: "commit", label: "Commit" }];
 
 type StepStatus = "pending" | "running" | "done" | "failed";
 interface Progress {
@@ -294,16 +294,27 @@ export default function AdhocInputPage() {
     }
   };
 
-  const deleteAll = async () => {
-    if (!window.confirm(`Delete all ${recent.length} cached report${recent.length !== 1 ? "s" : ""}? This cannot be undone.`)) return;
+  // Deletes exactly the reports listed in the current tab — never anything else
+  const deleteAll = async (targets: ReportPreview[], label: string) => {
+    const names = targets.map((r) => r.filename).filter((f): f is string => !!f);
+    if (names.length === 0) return;
+    if (!window.confirm(`Delete all ${names.length} ${label} report${names.length !== 1 ? "s" : ""}? Reports in the other tab are kept. This cannot be undone.`)) return;
     setDeleting("all");
     try {
-      const res = await fetch("/api/adhoc?all=1", { method: "DELETE" });
+      const res = await fetch("/api/adhoc", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filenames: names }),
+      });
       if (res.ok) {
-        const allKeys = recent.map(r => r.filename ?? `${r.ticker}_${r.date}`);
-        setDeletedFiles(new Set(allKeys));
-        try { localStorage.setItem("deletedReports", JSON.stringify(allKeys)); } catch { /* ignore */ }
-        setRecent([]);
+        const gone = new Set(names);
+        setDeletedFiles((prev) => {
+          const next = new Set(prev);
+          names.forEach((n) => next.add(n));
+          try { localStorage.setItem("deletedReports", JSON.stringify(Array.from(next))); } catch { /* ignore */ }
+          return next;
+        });
+        setRecent((prev) => prev.filter((r) => !r.filename || !gone.has(r.filename)));
       } else {
         const body = await res.json().catch(() => ({}));
         alert(`Delete failed: ${body.error ?? res.status}`);
@@ -316,7 +327,7 @@ export default function AdhocInputPage() {
   };
 
   const run = async () => {
-    const t = ticker.trim().toUpperCase().replace(/[^A-Z]/g, "");
+    const t = ticker.trim().toUpperCase().replace(/[^A-Z.\-]/g, "");
     if (!t) return;
     setStatus("idle");
     setErrorMsg(null);
@@ -332,6 +343,9 @@ export default function AdhocInputPage() {
       if (data.error) {
         setErrorMsg(data.error);
         setStatus("error");
+      } else if (data.cached && data.filename) {
+        // Recent report exists and "Use cached" is on — open it instead of re-running
+        window.location.href = `/reports/adhoc/${data.ticker}?file=${encodeURIComponent(data.filename)}`;
       } else {
         const now = Date.now();
         setQueued(t);
@@ -354,7 +368,7 @@ export default function AdhocInputPage() {
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Deep-Dive Research</h1>
           <p className="text-[#6B7280] text-sm mt-1">
-            Full 14-section institutional analysis on any ticker. No positions modified.
+            Full institutional research report on any ticker. No positions modified.
           </p>
         </div>
 
@@ -364,10 +378,10 @@ export default function AdhocInputPage() {
             <input
               type="text"
               value={ticker}
-              onChange={(e) => setTicker(e.target.value.toUpperCase().replace(/[^A-Z]/g, ""))}
+              onChange={(e) => setTicker(e.target.value.toUpperCase().replace(/[^A-Z.\-]/g, ""))}
               onKeyDown={(e) => e.key === "Enter" && run()}
               placeholder="Ticker (e.g. NVDA)"
-              maxLength={5}
+              maxLength={6}
               className="flex-1 bg-[#0D1117] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#4B5563] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
             />
             <button
@@ -486,7 +500,7 @@ export default function AdhocInputPage() {
             const isNew = !seenReports.has(seenKey);
             return (
               <div className="relative group">
-                <Link href={`/reports/adhoc/${r.ticker}`} onClick={() => markSeen(seenKey)}>
+                <Link href={r.filename ? `/reports/adhoc/${r.ticker}?file=${encodeURIComponent(r.filename)}` : `/reports/adhoc/${r.ticker}`} onClick={() => markSeen(seenKey)}>
                   <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
@@ -558,7 +572,7 @@ export default function AdhocInputPage() {
                 </button>
                 {tab === "pipeline" && pipelineReports.length > 0 && (
                   <button
-                    onClick={deleteAll}
+                    onClick={() => deleteAll(pipelineReports, "pipeline")}
                     disabled={deleting === "all"}
                     className="ml-auto text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
                   >
