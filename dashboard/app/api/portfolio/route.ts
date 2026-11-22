@@ -88,19 +88,23 @@ async function fetchAlpacaStopOrders(): Promise<Record<string, StopOrderInfo>> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Full account history (period=all) — the dashboard's 3M / All views need more than
+// one month, and base_value is the account's starting capital (Total P&L baseline).
+let historyBaseValue: number | null = null;
 async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> {
   const key    = process.env.ALPACA_API_KEY;
   const secret = process.env.ALPACA_SECRET_KEY;
   const base   = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
   if (!key || !secret) return [];
   try {
-    const res = await fetch(`${base}/v2/account/portfolio/history?period=1M&timeframe=1D`, {
+    const res = await fetch(`${base}/v2/account/portfolio/history?period=all&timeframe=1D`, {
       headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
       next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await res.json();
+    historyBaseValue = typeof data.base_value === "number" && data.base_value > 0 ? data.base_value : null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // Alpaca stamps each daily point at 20:00 New York time (01:00 UTC next day) —
     // the UTC date is the following calendar day, so label in New York time.
@@ -176,7 +180,15 @@ const SECTOR_COLORS: Record<string, string> = {
   "Communications":     "#EC4899",
   "Industrials":        "#F97316",
   "Materials":          "#06B6D4",
-  "Cash":               "#374151",
+  // Yahoo Finance sector names (what positions_log actually stores)
+  "Consumer Defensive":     "#F59E0B",
+  "Consumer Cyclical":      "#10B981",
+  "Communication Services": "#EC4899",
+  "Basic Materials":        "#06B6D4",
+  "Utilities":              "#A3E635",
+  "Real Estate":            "#D946EF",
+  "Financial":              "#3B82F6",
+  "Cash":               "#94A3B8",
   "Other":              "#6B7280",
 };
 
@@ -335,7 +347,9 @@ export async function GET() {
     const deployed   = longMv + shortMv;
     const lastEquity = parseFloat(alpacaAccount.last_equity ?? alpacaAccount.equity);
     const dailyPnl   = equity - lastEquity;
-    const totalPnl   = equity - 100000;
+    // Baseline = Alpaca's account starting capital (portfolio history base_value)
+    const baseline   = historyBaseValue;
+    const totalPnl   = baseline != null ? equity - baseline : null;
     // deployed_pct capped at 100% for display — margin is a separate flag
     const deployedPct = Math.min((deployed / equity) * 100, 100);
     const usingMargin = deployed > equity;
@@ -344,8 +358,9 @@ export async function GET() {
       cash:               Math.max(parseFloat(alpacaAccount.cash), 0),
       deployed:           deployed,
       deployed_pct:       parseFloat(deployedPct.toFixed(1)),
-      total_pnl_pct:      parseFloat(((totalPnl / 100000) * 100).toFixed(2)),
-      total_pnl_absolute: parseFloat(totalPnl.toFixed(2)),
+      total_pnl_pct:      totalPnl != null && baseline ? parseFloat(((totalPnl / baseline) * 100).toFixed(2)) : null,
+      total_pnl_absolute: totalPnl != null ? parseFloat(totalPnl.toFixed(2)) : null,
+      starting_capital:   baseline,
       daily_pnl_pct:      parseFloat((lastEquity > 0 ? (dailyPnl / lastEquity) * 100 : 0).toFixed(2)),
       daily_pnl_absolute: parseFloat(dailyPnl.toFixed(2)),
       active_positions:   positions.length,

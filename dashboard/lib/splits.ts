@@ -133,6 +133,27 @@ export function correctPosition(p: any, s: PendingSplit): { position: any; mvDel
 }
 
 /**
+ * Equity-history correction per NY date: on/after a pending split's ex-date Alpaca
+ * values the stale share count at the post-split close, so true equity that day is
+ * higher (forward split) by (ratio − 1) × broker_qty × close.
+ */
+export async function splitHistoryDeltas(
+  pending: Record<string, PendingSplit>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rawPositions: any[],
+): Promise<Record<string, number>> {
+  const out: Record<string, number> = {};
+  for (const s of Object.values(pending)) {
+    const closes = await fetchDailyCloses(s.symbol, s.ex_date);
+    const sign = rawPositions.find((p) => p.symbol === s.symbol)?.side === "short" ? -1 : 1;
+    for (const [d, close] of Object.entries(closes)) {
+      if (d >= s.ex_date) out[d] = (out[d] ?? 0) + sign * (s.ratio - 1) * s.broker_qty * close;
+    }
+  }
+  return out;
+}
+
+/**
  * Daily closes (split-adjusted, i.e. post-split prices — the same basis Alpaca
  * marks the stale position at) for history correction, keyed by YYYY-MM-DD.
  */

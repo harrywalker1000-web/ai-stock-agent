@@ -20,7 +20,7 @@ interface PortfolioData {
   positions: Position[];
   stats: {
     total_value: number; cash: number; deployed: number; deployed_pct: number;
-    total_pnl_pct: number; total_pnl_absolute: number;
+    total_pnl_pct: number | null; total_pnl_absolute: number | null;
     daily_pnl_pct: number; daily_pnl_absolute: number;
     active_positions: number; pipeline_status: string; pipeline_last_run: string;
     margin_warning?: boolean;
@@ -32,24 +32,22 @@ interface PortfolioData {
 }
 
 interface BenchmarkPeriod {
+  start_date: string | null;
+  end_date: string | null;
   portfolio_return_pct: number | null;
   spy_return_pct: number | null;
   alpha: number | null;
-  note?: string;
+  note?: "since_inception" | "insufficient_history";
+  series: Array<{ date: string; portfolio_pct: number; spy_pct: number }>;
 }
 
+// /api/benchmark — computed live from Alpaca equity history + SPY closes (lib/benchmark.ts)
 interface BenchmarkData {
   inception_date?: string;
-  nav_points?: number;
-  last_updated?: string;
+  as_of?: string | null;
+  includes_intraday?: boolean;
   error?: string;
-  periods: {
-    "1w"?: BenchmarkPeriod;
-    "1m"?: BenchmarkPeriod;
-    "6m"?: BenchmarkPeriod;
-    "ytd"?: BenchmarkPeriod;
-  };
-  daily_series: Array<{ date: string; portfolio_cumulative: number; spy_cumulative: number }>;
+  periods?: Record<"1W" | "1M" | "6M" | "YTD" | "All", BenchmarkPeriod>;
 }
 
 const BENCH_PERIODS = ["1W", "1M", "6M", "YTD", "All"] as const;
@@ -122,7 +120,7 @@ export default function DashboardPage() {
     fetch("/api/benchmark")
       .then((r) => r.json())
       .then((d: BenchmarkData) => setBenchmark(d))
-      .catch(() => null);
+      .catch(() => setBenchmark({ error: "Benchmark unavailable — network error" }));
     fetch("/api/attribution")
       .then((r) => r.json())
       .then((d: AttributionData) => setAttribution(d))
@@ -169,56 +167,22 @@ export default function DashboardPage() {
     }
   };
 
-  const filteredHistory = data?.history?.filter((h) => {
-    if (timeframe === "All") return true;
+  const filteredHistory = (() => {
+    const h = data?.history ?? [];
+    if (timeframe === "All" || h.length === 0) return h;
     const days = timeframe === "1W" ? 7 : timeframe === "1M" ? 30 : 90;
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    return new Date(h.date) >= cutoff;
-  }) ?? [];
-
-  // Benchmark vs SPY series — prefer benchmark daily_series, fall back to Alpaca equity history
-  const benchSeries = (() => {
-    const full = benchmark?.daily_series ?? [];
-
-    // If benchmark tracker has series data, filter by period as normal
-    if (full.length >= 2) {
-      if (benchPeriod === "All") return full;
-      if (benchPeriod === "YTD") {
-        const yearStart = new Date().getFullYear() + "-01-01";
-        return full.filter((d) => d.date >= yearStart);
-      }
-      const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      const cutoffStr = cutoff.toISOString().split("T")[0];
-      return full.filter((d) => d.date >= cutoffStr);
-    }
-
-    // Fallback: build a portfolio-only series from Alpaca history (no SPY comparison yet)
-    const alpacaHistory = data?.history ?? [];
-    if (alpacaHistory.length === 0) return [];
-    const startValue = alpacaHistory[0]?.value ?? 100000;
-    let filtered = alpacaHistory;
-    if (benchPeriod !== "All" && benchPeriod !== "YTD") {
-      const days = benchPeriod === "1W" ? 7 : benchPeriod === "1M" ? 30 : 182;
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - days);
-      const cutoffStr = cutoff.toISOString().split("T")[0];
-      filtered = alpacaHistory.filter((d) => d.date >= cutoffStr);
-    }
-    return filtered.map((d) => ({
-      date: d.date,
-      portfolio_cumulative: parseFloat((((d.value - startValue) / startValue) * 100).toFixed(3)),
-      spy_cumulative: 0,
-    }));
+    const last = new Date(`${h[h.length - 1].date}T12:00:00Z`);
+    last.setUTCDate(last.getUTCDate() - days);
+    const cutoff = last.toISOString().slice(0, 10);
+    // start from the last close on/before the cutoff so the window spans the full period
+    const startIdx = Math.max(0, h.findLastIndex((p) => p.date <= cutoff));
+    return h.slice(startIdx);
   })();
 
-  // Current period alpha/returns for display
-  const periodKey = benchPeriod === "1W" ? "1w" : benchPeriod === "1M" ? "1m" : benchPeriod === "6M" ? "6m" : benchPeriod === "YTD" ? "ytd" : null;
-  const activePeriod = periodKey ? benchmark?.periods?.[periodKey as keyof typeof benchmark.periods] : null;
+  // Benchmark vs SPY — each period arrives rebased to 0% at its own start (lib/benchmark.ts)
+  const activePeriod = benchmark?.periods?.[benchPeriod] ?? null;
+  const benchSeries = activePeriod?.series ?? [];
   const hasInsufficientHistory = (p: BenchmarkPeriod | null | undefined) => !p || p.note === "insufficient_history" || p.alpha == null;
-  const usingAlpacaFallback = (benchmark?.daily_series ?? []).length < 2 && benchSeries.length > 0;
 
   const stats = data?.stats;
   const positions = [...(data?.positions ?? [])].sort((a, b) => b.pct_portfolio - a.pct_portfolio);
@@ -341,10 +305,10 @@ export default function DashboardPage() {
           <div className="col-span-2 sm:col-span-1 lg:col-span-1 card p-5">
             <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">Total P&L</p>
             <p className={`font-display text-3xl font-bold ${(stats?.total_pnl_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-              {loading ? "—" : `${fmt(stats?.total_pnl_pct ?? 0)}%`}
+              {loading || stats?.total_pnl_pct == null ? "—" : `${fmt(stats.total_pnl_pct)}%`}
             </p>
             <p className="text-xs text-[#6B7280] mt-1">
-              {loading ? "" : fmtCurrency(stats?.total_pnl_absolute ?? 0)}
+              {loading ? "" : stats?.total_pnl_absolute == null ? "data unavailable" : fmtCurrency(stats.total_pnl_absolute)}
             </p>
           </div>
 
@@ -471,6 +435,7 @@ export default function DashboardPage() {
                   outerRadius={80}
                   paddingAngle={2}
                   dataKey="value"
+                  nameKey="sector"
                 >
                   {(data?.sectors ?? []).map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
@@ -484,7 +449,8 @@ export default function DashboardPage() {
                     color: "#E8EDF2",
                     fontSize: "12px",
                   }}
-                  formatter={(v) => [`${Number(v).toFixed(1)}%`, "Allocation"]}
+                  itemStyle={{ color: "#E8EDF2" }}
+                  formatter={(v, name) => [`${Number(v).toFixed(1)}% of portfolio`, String(name)]}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -664,9 +630,9 @@ export default function DashboardPage() {
             <div>
               <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Returns vs SPY</h2>
               <p className="text-xs text-[#6B7280] mt-0.5">
-                {benchmark?.inception_date
-                  ? `Since inception ${benchmark.inception_date} · paper trading`
-                  : "Cumulative returns indexed to 0% at inception · paper trading"}
+                {activePeriod?.start_date
+                  ? `${activePeriod.start_date} → ${activePeriod.end_date}${benchmark?.includes_intraday ? " (live)" : " close"} · both lines rebased to 0% at period start${activePeriod.note === "since_inception" ? ` · account opened ${benchmark?.inception_date}` : ""}`
+                  : "Portfolio (Alpaca, time-weighted) vs SPY (dividend-adjusted)"}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -701,23 +667,18 @@ export default function DashboardPage() {
               <div className="w-5 h-0.5 rounded-full bg-[#F5A623]" />
               <span className="text-xs text-[#6B7280]">Portfolio</span>
             </div>
-            {!usingAlpacaFallback && (
-              <div className="flex items-center gap-1.5">
-                <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
-                <span className="text-xs text-[#6B7280]">SPY</span>
-              </div>
-            )}
-            {usingAlpacaFallback && (
-              <span className="text-[10px] text-[#6B7280]/60 italic">SPY comparison available after 2+ pipeline runs</span>
-            )}
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
+              <span className="text-xs text-[#6B7280]">SPY</span>
+            </div>
           </div>
 
           {benchSeries.length < 2 ? (
             <div className="flex flex-col items-center justify-center h-40 gap-2">
-              <p className="text-[#6B7280] text-sm">Accumulating history — check back after a few more pipeline runs</p>
-              {benchmark?.inception_date && (
-                <p className="text-xs text-[#6B7280]/60">Inception: {benchmark.inception_date} · {benchmark.nav_points ?? 1} data point{(benchmark.nav_points ?? 1) !== 1 ? "s" : ""} so far</p>
-              )}
+              <p className="text-[#6B7280] text-sm">
+                {!benchmark ? "Loading…" : benchmark.error ? "Data unavailable" : "Not enough history for this period yet"}
+              </p>
+              {benchmark?.error && <p className="text-xs text-[#6B7280]/60">{benchmark.error}</p>}
             </div>
           ) : (
             <>
@@ -730,11 +691,13 @@ export default function DashboardPage() {
                     tickFormatter={(v) => v.slice(5)}
                     axisLine={false}
                     tickLine={false}
+                    minTickGap={24}
                   />
                   <YAxis
                     tick={{ fill: "#6B7280", fontSize: 10 }}
                     axisLine={false}
                     tickLine={false}
+                    width={52}
                     tickFormatter={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`}
                     domain={["auto", "auto"]}
                   />
@@ -747,13 +710,14 @@ export default function DashboardPage() {
                       color: "#E8EDF2",
                       fontSize: "12px",
                     }}
+                    labelStyle={{ color: "#9CA3AF" }}
                     formatter={(v, name) => [
                       `${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}%`,
-                      name === "portfolio_cumulative" ? "Portfolio" : "SPY",
+                      name === "portfolio_pct" ? "Portfolio" : "SPY",
                     ]}
                   />
-                  <Line type="monotone" dataKey="portfolio_cumulative" stroke="#F5A623" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#F5A623" }} />
-                  <Line type="monotone" dataKey="spy_cumulative" stroke="#00D4FF" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: "#00D4FF" }} />
+                  <Line type="monotone" dataKey="portfolio_pct" stroke="#F5A623" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#F5A623" }} />
+                  <Line type="monotone" dataKey="spy_pct" stroke="#00D4FF" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: "#00D4FF" }} />
                 </LineChart>
               </ResponsiveContainer>
 
@@ -773,7 +737,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-xs text-[#6B7280] mb-1">Alpha</p>
+                    <p className="text-xs text-[#6B7280] mb-1">Alpha (pts)</p>
                     <p className={`font-mono font-bold text-sm ${(activePeriod.alpha ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
                       {(activePeriod.alpha ?? 0) >= 0 ? "+" : ""}{(activePeriod.alpha ?? 0).toFixed(2)}%
                     </p>

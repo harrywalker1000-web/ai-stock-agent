@@ -79,7 +79,7 @@ function Tape({ positions }: { positions: { ticker: string; pct_change: number }
   );
 }
 
-interface Stats { total_value: number; daily_pnl_absolute: number; daily_pnl_pct: number; total_pnl_absolute: number; total_pnl_pct: number; active_positions: number; }
+interface Stats { total_value: number; daily_pnl_absolute: number; daily_pnl_pct: number; total_pnl_absolute: number | null; total_pnl_pct: number | null; active_positions: number; }
 interface PData { stats: Stats; positions: { ticker: string; pct_change: number; direction: string }[]; }
 
 export default function Design7() {
@@ -133,7 +133,7 @@ export default function Design7() {
             <div style={{ display: "flex", gap: 10, marginBottom: 44 }}>
               {[
                 { label: "Daily P&L", val: fmt(s.daily_pnl_pct) + "%", sub: fmtUsd(s.daily_pnl_absolute), color: s.daily_pnl_pct >= 0 ? "#00FF87" : "#FF4141" },
-                { label: "Total P&L", val: fmt(s.total_pnl_pct) + "%", sub: fmtUsd(s.total_pnl_absolute), color: s.total_pnl_pct >= 0 ? "#00FF87" : "#FF4141" },
+                { label: "Total P&L", val: s.total_pnl_pct == null ? "—" : fmt(s.total_pnl_pct) + "%", sub: s.total_pnl_absolute == null ? "unavailable" : fmtUsd(s.total_pnl_absolute), color: (s.total_pnl_pct ?? 0) >= 0 ? "#00FF87" : "#FF4141" },
                 { label: "Positions", val: String(s.active_positions), sub: "open trades", color: "#00D4FF" },
                 { label: "Pipeline", val: "LIVE", sub: "GitHub Actions", color: "#F5A623" },
               ].map(item => (
