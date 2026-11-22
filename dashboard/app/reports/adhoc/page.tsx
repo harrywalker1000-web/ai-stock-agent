@@ -36,10 +36,10 @@ function formatDayLabel(dateStr: string): string {
 }
 
 const DIRECTION_STYLE: Record<string, string> = {
-  BUY:  "text-[#10B981] bg-[#10B981]/10",
-  HOLD: "text-[#F59E0B] bg-[#F59E0B]/10",
-  SELL: "text-[#EF4444] bg-[#EF4444]/10",
-  PASS: "text-[#6B7280] bg-white/05",
+  BUY:  "text-gain bg-gain/10",
+  HOLD: "text-caution bg-caution/10",
+  SELL: "text-loss bg-loss/10",
+  PASS: "text-ink-3 bg-white/05",
 };
 
 // 6 real workflow steps — matches adhoc_report.yml exactly (no sync step)
@@ -58,20 +58,20 @@ interface Progress {
 
 function StepDot({ status, label }: { status: StepStatus; label: string }) {
   const isDone = status === "done", isRunning = status === "running", isFailed = status === "failed";
-  const dot = isDone ? "bg-[#10B981] border-[#10B981] text-white"
-    : isRunning ? "bg-[#0EA5E9] border-[#0EA5E9] text-white animate-pulse"
-    : isFailed  ? "bg-[#EF4444] border-[#EF4444] text-white"
-    : "bg-transparent border-[#374151] text-[#374151]";
-  const lbl = isDone ? "text-[#10B981]" : isRunning ? "text-[#0EA5E9]" : isFailed ? "text-[#EF4444]" : "text-[#4B5563]";
+  const dot = isDone ? "bg-gain border-gain text-white"
+    : isRunning ? "bg-accent border-accent text-white animate-pulse"
+    : isFailed  ? "bg-loss border-loss text-white"
+    : "bg-transparent border-line text-ink-3";
+  const lbl = isDone ? "text-gain" : isRunning ? "text-accent" : isFailed ? "text-loss" : "text-ink-3";
   return (
     <div className="flex flex-col items-center gap-1 min-w-0">
       <span className={`w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${dot}`}>
         {isDone ? <svg className="w-3.5 h-3.5" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
           : isFailed ? <span className="text-xs">✕</span>
-          : isRunning ? <span className="text-[10px] font-bold">•••</span>
-          : <span className="w-2 h-2 rounded-full bg-[#374151]/40 block" />}
+          : isRunning ? <span className="text-micro font-bold">•••</span>
+          : <span className="w-2 h-2 rounded-full bg-line/40 block" />}
       </span>
-      <span className={`text-[9px] text-center leading-tight whitespace-pre-line transition-colors ${lbl}`}>{label}</span>
+      <span className={`text-micro text-center leading-tight whitespace-pre-line transition-colors ${lbl}`}>{label}</span>
     </div>
   );
 }
@@ -80,13 +80,13 @@ function PhaseRow({ label, stepList, steps }: { label: string; stepList: { key: 
   const get = (k: string): StepStatus => steps[k] ?? "pending";
   return (
     <div>
-      <p className="text-[9px] font-bold text-[#374151] uppercase tracking-widest mb-2">{label}</p>
+      <p className="text-micro font-bold text-ink-3 mb-2">{label}</p>
       <div className="flex items-start gap-1">
         {stepList.map((s, i) => (
           <div key={s.key} className="flex items-start">
             <StepDot status={get(s.key)} label={s.label} />
             {i < stepList.length - 1 && (
-              <div className={`self-start mt-3 w-5 h-px mx-1 shrink-0 ${get(s.key) === "done" ? "bg-[#10B981]/40" : "bg-[#374151]"}`} />
+              <div className={`self-start mt-3 w-5 h-px mx-1 shrink-0 ${get(s.key) ==="done"?"bg-gain/40":"bg-line"}`} />
             )}
           </div>
         ))}
@@ -133,16 +133,16 @@ function ProgressBar({ pct, queuedAt, active }: { pct: number; queuedAt: number 
 
   return (
     <div className="mb-4">
-      <div className="flex justify-between text-[10px] text-[#6B7280] mb-1.5">
+      <div className="flex justify-between text-micro text-ink-3 mb-1.5">
         <span>{active ? "Analysis running…" : pct >= 100 ? "Complete" : "Waiting"}</span>
-        <span className="font-mono">{shown}%</span>
+        <span className="">{shown}%</span>
       </div>
       <div className="h-2 bg-white/05 rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
           style={{
             width: `${shown}%`,
-            background: shown >= 100 ? "#10B981" : "linear-gradient(90deg, #0EA5E9, #38BDF8)",
+            background: shown >= 100 ? "#4DB887" : "linear-gradient(90deg, #C8A15A, #C8A15A)",
           }}
         />
       </div>
@@ -361,13 +361,13 @@ export default function AdhocInputPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080C10] pb-20">
+    <div className="min-h-screen bg-canvas pb-20">
       <div className="max-w-2xl mx-auto px-6 pt-8">
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Deep-Dive Research</h1>
-          <p className="text-[#6B7280] text-sm mt-1">
+          <h1 className="font-display text-3xl font-bold text-ink-1">Deep-Dive Research</h1>
+          <p className="text-ink-3 text-sm mt-1">
             Full institutional research report on any ticker. No positions modified.
           </p>
         </div>
@@ -382,12 +382,12 @@ export default function AdhocInputPage() {
               onKeyDown={(e) => e.key === "Enter" && run()}
               placeholder="Ticker (e.g. NVDA)"
               maxLength={6}
-              className="flex-1 bg-[#0D1117] border border-white/10 rounded-xl px-4 py-3 text-sm text-[#E8EDF2] placeholder-[#4B5563] font-mono uppercase focus:outline-none focus:border-[#0EA5E9]/50 transition-all"
+              className="flex-1 bg-surface border border-white/10 rounded-xl px-4 py-3 text-sm text-ink-1 placeholder-ink-3 focus:outline-none focus:border-accent/50 transition-all"
             />
             <button
               onClick={run}
               disabled={!ticker.trim() || status === "queued"}
-              className="px-6 py-3 rounded-xl text-sm font-bold text-white bg-[#0EA5E9] hover:bg-[#0EA5E9]/90 transition-all disabled:opacity-40"
+              className="px-6 py-3 rounded-xl text-sm font-bold text-white bg-accent hover:bg-accent/90 transition-all disabled:opacity-40"
             >
               Run Analysis
             </button>
@@ -398,20 +398,20 @@ export default function AdhocInputPage() {
             <button
               onClick={() => setUseCache(true)}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                useCache
-                  ? "border-[#0EA5E9]/50 text-[#0EA5E9] bg-[#0EA5E9]/10"
-                  : "border-white/10 text-[#6B7280] bg-white/03"
-              }`}
+ useCache
+ ?"border-accent/50 text-accent bg-accent/10"
+ :"border-white/10 text-ink-3 bg-white/03"
+ }`}
             >
               Use cached (7 days)
             </button>
             <button
               onClick={() => setUseCache(false)}
               className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                !useCache
-                  ? "border-[#F59E0B]/50 text-[#F59E0B] bg-[#F59E0B]/10"
-                  : "border-white/10 text-[#6B7280] bg-white/03"
-              }`}
+ !useCache
+ ?"border-caution/50 text-caution bg-caution/10"
+ :"border-white/10 text-ink-3 bg-white/03"
+ }`}
             >
               Force refresh
             </button>
@@ -420,10 +420,10 @@ export default function AdhocInputPage() {
 
         {/* Status: queued */}
         {status === "queued" && queued && (
-          <div className="card p-5 mb-6 border border-[#10B981]/30 bg-[#10B981]/05">
-            <p className="text-sm font-bold text-[#10B981] mb-1">Analysis queued for {queued}</p>
+          <div className="card p-5 mb-6 border border-gain/30 bg-gain/5">
+            <p className="text-sm font-bold text-gain mb-1">Analysis queued for {queued}</p>
             {/* Dynamic status line */}
-            <p className="text-xs text-[#9CA3AF] mb-4">
+            <p className="text-xs text-ink-2 mb-4">
               {progress?.status === "completed"
                 ? "Pipeline complete — report will appear below shortly."
                 : progress?.status === "failed"
@@ -450,7 +450,7 @@ export default function AdhocInputPage() {
               <div className="pt-3 border-t border-white/05">
                 <Link
                   href={`/reports/adhoc/${queued}`}
-                  className="text-xs text-[#0EA5E9] hover:underline"
+                  className="text-xs text-accent hover:underline"
                 >
                   View full report for {queued} →
                 </Link>
@@ -461,12 +461,12 @@ export default function AdhocInputPage() {
 
         {/* Status: error */}
         {status === "error" && errorMsg && (
-          <div className="card p-4 mb-6 border border-[#EF4444]/30 bg-[#EF4444]/05">
-            <p className="text-xs text-[#EF4444]">Error: {errorMsg}</p>
+          <div className="card p-4 mb-6 border border-loss/30 bg-loss/5">
+            <p className="text-xs text-loss">Error: {errorMsg}</p>
             {errorMsg.includes("GITHUB_DISPATCH_TOKEN") && (
-              <p className="text-xs text-[#6B7280] mt-2">
-                Add <code className="text-[#E8EDF2]">GITHUB_DISPATCH_TOKEN</code> to Vercel
-                environment variables (a GitHub PAT with <code className="text-[#E8EDF2]">workflow</code> scope).
+              <p className="text-xs text-ink-3 mt-2">
+                Add <code className="text-ink-1">GITHUB_DISPATCH_TOKEN</code> to Vercel
+                environment variables (a GitHub PAT with <code className="text-ink-1">workflow</code> scope).
               </p>
             )}
           </div>
@@ -493,7 +493,7 @@ export default function AdhocInputPage() {
             const dir = r.direction ?? "PASS";
             const ds = DIRECTION_STYLE[dir] ?? DIRECTION_STYLE.PASS;
             const cv = r.conviction;
-            const cvColor = cv == null ? "#6B7280" : cv >= 70 ? "#10B981" : cv >= 40 ? "#F59E0B" : "#EF4444";
+            const cvColor = cv == null ? "#8E959D" : cv >= 70 ? "#4DB887" : cv >= 40 ? "#E39A57" : "#E2706A";
             const rowKey = r.filename ?? `${r.ticker}_${r.date}`;
             const isDeleting = deleting === rowKey;
             const seenKey = `${r.ticker}_${r.date}`;
@@ -501,32 +501,32 @@ export default function AdhocInputPage() {
             return (
               <div className="relative group">
                 <Link href={r.filename ? `/reports/adhoc/${r.ticker}?file=${encodeURIComponent(r.filename)}` : `/reports/adhoc/${r.ticker}`} onClick={() => markSeen(seenKey)}>
-                  <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ? "opacity-40" : ""}`}>
+                  <div className={`card p-4 hover:border-white/15 transition-all cursor-pointer flex items-center justify-between ${isDeleting ?"opacity-40":""}`}>
                     <div className="flex items-center gap-3">
                       <span className={`text-xs font-bold px-2 py-0.5 rounded ${ds}`}>{dir}</span>
                       <div>
-                        <span className="font-mono text-sm font-bold text-[#E8EDF2]">{r.ticker}</span>
-                        <span className="text-xs text-[#6B7280] ml-2">{r.company_name}</span>
+                        <span className="text-sm font-bold text-ink-1">{r.ticker}</span>
+                        <span className="text-xs text-ink-3 ml-2">{r.company_name}</span>
                         {isNew && (
-                          <span className="ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#0EA5E9]/15 text-[#0EA5E9] border border-[#0EA5E9]/30 align-middle">NEW</span>
+                          <span className="ml-2 text-micro font-bold px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30 align-middle">NEW</span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-right">
                       {cv != null && (
                         <div>
-                          <p className="text-[10px] text-[#6B7280]">Conviction</p>
-                          <p className="text-sm font-bold font-mono" style={{ color: cvColor }}>{cv}</p>
+                          <p className="text-micro text-ink-3">Conviction</p>
+                          <p className="text-sm font-bold" style={{ color: cvColor }}>{cv}</p>
                         </div>
                       )}
                       {r.expected_return_12m && (
                         <div>
-                          <p className="text-[10px] text-[#6B7280]">12M Return</p>
-                          <p className="text-xs font-mono text-[#E8EDF2]">{r.expected_return_12m}</p>
+                          <p className="text-micro text-ink-3">12M Return</p>
+                          <p className="text-xs text-ink-1">{r.expected_return_12m}</p>
                         </div>
                       )}
                       <div>
-                        <p className="text-[10px] text-[#4B5563]">{r.date}</p>
+                        <p className="text-micro text-ink-3">{r.date}</p>
                       </div>
                       <div className="w-6" />
                     </div>
@@ -536,7 +536,7 @@ export default function AdhocInputPage() {
                   onClick={(e) => { e.preventDefault(); deleteReport(r.ticker, r.date, r.filename); }}
                   disabled={!!deleting}
                   title={`Delete ${r.ticker} cache`}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[#EF4444]/50 hover:text-[#EF4444] disabled:opacity-20 p-1.5 rounded-lg hover:bg-[#EF4444]/08"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-loss/50 hover:text-loss disabled:opacity-20 p-1.5 rounded-lg hover:bg-loss/8"
                 >
                   <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
@@ -553,20 +553,20 @@ export default function AdhocInputPage() {
                 <button
                   onClick={() => setTab("manual")}
                   className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
-                    tab === "manual"
-                      ? "border-[#0EA5E9]/50 text-[#0EA5E9] bg-[#0EA5E9]/10"
-                      : "border-white/10 text-[#6B7280] bg-white/03 hover:border-white/20 hover:text-[#9CA3AF]"
-                  }`}
+ tab ==="manual"
+ ?"border-accent/50 text-accent bg-accent/10"
+ :"border-white/10 text-ink-3 bg-white/03 hover:border-white/20 hover:text-ink-2"
+ }`}
                 >
                   My Research{manualReports.length > 0 ? ` (${manualReports.length})` : ""}
                 </button>
                 <button
                   onClick={() => setTab("pipeline")}
                   className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all ${
-                    tab === "pipeline"
-                      ? "border-[#8B5CF6]/50 text-[#8B5CF6] bg-[#8B5CF6]/10"
-                      : "border-white/10 text-[#6B7280] bg-white/03 hover:border-white/20 hover:text-[#9CA3AF]"
-                  }`}
+ tab ==="pipeline"
+ ?"border-ink-3/50 text-ink-2 bg-ink-3/10"
+ :"border-white/10 text-ink-3 bg-white/03 hover:border-white/20 hover:text-ink-2"
+ }`}
                 >
                   Pipeline Research{pipelineReports.length > 0 ? ` (${pipelineReports.length})` : ""}
                 </button>
@@ -574,7 +574,7 @@ export default function AdhocInputPage() {
                   <button
                     onClick={() => deleteAll(pipelineReports, "pipeline")}
                     disabled={deleting === "all"}
-                    className="ml-auto text-[10px] text-[#EF4444]/60 hover:text-[#EF4444] transition-all disabled:opacity-40 flex items-center gap-1"
+                    className="ml-auto text-micro text-loss/60 hover:text-loss transition-all disabled:opacity-40 flex items-center gap-1"
                   >
                     <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
                       <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Z"/>
@@ -606,15 +606,15 @@ export default function AdhocInputPage() {
                             className="w-full flex items-center gap-2 py-2 text-left cursor-pointer group/day"
                           >
                             <svg
-                              className={`w-3 h-3 text-[#6B7280] transition-transform shrink-0 ${isExpanded ? "rotate-90" : ""}`}
+                              className={`w-3 h-3 text-ink-3 transition-transform shrink-0 ${isExpanded ?"rotate-90":""}`}
                               viewBox="0 0 16 16" fill="currentColor"
                             >
                               <path d="M6 4l4 4-4 4V4z" />
                             </svg>
-                            <span className="text-xs font-semibold text-[#9CA3AF] group-hover/day:text-[#E8EDF2] transition-colors whitespace-nowrap">
+                            <span className="text-xs font-semibold text-ink-2 group-hover/day:text-ink-1 transition-colors whitespace-nowrap">
                               {formatDayLabel(date)}
                             </span>
-                            <span className="text-[10px] text-[#4B5563] whitespace-nowrap">
+                            <span className="text-micro text-ink-3 whitespace-nowrap">
                               ({reports.length})
                             </span>
                             <div className="flex-1 border-t border-white/05 ml-1" />
@@ -630,7 +630,7 @@ export default function AdhocInputPage() {
                   </div>
                 );
               })() : (
-                <p className="text-xs text-[#4B5563] text-center py-8">
+                <p className="text-xs text-ink-3 text-center py-8">
                   {tab === "manual"
                     ? "No manual research yet — run an analysis above."
                     : "No pipeline reports yet — auto-generated for debated & entered stocks."}
@@ -641,7 +641,7 @@ export default function AdhocInputPage() {
         })()}
 
         {recent.filter(r => !deletedFiles.has(r.filename ?? `${r.ticker}_${r.date}`)).length === 0 && status === "idle" && (
-          <p className="text-xs text-[#4B5563] text-center mt-8">No cached reports yet. Run your first analysis above.</p>
+          <p className="text-xs text-ink-3 text-center mt-8">No cached reports yet. Run your first analysis above.</p>
         )}
       </div>
     </div>

@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, ReferenceLine,
 } from "recharts";
+import { Alert, Badge, Button, EmptyState, KpiRail, PageHeader, Panel, SectionTitle, Segmented, Signed, Skeleton, Stat, Ticker, toneOf } from "@/components/ui/primitives";
+import { T, CATEGORICAL, axisProps, gridProps, tooltipProps, fmtPctSigned } from "@/lib/chart-theme";
 
 interface Position {
   ticker: string; company: string; sector: string; direction: string;
@@ -22,7 +24,7 @@ interface PortfolioData {
     total_value: number; cash: number; deployed: number; deployed_pct: number;
     total_pnl_pct: number | null; total_pnl_absolute: number | null;
     daily_pnl_pct: number; daily_pnl_absolute: number;
-    active_positions: number; pipeline_status: string; pipeline_last_run: string; pipeline_detail?: string; trading_mode?: "paper" | "live";
+    active_positions: number; pipeline_status: string; pipeline_last_run: string; pipeline_detail?: string; trading_mode?: "paper" | "live"; starting_capital?: number | null;
     margin_warning?: boolean;
   };
   history: Array<{ date: string; value: number }>;
@@ -74,34 +76,44 @@ interface AttributionData {
   }>;
 }
 
-function fmt(n: number, decimals = 2) {
-  return n >= 0
-    ? `+${n.toFixed(decimals)}`
-    : n.toFixed(decimals);
-}
 
 function fmtCurrency(n: number) {
-  const abs = Math.abs(n);
-  const sign = n >= 0 ? "+" : "-";
+  const r = Math.round(n);
+  const abs = Math.abs(r);
+  if (r === 0) return "$0";
+  const sign = r > 0 ? "+" : "−";
   if (abs >= 1000) return `${sign}$${(abs / 1000).toFixed(1)}K`;
-  return `${sign}$${abs.toFixed(0)}`;
+  return `${sign}$${abs}`;
 }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
-  return (
-    <div className="card p-5">
-      <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">{label}</p>
-      <p className={`font-display text-3xl font-bold ${color || "text-[#E8EDF2]"}`}>{value}</p>
-      {sub && <p className="text-xs text-[#6B7280] mt-1">{sub}</p>}
-    </div>
-  );
-}
+const TIMEFRAMES = ["1W", "1M", "3M", "All"] as const;
 
-const TIMEFRAMES = ["1W", "1M", "3M", "All"];
+// Fixed sector → categorical slot ("colour follows the entity, never its rank").
+// Order validated with dataviz validate_palette.js; sectors without a slot fold to "Other".
+const SECTOR_SLOT: Record<string, number> = {
+  "Technology": 0, "Financial Services": 1, "Healthcare": 2, "Consumer Cyclical": 3,
+  "Communication Services": 4, "Industrials": 5, "Energy": 6, "Consumer Defensive": 7,
+};
+interface SectorGroup { sector: string; value: number; color: string; members?: string[] }
+function groupSectors(sectors: { sector: string; value: number }[]): SectorGroup[] {
+  const out: SectorGroup[] = [];
+  const other: SectorGroup = { sector: "Other sectors", value: 0, color: T.lineStrong, members: [] };
+  let cash: SectorGroup | null = null;
+  for (const s of sectors) {
+    if (s.sector === "Cash") { cash = { sector: "Cash", value: s.value, color: T.line }; continue; }
+    const slot = SECTOR_SLOT[s.sector];
+    if (slot === undefined) { other.value += s.value; other.members!.push(s.sector); continue; }
+    out.push({ sector: s.sector, value: s.value, color: CATEGORICAL[slot] });
+  }
+  out.sort((a, b) => b.value - a.value);
+  if (other.value > 0) out.push({ ...other, value: Math.round(other.value * 10) / 10 });
+  if (cash) out.push(cash);
+  return out;
+}
 
 export default function DashboardPage() {
   const [data, setData] = useState<PortfolioData | null>(null);
-  const [timeframe, setTimeframe] = useState("All");
+  const [timeframe, setTimeframe] = useState<(typeof TIMEFRAMES)[number]>("All");
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showAllPositions, setShowAllPositions] = useState(false);
@@ -222,804 +234,401 @@ export default function DashboardPage() {
   const agentConviction = data?.agent_conviction ?? [];
 
   const pipelineStatus = stats?.pipeline_status ?? "unknown";
-  const pipelineColor = pipelineStatus === "success" ? "#10B981" : pipelineStatus === "failed" ? "#EF4444" : pipelineStatus === "degraded" || pipelineStatus === "stale" ? "#F59E0B" : "#6B7280";
   const pipelineLabel = pipelineStatus === "success" ? "Pipeline OK" : pipelineStatus === "degraded" ? "Pipeline Degraded" : pipelineStatus === "stale" ? "Pipeline Stale" : pipelineStatus === "failed" ? "Pipeline Failed" : "Status Unknown";
 
+  const sectorGroups = groupSectors(data?.sectors ?? []);
+  const fmtUsd0 = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Math.round(v) || 0);
+  const lastRun = stats?.pipeline_last_run ? String(stats.pipeline_last_run).slice(0, 10) : null;
+
   return (
-    <div className="min-h-screen bg-[#030005] pb-16">
-      <div className="max-w-7xl mx-auto px-6 pt-8">
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Portfolio</h1>
-            <p className="text-[#6B7280] text-sm mt-1">Haz Capital Management — Live Dashboard</p>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass" title={stats?.pipeline_detail ?? undefined}>
-              <span className="w-2 h-2 rounded-full" style={{ background: pipelineColor, boxShadow: `0 0 6px ${pipelineColor}` }} />
-              <span className="text-xs text-[#6B7280]">{pipelineLabel}</span>
-            </div>
-            <button
-              onClick={() => setRunModal("review")}
-              disabled={runStatus === "running"}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-[#F5A623] border border-[#F5A623]/30 bg-[#F5A623]/08 hover:bg-[#F5A623]/14 transition-all disabled:opacity-40"
-            >
-              Review Positions
-            </button>
-            <button
-              onClick={() => setRunModal("full")}
-              disabled={runStatus === "running"}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#F5A623] hover:bg-[#F5A623]/90 transition-all disabled:opacity-40"
-            >
-              Full Research Run
-            </button>
-          </div>
-        </div>
+    <main className="mx-auto max-w-[1280px] px-4 pb-24 pt-10 sm:px-6">
+      <PageHeader
+        title="Portfolio"
+        description="Live positions and performance from the Alpaca paper account."
+        meta={
+          <span className="inline-flex flex-wrap items-center gap-x-4 gap-y-1" title={stats?.pipeline_detail ?? undefined}>
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden className={`h-1.5 w-1.5 rounded-full ${pipelineStatus === "success" ? "bg-gain" : pipelineStatus === "unknown" ? "bg-ink-3" : "bg-caution"}`} />
+              {pipelineLabel}{lastRun ? ` · last run ${lastRun}` : ""}
+            </span>
+            {stats?.trading_mode === "live" && <Badge tone="loss">Live trading — real money</Badge>}
+          </span>
+        }
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => setRunModal("review")} disabled={runStatus === "running"}>Review positions</Button>
+            <Button variant="primary" onClick={() => setRunModal("full")} disabled={runStatus === "running"}>Run full research</Button>
+          </>
+        }
+      />
 
-        {/* Confirmation modal */}
-        {runModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/70" onClick={() => setRunModal(null)} />
-            <div className="relative card p-6 max-w-sm w-full mx-4">
-              <h3 className="font-display text-lg font-bold text-[#E8EDF2] mb-2">
-                {runModal === "review" ? "Review Positions" : "Full Research Run"}
-              </h3>
-              <p className="text-sm text-[#6B7280] mb-4">
-                {runModal === "review"
-                  ? "Runs Phase A only on GitHub Actions — re-evaluates all open positions and makes hold/exit/size decisions. Places paper-trading orders if the market is open. Takes ~10-20 min."
-                  : "Runs the full daily pipeline on GitHub Actions — position review + new opportunity research. Places paper-trading orders if the market is open. Takes ~30-45 min depending on mode."}
-              </p>
-              <div className="flex gap-3">
-                <button onClick={() => setRunModal(null)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-[#6B7280] bg-white/05 hover:bg-white/08 transition-all">Cancel</button>
-                <button onClick={() => startRun(runModal)} className="flex-1 px-4 py-2 rounded-lg text-sm font-bold text-white bg-[#F5A623] hover:bg-[#F5A623]/90 transition-all">Confirm</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Run progress panel */}
-        {runStatus !== "idle" && (
-          <div className={`card p-5 mb-6 border ${runStatus === "running" ? "border-[#F5A623]/30" : runStatus === "done" ? "border-[#10B981]/30" : "border-[#EF4444]/30"}`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                {runStatus === "running" && <span className="w-2 h-2 rounded-full bg-[#F5A623] animate-pulse" />}
-                {runStatus === "done" && <span className="w-2 h-2 rounded-full bg-[#10B981]" />}
-                {runStatus === "error" && <span className="w-2 h-2 rounded-full bg-[#EF4444]" />}
-                <span className={`text-sm font-bold ${runStatus === "running" ? "text-[#F5A623]" : runStatus === "done" ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                  {runStatus === "running" ? `${runMode === "review" ? "Review" : "Full Run"} in progress...` : runStatus === "done" ? "Run complete" : "Run failed"}
-                </span>
-              </div>
-              {runStatus !== "running" && (
-                <button onClick={() => { setRunStatus("idle"); setRunLog([]); }} className="text-xs text-[#6B7280] hover:text-[#E8EDF2]">Dismiss</button>
-              )}
-            </div>
-            <div className="space-y-1">
-              {runLog.map((line, i) => (
-                <p key={i} className="text-xs text-[#6B7280] font-mono">{line}</p>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Intraday alert banner — only shown when active alerts exist */}
-        {intradayAlerts.length > 0 && (
-          <div className="mb-6 space-y-2">
-            {intradayAlerts.map((alert, i) => {
-              const isStop = alert.level === "STOP_EXECUTED" || alert.level === "STOP_PENDING";
-              const isPortfolio = alert.level === "PORTFOLIO_ALERT";
-              const borderColor = isStop ? "border-[#EF4444]/40" : "border-[#F59E0B]/40";
-              const dotColor = isStop ? "#EF4444" : "#F59E0B";
-              const labelColor = isStop ? "text-[#EF4444]" : "text-[#F59E0B]";
-              return (
-                <div key={i} className={`card p-4 border ${borderColor}`}>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0 animate-pulse" style={{ background: dotColor }} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-xs font-bold uppercase tracking-wider ${labelColor}`}>
-                          {isStop ? "Stop-Loss" : isPortfolio ? "Portfolio Alert" : "Alert"} — {alert.ticker}
-                        </span>
-                        <span className="text-[10px] text-[#6B7280]">{alert.timestamp?.slice(11, 16)} UTC</span>
-                      </div>
-                      <p className="text-sm text-[#E8EDF2]">{alert.message}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {loadError && (
-          <div className="card p-4 mb-6 border border-[#EF4444]/30" role="alert">
-            <p className="text-sm text-[#EF4444]">{loadError}</p>
-          </div>
-        )}
-
-        {/* Stats bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">
-          <div className="col-span-2 sm:col-span-1 lg:col-span-1 card p-5">
-            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">Total P&L</p>
-            <p className={`font-display text-3xl font-bold ${(stats?.total_pnl_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-              {loading || stats?.total_pnl_pct == null ? "—" : `${fmt(stats.total_pnl_pct)}%`}
+      {/* Run confirmation — accessible dialog */}
+      {runModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="run-title"
+          onKeyDown={(e) => { if (e.key === "Escape") setRunModal(null); }}>
+          <div className="absolute inset-0 bg-canvas/80" onClick={() => setRunModal(null)} />
+          <div className="relative w-full max-w-md rounded-lg border border-line bg-raised p-6 shadow-pop">
+            <h2 id="run-title" className="font-serif text-h2 text-ink-1">{runModal === "review" ? "Review positions" : "Run full research"}</h2>
+            <p className="mt-3 text-body text-ink-2">
+              {runModal === "review"
+                ? "Re-evaluates every open position and decides whether to hold, resize or exit. Takes about 10–20 minutes on GitHub Actions."
+                : "Runs the whole daily pipeline: position review plus new-opportunity research. Takes about 30–45 minutes on GitHub Actions."}
             </p>
-            <p className="text-xs text-[#6B7280] mt-1">
-              {loading ? "" : stats?.total_pnl_absolute == null ? "data unavailable" : fmtCurrency(stats.total_pnl_absolute)}
-            </p>
-          </div>
-
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">Daily P&L</p>
-            <p className={`font-display text-2xl font-bold ${(stats?.daily_pnl_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-              {loading ? "—" : `${fmt(stats?.daily_pnl_pct ?? 0)}%`}
-            </p>
-            <p className="text-xs text-[#6B7280] mt-1">
-              {loading ? "" : fmtCurrency(stats?.daily_pnl_absolute ?? 0)}
-            </p>
-          </div>
-
-          <StatCard
-            label="Portfolio Value"
-            value={loading ? "—" : `$${((stats?.total_value ?? 0) / 1000).toFixed(1)}K`}
-          />
-          <StatCard
-            label="Positions"
-            value={loading ? "—" : String(stats?.active_positions ?? 0)}
-            sub="active"
-          />
-          <div className="card p-5">
-            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-2">Deployed</p>
-            <p className={`font-display text-3xl font-bold ${stats?.margin_warning ? "text-[#F59E0B]" : "text-[#E8EDF2]"}`}>
-              {loading ? "—" : `${(stats?.deployed_pct ?? 0).toFixed(1)}%`}
-            </p>
-            <p className="text-xs text-[#6B7280] mt-1">
-              {loading ? "" : stats?.margin_warning
-                ? "⚠ Margin in use"
-                : `$${((stats?.deployed ?? 0) / 1000).toFixed(1)}K`}
-            </p>
-          </div>
-          <StatCard
-            label="Cash"
-            value={loading ? "—" : `$${((stats?.cash ?? 0) / 1000).toFixed(1)}K`}
-            sub={loading ? "" : `${Math.max(100 - (stats?.deployed_pct ?? 0), 0).toFixed(1)}% idle`}
-          />
-          <StatCard
-            label="Mode"
-            value={stats?.trading_mode === "live" ? "LIVE" : "Paper"}
-            sub={stats?.trading_mode === "live" ? "Real money — Alpaca live" : "Alpaca paper account"}
-            color={stats?.trading_mode === "live" ? "text-[#EF4444]" : "text-[#F59E0B]"}
-          />
-        </div>
-
-        {/* Main grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Portfolio chart — 2 cols */}
-          <div className="lg:col-span-2 card p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Portfolio Performance</h2>
-              <div className="flex gap-1">
-                {TIMEFRAMES.map((tf) => (
-                  <button
-                    key={tf}
-                    onClick={() => setTimeframe(tf)}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      timeframe === tf
-                        ? "bg-[#F5A623]/20 text-[#F5A623]"
-                        : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
-                    }`}
-                  >
-                    {tf}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <ResponsiveContainer width="100%" height={220}>
-              <LineChart data={filteredHistory}>
-                <defs>
-                  <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#F5A623" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#F5A623" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fill: "#6B7280", fontSize: 10 }}
-                  tickFormatter={(v) => v.slice(5)}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: "#6B7280", fontSize: 10 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`}
-                  domain={["auto", "auto"]}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(8,12,16,0.95)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "10px",
-                    color: "#E8EDF2",
-                    fontSize: "12px",
-                  }}
-                  formatter={(v) => [`$${Number(v).toLocaleString()}`, "Value"]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#F5A623"
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4, fill: "#F5A623" }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Sector allocation */}
-          <div className="card p-6">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-5">Sector Allocation</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={data?.sectors ?? []}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  nameKey="sector"
-                >
-                  {(data?.sectors ?? []).map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "rgba(8,12,16,0.95)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "10px",
-                    color: "#E8EDF2",
-                    fontSize: "12px",
-                  }}
-                  itemStyle={{ color: "#E8EDF2" }}
-                  formatter={(v, name) => [`${Number(v).toFixed(1)}% of portfolio`, String(name)]}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-1.5 mt-2">
-              {(data?.sectors ?? []).map((s) => (
-                <div key={s.sector} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: s.color }} />
-                    <span className="text-[#6B7280]">{s.sector}</span>
-                  </div>
-                  <span className="text-[#E8EDF2] font-medium">{(s.value ?? 0).toFixed(1)}%</span>
-                </div>
-              ))}
-              {(data?.sectors ?? []).length > 0 && (
-                <div className="flex items-center justify-between text-xs pt-1 border-t border-white/06 mt-1">
-                  <span className="text-[#6B7280]">Total</span>
-                  <span className="text-[#F5A623] font-semibold">
-                    {(data?.sectors ?? []).reduce((sum, s) => sum + s.value, 0).toFixed(1)}%
-                  </span>
-                </div>
-              )}
+            <p className="mt-3 text-label text-caution">Places paper-trading orders if the US market is open.</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => setRunModal(null)} autoFocus>Cancel</Button>
+              <Button variant="primary" onClick={() => startRun(runModal)}>{runModal === "review" ? "Start review" : "Start research run"}</Button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Positions table */}
-        <div className="card p-6 mb-6">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Active Positions</h2>
-            <span className="text-xs text-[#6B7280]">{positions.length} total · sorted by weight</span>
+      {runStatus !== "idle" && (
+        <div className={`tex-dots mb-8 rounded-md border px-5 py-4 ${runStatus === "running" ? "border-accent/40" : runStatus === "done" ? "border-gain/40" : "border-loss/40"}`} aria-live="polite">
+          <div className="flex items-center justify-between gap-4">
+            <p className={`text-body font-medium ${runStatus === "running" ? "text-accent" : runStatus === "done" ? "text-gain" : "text-loss"}`}>
+              {runStatus === "running" ? `${runMode === "review" ? "Position review" : "Research run"} in progress` : runStatus === "done" ? "Run complete" : "Run failed"}
+            </p>
+            {runStatus !== "running" && <Button size="sm" variant="ghost" onClick={() => { setRunStatus("idle"); setRunLog([]); }}>Dismiss</Button>}
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/06">
-                  {["Ticker", "Dir", "P&L %", "Weight", "Setup", "Conviction", "Stop", "Entry"].map((h) => (
-                    <th key={h} className="text-left text-xs font-semibold text-[#6B7280] uppercase tracking-wider pb-3 px-2">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i}>
-                      {Array.from({ length: 8 }).map((_, j) => (
-                        <td key={j} className="px-2 py-3"><div className="skeleton h-4 w-16" /></td>
-                      ))}
-                    </tr>
-                  ))
-                ) : positions.length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="text-center py-12 text-[#6B7280]">
-                      {loadError ? "Data unavailable — positions could not be loaded" : "No open positions"}
-                    </td>
-                  </tr>
-                ) : (
-                  visiblePositions.map((pos) => (
-                    <tr
-                      key={pos.ticker}
-                      className="tr-hover border-b border-white/04 transition-colors cursor-pointer"
-                      onClick={() => window.location.href = `/position/${pos.ticker}`}
-                    >
-                      {/* Ticker + company */}
-                      <td className="px-2 py-3">
-                        <div>
-                          <span className="font-mono font-bold text-[#E8EDF2]">{pos.ticker}</span>
-                          <p className="text-[11px] text-[#6B7280] mt-0.5 truncate max-w-[120px]">{pos.company}</p>
-                        </div>
-                      </td>
-                      {/* Direction */}
-                      <td className="px-2 py-3">
-                        <span className={pos.direction === "long" ? "badge-long" : "badge-short"}>{pos.direction}</span>
-                      </td>
-                      {/* P&L % */}
-                      <td className={`px-2 py-3 font-mono font-bold text-sm ${pos.pct_change >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                        {fmt(pos.pct_change)}%
-                        <p className="text-[10px] font-normal" style={{ color: pos.pnl_absolute >= 0 ? "#10B981" : "#EF4444" }}>
-                          {fmtCurrency(pos.pnl_absolute)}
-                        </p>
-                      </td>
-                      {/* Portfolio weight */}
-                      <td className="px-2 py-3">
-                        <span className="text-sm font-mono font-semibold text-[#E8EDF2]">{(pos.pct_portfolio ?? 0).toFixed(1)}%</span>
-                        <p className="text-[10px] text-[#6B7280] mt-0.5">${((pos.position_size ?? 0) / 1000).toFixed(1)}K</p>
-                      </td>
-                      {/* Setup type */}
-                      <td className="px-2 py-3">
-                        <span className="text-xs text-[#F5A623] bg-[#F5A623]/10 px-2 py-0.5 rounded-md font-medium whitespace-nowrap">
-                          {pos.setup_type ?? "—"}
-                        </span>
-                      </td>
-                      {/* Conviction (current + entry) */}
-                      <td className="px-2 py-3">
-                        {pos.conviction != null ? (
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-2">
-                              <div className="w-10 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full"
-                                  style={{
-                                    width: `${pos.conviction}%`,
-                                    background: pos.conviction >= 70 ? "#10B981" : pos.conviction >= 55 ? "#F5A623" : "#6B7280",
-                                  }}
-                                />
-                              </div>
-                              <span className="text-xs font-mono text-[#E8EDF2]"
-                                title={pos.conviction_source === "committee" ? "Committee composite score from the latest run" : "Conviction logged at the last decision (not re-scored in the latest run)"}>
-                                {pos.conviction}{pos.conviction_source === "log" ? "*" : ""}
-                              </span>
-                            </div>
-                            {pos.entry_conviction != null && pos.entry_conviction > 0 && pos.entry_conviction !== pos.conviction && (
-                              <span className="text-[10px] text-[#6B7280]">entry: {pos.entry_conviction}</span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-[#6B7280]">—</span>
-                        )}
-                      </td>
-                      {/* Stop-loss / native protective order */}
-                      <td className="px-2 py-3">
-                        {pos.stop_price != null ? (
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-1">
-                              <span className="text-xs font-mono text-[#EF4444]">
-                                {pos.native_order_type === "trailing_stop" && pos.native_trail_pct
-                                  ? `${pos.native_trail_pct}% trail`
-                                  : `$${pos.stop_price.toFixed(2)}`}
-                              </span>
-                              {pos.has_native_stop && (
-                                <span
-                                  title={
-                                    pos.native_order_type === "stop_limit"
-                                      ? `Stop-limit: triggers @ $${pos.stop_price.toFixed(2)}, limit @ $${pos.native_limit_price?.toFixed(2) ?? "?"}`
-                                      : pos.native_order_type === "trailing_stop"
-                                      ? `Trailing stop: ${pos.native_trail_pct}% below peak — enforced 24/7`
-                                      : pos.native_order_type === "bracket"
-                                      ? `Bracket: stop @ $${pos.stop_price.toFixed(2)} | take-profit set`
-                                      : "Native Alpaca stop order — enforced 24/7"
-                                  }
-                                  className="text-[10px] text-[#EF4444] bg-[#EF4444]/10 px-1 rounded uppercase"
-                                >
-                                  {pos.native_order_type === "stop_limit" ? "S/L"
-                                    : pos.native_order_type === "trailing_stop" ? "TRAIL"
-                                    : pos.native_order_type === "bracket" ? "BKT"
-                                    : "GTC"}
-                                </span>
-                              )}
-                              {!pos.has_native_stop && (
-                                <span title="Stop level recorded by the pipeline — no stop order is placed at Alpaca, so it is not enforced automatically"
-                                  className="text-[10px] text-[#9CA3AF] bg-white/5 px-1 rounded uppercase">log</span>
-                              )}
-                            </div>
-                            {!pos.has_native_stop && pos.stop_price != null && (
-                              (pos.direction === "short" ? pos.current_price >= pos.stop_price : pos.current_price <= pos.stop_price)
-                            ) && (
-                              <span className="text-[10px] text-[#EF4444]" title="Current price is through the logged stop level">breached</span>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-[#9CA3AF]">—</span>
-                        )}
-                      </td>
-                      {/* Entry date */}
-                      <td className="px-2 py-3 text-xs text-[#6B7280] font-mono whitespace-nowrap">{pos.entry_date}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          {/* See more / collapse */}
-          {positions.length > 10 && (
-            <div className="mt-4 pt-4 border-t border-white/06 text-center">
-              <button
-                onClick={() => setShowAllPositions(!showAllPositions)}
-                className="text-sm text-[#F5A623] hover:text-[#FDE68A] font-medium transition-colors"
-              >
-                {showAllPositions
-                  ? "Show less ↑"
-                  : `Show ${positions.length - 10} more positions ↓`}
-              </button>
-            </div>
+          <ul className="mt-2 space-y-0.5">{runLog.map((line, i) => <li key={i} className="text-label text-ink-2 break-words">{line}</li>)}</ul>
+        </div>
+      )}
+
+      {intradayAlerts.length > 0 && (
+        <div className="mb-8 space-y-2">
+          {intradayAlerts.map((a, i) => {
+            const isStop = a.level === "STOP_EXECUTED" || a.level === "STOP_PENDING";
+            return (
+              <Alert key={i} tone={isStop ? "loss" : "caution"}
+                title={<>{isStop ? "Stop-loss" : a.level === "PORTFOLIO_ALERT" ? "Portfolio alert" : "Alert"} · {a.ticker} <span className="font-normal text-ink-3">{a.timestamp?.slice(11, 16)} UTC</span></>}>
+                {a.message}
+              </Alert>
+            );
+          })}
+        </div>
+      )}
+
+      {loadError && <div className="mb-8"><Alert tone="loss" title="Data unavailable">{loadError}</Alert></div>}
+
+      {/* ── Hero figure + KPI rail (no boxes) ── */}
+      <section aria-label="Summary" className="mb-12">
+        <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
+          {loading ? <Skeleton className="h-12 w-64" /> : (
+            <p className="font-serif text-figure font-medium tracking-tight text-ink-1 tabular">{stats ? fmtUsd0(stats.total_value) : "—"}</p>
+          )}
+          {!loading && stats && (
+            <p className="pb-1.5 text-lead">
+              <Signed value={stats.total_pnl_pct} /> <span className="text-ink-3">total ·</span>{" "}
+              <span className={`tabular ${(stats.total_pnl_absolute ?? 0) >= 0 ? "text-gain" : "text-loss"}`}>
+                {stats.total_pnl_absolute == null ? "—" : `${stats.total_pnl_absolute >= 0 ? "+" : "−"}${fmtUsd0(Math.abs(stats.total_pnl_absolute))}`}
+              </span>
+              {stats.starting_capital ? <span className="text-ink-3"> on {fmtUsd0(stats.starting_capital)}</span> : null}
+            </p>
           )}
         </div>
+        <KpiRail className="mt-6">
+          {loading || !stats ? Array.from({ length: 5 }).map((_, i) => (
+            <div key={i}><Skeleton className="h-4 w-16" /><Skeleton className="mt-2 h-6 w-20" /></div>
+          )) : (
+            <>
+              <Stat label="Today" tone={toneOf(stats.daily_pnl_pct)} value={<Signed value={stats.daily_pnl_pct} />} sub={fmtCurrency(stats.daily_pnl_absolute ?? 0)} />
+              <Stat label="Invested" tone={stats.margin_warning ? "caution" : "neutral"} value={`${(stats.deployed_pct ?? 0).toFixed(1)}%`}
+                sub={stats.margin_warning ? "Margin in use" : `$${((stats.deployed ?? 0) / 1000).toFixed(1)}K`} />
+              <Stat label="Cash" value={`$${((stats.cash ?? 0) / 1000).toFixed(1)}K`} sub={`${Math.max(100 - (stats.deployed_pct ?? 0), 0).toFixed(1)}% uninvested`} />
+              <Stat label="Positions" value={stats.active_positions ?? 0} sub="all long" />
+            </>
+          )}
+        </KpiRail>
+      </section>
 
-        {/* vs SPY benchmark panel */}
-        <div className="card p-6 mb-6">
-          <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
-            <div>
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Returns vs SPY</h2>
-              <p className="text-xs text-[#6B7280] mt-0.5">
-                {activePeriod?.start_date
-                  ? `${activePeriod.start_date} → ${activePeriod.end_date}${benchmark?.includes_intraday ? " (live)" : " close"} · both lines rebased to 0% at period start${activePeriod.note === "since_inception" ? ` · account opened ${benchmark?.inception_date}` : ""}`
-                  : "Portfolio (Alpaca, time-weighted) vs SPY (dividend-adjusted)"}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {/* Alpha badge */}
-              {activePeriod && !hasInsufficientHistory(activePeriod) && (
-                <div className={`px-3 py-1.5 rounded-lg text-sm font-bold ${(activePeriod.alpha ?? 0) >= 0 ? "bg-[#10B981]/15 text-[#10B981]" : "bg-[#EF4444]/15 text-[#EF4444]"}`}>
-                  {(activePeriod.alpha ?? 0) >= 0 ? "+" : ""}{(activePeriod.alpha ?? 0).toFixed(1)}% alpha
-                </div>
-              )}
-              {/* Period toggles */}
-              <div className="flex gap-1">
-                {BENCH_PERIODS.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setBenchPeriod(p)}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      benchPeriod === p
-                        ? "bg-[#F5A623]/20 text-[#F5A623]"
-                        : "text-[#6B7280] hover:text-[#E8EDF2] hover:bg-white/5"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
+      {/* ── Performance + sectors ── */}
+      <div className="mb-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+        <Panel className="lg:col-span-2">
+          <SectionTitle description="Account value at each daily close" action={<Segmented label="Performance period" options={TIMEFRAMES} value={timeframe} onChange={setTimeframe} />}>
+            Performance
+          </SectionTitle>
+          <div className="h-[300px]">
+            {loading ? <Skeleton className="h-full w-full rounded-md" /> : filteredHistory.length < 2 ? (
+              <EmptyState title="Not enough history" className="h-full">Performance appears after two daily closes.</EmptyState>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={filteredHistory} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                  <CartesianGrid {...gridProps} />
+                  <XAxis dataKey="date" {...axisProps} minTickGap={40}
+                    tickFormatter={(v: string) => new Date(`${v}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} />
+                  <YAxis {...axisProps} width={56} domain={["auto", "auto"]} tickFormatter={(v) => `$${(Number(v) / 1000).toFixed(0)}K`} />
+                  <Tooltip {...tooltipProps}
+                    labelFormatter={(d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                    formatter={(v) => [fmtUsd0(Number(v)), "Account value"]} />
+                  <Area type="monotone" dataKey="value" stroke={T.accent} strokeWidth={2} fill={T.accent} fillOpacity={0.06}
+                    activeDot={{ r: 4, fill: T.accent, stroke: T.surface, strokeWidth: 2 }} isAnimationActive={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
+        </Panel>
 
-          {/* Legend */}
-          <div className="flex items-center gap-4 mb-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-0.5 rounded-full bg-[#F5A623]" />
-              <span className="text-xs text-[#6B7280]">Portfolio</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-0.5 rounded-full bg-[#00D4FF]" />
-              <span className="text-xs text-[#6B7280]">SPY</span>
-            </div>
-          </div>
-
-          {benchSeries.length < 2 ? (
-            <div className="flex flex-col items-center justify-center h-40 gap-2">
-              <p className="text-[#6B7280] text-sm">
-                {!benchmark ? "Loading…" : benchmark.error ? "Data unavailable" : "Not enough history for this period yet"}
-              </p>
-              {benchmark?.error && <p className="text-xs text-[#6B7280]/60">{benchmark.error}</p>}
-            </div>
+        <Panel>
+          <SectionTitle description="Share of portfolio value">Sectors</SectionTitle>
+          {loading ? <Skeleton className="mx-auto h-[168px] w-[168px] rounded-full" /> : sectorGroups.length === 0 ? (
+            <EmptyState title="No allocation data" />
           ) : (
             <>
-              <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={benchSeries}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: "#6B7280", fontSize: 10 }}
-                    tickFormatter={(v) => v.slice(5)}
-                    axisLine={false}
-                    tickLine={false}
-                    minTickGap={24}
-                  />
-                  <YAxis
-                    tick={{ fill: "#6B7280", fontSize: 10 }}
-                    axisLine={false}
-                    tickLine={false}
-                    width={52}
-                    tickFormatter={(v) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`}
-                    domain={["auto", "auto"]}
-                  />
-                  <ReferenceLine y={0} stroke="rgba(255,255,255,0.12)" strokeDasharray="4 4" />
-                  <Tooltip
-                    contentStyle={{
-                      background: "rgba(8,12,16,0.95)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "10px",
-                      color: "#E8EDF2",
-                      fontSize: "12px",
-                    }}
-                    labelStyle={{ color: "#9CA3AF" }}
-                    formatter={(v, name) => [
-                      `${Number(v) >= 0 ? "+" : ""}${Number(v).toFixed(2)}%`,
-                      name === "portfolio_pct" ? "Portfolio" : "SPY",
-                    ]}
-                  />
-                  <Line type="monotone" dataKey="portfolio_pct" stroke="#F5A623" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: "#F5A623" }} />
-                  <Line type="monotone" dataKey="spy_pct" stroke="#00D4FF" strokeWidth={1.5} dot={false} strokeDasharray="4 2" activeDot={{ r: 3, fill: "#00D4FF" }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-[168px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={sectorGroups} cx="50%" cy="50%" innerRadius={52} outerRadius={78} paddingAngle={1.5}
+                      dataKey="value" nameKey="sector" stroke={T.surface} strokeWidth={2} isAnimationActive={false}>
+                      {sectorGroups.map((g) => <Cell key={g.sector} fill={g.color} />)}
+                    </Pie>
+                    <Tooltip {...tooltipProps}
+                      formatter={(v, name, item) => [`${Number(v).toFixed(1)}% of portfolio`, (item?.payload as SectorGroup | undefined)?.members?.length ? `${String(name)}: ${(item?.payload as SectorGroup).members!.join(", ")}` : String(name)]} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <ul className="mt-4 divide-y divide-line">
+                {sectorGroups.map((g) => (
+                  <li key={g.sector} className="flex items-center justify-between gap-3 py-1.5 text-label" title={g.members?.join(", ")}>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span aria-hidden className="h-2 w-2 shrink-0 rounded-sm" style={{ background: g.color }} />
+                      <span className="truncate text-ink-2">{g.sector}</span>
+                    </span>
+                    <span className="text-ink-1 tabular">{g.value.toFixed(1)}%</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </Panel>
+      </div>
 
-              {/* Period summary row */}
-              {activePeriod && !hasInsufficientHistory(activePeriod) && (
-                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-white/06">
-                  <div className="text-center">
-                    <p className="text-xs text-[#6B7280] mb-1">Portfolio</p>
-                    <p className={`font-mono font-bold text-sm ${(activePeriod.portfolio_return_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                      {(activePeriod.portfolio_return_pct ?? 0) >= 0 ? "+" : ""}{(activePeriod.portfolio_return_pct ?? 0).toFixed(2)}%
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-[#6B7280] mb-1">SPY</p>
-                    <p className={`font-mono font-bold text-sm ${(activePeriod.spy_return_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                      {(activePeriod.spy_return_pct ?? 0) >= 0 ? "+" : ""}{(activePeriod.spy_return_pct ?? 0).toFixed(2)}%
-                    </p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-xs text-[#6B7280] mb-1">Alpha (pts)</p>
-                    <p className={`font-mono font-bold text-sm ${(activePeriod.alpha ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                      {(activePeriod.alpha ?? 0) >= 0 ? "+" : ""}{(activePeriod.alpha ?? 0).toFixed(2)}%
-                    </p>
-                  </div>
+      {/* ── Positions ── */}
+      <Panel className="mb-6" padded={false}>
+        <div className="px-6 pt-6">
+          <SectionTitle description={`${positions.length} open positions, largest first`}>Positions</SectionTitle>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[860px] text-body">
+            <thead>
+              <tr className="border-y border-line text-left text-label text-ink-3">
+                <th scope="col" className="py-2.5 pl-6 pr-3 font-medium">Holding</th>
+                <th scope="col" className="px-3 py-2.5 text-right font-medium">Return</th>
+                <th scope="col" className="px-3 py-2.5 text-right font-medium">Weight</th>
+                <th scope="col" className="px-3 py-2.5 font-medium">Setup</th>
+                <th scope="col" className="px-3 py-2.5 font-medium">Conviction</th>
+                <th scope="col" className="px-3 py-2.5 font-medium">Stop</th>
+                <th scope="col" className="py-2.5 pl-3 pr-6 text-right font-medium">Entered</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i} className="border-b border-line">
+                  {[140, 60, 50, 70, 80, 70, 70].map((w, j) => (
+                    <td key={j} className={`py-3.5 ${j === 0 ? "pl-6 pr-3" : "px-3"}`}><Skeleton className="h-4" /></td>
+                  ))}
+                </tr>
+              )) : visiblePositions.length === 0 ? (
+                <tr><td colSpan={7} className="p-6"><EmptyState title={loadError ? "Positions unavailable" : "No open positions"}>{loadError ?? "New positions appear after the next pipeline run."}</EmptyState></td></tr>
+              ) : visiblePositions.map((pos) => {
+                const breached = !pos.has_native_stop && pos.stop_price != null &&
+                  (pos.direction === "short" ? pos.current_price >= pos.stop_price : pos.current_price <= pos.stop_price);
+                return (
+                  <tr key={pos.ticker} onClick={() => { window.location.href = `/position/${pos.ticker}`; }}
+                    className="tr-hover border-b border-line last:border-0">
+                    <td className="py-3 pl-6 pr-3">
+                      <a href={`/position/${pos.ticker}`} className="flex items-baseline gap-3" onClick={(e) => e.stopPropagation()}>
+                        <Ticker className="w-14 shrink-0">{pos.ticker}</Ticker>
+                        <span className="truncate text-label text-ink-3">{pos.company}</span>
+                      </a>
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <Signed value={pos.pct_change} className="block" />
+                      <span className={`block text-micro tabular ${pos.pnl_absolute >= 0 ? "text-gain/80" : "text-loss/80"}`}>{fmtCurrency(pos.pnl_absolute)}</span>
+                    </td>
+                    <td className="px-3 py-3 text-right tabular">
+                      <span className="block text-ink-1">{pos.pct_portfolio.toFixed(1)}%</span>
+                      <span className="block text-micro text-ink-3">${((pos.position_size ?? 0) / 1000).toFixed(1)}K</span>
+                    </td>
+                    <td className="px-3 py-3 text-label text-ink-2">{pos.setup_type ?? "—"}</td>
+                    <td className="px-3 py-3">
+                      {pos.conviction != null ? (
+                        <span className="flex items-center gap-2" title={pos.conviction_source === "committee" ? "Committee score from the latest run" : "Logged at the last decision — not re-scored in the latest run"}>
+                          <span aria-hidden className="h-1 w-12 overflow-hidden rounded-full bg-raised">
+                            <span className="block h-full rounded-full bg-ink-2" style={{ width: `${Math.max(0, Math.min(100, pos.conviction))}%` }} />
+                          </span>
+                          <span className="tabular text-ink-1">{pos.conviction}</span>
+                          {pos.conviction_source === "log" && <span className="text-micro text-ink-3">logged</span>}
+                        </span>
+                      ) : <span className="text-ink-3">—</span>}
+                      {pos.entry_conviction != null && pos.entry_conviction > 0 && pos.entry_conviction !== pos.conviction && (
+                        <span className="mt-0.5 block text-micro text-ink-3 tabular">at entry {pos.entry_conviction}</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {pos.stop_price != null ? (
+                        <span className="flex flex-wrap items-center gap-1.5">
+                          <span className="tabular text-ink-1">
+                            {pos.native_order_type === "trailing_stop" && pos.native_trail_pct ? `${pos.native_trail_pct}% trail` : `$${pos.stop_price.toFixed(2)}`}
+                          </span>
+                          {pos.has_native_stop ? (
+                            <Badge tone="neutral" title="Stop order placed at Alpaca — enforced automatically">At broker</Badge>
+                          ) : breached ? (
+                            <Badge tone="loss" title="Price is through this level, and no stop order exists at Alpaca">Breached · not placed</Badge>
+                          ) : (
+                            <span className="text-micro text-ink-3" title="Recorded by the pipeline only — no stop order exists at Alpaca">not placed</span>
+                          )}
+                        </span>
+                      ) : <span className="text-ink-3">—</span>}
+                    </td>
+                    <td className="py-3 pl-3 pr-6 text-right text-label text-ink-3 tabular whitespace-nowrap">{pos.entry_date}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {positions.length > 10 && (
+          <div className="border-t border-line px-6 py-3">
+            <Button size="sm" variant="ghost" onClick={() => setShowAllPositions(!showAllPositions)} aria-expanded={showAllPositions}>
+              {showAllPositions ? "Show top 10 only" : `Show all ${positions.length} positions`}
+            </Button>
+          </div>
+        )}
+      </Panel>
+
+      {/* ── Returns vs S&P 500 ── */}
+      <Panel className="mb-6">
+        <SectionTitle
+          description={activePeriod?.start_date
+            ? `${activePeriod.start_date} to ${activePeriod.end_date}${benchmark?.includes_intraday ? " (live)" : ""}. Both lines start at 0% on the first day.`
+            : "Time-weighted portfolio return against SPY, dividends included"}
+          action={<Segmented label="Comparison period" options={BENCH_PERIODS} value={benchPeriod} onChange={setBenchPeriod} />}>
+          Returns against the S&amp;P 500
+        </SectionTitle>
+
+        {activePeriod && !hasInsufficientHistory(activePeriod) && (
+          <KpiRail className="mb-6">
+            <Stat label="Portfolio" tone={toneOf(activePeriod.portfolio_return_pct)} value={<Signed value={activePeriod.portfolio_return_pct} />} />
+            <Stat label="S&P 500 (SPY)" value={<Signed value={activePeriod.spy_return_pct} className="text-ink-1" />} />
+            <Stat label="Difference" tone={toneOf(activePeriod.alpha)} value={<Signed value={activePeriod.alpha} suffix=" pts" />} />
+          </KpiRail>
+        )}
+
+        <div className="mb-3 flex items-center gap-5 text-label text-ink-2">
+          <span className="inline-flex items-center gap-2"><span aria-hidden className="h-0.5 w-5 rounded-full bg-accent" />Portfolio</span>
+          <span className="inline-flex items-center gap-2"><span aria-hidden className="h-0 w-5 border-t-2 border-dashed border-ink-3" />S&amp;P 500</span>
+        </div>
+        <div className="h-[240px]">
+          {!benchmark ? <Skeleton className="h-full w-full rounded-md" /> : benchSeries.length < 2 ? (
+            <EmptyState title={benchmark.error ? "Data unavailable" : "Not enough history for this period"} className="h-full">{benchmark.error}</EmptyState>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={benchSeries} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                <CartesianGrid {...gridProps} />
+                <XAxis dataKey="date" {...axisProps} minTickGap={40}
+                  tickFormatter={(v: string) => new Date(`${v}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} />
+                <YAxis {...axisProps} width={56} domain={["auto", "auto"]} tickFormatter={(v) => fmtPctSigned(Number(v), 1)} />
+                <ReferenceLine y={0} stroke={T.lineStrong} />
+                <Tooltip {...tooltipProps}
+                  labelFormatter={(d) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                  formatter={(v, name) => [fmtPctSigned(Number(v)), name === "portfolio_pct" ? "Portfolio" : "S&P 500"]} />
+                <Line type="monotone" dataKey="spy_pct" stroke={T.ink3} strokeWidth={1.5} strokeDasharray="4 3" dot={false}
+                  activeDot={{ r: 3, fill: T.ink3, stroke: T.surface, strokeWidth: 2 }} isAnimationActive={false} />
+                <Line type="monotone" dataKey="portfolio_pct" stroke={T.accent} strokeWidth={2} dot={false}
+                  activeDot={{ r: 4, fill: T.accent, stroke: T.surface, strokeWidth: 2 }} isAnimationActive={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </Panel>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+        {/* ── Signal attribution ── */}
+        <Panel className="lg:col-span-3">
+          <SectionTitle description={attribution && attribution.total_closed_trades > 0
+            ? `${attribution.total_closed_trades} attributed trade${attribution.total_closed_trades !== 1 ? "s" : ""}${attribution.last_attributed ? `, last on ${String(attribution.last_attributed).slice(0, 10)}. Exits since then are not yet attributed.` : ""}`
+            : "Which agents called the direction correctly on closed trades"}>
+            Agent accuracy on closed trades
+          </SectionTitle>
+          {!attribution ? <Skeleton className="h-32 w-full" /> : attribution.total_closed_trades === 0 ? (
+            <EmptyState title="No closed trades attributed yet">Accuracy appears here once positions are closed and attributed.</EmptyState>
+          ) : (
+            <>
+              <KpiRail className="mb-6">
+                <Stat label="Win rate" value={attribution.win_rate_pct != null ? `${attribution.win_rate_pct.toFixed(0)}%` : "—"} />
+                <Stat label="Average return" tone={toneOf(attribution.avg_pnl_pct)} value={<Signed value={attribution.avg_pnl_pct} digits={1} />} />
+                <Stat label="Average vs SPY" tone={toneOf(attribution.avg_alpha_vs_spy)} value={<Signed value={attribution.avg_alpha_vs_spy} digits={1} suffix=" pts" />} />
+              </KpiRail>
+              <ul className="space-y-3">
+                {Object.entries(attribution.agents).map(([name, a]) => (
+                  <li key={name} className="grid grid-cols-[110px_1fr_auto] items-center gap-4">
+                    <span className="text-label capitalize text-ink-2">{name}</span>
+                    <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-raised">
+                      <span className="block h-full rounded-full bg-ink-2" style={{ width: `${a.directional_accuracy_pct ?? 0}%` }} />
+                    </span>
+                    <span className="text-label text-ink-1 tabular">
+                      {a.directional_accuracy_pct != null ? `${a.directional_accuracy_pct.toFixed(0)}%` : "—"}
+                      <span className="ml-2 text-ink-3">{a.correct_direction} of {a.correct_direction + a.wrong_direction}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {attribution.recent_trades.length > 0 && (
+                <div className="mt-6 border-t border-line pt-4">
+                  <p className="mb-2 text-label text-ink-3">Recent exits</p>
+                  <ul className="divide-y divide-line">
+                    {attribution.recent_trades.map((t, i) => (
+                      <li key={`${t.ticker}-${i}`} className="flex items-baseline justify-between gap-4 py-2">
+                        <span className="flex items-baseline gap-3"><Ticker>{t.ticker}</Ticker><span className="text-label text-ink-3">{t.exit_date}</span></span>
+                        <Signed value={t.pnl_pct} digits={1} />
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </>
           )}
-        </div>
+        </Panel>
 
-        {/* Signal Attribution panel */}
-        <div className="card p-6 mb-6">
-          <div className="flex items-start justify-between mb-5">
-            <div>
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Signal Attribution</h2>
-              <p className="text-xs text-[#6B7280] mt-0.5">
-                {attribution && attribution.total_closed_trades > 0
-                  ? `${attribution.total_closed_trades} attributed trade${attribution.total_closed_trades !== 1 ? "s" : ""} · agent directional accuracy${attribution.last_attributed ? ` · last attributed ${String(attribution.last_attributed).slice(0, 10)} — closed trades since then aren't in the attribution log yet` : ""}`
-                  : "Populates as positions are closed — tracks which agents predicted the right direction"}
-              </p>
-            </div>
-            {attribution && attribution.total_closed_trades > 0 && (
-              <div className="flex gap-4 text-right">
-                <div>
-                  <p className="text-xs text-[#6B7280]">Win Rate</p>
-                  <p className={`font-mono font-bold text-lg ${(attribution.win_rate_pct ?? 0) >= 50 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                    {attribution.win_rate_pct != null ? `${attribution.win_rate_pct.toFixed(0)}%` : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-[#6B7280]">Avg Alpha</p>
-                  <p className={`font-mono font-bold text-lg ${(attribution.avg_alpha_vs_spy ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                    {attribution.avg_alpha_vs_spy != null ? `${attribution.avg_alpha_vs_spy >= 0 ? "+" : ""}${attribution.avg_alpha_vs_spy.toFixed(1)}%` : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-[#6B7280]">Avg P&L</p>
-                  <p className={`font-mono font-bold text-lg ${(attribution.avg_pnl_pct ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                    {attribution.avg_pnl_pct != null ? `${attribution.avg_pnl_pct >= 0 ? "+" : ""}${attribution.avg_pnl_pct.toFixed(1)}%` : "—"}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {!attribution || attribution.total_closed_trades === 0 ? (
-            <div className="flex items-center justify-center h-24 text-[#6B7280] text-sm border border-dashed border-white/08 rounded-xl">
-              No closed trades yet — attribution begins on first exit
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Agent accuracy bars */}
-              <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Directional Accuracy by Agent</p>
-                <div className="space-y-3">
-                  {Object.entries(attribution.agents)
-                    .filter(([, d]) => d.total_trades >= 1)
-                    .sort(([, a], [, b]) => (b.directional_accuracy_pct ?? 0) - (a.directional_accuracy_pct ?? 0))
-                    .map(([agent, d]) => {
-                      const acc = d.directional_accuracy_pct;
-                      const barColor = acc == null ? "#374151" : acc >= 65 ? "#10B981" : acc >= 50 ? "#F5A623" : "#EF4444";
+        {/* ── Book composition: conviction + extremes, one block ── */}
+        <Panel className="lg:col-span-2">
+          <SectionTitle description="Average score each agent gave current holdings in the latest run">Book composition</SectionTitle>
+          {loading ? <Skeleton className="h-32 w-full" /> : (
+            <>
+              <ul className="space-y-3">
+                {agentConviction.map((a) => (
+                  <li key={a.name} className="grid grid-cols-[96px_1fr_auto] items-center gap-4">
+                    <span className="text-label text-ink-2">{a.name}</span>
+                    <span aria-hidden className="h-1.5 overflow-hidden rounded-full bg-raised">
+                      <span className="block h-full rounded-full bg-ink-2" style={{ width: `${a.score}%` }} />
+                    </span>
+                    <span className="text-label text-ink-1 tabular">{a.score}<span className="text-ink-3"> · {a.count}</span></span>
+                  </li>
+                ))}
+              </ul>
+              {positions.length > 0 && (() => {
+                const best = positions.reduce((b, p) => (p.pnl_absolute > b.pnl_absolute ? p : b), positions[0]);
+                const worst = positions.reduce((w, p) => (p.pnl_absolute < w.pnl_absolute ? p : w), positions[0]);
+                return (
+                  <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-4">
+                    {[["Best", best], ["Worst", worst]].map(([label, p]) => {
+                      const pos = p as Position;
                       return (
-                        <div key={agent}>
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-[#E8EDF2] font-medium capitalize w-28">{agent}</span>
-                            <span className="text-[#6B7280]">{d.total_trades} trade{d.total_trades !== 1 ? "s" : ""}</span>
-                            <span className="font-mono font-bold" style={{ color: barColor }}>
-                              {acc != null ? `${acc.toFixed(0)}%` : "—"}
-                            </span>
-                          </div>
-                          <div className="h-2 rounded-full bg-white/08 overflow-hidden">
-                            <div
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{ width: `${acc ?? 0}%`, background: barColor }}
-                            />
-                          </div>
-                          <p className="text-[10px] text-[#6B7280] mt-0.5">
-                            {d.correct_direction}✓ · {d.wrong_direction}✗ · {d.neutral_calls} neutral
-                          </p>
+                        <div key={label as string}>
+                          <dt className="text-label text-ink-3">{label as string} position</dt>
+                          <dd className="mt-1 flex items-baseline gap-2"><Ticker>{pos.ticker}</Ticker><Signed value={pos.pct_change} /></dd>
+                          <dd className={`text-label tabular ${pos.pnl_absolute >= 0 ? "text-gain" : "text-loss"}`}>{fmtCurrency(pos.pnl_absolute)}</dd>
                         </div>
                       );
                     })}
-                </div>
-              </div>
-
-              {/* Recent closed trades */}
-              <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Recent Closed Trades</p>
-                {attribution.recent_trades.length === 0 ? (
-                  <p className="text-sm text-[#6B7280]">No closed trades yet</p>
-                ) : (
-                  <div className="space-y-2">
-                    {attribution.recent_trades.map((t, i) => (
-                      <div key={i} className="flex items-center justify-between py-1.5 border-b border-white/04 last:border-0">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-[#E8EDF2] text-sm w-14">{t.ticker}</span>
-                          <span className={t.direction === "LONG" ? "badge-long" : "badge-short"}>{t.direction.toLowerCase()}</span>
-                        </div>
-                        <div className="flex items-center gap-4 text-right">
-                          <div>
-                            <p className={`font-mono font-bold text-sm ${t.pnl_pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                              {t.pnl_pct >= 0 ? "+" : ""}{t.pnl_pct.toFixed(1)}%
-                            </p>
-                            <p className="text-[10px] text-[#6B7280]">{t.exit_date}</p>
-                          </div>
-                          {t.alpha_vs_spy != null && (
-                            <div>
-                              <p className={`font-mono text-xs ${t.alpha_vs_spy >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                                {t.alpha_vs_spy >= 0 ? "+" : ""}{t.alpha_vs_spy.toFixed(1)}% α
-                              </p>
-                              <p className="text-[10px] text-[#6B7280]">vs SPY</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom analytics row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Agent conviction */}
-          <div className="lg:col-span-2 card p-6">
-            <div className="flex items-start justify-between mb-1">
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Conviction</h2>
-              <span className="text-[10px] text-[#6B7280] bg-white/05 px-2 py-1 rounded-md mt-0.5">
-                Accuracy: see Signal Attribution
-              </span>
-            </div>
-            <p className="text-xs text-[#6B7280] mb-4">Avg score each agent gave to current positions scored in the latest committee run — a measure of conviction, not accuracy</p>
-            {agentConviction.length === 0 ? (
-              <p className="text-sm text-[#6B7280]">No scorecard data yet</p>
-            ) : (
-              <div className="space-y-3">
-                {agentConviction.map((a) => (
-                  <div key={a.name}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-[#E8EDF2] font-medium w-28">{a.name}</span>
-                      <span className="text-[#6B7280]">{a.count} position{a.count !== 1 ? "s" : ""}</span>
-                      <span className="font-mono font-bold text-[#F5A623]">{a.score}/100</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-white/08 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${a.score}%`,
-                          background: a.score >= 70 ? "#10B981" : a.score >= 50 ? "#F5A623" : "#F59E0B",
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quick stats */}
-          <div className="space-y-4">
-            <div className="card p-5">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Direction Split</p>
-              {(() => {
-                const longs = positions.filter((p) => p.direction === "long").length;
-                const shorts = positions.filter((p) => p.direction === "short").length;
-                const total = positions.length || 1;
-                return (
-                  <div className="space-y-2">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-[#10B981]">Long {longs}</span>
-                        <span>{((longs / total) * 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full rounded-full bg-[#10B981]" style={{ width: `${(longs / total) * 100}%` }} />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-[#EF4444]">Short {shorts}</span>
-                        <span>{((shorts / total) * 100).toFixed(0)}%</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full rounded-full bg-[#EF4444]" style={{ width: `${(shorts / total) * 100}%` }} />
-                      </div>
-                    </div>
-                  </div>
+                  </dl>
                 );
               })()}
-            </div>
-
-            <div className="card p-5">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Best Performer</p>
-              {positions.length > 0 ? (() => {
-                // Sort by unrealised P&L in dollars — works correctly for both longs and shorts
-                const best = [...positions].sort((a, b) => b.pnl_absolute - a.pnl_absolute)[0];
-                const isProfit = best.pnl_absolute >= 0;
-                return (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-[#E8EDF2]">{best.ticker}</span>
-                      <span className={`font-semibold text-lg ${isProfit ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                        {fmtCurrency(best.pnl_absolute)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#6B7280] mt-1 truncate">{best.company} · {fmt(best.pct_change)}% move</p>
-                  </div>
-                );
-              })() : <p className="text-[#6B7280] text-sm">No positions yet</p>}
-            </div>
-
-            <div className="card p-5">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-widest mb-3">Worst Performer</p>
-              {positions.length > 0 ? (() => {
-                const worst = [...positions].sort((a, b) => a.pnl_absolute - b.pnl_absolute)[0];
-                const isProfit = worst.pnl_absolute >= 0;
-                return (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-[#E8EDF2]">{worst.ticker}</span>
-                      <span className={`font-semibold text-lg ${isProfit ? "text-[#10B981]" : "text-[#EF4444]"}`}>
-                        {fmtCurrency(worst.pnl_absolute)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#6B7280] mt-1 truncate">{worst.company} · {fmt(worst.pct_change)}% move</p>
-                  </div>
-                );
-              })() : <p className="text-[#6B7280] text-sm">No positions yet</p>}
-            </div>
-          </div>
-        </div>
+            </>
+          )}
+        </Panel>
       </div>
-    </div>
+    </main>
   );
 }

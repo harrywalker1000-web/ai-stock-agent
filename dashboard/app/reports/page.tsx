@@ -67,14 +67,14 @@ function RegimeBadge({ regime }: { regime: string }) {
 }
 
 function ScoreBar({ score }: { score: number | null }) {
-  if (score == null) return <span className="text-[#3D4655] text-[10px]">—</span>;
-  const color = score >= 70 ? "#10B981" : score >= 50 ? "#F5A623" : "#EF4444";
+  if (score == null) return <span className="text-ink-3 text-micro">—</span>;
+  const color = score >= 70 ? "#4DB887" : score >= 50 ? "#C8A15A" : "#E2706A";
   return (
     <div className="flex items-center gap-1.5">
       <div className="w-12 h-1 rounded-full bg-white/08 overflow-hidden">
         <div className="h-full rounded-full" style={{ width: `${score}%`, background: color }} />
       </div>
-      <span className="text-[10px] font-mono" style={{ color }}>{score}</span>
+      <span className="text-micro" style={{ color }}>{score}</span>
     </div>
   );
 }
@@ -84,10 +84,10 @@ function ActionBadge({ action }: { action: string }) {
   const isEntry = action.includes("enter");
   const isExit  = action.includes("exit");
   const isHold  = action.includes("hold");
-  const color   = isEntry ? "#10B981" : isExit ? "#EF4444" : isHold ? "#6B7280" : "#3D4655";
+  const color   = isEntry ? "#4DB887" : isExit ? "#E2706A" : isHold ? "#8E959D" : "#8E959D";
   const label   = action.replace(/_/g, " ");
   return (
-    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded"
+    <span className="text-micro font-bold px-1.5 py-0.5 rounded"
       style={{ color, background: `${color}20` }}>
       {label}
     </span>
@@ -100,7 +100,7 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
     <div className="overflow-x-auto">
       <table className="w-full text-xs">
         <thead>
-          <tr className="text-[10px] text-[#3D4655] uppercase tracking-wider border-b border-white/06">
+          <tr className="text-micro text-ink-3 border-b border-white/06">
             <th className="text-left py-2 pr-3 font-semibold">Ticker</th>
             <th className="text-center py-2 px-2 font-semibold">Score</th>
             <th className="text-center py-2 px-2 font-semibold hidden sm:table-cell">Fund</th>
@@ -118,19 +118,19 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
             return (
               <React.Fragment key={row.ticker}>
                 <tr
-                  className={`border-b border-white/04 ${hasDetail ? "cursor-pointer hover:bg-white/[0.02]" : ""}`}
+                  className={`border-b border-white/04 ${hasDetail ?"cursor-pointer hover:bg-white/[0.02]":""}`}
                   onClick={() => hasDetail && setExpanded(isOpen ? null : row.ticker)}
                 >
                   <td className="py-2.5 pr-3">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono font-bold text-[#E8EDF2]">{row.ticker}</span>
+                      <span className="font-bold text-ink-1">{row.ticker}</span>
                       {row.conflict_flag && (
-                        <span className="text-[9px] font-bold px-1 py-0.5 rounded bg-[#EF4444]/15 text-[#EF4444]">conflict</span>
+                        <span className="text-micro font-bold px-1 py-0.5 rounded bg-loss/15 text-loss">conflict</span>
                       )}
                     </div>
                   </td>
                   <td className="text-center py-2.5 px-2">
-                    <span className={`font-mono font-bold ${(row.composite_score ?? 0) >= 65 ? "text-[#10B981]" : (row.composite_score ?? 0) >= 50 ? "text-[#F5A623]" : "text-[#EF4444]"}`}>
+                    <span className={`font-bold ${(row.composite_score ?? 0) >= 65 ?"text-gain": (row.composite_score ?? 0) >= 50 ?"text-accent":"text-loss"}`}>
                       {row.composite_score ?? "—"}
                     </span>
                   </td>
@@ -144,25 +144,25 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                     <ScoreBar score={row.sentiment_score} />
                   </td>
                   <td className="text-center py-2.5 px-2 hidden md:table-cell">
-                    <span className={`font-mono text-[10px] ${(row.agent_spread ?? 0) >= 20 ? "text-[#F59E0B]" : "text-[#3D4655]"}`}>
+                    <span className={`text-micro ${(row.agent_spread ?? 0) >= 20 ?"text-caution":"text-ink-3"}`}>
                       {row.agent_spread ?? "—"}
                     </span>
                   </td>
                   <td className="text-center py-2.5 px-2">
                     {row.was_debated ? (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#F59E0B]/15 text-[#F59E0B]">
+                      <span className="text-micro font-bold px-1.5 py-0.5 rounded bg-caution/15 text-caution">
                         {row.debate_reason === "likely_entry" ? "mandatory" : "contested"}
                       </span>
                     ) : (
-                      <span className="text-[#3D4655] text-[10px]">—</span>
+                      <span className="text-ink-3 text-micro">—</span>
                     )}
                   </td>
                   <td className="py-2.5 pl-2">
                     <div className="flex items-center gap-1.5">
                       <ActionBadge action={row.action} />
                       {hasDetail && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3D4655" strokeWidth="2"
-                          className={`transition-transform duration-150 ${isOpen ? "rotate-180" : ""}`}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="2"
+                          className={`transition-transform duration-150 ${isOpen ?"rotate-180":""}`}>
                           <polyline points="6,9 12,15 18,9" />
                         </svg>
                       )}
@@ -176,7 +176,7 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                         {/* Agent views — bull vs bear framing */}
                         {(row.fundamental_score != null || row.quant_score != null || row.sentiment_score != null) && (
                           <div>
-                            <p className="text-[10px] text-[#3D4655] uppercase tracking-wider font-semibold mb-2">Agent views</p>
+                            <p className="text-micro text-ink-3 font-semibold mb-2">Agent views</p>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                               {[
                                 { agent: "Fundamental", score: row.fundamental_score, view: row.fundamental_summary },
@@ -186,15 +186,15 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                                 const isBull = (score ?? 0) >= 65;
                                 const isBear = (score ?? 0) < 50;
                                 return (
-                                  <div key={agent} className={`rounded-lg p-3 border ${isBull ? "border-[#10B981]/20 bg-[#10B981]/05" : isBear ? "border-[#EF4444]/20 bg-[#EF4444]/05" : "border-white/06 bg-white/02"}`}>
+                                  <div key={agent} className={`rounded-lg p-3 border ${isBull ?"border-gain/20 bg-gain/5": isBear ?"border-loss/20 bg-loss/5":"border-white/06 bg-white/02"}`}>
                                     <div className="flex items-center justify-between mb-1.5">
-                                      <span className="text-[10px] font-bold text-[#E8EDF2]">{agent}</span>
-                                      <span className={`text-[10px] font-mono font-bold ${isBull ? "text-[#10B981]" : isBear ? "text-[#EF4444]" : "text-[#F5A623]"}`}>
+                                      <span className="text-micro font-bold text-ink-1">{agent}</span>
+                                      <span className={`text-micro font-bold ${isBull ?"text-gain": isBear ?"text-loss":"text-accent"}`}>
                                         {score ?? "—"}/100
                                         {isBull ? " ▲" : isBear ? " ▼" : ""}
                                       </span>
                                     </div>
-                                    {view && <p className="text-[10px] text-[#6B7280] leading-relaxed">{view}</p>}
+                                    {view && <p className="text-micro text-ink-3 leading-relaxed">{view}</p>}
                                   </div>
                                 );
                               })}
@@ -204,18 +204,18 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                         {/* Investment thesis */}
                         {row.investment_thesis && (
                           <div>
-                            <p className="text-[10px] text-[#3D4655] uppercase tracking-wider font-semibold mb-1">Committee thesis</p>
-                            <p className="text-xs text-[#6B7280] leading-relaxed">{row.investment_thesis}</p>
+                            <p className="text-micro text-ink-3 font-semibold mb-1">Committee thesis</p>
+                            <p className="text-xs text-ink-3 leading-relaxed">{row.investment_thesis}</p>
                           </div>
                         )}
                         {/* Catalysts */}
                         {row.key_catalysts?.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-[#3D4655] uppercase tracking-wider font-semibold mb-1">Key catalysts</p>
+                            <p className="text-micro text-ink-3 font-semibold mb-1">Key catalysts</p>
                             <ul className="space-y-0.5">
                               {row.key_catalysts.map((c, i) => (
-                                <li key={i} className="text-[10px] text-[#6B7280] flex gap-1.5">
-                                  <span className="text-[#10B981] flex-shrink-0">→</span> {c}
+                                <li key={i} className="text-micro text-ink-3 flex gap-1.5">
+                                  <span className="text-gain flex-shrink-0">→</span> {c}
                                 </li>
                               ))}
                             </ul>
@@ -224,11 +224,11 @@ function ScorecardTable({ rows }: { rows: ScorecardRow[] }) {
                         {/* Risks */}
                         {row.key_risks?.length > 0 && (
                           <div>
-                            <p className="text-[10px] text-[#3D4655] uppercase tracking-wider font-semibold mb-1">Key risks</p>
+                            <p className="text-micro text-ink-3 font-semibold mb-1">Key risks</p>
                             <ul className="space-y-0.5">
                               {row.key_risks.map((r, i) => (
-                                <li key={i} className="text-[10px] text-[#6B7280] flex gap-1.5">
-                                  <span className="text-[#EF4444] flex-shrink-0">⚠</span> {r}
+                                <li key={i} className="text-micro text-ink-3 flex gap-1.5">
+                                  <span className="text-loss flex-shrink-0">⚠</span> {r}
                                 </li>
                               ))}
                             </ul>
@@ -255,14 +255,14 @@ function AgentFindingCard({ finding }: { finding: AgentFinding }) {
       className="flex gap-3 p-3 rounded-xl bg-white/[0.02] text-left w-full hover:bg-white/[0.04] transition-colors"
       onClick={() => isLong && setExpanded(!expanded)}
     >
-      <div className="w-1 rounded-full bg-[#F5A623]/40 flex-shrink-0 mt-0.5" />
+      <div className="w-1 rounded-full bg-accent/40 flex-shrink-0 mt-0.5" />
       <div className="min-w-0">
-        <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{finding.agent}</p>
-        <p className="text-xs text-[#6B7280] leading-relaxed">
+        <p className="text-xs font-semibold text-ink-1 mb-0.5">{finding.agent}</p>
+        <p className="text-xs text-ink-3 leading-relaxed">
           {expanded || !isLong ? finding.finding : finding.finding.slice(0, 160) + "…"}
         </p>
         {isLong && (
-          <p className="text-[10px] text-[#F5A623] mt-1">{expanded ? "Show less" : "Show more"}</p>
+          <p className="text-micro text-accent mt-1">{expanded ? "Show less" : "Show more"}</p>
         )}
       </div>
     </button>
@@ -275,12 +275,12 @@ function fmtMoney(n: number) {
 }
 
 const TRADE_COLORS: Record<string, string> = {
-  enter_long: "#10B981", enter_short: "#10B981", increase: "#10B981",
-  decrease: "#F5A623", exit: "#EF4444", reverse: "#F5A623",
+  enter_long: "#4DB887", enter_short: "#4DB887", increase: "#4DB887",
+  decrease: "#C8A15A", exit: "#E2706A", reverse: "#C8A15A",
 };
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{children}</h3>;
+  return <h3 className="text-xs font-bold text-ink-3 mb-3">{children}</h3>;
 }
 
 function BriefingView({ b }: { b: Briefing }) {
@@ -291,31 +291,31 @@ function BriefingView({ b }: { b: Briefing }) {
         <div>
           <SectionTitle>How we did · {pnl.date}</SectionTitle>
           <div className="flex items-baseline gap-3 flex-wrap mb-2">
-            <span className={`font-mono font-bold text-2xl ${pnl.abs >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+            <span className={`font-bold text-2xl ${pnl.abs >= 0 ?"text-gain":"text-loss"}`}>
               {fmtMoney(pnl.abs)}
             </span>
-            <span className={`font-mono text-sm ${pnl.pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+            <span className={`text-sm ${pnl.pct >= 0 ?"text-gain":"text-loss"}`}>
               {pnl.pct >= 0 ? "+" : ""}{pnl.pct.toFixed(2)}%
             </span>
             {pnl.spy_pct != null && (
-              <span className="text-xs text-[#6B7280]">
+              <span className="text-xs text-ink-3">
                 S&amp;P 500 {pnl.spy_pct >= 0 ? "+" : ""}{pnl.spy_pct.toFixed(2)}%
               </span>
             )}
           </div>
-          {pnl.why && <p className="text-sm text-[#9CA3AF] mb-3">{pnl.why}</p>}
+          {pnl.why && <p className="text-sm text-ink-2 mb-3">{pnl.why}</p>}
           {pnl.movers && pnl.movers.length > 0 && (
             <div className="space-y-1.5">
               {pnl.movers.map((m) => (
                 <div key={m.ticker} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
-                  <span className="font-mono font-bold text-[#E8EDF2] w-14 shrink-0">{m.ticker}</span>
-                  <span className={`font-mono text-sm w-20 shrink-0 ${m.contribution >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                  <span className="font-bold text-ink-1 w-14 shrink-0">{m.ticker}</span>
+                  <span className={`text-sm w-20 shrink-0 ${m.contribution >= 0 ?"text-gain":"text-loss"}`}>
                     {fmtMoney(m.contribution)}
                   </span>
-                  <span className={`font-mono text-xs w-14 shrink-0 pt-0.5 ${m.move_pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                  <span className={`text-xs w-14 shrink-0 pt-0.5 ${m.move_pct >= 0 ?"text-gain":"text-loss"}`}>
                     {m.move_pct >= 0 ? "+" : ""}{m.move_pct.toFixed(1)}%
                   </span>
-                  <span className="text-xs text-[#9CA3AF] pt-0.5">{m.why ?? ""}</span>
+                  <span className="text-xs text-ink-2 pt-0.5">{m.why ?? ""}</span>
                 </div>
               ))}
               {(() => {
@@ -325,7 +325,7 @@ function BriefingView({ b }: { b: Briefing }) {
                   ? pnl.abs - pnl.movers!.reduce((sum, m) => sum + (m.contribution ?? 0), 0)
                   : pnl.other;
                 return other != null && Math.abs(other) >= 1 ? (
-                  <p className="text-[11px] text-[#4B5563] pl-1">
+                  <p className="text-micro text-ink-3 pl-1">
                     Everything else (smaller positions, trades during the day): {fmtMoney(other)}
                   </p>
                 ) : null;
@@ -338,19 +338,19 @@ function BriefingView({ b }: { b: Briefing }) {
       {b.market && b.market.themes.length > 0 && (
         <div>
           <SectionTitle>What&apos;s moving markets</SectionTitle>
-          {b.market.mood && <p className="text-sm text-[#9CA3AF] mb-3">{b.market.mood}</p>}
+          {b.market.mood && <p className="text-sm text-ink-2 mb-3">{b.market.mood}</p>}
           <div className="space-y-2">
             {b.market.themes.map((t, i) => (
               <div key={i} className="p-3 rounded-xl bg-white/[0.02] border border-white/06">
-                <p className="text-sm font-semibold text-[#E8EDF2]">{t.title}</p>
-                {t.what_happened && <p className="text-xs text-[#9CA3AF] mt-1">{t.what_happened}</p>}
-                {t.why_it_matters && <p className="text-xs text-[#6B7280] mt-1">{t.why_it_matters}</p>}
+                <p className="text-sm font-semibold text-ink-1">{t.title}</p>
+                {t.what_happened && <p className="text-xs text-ink-2 mt-1">{t.what_happened}</p>}
+                {t.why_it_matters && <p className="text-xs text-ink-3 mt-1">{t.why_it_matters}</p>}
                 {t.our_exposure && t.our_exposure.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {t.our_exposure.map((e) => {
-                      const c = e.effect === "positive" ? "#10B981" : e.effect === "negative" ? "#EF4444" : "#F5A623";
+                      const c = e.effect === "positive" ? "#4DB887" : e.effect === "negative" ? "#E2706A" : "#C8A15A";
                       return (
-                        <span key={e.ticker} title={e.why ?? ""} className="text-[10px] font-mono px-2 py-0.5 rounded-md"
+                        <span key={e.ticker} title={e.why ?? ""} className="text-micro px-2 py-0.5 rounded-md"
                           style={{ color: c, background: `${c}20` }}>
                           {e.ticker} {e.effect === "positive" ? "▲" : e.effect === "negative" ? "▼" : "◆"}
                           {e.why ? <span className="font-sans opacity-80"> · {e.why}</span> : null}
@@ -359,7 +359,7 @@ function BriefingView({ b }: { b: Briefing }) {
                     })}
                   </div>
                 )}
-                {t.next && <p className="text-[11px] text-[#4B5563] mt-2">Next: {t.next}</p>}
+                {t.next && <p className="text-micro text-ink-3 mt-2">Next: {t.next}</p>}
               </div>
             ))}
           </div>
@@ -369,24 +369,24 @@ function BriefingView({ b }: { b: Briefing }) {
       <div>
         <SectionTitle>What we did today</SectionTitle>
         {b.trades.length === 0 ? (
-          <p className="text-sm text-[#6B7280]">No trades — the portfolio was left as it was.</p>
+          <p className="text-sm text-ink-3">No trades — the portfolio was left as it was.</p>
         ) : (
           <div className="space-y-1.5">
             {b.trades.map((t, i) => {
-              const color = TRADE_COLORS[t.action] ?? "#6B7280";
+              const color = TRADE_COLORS[t.action] ?? "#8E959D";
               return (
                 <div key={`${t.ticker}-${i}`} className="flex items-start gap-3 p-2.5 rounded-xl bg-white/[0.02] border border-white/06">
                   <span
-                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md whitespace-nowrap w-20 text-center shrink-0"
+                    className="text-micro font-bold px-2 py-0.5 rounded-md whitespace-nowrap w-20 text-center shrink-0"
                     style={{ color, background: `${color}20` }}
                   >
                     {t.verb}
                   </span>
-                  <span className="font-mono font-bold text-[#E8EDF2] w-14 shrink-0">{t.ticker}</span>
-                  <span className="font-mono text-xs text-[#6B7280] w-20 shrink-0 pt-0.5">
+                  <span className="font-bold text-ink-1 w-14 shrink-0">{t.ticker}</span>
+                  <span className="text-xs text-ink-3 w-20 shrink-0 pt-0.5">
                     ${Math.round(t.notional).toLocaleString("en-US")}
                   </span>
-                  <span className="text-xs text-[#9CA3AF] pt-0.5">{t.why ?? ""}</span>
+                  <span className="text-xs text-ink-2 pt-0.5">{t.why ?? ""}</span>
                 </div>
               );
             })}
@@ -399,8 +399,8 @@ function BriefingView({ b }: { b: Briefing }) {
           <SectionTitle>Wanted, but didn&apos;t happen</SectionTitle>
           <ul className="space-y-1">
             {b.not_executed.map((n) => (
-              <li key={n.ticker} className="text-xs text-[#6B7280]">
-                <span className="font-mono font-bold text-[#9CA3AF] mr-2">{n.ticker}</span>{n.reason}
+              <li key={n.ticker} className="text-xs text-ink-3">
+                <span className="font-bold text-ink-2 mr-2">{n.ticker}</span>{n.reason}
               </li>
             ))}
           </ul>
@@ -411,7 +411,7 @@ function BriefingView({ b }: { b: Briefing }) {
         <div>
           <SectionTitle>What to watch</SectionTitle>
           <ul className="space-y-1 list-disc pl-4">
-            {b.watch.map((w, i) => <li key={i} className="text-sm text-[#9CA3AF]">{w}</li>)}
+            {b.watch.map((w, i) => <li key={i} className="text-sm text-ink-2">{w}</li>)}
           </ul>
         </div>
       )}
@@ -431,32 +431,32 @@ function ReportCard({ report }: { report: Report }) {
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="font-mono text-sm text-[#6B7280]">{report.date}</span>
+            <span className="text-sm text-ink-3">{report.date}</span>
             <RegimeBadge regime={report.macro_regime} />
             <div className="flex items-center gap-2 text-xs">
               {report.briefing ? (
                 <>
-                  {report.new_positions > 0 && <span className="text-[#10B981]">{report.new_positions} bought</span>}
-                  {report.increases > 0 && <span className="text-[#10B981]">{report.increases} added to</span>}
-                  {report.decreases > 0 && <span className="text-[#F5A623]">{report.decreases} trimmed</span>}
-                  {report.exits > 0 && <span className="text-[#EF4444]">{report.exits} sold</span>}
+                  {report.new_positions > 0 && <span className="text-gain">{report.new_positions} bought</span>}
+                  {report.increases > 0 && <span className="text-gain">{report.increases} added to</span>}
+                  {report.decreases > 0 && <span className="text-accent">{report.decreases} trimmed</span>}
+                  {report.exits > 0 && <span className="text-loss">{report.exits} sold</span>}
                   {report.new_positions + report.increases + report.decreases + report.exits === 0 && (
-                    <span className="text-[#6B7280]">no trades</span>
+                    <span className="text-ink-3">no trades</span>
                   )}
                 </>
               ) : (
                 <>
                   {report.new_positions > 0 && (
-                    <span className="text-[#10B981]">+{report.new_positions} new</span>
+                    <span className="text-gain">+{report.new_positions} new</span>
                   )}
                   {report.exits > 0 && (
-                    <span className="text-[#EF4444]">{report.exits} exits</span>
+                    <span className="text-loss">{report.exits} exits</span>
                   )}
                   {report.holds > 0 && (
-                    <span className="text-[#6B7280]">{report.holds} holds</span>
+                    <span className="text-ink-3">{report.holds} holds</span>
                   )}
                   {report.increases > 0 && (
-                    <span className="text-[#F5A623]">{report.increases} increases</span>
+                    <span className="text-accent">{report.increases} increases</span>
                   )}
                 </>
               )}
@@ -464,15 +464,15 @@ function ReportCard({ report }: { report: Report }) {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <span className={`font-mono font-semibold text-sm ${
-                report.daily_pnl.startsWith("+") ? "text-[#10B981]" : "text-[#EF4444]"
-              }`}>
+              <span className={`font-semibold text-sm ${
+ report.daily_pnl.startsWith("+") ?"text-gain":"text-loss"
+ }`}>
                 {report.daily_pnl}
                 {report.daily_pnl_pct && (
                   <span className="font-normal opacity-70 ml-1">{report.daily_pnl_pct}</span>
                 )}
               </span>
-              <span className="block text-[10px] text-[#6B7280] mt-0.5">
+              <span className="block text-micro text-ink-3 mt-0.5">
                 {report.daily_pnl_date
                   ? `${report.daily_pnl_date} full day`
                   : "prev trading day"}
@@ -480,14 +480,14 @@ function ReportCard({ report }: { report: Report }) {
             </div>
             <svg
               width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="#6B7280" strokeWidth="2"
-              className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+              stroke="#8E959D" strokeWidth="2"
+              className={`transition-transform duration-200 ${open ?"rotate-180":""}`}
             >
               <polyline points="6,9 12,15 18,9" />
             </svg>
           </div>
         </div>
-        <p className={`text-sm mt-3 text-left ${report.briefing ? "text-[#C9D1D9]" : "text-[#6B7280]"}`}>
+        <p className={`text-sm mt-3 text-left ${report.briefing ?"text-[#C9D1D9]":"text-ink-3"}`}>
           {report.summary}
         </p>
       </button>
@@ -500,20 +500,20 @@ function ReportCard({ report }: { report: Report }) {
           {/* Pipeline funnel */}
           {report.pipeline_funnel && (
             <div>
-              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">Pipeline Funnel</h3>
+              <h3 className="text-xs font-bold text-ink-3 mb-3">Pipeline Funnel</h3>
               <div className="flex items-center gap-2 flex-wrap">
                 {[
-                  { label: "Analysed", value: report.pipeline_funnel.analyzed, color: "#6B7280" },
-                  { label: "Debated", value: report.pipeline_funnel.debated, color: "#F59E0B" },
-                  { label: "Entered", value: report.pipeline_funnel.entered, color: "#10B981" },
+                  { label: "Analysed", value: report.pipeline_funnel.analyzed, color: "#8E959D" },
+                  { label: "Debated", value: report.pipeline_funnel.debated, color: "#E39A57" },
+                  { label: "Entered", value: report.pipeline_funnel.entered, color: "#4DB887" },
                 ].map(({ label, value, color }, i, arr) => (
                   <React.Fragment key={label}>
                     <div className="flex flex-col items-center px-4 py-2 rounded-xl bg-white/[0.02] border border-white/06">
-                      <span className="font-mono font-bold text-lg" style={{ color }}>{value}</span>
-                      <span className="text-[10px] text-[#3D4655] uppercase tracking-wider mt-0.5">{label}</span>
+                      <span className="font-bold text-lg" style={{ color }}>{value}</span>
+                      <span className="text-micro text-ink-3 mt-0.5">{label}</span>
                     </div>
                     {i < arr.length - 1 && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D4655" strokeWidth="2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="2">
                         <polyline points="9,18 15,12 9,6" />
                       </svg>
                     )}
@@ -526,9 +526,9 @@ function ReportCard({ report }: { report: Report }) {
           {/* Stocks reviewed this run */}
           {report.scorecards_summary && report.scorecards_summary.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">
+              <h3 className="text-xs font-bold text-ink-3 mb-3">
                 Stocks Reviewed ({report.scorecards_summary.length})
-                <span className="ml-2 font-normal text-[#3D4655] normal-case tracking-normal">click a row to expand agent views &amp; risks</span>
+                <span className="ml-2 font-normal text-ink-3 normal-case tracking-normal">click a row to expand agent views &amp; risks</span>
               </h3>
               <ScorecardTable rows={report.scorecards_summary} />
             </div>
@@ -536,8 +536,8 @@ function ReportCard({ report }: { report: Report }) {
 
           {/* Full narrative */}
           <div>
-            <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{report.briefing ? "Committee notes (written before sizing — intentions, not trades)" : "Committee Narrative"}</h3>
-            <div className="text-sm text-[#6B7280] leading-relaxed space-y-3">
+            <h3 className="text-xs font-bold text-ink-3 mb-3">{report.briefing ? "Committee notes (written before sizing — intentions, not trades)" : "Committee Narrative"}</h3>
+            <div className="text-sm text-ink-3 leading-relaxed space-y-3">
               {report.narrative.split("\n\n").map((para, i) => (
                 <p key={i}>{para}</p>
               ))}
@@ -547,27 +547,27 @@ function ReportCard({ report }: { report: Report }) {
           {/* Decisions */}
           {report.decisions?.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{report.briefing ? "Committee decisions (intent)" : "Decisions"}</h3>
+              <h3 className="text-xs font-bold text-ink-3 mb-3">{report.briefing ? "Committee decisions (intent)" : "Decisions"}</h3>
               <div className="space-y-2">
                 {report.decisions.map((d, di) => {
                   const a = String(d.action ?? "");
-                  const color = a === "skip" || a === "exit" || a.includes("short") ? "#EF4444"
-                    : a === "decrease" ? "#F59E0B"
-                    : a === "hold" ? "#94A3B8"
-                    : "#10B981";
+                  const color = a === "skip" || a === "exit" || a.includes("short") ? "#E2706A"
+                    : a === "decrease" ? "#E39A57"
+                    : a === "hold" ? "#B3B8BE"
+                    : "#4DB887";
                   return (
                     <div key={`${d.ticker}-${di}`} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/06">
-                      <span className="font-mono font-bold text-[#E8EDF2] w-12">{d.ticker}</span>
+                      <span className="font-bold text-ink-1 w-12">{d.ticker}</span>
                       <span
-                        className="text-xs font-bold uppercase px-2 py-0.5 rounded-md self-start whitespace-nowrap"
+                        className="text-xs font-bold px-2 py-0.5 rounded-md self-start whitespace-nowrap"
                         style={{ color, background: `${color}20` }}
                       >
                         {a.replace("_", " ")}
                       </span>
                       <div className="flex-1">
-                        <p className="text-xs text-[#6B7280]">{d.thesis}</p>
+                        <p className="text-xs text-ink-3">{d.thesis}</p>
                       </div>
-                      <div className="text-xs font-mono text-[#F5A623] self-start whitespace-nowrap">
+                      <div className="text-xs text-accent self-start whitespace-nowrap">
                         {d.conviction}/100
                       </div>
                     </div>
@@ -580,7 +580,7 @@ function ReportCard({ report }: { report: Report }) {
           {/* Agent findings */}
           {report.agent_findings?.length > 0 && (
             <div>
-              <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">Agent Findings</h3>
+              <h3 className="text-xs font-bold text-ink-3 mb-3">Agent Findings</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {report.agent_findings.map((f) => (
                   <AgentFindingCard key={f.agent} finding={f} />
@@ -632,19 +632,19 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080C10] pb-16">
+    <div className="min-h-screen bg-canvas pb-16">
       <div className="max-w-5xl mx-auto px-6 pt-8">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div>
-            <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Daily Reports</h1>
-            <p className="text-[#6B7280] text-sm mt-1">
+            <h1 className="font-display text-3xl font-bold text-ink-1">Daily Reports</h1>
+            <p className="text-ink-3 text-sm mt-1">
               Committee narratives and daily pipeline decisions
             </p>
           </div>
           <a
             href="/reports/adhoc"
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-[#F5A623] border border-[#F5A623]/30 bg-[#F5A623]/08 hover:bg-[#F5A623]/14 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-accent border border-accent/30 bg-accent/8 hover:bg-accent/14 transition-all"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -667,35 +667,35 @@ export default function ReportsPage() {
             ))}
           </div>
         ) : error && reports.length === 0 ? (
-          <div className="card p-10 text-center border border-[#EF4444]/30">
-            <h3 className="font-display text-lg font-bold text-[#EF4444] mb-2">Data unavailable</h3>
-            <p className="text-[#6B7280] text-sm">{error}</p>
+          <div className="card p-10 text-center border border-loss/30">
+            <h3 className="font-display text-lg font-bold text-loss mb-2">Data unavailable</h3>
+            <p className="text-ink-3 text-sm">{error}</p>
           </div>
         ) : reports.length === 0 ? (
           <div className="card p-16 text-center">
             <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/05">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="1.5">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8E959D" strokeWidth="1.5">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                 <polyline points="14,2 14,8 20,8" />
                 <line x1="16" y1="13" x2="8" y2="13" />
                 <line x1="16" y1="17" x2="8" y2="17" />
               </svg>
             </div>
-            <h3 className="font-display text-lg font-bold text-[#E8EDF2] mb-2">No reports yet</h3>
-            <p className="text-[#6B7280] text-sm">Daily reports will appear here after each pipeline run.</p>
+            <h3 className="font-display text-lg font-bold text-ink-1 mb-2">No reports yet</h3>
+            <p className="text-ink-3 text-sm">Daily reports will appear here after each pipeline run.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {reports.map((r, i) => (
               <ReportCard key={r.date ?? i} report={r} />
             ))}
-            {error && <p className="text-xs text-[#EF4444] text-center">{error}</p>}
+            {error && <p className="text-xs text-loss text-center">{error}</p>}
             {hasMore && (
               <div className="text-center pt-2">
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="text-sm text-[#F5A623] hover:text-[#FDE68A] font-medium transition-colors disabled:opacity-50"
+                  className="text-sm text-accent hover:text-accent font-medium transition-colors disabled:opacity-50"
                 >
                   {loadingMore ? "Loading…" : `Load older reports (${total - reports.length} more)`}
                 </button>

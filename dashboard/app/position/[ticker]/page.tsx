@@ -12,16 +12,16 @@ type PositionDetail = Record<string, any>;
 
 function SectionCard({ title, children, dataSource }: { title: string; children: React.ReactNode; dataSource?: "live" | "llm" | "mixed" }) {
   const badge = dataSource === "live"
-    ? { label: "Live API", color: "#10B981" }
+    ? { label: "Live API", color: "#4DB887" }
     : dataSource === "llm"
-    ? { label: "LLM estimate — may be stale", color: "#F59E0B" }
+    ? { label: "LLM estimate — may be stale", color: "#E39A57" }
     : dataSource === "mixed"
-    ? { label: "Live + LLM", color: "#F5A623" }
+    ? { label: "Live + LLM", color: "#C8A15A" }
     : null;
   return (
     <div className="card p-6">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-display text-lg font-bold text-[#E8EDF2]">{title}</h2>
+        <h2 className="font-display text-lg font-bold text-ink-1">{title}</h2>
         {badge && (
           <span className="text-xs font-medium px-2 py-0.5 rounded-md" style={{ color: badge.color, background: `${badge.color}18` }}>
             {badge.label}
@@ -36,36 +36,36 @@ function SectionCard({ title, children, dataSource }: { title: string; children:
 function CheckRow({ item, pass, detail }: { item: string; pass: boolean; detail?: string }) {
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-white/05 last:border-0">
-      <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 ${pass ? "bg-[#10B981]/20" : "bg-[#EF4444]/20"}`}>
+      <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5 ${pass ?"bg-gain/20":"bg-loss/20"}`}>
         {pass ? (
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3"><polyline points="20,6 9,17 4,12" /></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4DB887" strokeWidth="3"><polyline points="20,6 9,17 4,12" /></svg>
         ) : (
-          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#E2706A" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         )}
       </div>
       <div className="flex-1">
-        <p className="text-sm text-[#E8EDF2] font-medium">{item}</p>
-        {detail && <p className="text-xs text-[#6B7280] mt-0.5">{detail}</p>}
+        <p className="text-sm text-ink-1 font-medium">{item}</p>
+        {detail && <p className="text-xs text-ink-3 mt-0.5">{detail}</p>}
       </div>
     </div>
   );
 }
 
 function AgentScoreBar({ agent, score, view }: { agent: string; score: number; view: string }) {
-  const color = score >= 70 ? "#10B981" : score >= 50 ? "#F59E0B" : "#EF4444";
+  const color = score >= 70 ? "#4DB887" : score >= 50 ? "#E39A57" : "#E2706A";
   return (
     <div className="flex items-start gap-4 py-3 border-b border-white/06 last:border-0">
       <div className="w-24 flex-shrink-0">
-        <span className="text-xs font-semibold text-[#E8EDF2]">{agent}</span>
+        <span className="text-xs font-semibold text-ink-1">{agent}</span>
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-1">
           <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
             <div className="h-full rounded-full transition-all" style={{ width: `${score}%`, background: color }} />
           </div>
-          <span className="text-xs font-mono font-bold w-6" style={{ color }}>{score}</span>
+          <span className="text-xs font-bold w-6" style={{ color }}>{score}</span>
         </div>
-        <p className="text-xs text-[#6B7280]">{view}</p>
+        <p className="text-xs text-ink-3">{view}</p>
       </div>
     </div>
   );
@@ -128,23 +128,23 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
   if (!position) {
     return (
-      <div className="min-h-screen bg-[#080C10] flex items-center justify-center">
-        <div className="text-[#6B7280]">Loading...</div>
+      <div className="min-h-screen bg-canvas flex items-center justify-center">
+        <div className="text-ink-3">Loading...</div>
       </div>
     );
   }
 
   if (position.error) {
     return (
-      <div className="min-h-screen bg-[#080C10] flex flex-col items-center justify-center gap-4">
-        <p className="text-[#6B7280] font-mono text-sm">No data available for {ticker}</p>
-        <Link href="/dashboard" className="text-xs text-[#0EA5E9] hover:underline">← Back to Dashboard</Link>
+      <div className="min-h-screen bg-canvas flex flex-col items-center justify-center gap-4">
+        <p className="text-ink-3 text-sm">No data available for {ticker}</p>
+        <Link href="/dashboard" className="text-xs text-accent hover:underline">← Back to Dashboard</Link>
       </div>
     );
   }
 
   const isProfit = (position.pct_change ?? 0) >= 0;
-  const pnlColor = isProfit ? "#10B981" : "#EF4444";
+  const pnlColor = isProfit ? "#4DB887" : "#E2706A";
   const allAgentScores: Array<{agent: string; score: number; view: string}> = position.agent_scores ?? [];
   const bullishAgents = allAgentScores.filter((a: {score:number}) => a.score >= 65).map((a: {agent:string}) => a.agent);
   const bearishAgents = allAgentScores.filter((a: {score:number}) => a.score < 50).map((a: {agent:string}) => a.agent);
@@ -206,19 +206,19 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const subjectComp = comps.find((c: any) => c.is_subject);
   function compColor(field: "ebitda_margin_pct" | "net_margin_pct", peer: typeof comps[0]) {
-    if (!subjectComp) return "text-[#E8EDF2]";
+    if (!subjectComp) return "text-ink-1";
     const sv = (subjectComp as Record<string, unknown>)[field] as number | null;
     const pv = peer[field] as number | null;
-    if (sv == null || pv == null) return "text-[#6B7280]";
-    return sv >= pv ? "text-[#10B981]" : "text-[#EF4444]";
+    if (sv == null || pv == null) return "text-ink-3";
+    return sv >= pv ? "text-gain" : "text-loss";
   }
 
   return (
-    <div className="min-h-screen bg-[#080C10] pb-20">
+    <div className="min-h-screen bg-canvas pb-20">
       <div className="max-w-7xl mx-auto px-6 pt-8">
 
         {/* Breadcrumb */}
-        <Link href="/dashboard" className="flex items-center gap-2 text-[#6B7280] hover:text-[#E8EDF2] transition-colors mb-6 text-sm w-fit">
+        <Link href="/dashboard" className="flex items-center gap-2 text-ink-3 hover:text-ink-1 transition-colors mb-6 text-sm w-fit">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15,18 9,12 15,6" /></svg>
           Back to Dashboard
         </Link>
@@ -228,17 +228,17 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h1 className="font-display text-4xl font-bold text-[#E8EDF2]">{position.ticker}</h1>
+                <h1 className="font-display text-4xl font-bold text-ink-1">{position.ticker}</h1>
                 <span className={position.direction === "long" ? "badge-long" : "badge-short"}>{position.direction}</span>
-                <span className="text-xs font-medium text-[#6B7280] px-2.5 py-1 rounded-lg bg-white/05 border border-white/08">{position.sector}</span>
-                <span className="text-xs font-bold text-[#F5A623] px-2.5 py-1 rounded-lg bg-[#F5A623]/10">
+                <span className="text-xs font-medium text-ink-3 px-2.5 py-1 rounded-lg bg-white/05 border border-white/08">{position.sector}</span>
+                <span className="text-xs font-bold text-accent px-2.5 py-1 rounded-lg bg-accent/10">
                   Scenario {position.scenario ?? "B"}
                 </span>
                 {fm?.setup_type && (
-                  <span className="text-xs font-bold text-[#8B5CF6] px-2.5 py-1 rounded-lg bg-[#8B5CF6]/10">{fm.setup_type}</span>
+                  <span className="text-xs font-bold text-ink-2 px-2.5 py-1 rounded-lg bg-ink-3/10">{fm.setup_type}</span>
                 )}
               </div>
-              <p className="text-[#6B7280]">{position.company}</p>
+              <p className="text-ink-3">{position.company}</p>
             </div>
             <div className="text-right">
               <p className="font-display text-4xl font-bold" style={{ color: pnlColor }}>
@@ -259,8 +259,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               { label: "Conviction", value: `${position.conviction}/100` },
             ].map(({ label, value }) => (
               <div key={label}>
-                <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">{label}</p>
-                <p className="font-mono font-semibold text-[#E8EDF2]">{value}</p>
+                <p className="text-xs text-ink-3 mb-1">{label}</p>
+                <p className="font-semibold text-ink-1">{value}</p>
               </div>
             ))}
           </div>
@@ -270,8 +270,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {(ci || newsCatalysts.length > 0 || sentimentData) && (
           <div className="card p-6 mb-6">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Company Snapshot</h2>
-              <span className="text-xs font-medium px-2 py-0.5 rounded-md text-[#F59E0B] bg-[#F59E0B]/10">LLM estimate — may be stale</span>
+              <h2 className="font-display text-lg font-bold text-ink-1">Company Snapshot</h2>
+              <span className="text-xs font-medium px-2 py-0.5 rounded-md text-caution bg-caution/10">LLM estimate — may be stale</span>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -279,22 +279,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <div className="lg:col-span-1 space-y-4">
                 {ci?.overview && (
                   <div>
-                    <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">What they do</p>
-                    <p className="text-sm text-[#C4CDD6] leading-relaxed">{String(ci.overview).slice(0, 320)}</p>
+                    <p className="text-xs font-semibold text-ink-3 mb-2">What they do</p>
+                    <p className="text-sm text-ink-1 leading-relaxed">{String(ci.overview).slice(0, 320)}</p>
                   </div>
                 )}
                 {cleanSegments(ci?.revenue_segments).length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">How they make money</p>
+                    <p className="text-xs font-semibold text-ink-3 mb-2">How they make money</p>
                     <div className="space-y-2">
                       {cleanSegments(ci.revenue_segments).slice(0, 5).map((seg) => (
                         <div key={seg.segment}>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#E8EDF2]">{seg.segment}</span>
-                            <span className="font-mono text-[#6B7280]">{seg.weight_pct}%</span>
+                            <span className="text-ink-1">{seg.segment}</span>
+                            <span className="text-ink-3">{seg.weight_pct}%</span>
                           </div>
                           <div className="h-1.5 rounded-full bg-white/08 overflow-hidden">
-                            <div className="h-full rounded-full bg-[#0EA5E9]" style={{ width: `${seg.weight_pct}%` }} />
+                            <div className="h-full rounded-full bg-accent" style={{ width: `${seg.weight_pct}%` }} />
                           </div>
                         </div>
                       ))}
@@ -306,11 +306,11 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               {/* Why we like it */}
               <div className="lg:col-span-1 space-y-4">
                 <div>
-                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Why we think it&apos;ll do well</p>
+                  <p className="text-xs font-semibold text-ink-3 mb-2">Why we think it&apos;ll do well</p>
                   <ul className="space-y-2">
                     {thesisBullets.slice(0, 3).map((b, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-[#C4CDD6] leading-relaxed">
-                        <span className="text-[#F5A623] mt-0.5 flex-shrink-0">▸</span>
+                      <li key={i} className="flex items-start gap-2 text-sm text-ink-1 leading-relaxed">
+                        <span className="text-accent mt-0.5 flex-shrink-0">▸</span>
                         <span>{String(b).slice(0, 180)}</span>
                       </li>
                     ))}
@@ -320,14 +320,14 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   <div className="pt-3 border-t border-white/06 flex flex-wrap gap-3">
                     {sentimentData.analyst_consensus && (
                       <div className="bg-white/04 rounded-lg px-3 py-2">
-                        <p className="text-[10px] text-[#6B7280] mb-0.5">Analyst consensus</p>
-                        <p className="text-sm font-bold text-[#10B981]">{sentimentData.analyst_consensus}</p>
+                        <p className="text-micro text-ink-3 mb-0.5">Analyst consensus</p>
+                        <p className="text-sm font-bold text-gain">{sentimentData.analyst_consensus}</p>
                       </div>
                     )}
                     {(sentimentData.price_target_upside_pct ?? sentimentData.analyst_target_live) && (
                       <div className="bg-white/04 rounded-lg px-3 py-2">
-                        <p className="text-[10px] text-[#6B7280] mb-0.5">Analyst upside</p>
-                        <p className="text-sm font-bold text-[#10B981]">
+                        <p className="text-micro text-ink-3 mb-0.5">Analyst upside</p>
+                        <p className="text-sm font-bold text-gain">
                           {sentimentData.price_target_upside_pct != null
                             ? `${sentimentData.price_target_upside_pct >= 0 ? "+" : ""}${sentimentData.price_target_upside_pct.toFixed(1)}%`
                             : sentimentData.analyst_target_live != null
@@ -342,7 +342,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
               {/* Recent news */}
               <div className="lg:col-span-1">
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">What&apos;s been happening</p>
+                <p className="text-xs font-semibold text-ink-3 mb-2">What&apos;s been happening</p>
                 {newsCatalysts.length > 0 ? (
                   <div className="space-y-3">
                     {newsCatalysts.slice(0, 4).map((c, i) => {
@@ -351,17 +351,17 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       const isPos = String(c.direction ?? "LONG").toUpperCase() === "LONG";
                       return (
                         <div key={i} className="flex items-start gap-2 py-2 border-b border-white/05 last:border-0">
-                          <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPos ? "bg-[#10B981]" : "bg-[#EF4444]"}`} />
+                          <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${isPos ?"bg-gain":"bg-loss"}`} />
                           <div>
-                            <p className="text-xs font-semibold text-[#E8EDF2] leading-snug mb-0.5">{c.catalyst}</p>
-                            <p className="text-[10px] text-[#6B7280]">{c.catalyst_type?.replace(/_/g, " ")} · {conf} confidence</p>
+                            <p className="text-xs font-semibold text-ink-1 leading-snug mb-0.5">{c.catalyst}</p>
+                            <p className="text-micro text-ink-3">{c.catalyst_type?.replace(/_/g, " ")} · {conf} confidence</p>
                           </div>
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <p className="text-sm text-[#6B7280]">No recent catalysts detected.</p>
+                  <p className="text-sm text-ink-3">No recent catalysts detected.</p>
                 )}
               </div>
 
@@ -373,51 +373,51 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Recommendation badge */}
           <div className="card p-6 flex flex-col justify-between">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Recommendation</h2>
+            <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Recommendation</h2>
             <div className="flex items-center gap-4 mb-5">
-              <div className={`px-5 py-3 rounded-xl text-2xl font-display font-bold ${(rec?.direction ?? position.direction?.toUpperCase()) === "LONG" ? "bg-[#10B981]/20 text-[#10B981]" : "bg-[#EF4444]/20 text-[#EF4444]"}`}>
+              <div className={`px-5 py-3 rounded-xl text-2xl font-display font-bold ${(rec?.direction ?? position.direction?.toUpperCase()) ==="LONG"?"bg-gain/20 text-gain":"bg-loss/20 text-loss"}`}>
                 {rec?.direction ?? position.direction?.toUpperCase() ?? "LONG"}
               </div>
               <div>
-                <p className="text-3xl font-display font-bold text-[#E8EDF2]">{val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
-                <p className="text-xs text-[#6B7280]">Expected Return</p>
+                <p className="text-3xl font-display font-bold text-ink-1">{val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? position.expected_roi ?? "—"}</p>
+                <p className="text-xs text-ink-3">Expected Return</p>
               </div>
             </div>
             <div>
               <div className="flex justify-between text-xs mb-1.5">
-                <span className="text-[#6B7280]">Conviction</span>
-                <span className="font-mono font-bold text-[#E8EDF2]">{(rec?.conviction ?? position.conviction ?? 0)}/100</span>
+                <span className="text-ink-3">Conviction</span>
+                <span className="font-bold text-ink-1">{(rec?.conviction ?? position.conviction ?? 0)}/100</span>
               </div>
               <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${rec?.conviction ?? position.conviction ?? 0}%` }} />
+                <div className="h-full rounded-full bg-accent" style={{ width: `${rec?.conviction ?? position.conviction ?? 0}%` }} />
               </div>
               {rec?.stop_loss_note && (
-                <p className="text-xs text-[#6B7280] mt-3 leading-relaxed">{rec.stop_loss_note}</p>
+                <p className="text-xs text-ink-3 mt-3 leading-relaxed">{rec.stop_loss_note}</p>
               )}
             </div>
           </div>
 
           {/* Investment thesis bullets + narrative */}
-          <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-[#F5A623]/10 to-transparent border border-[#F5A623]/20">
+          <div className="lg:col-span-2 card p-6 bg-gradient-to-br from-accent/10 to-transparent border border-accent/20">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-              <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Investment Thesis</h2>
+              <h2 className="font-display text-lg font-bold text-ink-1">Investment Thesis</h2>
               {(position as any).adhoc_generated_at && (
-                <span className="text-[10px] text-[#6B7280] px-2 py-0.5 rounded bg-white/05">
+                <span className="text-micro text-ink-3 px-2 py-0.5 rounded bg-white/05">
                   Deep-dive: {(position as any).adhoc_generated_at}
                 </span>
               )}
             </div>
             {/* GPT-4o narrative (from adhoc report) */}
             {(position as any).thesis_narrative && (
-              <p className="text-sm text-[#E8EDF2] leading-relaxed mb-5 border-b border-white/06 pb-5">
+              <p className="text-sm text-ink-1 leading-relaxed mb-5 border-b border-white/06 pb-5">
                 {(position as any).thesis_narrative}
               </p>
             )}
             <ul className="space-y-2.5">
               {thesisBullets.map((b, i) => (
                 <li key={i} className="flex items-start gap-3">
-                  <span className="w-5 h-5 rounded-full bg-[#F5A623]/20 text-[#F5A623] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
-                  <span className="text-sm text-[#E8EDF2] leading-relaxed">{b}</span>
+                  <span className="w-5 h-5 rounded-full bg-accent/20 text-accent text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i + 1}</span>
+                  <span className="text-sm text-ink-1 leading-relaxed">{b}</span>
                 </li>
               ))}
             </ul>
@@ -432,21 +432,21 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           return (
             <div className="card p-6 mb-6">
               <div className="flex items-center gap-2 mb-5 flex-wrap">
-                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Scenario Analysis</h2>
+                <h2 className="font-display text-lg font-bold text-ink-1">Scenario Analysis</h2>
                 {isFlat ? (
-                  <span className="text-[10px] text-[#F59E0B] px-2 py-0.5 rounded bg-[#F59E0B]/10">AI estimate — targets &amp; probabilities generated by GPT-4o</span>
+                  <span className="text-micro text-caution px-2 py-0.5 rounded bg-caution/10">AI estimate — targets &amp; probabilities generated by GPT-4o</span>
                 ) : (
-                  <span className="text-[10px] text-[#0EA5E9] px-2 py-0.5 rounded bg-[#0EA5E9]/10">Targets from analyst price targets / DCF</span>
+                  <span className="text-micro text-accent px-2 py-0.5 rounded bg-accent/10">Targets from analyst price targets / DCF</span>
                 )}
                 {anyFixedProb && (
-                  <span className="text-[10px] text-[#F59E0B] px-2 py-0.5 rounded bg-[#F59E0B]/10">Probabilities are a fixed 25/50/25 assumption, not a forecast</span>
+                  <span className="text-micro text-caution px-2 py-0.5 rounded bg-caution/10">Probabilities are a fixed 25/50/25 assumption, not a forecast</span>
                 )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  { key: "bull", label: "Bull", color: "#10B981", bg: "rgba(16,185,129,0.08)" },
-                  { key: "base", label: "Base", color: "#0EA5E9", bg: "rgba(14,165,233,0.08)" },
-                  { key: "bear", label: "Bear", color: "#EF4444", bg: "rgba(239,68,68,0.08)" },
+                  { key: "bull", label: "Bull", color: "#4DB887", bg: "rgba(16,185,129,0.08)" },
+                  { key: "base", label: "Base", color: "#C8A15A", bg: "rgba(14,165,233,0.08)" },
+                  { key: "bear", label: "Bear", color: "#E2706A", bg: "rgba(239,68,68,0.08)" },
                 ].map(({ key, label, color, bg }) => {
                   const s = sc13[key] ?? {};
                   const priceTgt = s.price_target;
@@ -455,8 +455,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   return (
                     <div key={key} className="rounded-xl p-4 border" style={{ background: bg, borderColor: `${color}30` }}>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color }}>{label}</span>
-                        <span className="text-xs text-[#6B7280]">
+                        <span className="text-xs font-bold" style={{ color }}>{label}</span>
+                        <span className="text-xs text-ink-3">
                           {prob != null ? `${prob}% ${s.probability_basis === "fixed_assumption" ? "(assumed)" : "(AI estimate)"}` : "probability n/a"}
                         </span>
                       </div>
@@ -465,22 +465,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                           ${Number(priceTgt).toFixed(0)}
                         </p>
                       ) : (
-                        <p className="text-xs text-[#6B7280] mb-1">Target unavailable</p>
+                        <p className="text-xs text-ink-3 mb-1">Target unavailable</p>
                       )}
                       {chg != null && (
                         <p className="text-xs mb-3" style={{ color }}>
                           {Number(chg) >= 0 ? "+" : ""}{Number(chg).toFixed(1)}% vs price at report time
                         </p>
                       )}
-                      {s.note && <p className="text-xs text-[#6B7280] leading-relaxed">{String(s.note).slice(0, 120)}</p>}
+                      {s.note && <p className="text-xs text-ink-3 leading-relaxed">{String(s.note).slice(0, 120)}</p>}
                     </div>
                   );
                 })}
               </div>
               {(position as any).adhoc_entry_verdict && (
                 <div className="mt-4 pt-4 border-t border-white/06 flex items-center gap-3">
-                  <span className="text-xs text-[#6B7280]">Entry timing verdict:</span>
-                  <span className={`text-xs font-bold uppercase px-2.5 py-1 rounded-lg ${(position as any).adhoc_entry_verdict === "favourable" ? "bg-[#10B981]/20 text-[#10B981]" : (position as any).adhoc_entry_verdict === "unfavourable" ? "bg-[#EF4444]/20 text-[#EF4444]" : "bg-white/05 text-[#6B7280]"}`}>
+                  <span className="text-xs text-ink-3">Entry timing verdict:</span>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${(position as any).adhoc_entry_verdict ==="favourable"?"bg-gain/20 text-gain": (position as any).adhoc_entry_verdict ==="unfavourable"?"bg-loss/20 text-loss":"bg-white/05 text-ink-3"}`}>
                     {(position as any).adhoc_entry_verdict}
                   </span>
                 </div>
@@ -491,7 +491,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
         {/* ── Price chart ── */}
         <div className="card p-6 mb-6">
-          <Suspense fallback={<div style={{ height: 310 }} className="flex items-center justify-center text-xs text-[#6B7280]">Loading chart...</div>}>
+          <Suspense fallback={<div style={{ height: 310 }} className="flex items-center justify-center text-xs text-ink-3">Loading chart...</div>}>
             <CandlestickChart ticker={position.ticker} entryPrice={position.entry_price} currentPrice={position.current_price} tradeEvents={position.review_timeline} />
           </Suspense>
         </div>
@@ -511,17 +511,17 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   { label: "Exchange", value: fm.exchange ?? "—" },
                 ].map(({ label, value }) => (
                   <div key={label}>
-                    <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">{label}</p>
-                    <p className="text-sm font-mono text-[#E8EDF2]">{value}</p>
+                    <p className="text-xs text-ink-3 mb-0.5">{label}</p>
+                    <p className="text-sm text-ink-1">{value}</p>
                   </div>
                 ))}
                 <div className="col-span-2">
-                  <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">Geography / Sanctions</p>
-                  <p className="text-xs text-[#E8EDF2]">{fm.geography_flags?.exposure_detail ?? "—"}</p>
+                  <p className="text-xs text-ink-3 mb-0.5">Geography / Sanctions</p>
+                  <p className="text-xs text-ink-1">{fm.geography_flags?.exposure_detail ?? "—"}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">PEPs Check</p>
-                  <p className="text-xs text-[#E8EDF2]">{fm.peps_check?.notes ?? "—"}</p>
+                  <p className="text-xs text-ink-3 mb-0.5">PEPs Check</p>
+                  <p className="text-xs text-ink-1">{fm.peps_check?.notes ?? "—"}</p>
                 </div>
               </div>
             )}
@@ -530,8 +530,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <SectionCard title="Setup Checklist" dataSource="mixed">
             {(sc as Array<{ item: string; detail: string }>).map((item) => (
               <div key={item.item} className="py-2.5 border-b border-white/05 last:border-0">
-                <p className="text-xs font-semibold text-[#E8EDF2] uppercase tracking-wider mb-0.5">{item.item}</p>
-                <p className="text-xs text-[#6B7280] leading-relaxed">{item.detail}</p>
+                <p className="text-xs font-semibold text-ink-1 mb-0.5">{item.item}</p>
+                <p className="text-xs text-ink-3 leading-relaxed">{item.detail}</p>
               </div>
             ))}
           </SectionCard>
@@ -545,19 +545,19 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b border-white/08">
-                    <th className="text-left text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Period</th>
-                    <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Revenue</th>
-                    <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">EBITDA</th>
-                    <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Net Income</th>
+                    <th className="text-left text-ink-3 pb-2 font-semibold">Period</th>
+                    <th className="text-right text-ink-3 pb-2 font-semibold">Revenue</th>
+                    <th className="text-right text-ink-3 pb-2 font-semibold">EBITDA</th>
+                    <th className="text-right text-ink-3 pb-2 font-semibold">Net Income</th>
                   </tr>
                 </thead>
                 <tbody>
                   {((fs?.historical ?? []) as any[]).map((row) => (
                     <tr key={row.year} className="border-b border-white/04">
-                      <td className="py-2 font-mono text-[#6B7280]">{row.year}</td>
-                      <td className="py-2 text-right font-mono text-[#E8EDF2]">{FmtBn(row.revenue)}</td>
-                      <td className="py-2 text-right font-mono text-[#E8EDF2]">{FmtBn(row.ebitda)}</td>
-                      <td className={`py-2 text-right font-mono ${(row.net_income ?? 0) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>{FmtBn(row.net_income)}</td>
+                      <td className="py-2 text-ink-3">{row.year}</td>
+                      <td className="py-2 text-right text-ink-1">{FmtBn(row.revenue)}</td>
+                      <td className="py-2 text-right text-ink-1">{FmtBn(row.ebitda)}</td>
+                      <td className={`py-2 text-right ${(row.net_income ?? 0) >= 0 ?"text-gain":"text-loss"}`}>{FmtBn(row.net_income)}</td>
                     </tr>
                   ))}
                   {((fs?.forward ?? []) as any[]).map((row) => {
@@ -567,10 +567,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     const eps = typeof row.net_income === "number" ? row.net_income : null;
                     return (
                       <tr key={row.year} className="border-b border-white/04 border-dashed">
-                        <td className="py-2 font-mono text-[#F59E0B]">{periodLabel[row.year] ?? row.year}</td>
-                        <td className="py-2 text-right font-mono text-[#F59E0B]/80">{FmtBn(row.revenue)}</td>
-                        <td className="py-2 text-right font-mono text-[#F59E0B]/80">{row.ebitda != null ? FmtBn(row.ebitda) : "n/a"}</td>
-                        <td className={`py-2 text-right font-mono ${(eps ?? 0) >= 0 ? "text-[#10B981]/80" : "text-[#EF4444]/80"}`}>{eps != null ? `EPS $${eps.toFixed(2)}` : "—"}</td>
+                        <td className="py-2 text-caution">{periodLabel[row.year] ?? row.year}</td>
+                        <td className="py-2 text-right text-caution/80">{FmtBn(row.revenue)}</td>
+                        <td className="py-2 text-right text-caution/80">{row.ebitda != null ? FmtBn(row.ebitda) : "n/a"}</td>
+                        <td className={`py-2 text-right ${(eps ?? 0) >= 0 ?"text-gain/80":"text-loss/80"}`}>{eps != null ? `EPS $${eps.toFixed(2)}` : "—"}</td>
                       </tr>
                     );
                   })}
@@ -585,22 +585,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               const lvl = dc.level ?? "";
               return (
                 <div className="mt-3 flex items-center gap-2 text-xs">
-                  <span className={`font-bold px-1.5 py-0.5 rounded ${lvl === "high" ? "bg-[#10B981]/10 text-[#10B981]" : lvl === "medium" ? "bg-[#F59E0B]/10 text-[#F59E0B]" : "bg-[#EF4444]/10 text-[#EF4444]"}`}>
+                  <span className={`font-bold px-1.5 py-0.5 rounded ${lvl ==="high"?"bg-gain/10 text-gain": lvl ==="medium"?"bg-caution/10 text-caution":"bg-loss/10 text-loss"}`}>
                     {lvl} confidence
                   </span>
-                  <span className="text-[#6B7280]">Sources: {(dc.sources_used ?? []).join(", ")}</span>
-                  {dc.conflicts_count ? <span className="text-[#F59E0B]">{dc.conflicts_count} conflict(s)</span> : null}
+                  <span className="text-ink-3">Sources: {(dc.sources_used ?? []).join(", ")}</span>
+                  {dc.conflicts_count ? <span className="text-caution">{dc.conflicts_count} conflict(s)</span> : null}
                 </div>
               );
             })()}
-            <p className="text-xs text-[#6B7280] mt-2">Yellow rows = forward estimates ({(fs?.forward?.[0] as { source?: string } | undefined)?.source ?? "analyst consensus"})</p>
+            <p className="text-xs text-ink-3 mt-2">Yellow rows = forward estimates ({(fs?.forward?.[0] as { source?: string } | undefined)?.source ?? "analyst consensus"})</p>
           </SectionCard>
 
           {/* Comparables */}
           <SectionCard title="Peer Comparables" dataSource={liveComps ? "live" : "mixed"}>
             {compsLoading ? (
-              <div className="flex items-center gap-2 py-4 text-xs text-[#6B7280]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F5A623] animate-pulse" />
+              <div className="flex items-center gap-2 py-4 text-xs text-ink-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                 Fetching live data from Yahoo Finance...
               </div>
             ) : (
@@ -608,13 +608,13 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 <table className="w-full text-xs">
                   <thead>
                     <tr className="border-b border-white/08">
-                      <th className="text-left text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Ticker</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Rev</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">P/E</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">P/S</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">EBITDA Mgn</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">Net Mgn</th>
-                      <th className="text-right text-[#6B7280] pb-2 font-semibold uppercase tracking-wider">D/E</th>
+                      <th className="text-left text-ink-3 pb-2 font-semibold">Ticker</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">Rev</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">P/E</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">P/S</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">EBITDA Mgn</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">Net Mgn</th>
+                      <th className="text-right text-ink-3 pb-2 font-semibold">D/E</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -624,21 +624,21 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       // For P/E: lower is "cheaper" — green if we are cheaper
                       function peColor(peer: LiveComp) {
                         const sv = (subjectComp as LiveComp | undefined)?.pe_ratio;
-                        if (!sv || !peer.pe_ratio) return "text-[#6B7280]";
-                        return sv <= peer.pe_ratio ? "text-[#10B981]" : "text-[#EF4444]";
+                        if (!sv || !peer.pe_ratio) return "text-ink-3";
+                        return sv <= peer.pe_ratio ? "text-gain" : "text-loss";
                       }
                       return (
-                        <tr key={c.ticker} className={`border-b border-white/04 ${isSubject ? "bg-[#F5A623]/05" : ""}`}>
+                        <tr key={c.ticker} className={`border-b border-white/04 ${isSubject ?"bg-accent/5":""}`}>
                           <td className="py-2">
-                            <span className={`font-mono font-bold ${isSubject ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{c.ticker}</span>
-                            {isSubject && <span className="ml-1 text-[#F5A623] text-xs">(us)</span>}
+                            <span className={`font-bold ${isSubject ?"text-accent":"text-ink-1"}`}>{c.ticker}</span>
+                            {isSubject && <span className="ml-1 text-accent text-xs">(us)</span>}
                           </td>
-                          <td className="py-2 text-right font-mono text-[#E8EDF2]">{lc.revenue_bn != null ? `$${lc.revenue_bn.toFixed(1)}B` : "—"}</td>
-                          <td className={`py-2 text-right font-mono font-semibold ${isSubject ? "text-[#E8EDF2]" : peColor(lc)}`}>{lc.pe_ratio != null ? lc.pe_ratio.toFixed(1) + "x" : "—"}</td>
-                          <td className="py-2 text-right font-mono text-[#E8EDF2]">{lc.ps_ratio != null ? lc.ps_ratio.toFixed(1) + "x" : "—"}</td>
-                          <td className={`py-2 text-right font-mono font-semibold ${isSubject ? "text-[#E8EDF2]" : compColor("ebitda_margin_pct", c)}`}>{FmtPct(lc.ebitda_margin_pct)}</td>
-                          <td className={`py-2 text-right font-mono font-semibold ${isSubject ? "text-[#E8EDF2]" : compColor("net_margin_pct", c)}`}>{FmtPct(lc.net_margin_pct)}</td>
-                          <td className="py-2 text-right font-mono text-[#E8EDF2]">{lc.de_ratio != null ? lc.de_ratio.toFixed(1) + "x" : "—"}</td>
+                          <td className="py-2 text-right text-ink-1">{lc.revenue_bn != null ? `$${lc.revenue_bn.toFixed(1)}B` : "—"}</td>
+                          <td className={`py-2 text-right font-semibold ${isSubject ?"text-ink-1": peColor(lc)}`}>{lc.pe_ratio != null ? lc.pe_ratio.toFixed(1) + "x" : "—"}</td>
+                          <td className="py-2 text-right text-ink-1">{lc.ps_ratio != null ? lc.ps_ratio.toFixed(1) + "x" : "—"}</td>
+                          <td className={`py-2 text-right font-semibold ${isSubject ?"text-ink-1": compColor("ebitda_margin_pct", c)}`}>{FmtPct(lc.ebitda_margin_pct)}</td>
+                          <td className={`py-2 text-right font-semibold ${isSubject ?"text-ink-1": compColor("net_margin_pct", c)}`}>{FmtPct(lc.net_margin_pct)}</td>
+                          <td className="py-2 text-right text-ink-1">{lc.de_ratio != null ? lc.de_ratio.toFixed(1) + "x" : "—"}</td>
                         </tr>
                       );
                     })}
@@ -646,7 +646,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 </table>
               </div>
             )}
-            <p className="text-xs text-[#6B7280] mt-3">
+            <p className="text-xs text-ink-3 mt-3">
               {liveComps?.note && <span className="mr-2">Peers: {liveComps.note}.</span>}
               P/E &amp; margins: green = we are cheaper/more profitable. Data: Yahoo Finance (TTM).
             </p>
@@ -657,10 +657,10 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <SectionCard title="Market Analysis" dataSource={pipelineSource === "pipeline" ? "live" : "llm"}>
             {macroRegime && (
-              <div className={`mb-4 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider ${macroRegime === "RISK-OFF" ? "bg-[#EF4444]/10 text-[#EF4444]" : macroRegime === "RISK-ON" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#F59E0B]/10 text-[#F59E0B]"}`}>
+              <div className={`mb-4 px-3 py-2 rounded-lg text-xs font-bold ${macroRegime ==="RISK-OFF"?"bg-loss/10 text-loss": macroRegime ==="RISK-ON"?"bg-gain/10 text-gain":"bg-caution/10 text-caution"}`}>
                 Macro Regime: {macroRegime}
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(ma as any)?._favoured_themes && <span className="font-normal text-[#6B7280] ml-2">Favoured: {((ma as any)._favoured_themes as string[]).slice(0,3).join(", ")}</span>}
+                {(ma as any)?._favoured_themes && <span className="font-normal text-ink-3 ml-2">Favoured: {((ma as any)._favoured_themes as string[]).slice(0,3).join(", ")}</span>}
               </div>
             )}
             <div className="grid grid-cols-2 gap-3 mb-4">
@@ -670,19 +670,19 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 { label: "Competition", value: ma?.competition_intensity ?? "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-white/03 rounded-xl p-3">
-                  <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">{label}</p>
-                  <p className="text-sm font-semibold text-[#E8EDF2]">{value}</p>
+                  <p className="text-xs text-ink-3 mb-1">{label}</p>
+                  <p className="text-sm font-semibold text-ink-1">{value}</p>
                 </div>
               ))}
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Sector Trends</p>
-                <p className="text-sm text-[#E8EDF2] leading-relaxed">{ma?.sector_trends ?? "—"}</p>
+                <p className="text-xs font-semibold text-ink-3 mb-1">Sector Trends</p>
+                <p className="text-sm text-ink-1 leading-relaxed">{ma?.sector_trends ?? "—"}</p>
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Macro Factors</p>
-                <p className="text-sm text-[#E8EDF2] leading-relaxed">{ma?.macro_factors ?? "—"}</p>
+                <p className="text-xs font-semibold text-ink-3 mb-1">Macro Factors</p>
+                <p className="text-sm text-ink-1 leading-relaxed">{ma?.macro_factors ?? "—"}</p>
               </div>
             </div>
           </SectionCard>
@@ -690,27 +690,27 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           <SectionCard title="Quality of Earnings" dataSource="mixed">
             <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-white/03">
               <div>
-                <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">Economic Moat</p>
-                <p className={`text-xl font-display font-bold ${qe?.moat === "Wide" ? "text-[#10B981]" : qe?.moat === "Narrow" ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>{qe?.moat ?? "—"}</p>
+                <p className="text-xs text-ink-3 mb-0.5">Economic Moat</p>
+                <p className={`text-xl font-display font-bold ${qe?.moat ==="Wide"?"text-gain": qe?.moat ==="Narrow"?"text-caution":"text-loss"}`}>{qe?.moat ?? "—"}</p>
               </div>
               <div className="ml-4">
-                <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">Sustainability</p>
-                <p className="text-sm text-[#E8EDF2]">{qe?.sustainability ?? "—"}</p>
+                <p className="text-xs text-ink-3 mb-0.5">Sustainability</p>
+                <p className="text-sm text-ink-1">{qe?.sustainability ?? "—"}</p>
               </div>
             </div>
             <div className="mb-3">
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Competitive Advantages</p>
+              <p className="text-xs font-semibold text-ink-3 mb-2">Competitive Advantages</p>
               <ul className="space-y-1.5">
                 {((qe?.competitive_advantages ?? []) as string[]).map((a, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-[#E8EDF2]">
-                    <span className="text-[#10B981] mt-0.5">▸</span>{a}
+                  <li key={i} className="flex items-start gap-2 text-sm text-ink-1">
+                    <span className="text-gain mt-0.5">▸</span>{a}
                   </li>
                 ))}
               </ul>
             </div>
             <div>
-              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Barriers to Entry</p>
-              <p className="text-sm text-[#E8EDF2] leading-relaxed">{qe?.barriers_to_entry ?? "—"}</p>
+              <p className="text-xs font-semibold text-ink-3 mb-1">Barriers to Entry</p>
+              <p className="text-sm text-ink-1 leading-relaxed">{qe?.barriers_to_entry ?? "—"}</p>
             </div>
           </SectionCard>
         </div>
@@ -728,51 +728,51 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                 { label: "Expected ROI 12M", value: val?.expected_roi_12m ?? val?.expected_roi_2_3yr ?? "—" },
               ].map(({ label, value }) => (
                 <div key={label} className="bg-white/03 rounded-xl p-3">
-                  <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">{label}</p>
-                  <p className="text-sm font-mono font-semibold text-[#E8EDF2]">{value}</p>
+                  <p className="text-xs text-ink-3 mb-1">{label}</p>
+                  <p className="text-sm font-semibold text-ink-1">{value}</p>
                 </div>
               ))}
             </div>
             {val?.implied_multiples && (
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Implied Multiples</p>
-                <p className="text-sm text-[#E8EDF2] leading-relaxed">{val.implied_multiples}</p>
+                <p className="text-xs font-semibold text-ink-3 mb-1">Implied Multiples</p>
+                <p className="text-sm text-ink-1 leading-relaxed">{val.implied_multiples}</p>
               </div>
             )}
             {val?.is_forecast_realistic && (
               <div className="mt-3">
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Forecast Realism</p>
-                <p className="text-sm text-[#E8EDF2] leading-relaxed">{val.is_forecast_realistic}</p>
+                <p className="text-xs font-semibold text-ink-3 mb-1">Forecast Realism</p>
+                <p className="text-sm text-ink-1 leading-relaxed">{val.is_forecast_realistic}</p>
               </div>
             )}
           </SectionCard>
 
           <SectionCard title="Market Timing" dataSource="mixed">
-            <div className="p-4 rounded-xl bg-[#F59E0B]/10 border border-[#F59E0B]/20 mb-4">
-              <p className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider mb-2">Why Entry NOW</p>
+            <div className="p-4 rounded-xl bg-caution/10 border border-caution/20 mb-4">
+              <p className="text-xs font-bold text-caution mb-2">Why Entry NOW</p>
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-              <p className="text-sm text-[#E8EDF2] leading-relaxed">{(position as any).market_timing ?? "Quant timing signals not available for this position."}</p>
+              <p className="text-sm text-ink-1 leading-relaxed">{(position as any).market_timing ?? "Quant timing signals not available for this position."}</p>
             </div>
             {arh && (
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">Analyst Ratings (24m)</p>
+                <p className="text-xs font-semibold text-ink-3 mb-3">Analyst Ratings (24m)</p>
                 <div className="grid grid-cols-3 gap-2 mb-3">
                   {[
-                    { label: "Consensus", value: arh.current_consensus, color: arh.current_consensus === "Buy" ? "#10B981" : arh.current_consensus === "Hold" ? "#F59E0B" : "#EF4444" },
-                    { label: "Analysts", value: arh.num_analysts != null ? String(arh.num_analysts) : "—", color: "#E8EDF2" },
-                    { label: "Avg Target", value: arh.avg_target_price != null ? `$${arh.avg_target_price}` : "—", color: "#E8EDF2" },
+                    { label: "Consensus", value: arh.current_consensus, color: arh.current_consensus === "Buy" ? "#4DB887" : arh.current_consensus === "Hold" ? "#E39A57" : "#E2706A" },
+                    { label: "Analysts", value: arh.num_analysts != null ? String(arh.num_analysts) : "—", color: "#ECEDEE" },
+                    { label: "Avg Target", value: arh.avg_target_price != null ? `$${arh.avg_target_price}` : "—", color: "#ECEDEE" },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="bg-white/03 rounded-xl p-2.5 text-center">
-                      <p className="text-xs text-[#6B7280] mb-1">{label}</p>
+                      <p className="text-xs text-ink-3 mb-1">{label}</p>
                       <p className="text-sm font-bold" style={{ color }}>{value}</p>
                     </div>
                   ))}
                 </div>
                 <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="text-[#6B7280]">24m trend: <span className={arh.trend_24m === "Upgrading" ? "text-[#10B981]" : arh.trend_24m === "Downgrading" ? "text-[#EF4444]" : "text-[#F59E0B]"}>{arh.trend_24m}</span></span>
-                  {arh.implied_upside_pct != null && <span className={`${arh.implied_upside_pct >= 0 ? "text-[#10B981]" : "text-[#EF4444]"} font-mono font-bold`}>{arh.implied_upside_pct >= 0 ? "+" : ""}{arh.implied_upside_pct.toFixed(0)}% implied {arh.implied_upside_pct >= 0 ? "upside" : "downside"}</span>}
+                  <span className="text-ink-3">24m trend: <span className={arh.trend_24m === "Upgrading" ? "text-gain" : arh.trend_24m === "Downgrading" ? "text-loss" : "text-caution"}>{arh.trend_24m}</span></span>
+                  {arh.implied_upside_pct != null && <span className={`${arh.implied_upside_pct >= 0 ?"text-gain":"text-loss"} font-bold`}>{arh.implied_upside_pct >= 0 ? "+" : ""}{arh.implied_upside_pct.toFixed(0)}% implied {arh.implied_upside_pct >= 0 ? "upside" : "downside"}</span>}
                 </div>
-                <p className="text-xs text-[#6B7280] leading-relaxed mt-2">{arh.summary}</p>
+                <p className="text-xs text-ink-3 leading-relaxed mt-2">{arh.summary}</p>
               </div>
             )}
           </SectionCard>
@@ -781,15 +781,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Agent scores ── */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Scores at Entry</h2>
+            <h2 className="font-display text-lg font-bold text-ink-1">Agent Scores at Entry</h2>
             <div className="flex items-center gap-2">
               {agentSpread != null && (
-                <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${agentSpread >= 20 ? "bg-[#F59E0B]/15 text-[#F59E0B]" : "bg-white/05 text-[#6B7280]"}`}>
+                <span className={`text-micro px-2 py-0.5 rounded ${agentSpread >= 20 ?"bg-caution/15 text-caution":"bg-white/05 text-ink-3"}`}>
                   Spread {agentSpread}pts
                 </span>
               )}
               {wasDebated && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#F59E0B]/15 text-[#F59E0B]">
+                <span className="text-micro font-bold px-2 py-0.5 rounded bg-caution/15 text-caution">
                   {debateReason === "likely_entry" ? "Mandatory debate" : "Contested debate"}
                 </span>
               )}
@@ -799,17 +799,17 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           {/* Bulls vs Bears summary */}
           {allAgentScores.length > 0 && (
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className={`rounded-xl p-3 border ${bullishAgents.length > 0 ? "border-[#10B981]/25 bg-[#10B981]/06" : "border-white/05 bg-white/02"}`}>
-                <p className="text-[10px] text-[#10B981] font-bold uppercase tracking-wider mb-1">Bulls ({bullishAgents.length})</p>
-                <p className="text-xs text-[#6B7280]">{bullishAgents.length > 0 ? bullishAgents.join(", ") : "—"}</p>
+              <div className={`rounded-xl p-3 border ${bullishAgents.length > 0 ?"border-gain/25 bg-gain/6":"border-white/05 bg-white/02"}`}>
+                <p className="text-micro text-gain font-bold mb-1">Bulls ({bullishAgents.length})</p>
+                <p className="text-xs text-ink-3">{bullishAgents.length > 0 ? bullishAgents.join(", ") : "—"}</p>
               </div>
-              <div className={`rounded-xl p-3 border ${neutralAgents.length > 0 ? "border-[#F5A623]/20 bg-[#F5A623]/05" : "border-white/05 bg-white/02"}`}>
-                <p className="text-[10px] text-[#F5A623] font-bold uppercase tracking-wider mb-1">Neutral ({neutralAgents.length})</p>
-                <p className="text-xs text-[#6B7280]">{neutralAgents.length > 0 ? neutralAgents.join(", ") : "—"}</p>
+              <div className={`rounded-xl p-3 border ${neutralAgents.length > 0 ?"border-accent/20 bg-accent/5":"border-white/05 bg-white/02"}`}>
+                <p className="text-micro text-accent font-bold mb-1">Neutral ({neutralAgents.length})</p>
+                <p className="text-xs text-ink-3">{neutralAgents.length > 0 ? neutralAgents.join(", ") : "—"}</p>
               </div>
-              <div className={`rounded-xl p-3 border ${bearishAgents.length > 0 ? "border-[#EF4444]/25 bg-[#EF4444]/06" : "border-white/05 bg-white/02"}`}>
-                <p className="text-[10px] text-[#EF4444] font-bold uppercase tracking-wider mb-1">Bears ({bearishAgents.length})</p>
-                <p className="text-xs text-[#6B7280]">{bearishAgents.length > 0 ? bearishAgents.join(", ") : "—"}</p>
+              <div className={`rounded-xl p-3 border ${bearishAgents.length > 0 ?"border-loss/25 bg-loss/6":"border-white/05 bg-white/02"}`}>
+                <p className="text-micro text-loss font-bold mb-1">Bears ({bearishAgents.length})</p>
+                <p className="text-xs text-ink-3">{bearishAgents.length > 0 ? bearishAgents.join(", ") : "—"}</p>
               </div>
             </div>
           )}
@@ -821,20 +821,20 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
         {/* ── Agent Debate (iterative challenge/response/resolution) ── */}
         {agentDebate && (
-          <div className="card p-6 mb-6 border border-[#F59E0B]/20">
+          <div className="card p-6 mb-6 border border-caution/20">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Debate</h2>
-                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-[#F59E0B]/15 text-[#F59E0B]">
+                <h2 className="font-display text-lg font-bold text-ink-1">Agent Debate</h2>
+                <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-caution/15 text-caution">
                   Spread {agentDebate.spread ?? "≥20"} pts
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs">
-                <span className="text-[#6B7280]">
-                  <span className="text-[#10B981] font-bold">{agentDebate.high_agent}</span>
+                <span className="text-ink-3">
+                  <span className="text-gain font-bold">{agentDebate.high_agent}</span>
                   {" "}({agentDebate.high_agent_score})
                   {" vs "}
-                  <span className="text-[#F59E0B] font-bold">{agentDebate.dissenter}</span>
+                  <span className="text-caution font-bold">{agentDebate.dissenter}</span>
                   {" "}({agentDebate.original_dissenter_score})
                 </span>
               </div>
@@ -843,8 +843,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             {/* Tension identified */}
             {agentDebate.tension_identified && (
               <div className="mb-4 px-4 py-3 rounded-xl bg-white/03 border border-white/06">
-                <p className="text-[10px] text-[#6B7280] uppercase tracking-wider mb-1">Tension identified</p>
-                <p className="text-xs text-[#9CA3AF] italic">{agentDebate.tension_identified}</p>
+                <p className="text-micro text-ink-3 mb-1">Tension identified</p>
+                <p className="text-xs text-ink-2">{agentDebate.tension_identified}</p>
               </div>
             )}
 
@@ -852,61 +852,61 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             <div className="space-y-3">
               {/* Step 1: Committee challenge */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F5A623]/15 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[#F5A623]">C</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 flex items-center justify-center">
+                  <span className="text-micro font-bold text-accent">C</span>
                 </div>
                 <div className="flex-1 bg-white/03 rounded-xl p-4">
-                  <p className="text-[10px] text-[#F5A623] uppercase tracking-wider font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
-                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.committee_challenge}</p>
+                  <p className="text-micro text-accent font-bold mb-1">Committee challenge → {agentDebate.dissenter}</p>
+                  <p className="text-sm text-ink-1 leading-relaxed">{agentDebate.committee_challenge}</p>
                 </div>
               </div>
 
               {/* Step 2: Analyst response */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F59E0B]/15 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[#F59E0B]">A</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-caution/15 flex items-center justify-center">
+                  <span className="text-micro font-bold text-caution">A</span>
                 </div>
                 <div className="flex-1 bg-white/03 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-[10px] text-[#F59E0B] uppercase tracking-wider font-bold">{agentDebate.dissenter} response</p>
+                    <p className="text-micro text-caution font-bold">{agentDebate.dissenter} response</p>
                     <div className="flex items-center gap-2 text-xs">
-                      <span className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wider text-[10px] ${
-                        agentDebate.analyst_outcome === "held"
-                          ? "bg-white/08 text-[#6B7280]"
-                          : agentDebate.analyst_outcome === "revised_up"
-                          ? "bg-[#10B981]/10 text-[#10B981]"
-                          : "bg-[#EF4444]/10 text-[#EF4444]"
-                      }`}>
+                      <span className={`px-1.5 py-0.5 rounded font-bold text-micro ${
+ agentDebate.analyst_outcome ==="held"
+ ?"bg-white/08 text-ink-3"
+ : agentDebate.analyst_outcome ==="revised_up"
+ ?"bg-gain/10 text-gain"
+ :"bg-loss/10 text-loss"
+ }`}>
                         {agentDebate.analyst_outcome === "held" ? "held" : agentDebate.analyst_outcome === "revised_up" ? `↑ +${agentDebate.analyst_score_delta}` : `↓ ${agentDebate.analyst_score_delta}`}
                       </span>
-                      <span className="font-mono text-[#E8EDF2]">{agentDebate.analyst_revised_score ?? agentDebate.original_dissenter_score}</span>
+                      <span className="text-ink-1">{agentDebate.analyst_revised_score ?? agentDebate.original_dissenter_score}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.analyst_response}</p>
+                  <p className="text-sm text-ink-1 leading-relaxed">{agentDebate.analyst_response}</p>
                 </div>
               </div>
 
               {/* Step 3: Committee resolution */}
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#F5A623]/15 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-[#F5A623]">R</span>
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 flex items-center justify-center">
+                  <span className="text-micro font-bold text-accent">R</span>
                 </div>
                 <div className="flex-1 bg-white/03 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-1">
-                    <p className="text-[10px] text-[#F5A623] uppercase tracking-wider font-bold">Committee resolution</p>
+                    <p className="text-micro text-accent font-bold">Committee resolution</p>
                     <div className="flex items-center gap-2 text-xs">
-                      <span className="text-[#6B7280]">Final {agentDebate.dissenter} score:</span>
-                      <span className="font-mono font-bold text-[#E8EDF2]">{agentDebate.final_dissenter_score}</span>
+                      <span className="text-ink-3">Final {agentDebate.dissenter} score:</span>
+                      <span className="font-bold text-ink-1">{agentDebate.final_dissenter_score}</span>
                       {agentDebate.final_dissenter_score !== agentDebate.original_dissenter_score && (
-                        <span className={`font-mono text-xs ${(agentDebate.final_dissenter_score ?? 0) > (agentDebate.original_dissenter_score ?? 0) ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                        <span className={`text-xs ${(agentDebate.final_dissenter_score ?? 0) > (agentDebate.original_dissenter_score ?? 0) ?"text-gain":"text-loss"}`}>
                           ({(agentDebate.final_dissenter_score ?? 0) > (agentDebate.original_dissenter_score ?? 0) ? "+" : ""}{(agentDebate.final_dissenter_score ?? 0) - (agentDebate.original_dissenter_score ?? 0)})
                         </span>
                       )}
                     </div>
                   </div>
-                  <p className="text-sm text-[#C4CDD6] leading-relaxed">{agentDebate.committee_resolution}</p>
+                  <p className="text-sm text-ink-1 leading-relaxed">{agentDebate.committee_resolution}</p>
                   {agentDebate.committee_resolution_reasoning && (
-                    <p className="text-xs text-[#6B7280] mt-2 italic">Key factor: {agentDebate.committee_resolution_reasoning}</p>
+                    <p className="text-xs text-ink-3 mt-2">Key factor: {agentDebate.committee_resolution_reasoning}</p>
                   )}
                 </div>
               </div>
@@ -917,15 +917,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Committee Risk & Catalyst Assessment ── */}
         {(committeeRisks.length > 0 || committeeCatalysts.length > 0) && (
           <div className="card p-6 mb-6">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Committee Risk &amp; Catalyst Assessment</h2>
+            <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Committee Risk &amp; Catalyst Assessment</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {committeeCatalysts.length > 0 && (
                 <div>
-                  <p className="text-[10px] text-[#10B981] font-bold uppercase tracking-wider mb-2">Key Catalysts</p>
+                  <p className="text-micro text-gain font-bold mb-2">Key Catalysts</p>
                   <ul className="space-y-1.5">
                     {committeeCatalysts.map((c, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-[#9CA3AF]">
-                        <span className="text-[#10B981] flex-shrink-0 mt-0.5">→</span>
+                      <li key={i} className="flex gap-2 text-xs text-ink-2">
+                        <span className="text-gain flex-shrink-0 mt-0.5">→</span>
                         <span>{c}</span>
                       </li>
                     ))}
@@ -934,11 +934,11 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               )}
               {committeeRisks.length > 0 && (
                 <div>
-                  <p className="text-[10px] text-[#EF4444] font-bold uppercase tracking-wider mb-2">Key Risks</p>
+                  <p className="text-micro text-loss font-bold mb-2">Key Risks</p>
                   <ul className="space-y-1.5">
                     {committeeRisks.map((r, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-[#9CA3AF]">
-                        <span className="text-[#EF4444] flex-shrink-0 mt-0.5">⚠</span>
+                      <li key={i} className="flex gap-2 text-xs text-ink-2">
+                        <span className="text-loss flex-shrink-0 mt-0.5">⚠</span>
                         <span>{r}</span>
                       </li>
                     ))}
@@ -956,30 +956,30 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <SectionCard title="Quant Technical" dataSource="live">
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {[
-                    { label: "Trend", value: technicalData.trend ?? "—", color: technicalData.trend === "uptrend" ? "#10B981" : technicalData.trend === "downtrend" ? "#EF4444" : "#F59E0B" },
-                    { label: "RSI (14)", value: technicalData.rsi_14 != null ? technicalData.rsi_14.toFixed(1) : "—", color: technicalData.rsi_14 < 30 ? "#10B981" : technicalData.rsi_14 > 70 ? "#EF4444" : "#E8EDF2" },
-                    { label: "MACD", value: technicalData.macd_signal ?? "—", color: technicalData.macd_signal === "bullish" ? "#10B981" : "#EF4444" },
-                    { label: "Volume", value: technicalData.volume_trend ?? "—", color: "#E8EDF2" },
-                    { label: "Support", value: technicalData.support != null ? `$${technicalData.support.toFixed(2)}` : "—", color: "#10B981" },
-                    { label: "Resistance", value: technicalData.resistance != null ? `$${technicalData.resistance.toFixed(2)}` : "—", color: "#EF4444" },
+                    { label: "Trend", value: technicalData.trend ?? "—", color: technicalData.trend === "uptrend" ? "#4DB887" : technicalData.trend === "downtrend" ? "#E2706A" : "#E39A57" },
+                    { label: "RSI (14)", value: technicalData.rsi_14 != null ? technicalData.rsi_14.toFixed(1) : "—", color: technicalData.rsi_14 < 30 ? "#4DB887" : technicalData.rsi_14 > 70 ? "#E2706A" : "#ECEDEE" },
+                    { label: "MACD", value: technicalData.macd_signal ?? "—", color: technicalData.macd_signal === "bullish" ? "#4DB887" : "#E2706A" },
+                    { label: "Volume", value: technicalData.volume_trend ?? "—", color: "#ECEDEE" },
+                    { label: "Support", value: technicalData.support != null ? `$${technicalData.support.toFixed(2)}` : "—", color: "#4DB887" },
+                    { label: "Resistance", value: technicalData.resistance != null ? `$${technicalData.resistance.toFixed(2)}` : "—", color: "#E2706A" },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="bg-white/03 rounded-lg p-2">
-                      <p className="text-xs text-[#6B7280] mb-0.5">{label}</p>
-                      <p className="text-sm font-mono font-semibold" style={{ color }}>{value}</p>
+                      <p className="text-xs text-ink-3 mb-0.5">{label}</p>
+                      <p className="text-sm font-semibold" style={{ color }}>{value}</p>
                     </div>
                   ))}
                 </div>
                 <div className="mb-2">
-                  <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">Trade Type</p>
-                  <span className="text-xs font-bold text-[#F5A623] bg-[#F5A623]/10 px-2 py-0.5 rounded">{technicalData.trade_type ?? "—"}</span>
-                  <span className={`ml-2 text-xs font-bold px-2 py-0.5 rounded ${technicalData.forward_bias === "bullish" ? "text-[#10B981] bg-[#10B981]/10" : "text-[#EF4444] bg-[#EF4444]/10"}`}>{technicalData.forward_bias ?? "—"}</span>
+                  <p className="text-xs text-ink-3 mb-1">Trade Type</p>
+                  <span className="text-xs font-bold text-accent bg-accent/10 px-2 py-0.5 rounded">{technicalData.trade_type ?? "—"}</span>
+                  <span className={`ml-2 text-xs font-bold px-2 py-0.5 rounded ${technicalData.forward_bias ==="bullish"?"text-gain bg-gain/10":"text-loss bg-loss/10"}`}>{technicalData.forward_bias ?? "—"}</span>
                 </div>
                 {technicalData.key_patterns?.length > 0 && (
                   <div>
-                    <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-1">Patterns</p>
+                    <p className="text-xs text-ink-3 mb-1">Patterns</p>
                     <div className="flex flex-wrap gap-1">
                       {technicalData.key_patterns.map((p: string) => (
-                        <span key={p} className="text-xs text-[#6B7280] bg-white/05 px-1.5 py-0.5 rounded">{p.replace(/_/g, " ")}</span>
+                        <span key={p} className="text-xs text-ink-3 bg-white/05 px-1.5 py-0.5 rounded">{p.replace(/_/g, " ")}</span>
                       ))}
                     </div>
                   </div>
@@ -991,27 +991,27 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               <SectionCard title="Sentiment Analysis" dataSource="live">
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {[
-                    { label: "Analyst Consensus", value: sentimentData.analyst_consensus ?? "—", color: sentimentData.analyst_consensus === "Buy" ? "#10B981" : sentimentData.analyst_consensus === "Sell" ? "#EF4444" : "#F59E0B" },
-                    { label: "Upside to Target", value: sentimentData.price_target_upside_pct != null ? `${sentimentData.price_target_upside_pct >= 0 ? "+" : ""}${sentimentData.price_target_upside_pct.toFixed(1)}%` : "—", color: (sentimentData.price_target_upside_pct ?? 0) >= 0 ? "#10B981" : "#EF4444" },
-                    { label: "Short Interest", value: sentimentData.short_interest_pct != null ? `${sentimentData.short_interest_pct.toFixed(1)}%` : "—", color: "#E8EDF2" },
-                    { label: "Squeeze Risk", value: sentimentData.short_squeeze_risk ?? "—", color: sentimentData.short_squeeze_risk === "high" ? "#EF4444" : sentimentData.short_squeeze_risk === "medium" ? "#F59E0B" : "#10B981" },
+                    { label: "Analyst Consensus", value: sentimentData.analyst_consensus ?? "—", color: sentimentData.analyst_consensus === "Buy" ? "#4DB887" : sentimentData.analyst_consensus === "Sell" ? "#E2706A" : "#E39A57" },
+                    { label: "Upside to Target", value: sentimentData.price_target_upside_pct != null ? `${sentimentData.price_target_upside_pct >= 0 ? "+" : ""}${sentimentData.price_target_upside_pct.toFixed(1)}%` : "—", color: (sentimentData.price_target_upside_pct ?? 0) >= 0 ? "#4DB887" : "#E2706A" },
+                    { label: "Short Interest", value: sentimentData.short_interest_pct != null ? `${sentimentData.short_interest_pct.toFixed(1)}%` : "—", color: "#ECEDEE" },
+                    { label: "Squeeze Risk", value: sentimentData.short_squeeze_risk ?? "—", color: sentimentData.short_squeeze_risk === "high" ? "#E2706A" : sentimentData.short_squeeze_risk === "medium" ? "#E39A57" : "#4DB887" },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="bg-white/03 rounded-lg p-2">
-                      <p className="text-xs text-[#6B7280] mb-0.5">{label}</p>
-                      <p className="text-sm font-mono font-semibold" style={{ color }}>{value}</p>
+                      <p className="text-xs text-ink-3 mb-0.5">{label}</p>
+                      <p className="text-sm font-semibold" style={{ color }}>{value}</p>
                     </div>
                   ))}
                 </div>
                 {sentimentData.analyst_target_live && (
-                  <div className="mb-2 text-xs text-[#6B7280]">
-                    Live targets: <span className="text-[#10B981]">Low ${sentimentData.analyst_low_live?.toFixed(0)}</span> / <span className="text-[#E8EDF2]">${sentimentData.analyst_target_live?.toFixed(0)}</span> / <span className="text-[#10B981]">High ${sentimentData.analyst_high_live?.toFixed(0)}</span>
+                  <div className="mb-2 text-xs text-ink-3">
+                    Live targets: <span className="text-gain">Low ${sentimentData.analyst_low_live?.toFixed(0)}</span> / <span className="text-ink-1">${sentimentData.analyst_target_live?.toFixed(0)}</span> / <span className="text-gain">High ${sentimentData.analyst_high_live?.toFixed(0)}</span>
                     {sentimentData.num_analysts && <span className="ml-1">({sentimentData.num_analysts} analysts)</span>}
                   </div>
                 )}
                 {sentimentData.contrarian_signal && (
-                  <div className="mb-2 px-2 py-1 rounded bg-[#F59E0B]/10 text-xs text-[#F59E0B] font-semibold">Contrarian signal active</div>
+                  <div className="mb-2 px-2 py-1 rounded bg-caution/10 text-xs text-caution font-semibold">Contrarian signal active</div>
                 )}
-                <p className="text-xs text-[#6B7280] leading-relaxed">{sentimentData.sentiment_summary}</p>
+                <p className="text-xs text-ink-3 leading-relaxed">{sentimentData.sentiment_summary}</p>
               </SectionCard>
             )}
 
@@ -1021,15 +1021,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   {newsCatalysts.map((c, i) => (
                     <div key={i} className="py-2 border-b border-white/05 last:border-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${c.direction === "LONG" ? "bg-[#10B981]/10 text-[#10B981]" : "bg-[#EF4444]/10 text-[#EF4444]"}`}>{c.direction}</span>
-                        <span className="text-xs text-[#6B7280]">{c.catalyst_type?.replace(/_/g, " ")}</span>
+                        <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${c.direction ==="LONG"?"bg-gain/10 text-gain":"bg-loss/10 text-loss"}`}>{c.direction}</span>
+                        <span className="text-xs text-ink-3">{c.catalyst_type?.replace(/_/g, " ")}</span>
                         {(() => {
                           const conf = typeof c.signal_confidence === "object" ? (c.signal_confidence?.level ?? "medium") : (c.signal_confidence ?? "medium");
-                          return <span className={`ml-auto text-xs font-mono ${conf === "high" ? "text-[#10B981]" : conf === "low" ? "text-[#EF4444]" : "text-[#F59E0B]"}`}>{conf}</span>;
+                          return <span className={`ml-auto text-xs ${conf ==="high"?"text-gain": conf ==="low"?"text-loss":"text-caution"}`}>{conf}</span>;
                         })()}
                       </div>
-                      <p className="text-xs font-semibold text-[#E8EDF2] mb-0.5">{c.catalyst}</p>
-                      <p className="text-xs text-[#6B7280] leading-relaxed">{c.reasoning}</p>
+                      <p className="text-xs font-semibold text-ink-1 mb-0.5">{c.catalyst}</p>
+                      <p className="text-xs text-ink-3 leading-relaxed">{c.reasoning}</p>
                     </div>
                   ))}
                 </div>
@@ -1044,20 +1044,20 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             {mgmt && (
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">CEO</p>
-                  <p className="text-sm text-[#E8EDF2] leading-relaxed">{mgmt.ceo}</p>
+                  <p className="text-xs font-semibold text-ink-3 mb-1">CEO</p>
+                  <p className="text-sm text-ink-1 leading-relaxed">{mgmt.ceo}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Track Record</p>
-                  <p className="text-sm text-[#E8EDF2] leading-relaxed">{mgmt.track_record}</p>
+                  <p className="text-xs font-semibold text-ink-3 mb-1">Track Record</p>
+                  <p className="text-sm text-ink-1 leading-relaxed">{mgmt.track_record}</p>
                 </div>
                 {mgmt.red_flags ? (
-                  <div className="p-3 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/20">
-                    <p className="text-xs font-bold text-[#EF4444] uppercase tracking-wider mb-1">Red Flags</p>
-                    <p className="text-sm text-[#E8EDF2]">{mgmt.red_flags}</p>
+                  <div className="p-3 rounded-xl bg-loss/10 border border-loss/20">
+                    <p className="text-xs font-bold text-loss mb-1">Red Flags</p>
+                    <p className="text-sm text-ink-1">{mgmt.red_flags}</p>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs text-[#10B981]">
+                  <div className="flex items-center gap-2 text-xs text-gain">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20,6 9,17 4,12" /></svg>
                     No red flags identified
                   </div>
@@ -1076,22 +1076,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                     { label: "Float", value: ct.float_pct != null ? `${ct.float_pct}%` : "—" },
                   ].map(({ label, value }) => (
                     <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
-                      <p className="text-xs text-[#6B7280] mb-1">{label}</p>
-                      <p className="text-lg font-display font-bold text-[#E8EDF2]">{value}</p>
+                      <p className="text-xs text-ink-3 mb-1">{label}</p>
+                      <p className="text-lg font-display font-bold text-ink-1">{value}</p>
                     </div>
                   ))}
                 </div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Major Holders</p>
+                <p className="text-xs font-semibold text-ink-3 mb-2">Major Holders</p>
                 <div className="space-y-2">
                   {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {((ct as any).major_holders ?? []).map((h: any) => (
                     <div key={h.name} className="flex items-center justify-between">
-                      <span className="text-xs text-[#E8EDF2]">{h.name}</span>
+                      <span className="text-xs text-ink-1">{h.name}</span>
                       <div className="flex items-center gap-2">
                         <div className="w-20 h-1.5 rounded-full bg-white/10 overflow-hidden">
-                          <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${Math.min(h.pct * 3, 100)}%` }} />
+                          <div className="h-full rounded-full bg-accent" style={{ width: `${Math.min(h.pct * 3, 100)}%` }} />
                         </div>
-                        <span className="text-xs font-mono text-[#6B7280] w-8 text-right">{h.pct}%</span>
+                        <span className="text-xs text-ink-3 w-8 text-right">{h.pct}%</span>
                       </div>
                     </div>
                   ))}
@@ -1104,8 +1104,8 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
         {/* ── Company Info ── */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Company Overview</h2>
-            <span className="text-xs font-medium px-2 py-0.5 rounded-md text-[#F59E0B] bg-[#F59E0B]/10">LLM estimate — may be stale</span>
+            <h2 className="font-display text-lg font-bold text-ink-1">Company Overview</h2>
+            <span className="text-xs font-medium px-2 py-0.5 rounded-md text-caution bg-caution/10">LLM estimate — may be stale</span>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
@@ -1115,37 +1115,37 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   { label: "Employees", value: ci?.employees != null ? ci.employees.toLocaleString() : "—" },
                 ].map(({ label, value }) => (
                   <div key={label}>
-                    <p className="text-xs text-[#6B7280] uppercase tracking-wider mb-0.5">{label}</p>
-                    <p className="text-sm font-semibold text-[#E8EDF2]">{value}</p>
+                    <p className="text-xs text-ink-3 mb-0.5">{label}</p>
+                    <p className="text-sm font-semibold text-ink-1">{value}</p>
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-[#6B7280] leading-relaxed">{ci?.overview ?? "—"}</p>
+              <p className="text-sm text-ink-3 leading-relaxed">{ci?.overview ?? "—"}</p>
             </div>
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Revenue Segments</p>
+                <p className="text-xs font-semibold text-ink-3 mb-2">Revenue Segments</p>
                 <div className="space-y-2">
                   {cleanSegments(ci?.revenue_segments).map((seg) => (
                     <div key={seg.segment}>
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-[#E8EDF2]">{seg.segment}</span>
-                        <span className="text-[#6B7280] font-mono">{seg.weight_pct}%</span>
+                        <span className="text-ink-1">{seg.segment}</span>
+                        <span className="text-ink-3">{seg.weight_pct}%</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full rounded-full bg-[#F5A623]" style={{ width: `${seg.weight_pct}%` }} />
+                        <div className="h-full rounded-full bg-accent" style={{ width: `${seg.weight_pct}%` }} />
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-2">Geography</p>
+                <p className="text-xs font-semibold text-ink-3 mb-2">Geography</p>
                 <div className="space-y-1.5">
                   {((ci?.geography_breakdown ?? []) as any[]).map((g) => (
                     <div key={g.region} className="flex justify-between text-xs">
-                      <span className="text-[#E8EDF2]">{g.region}</span>
-                      <span className="text-[#6B7280] font-mono">{g.pct}%</span>
+                      <span className="text-ink-1">{g.region}</span>
+                      <span className="text-ink-3">{g.pct}%</span>
                     </div>
                   ))}
                 </div>
@@ -1170,15 +1170,15 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       { label: "1 Year",  value: hp.ret_1yr != null ? `${Number(hp.ret_1yr) >= 0 ? "+" : ""}${Number(hp.ret_1yr).toFixed(1)}%` : "—", positive: Number(hp.ret_1yr) >= 0 },
                     ].map(({ label, value, positive }) => (
                       <div key={label} className="bg-white/03 rounded-xl p-3 text-center">
-                        <p className="text-xs text-[#6B7280] mb-1">{label}</p>
-                        <p className={`text-lg font-display font-bold font-mono ${positive ? "text-[#10B981]" : "text-[#EF4444]"}`}>{value}</p>
+                        <p className="text-xs text-ink-3 mb-1">{label}</p>
+                        <p className={`text-lg font-display font-bold ${positive ?"text-gain":"text-loss"}`}>{value}</p>
                       </div>
                     ))}
                   </div>
                   {hp.vs_spy_1yr != null && (
                     <div className="px-3 py-2.5 rounded-xl bg-white/03 flex justify-between items-center mb-3">
-                      <span className="text-xs text-[#6B7280]">vs S&P 500 (1yr)</span>
-                      <span className={`text-sm font-mono font-bold ${Number(hp.vs_spy_1yr) >= 0 ? "text-[#10B981]" : "text-[#EF4444]"}`}>
+                      <span className="text-xs text-ink-3">vs S&P 500 (1yr)</span>
+                      <span className={`text-sm font-bold ${Number(hp.vs_spy_1yr) >= 0 ?"text-gain":"text-loss"}`}>
                         {Number(hp.vs_spy_1yr) >= 0 ? "+" : ""}{Number(hp.vs_spy_1yr).toFixed(1)}%
                       </span>
                     </div>
@@ -1186,21 +1186,21 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   {(hp.high_52w || hp.low_52w) && (
                     <div className="grid grid-cols-2 gap-2">
                       {hp.high_52w && (
-                        <div className="px-3 py-2 rounded-lg bg-[#10B981]/08">
-                          <p className="text-[10px] text-[#6B7280] mb-0.5">52W High</p>
-                          <p className="text-sm font-mono text-[#10B981] font-bold">${Number(hp.high_52w).toFixed(2)}</p>
+                        <div className="px-3 py-2 rounded-lg bg-gain/8">
+                          <p className="text-micro text-ink-3 mb-0.5">52W High</p>
+                          <p className="text-sm text-gain font-bold">${Number(hp.high_52w).toFixed(2)}</p>
                         </div>
                       )}
                       {hp.low_52w && (
-                        <div className="px-3 py-2 rounded-lg bg-[#EF4444]/08">
-                          <p className="text-[10px] text-[#6B7280] mb-0.5">52W Low</p>
-                          <p className="text-sm font-mono text-[#EF4444] font-bold">${Number(hp.low_52w).toFixed(2)}</p>
+                        <div className="px-3 py-2 rounded-lg bg-loss/8">
+                          <p className="text-micro text-ink-3 mb-0.5">52W Low</p>
+                          <p className="text-sm text-loss font-bold">${Number(hp.low_52w).toFixed(2)}</p>
                         </div>
                       )}
                     </div>
                   )}
                   {hp.pct_from_high != null && (
-                    <p className="text-xs text-[#6B7280] mt-3">
+                    <p className="text-xs text-ink-3 mt-3">
                       {Number(hp.pct_from_high).toFixed(1)}% from 52-week high
                     </p>
                   )}
@@ -1218,29 +1218,29 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                       { label: "Current Ratio", value: rd.current_ratio != null ? Number(rd.current_ratio).toFixed(2) : "—" },
                     ].map(({ label, value }) => (
                       <div key={label} className="bg-white/03 rounded-xl p-3">
-                        <p className="text-xs text-[#6B7280] mb-1">{label}</p>
-                        <p className="text-sm font-mono font-semibold text-[#E8EDF2]">{value}</p>
+                        <p className="text-xs text-ink-3 mb-1">{label}</p>
+                        <p className="text-sm font-semibold text-ink-1">{value}</p>
                       </div>
                     ))}
                   </div>
                   {rd.liquidity_risk && (
                     <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03 mb-2">
-                      <span className="text-xs text-[#6B7280]">Liquidity risk</span>
-                      <span className={`text-xs font-bold uppercase ${rd.liquidity_risk === "low" ? "text-[#10B981]" : rd.liquidity_risk === "medium" ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>{rd.liquidity_risk}</span>
+                      <span className="text-xs text-ink-3">Liquidity risk</span>
+                      <span className={`text-xs font-bold ${rd.liquidity_risk ==="low"?"text-gain": rd.liquidity_risk ==="medium"?"text-caution":"text-loss"}`}>{rd.liquidity_risk}</span>
                     </div>
                   )}
                   {((rd.data_conflicts ?? []) as string[]).length > 0 && (
-                    <div className="mt-3 p-3 rounded-lg bg-[#F59E0B]/08 border border-[#F59E0B]/20">
-                      <p className="text-xs font-bold text-[#F59E0B] mb-1">Data conflicts flagged</p>
+                    <div className="mt-3 p-3 rounded-lg bg-caution/8 border border-caution/20">
+                      <p className="text-xs font-bold text-caution mb-1">Data conflicts flagged</p>
                       {/* Conflicts are either strings (legacy) or {metric, yfinance_value,
                           sec_edgar_value, diff_pct, resolution} objects from the fundamental analyst */}
                       {((rd.data_conflicts) as unknown[]).map((c, i: number) => {
-                        if (typeof c === "string") return <p key={i} className="text-xs text-[#6B7280]">• {c}</p>;
+                        if (typeof c === "string") return <p key={i} className="text-xs text-ink-3">• {c}</p>;
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const o = (c ?? {}) as any;
                         const num = (v: unknown) => typeof v === "number" ? v.toLocaleString("en-US", { maximumFractionDigits: 2 }) : String(v ?? "—");
                         return (
-                          <p key={i} className="text-xs text-[#6B7280]">
+                          <p key={i} className="text-xs text-ink-3">
                             • {String(o.metric ?? "metric")}: yfinance {num(o.yfinance_value)} vs SEC EDGAR {num(o.sec_edgar_value)}
                             {typeof o.diff_pct === "number" ? ` (${o.diff_pct.toFixed(1)}% apart)` : ""}
                             {o.resolution ? ` — ${String(o.resolution)}` : ""}
@@ -1263,22 +1263,22 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
           return (
             <div className="card p-6 mb-6">
               <div className="flex items-center gap-2 mb-5">
-                <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Institutional Activity</h2>
+                <h2 className="font-display text-lg font-bold text-ink-1">Institutional Activity</h2>
                 {inst.multi_fund_flag && (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-[#F5A623]/15 text-[#F5A623]">Multi-fund convergence</span>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-accent/15 text-accent">Multi-fund convergence</span>
                 )}
               </div>
               {inst.fund_theses?.length > 0 && (
                 <div className="mb-5">
-                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">Fund Theses</p>
+                  <p className="text-xs font-semibold text-ink-3 mb-3">Fund Theses</p>
                   <div className="space-y-3">
                     {(inst.fund_theses as any[]).map((ft: any, i: number) => (
                       <div key={i} className="p-3 rounded-xl bg-white/03 border border-white/06">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-bold text-[#E8EDF2]">{ft.fund_name ?? ft.fund ?? "Unknown fund"}</span>
-                          {ft.stake_pct && <span className="text-xs font-mono text-[#F5A623]">{ft.stake_pct}% stake</span>}
+                          <span className="text-xs font-bold text-ink-1">{ft.fund_name ?? ft.fund ?? "Unknown fund"}</span>
+                          {ft.stake_pct && <span className="text-xs text-accent">{ft.stake_pct}% stake</span>}
                         </div>
-                        <p className="text-xs text-[#6B7280] leading-relaxed">{ft.thesis ?? ft.summary ?? "—"}</p>
+                        <p className="text-xs text-ink-3 leading-relaxed">{ft.thesis ?? ft.summary ?? "—"}</p>
                       </div>
                     ))}
                   </div>
@@ -1286,12 +1286,12 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
               )}
               {inst.unusual_options?.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider mb-3">Unusual Options Activity</p>
+                  <p className="text-xs font-semibold text-ink-3 mb-3">Unusual Options Activity</p>
                   <div className="space-y-2">
                     {(inst.unusual_options as any[]).slice(0, 4).map((o: any, i: number) => (
                       <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/03">
-                        <span className="text-xs text-[#E8EDF2]">{o.description ?? o.type ?? "—"}</span>
-                        {o.premium && <span className="text-xs font-mono text-[#F59E0B]">${o.premium}</span>}
+                        <span className="text-xs text-ink-1">{o.description ?? o.type ?? "—"}</span>
+                        {o.premium && <span className="text-xs text-caution">${o.premium}</span>}
                       </div>
                     ))}
                   </div>
@@ -1303,7 +1303,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
 
         {/* ── Review timeline ── */}
         <div className="card p-6">
-          <h2 className="font-display text-lg font-bold text-[#E8EDF2] mb-4">Daily Review Timeline</h2>
+          <h2 className="font-display text-lg font-bold text-ink-1 mb-4">Daily Review Timeline</h2>
           <div className="space-y-3">
             {(position.review_timeline && position.review_timeline.length > 0
               ? position.review_timeline
@@ -1311,7 +1311,7 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ).map((r: any, i: number) => {
               const actionColor = r.decision === "enter_long" || r.decision === "hold" || r.decision === "increase"
-                ? "#10B981" : r.decision === "decrease" ? "#F59E0B" : "#EF4444";
+                ? "#4DB887" : r.decision === "decrease" ? "#E39A57" : "#E2706A";
               const timelineLength = position.review_timeline?.length ?? 0;
               return (
                 <div key={i} className="flex gap-4 pb-3 border-b border-white/06 last:border-0">
@@ -1321,18 +1321,18 @@ const [liveComps, setLiveComps] = useState<{ comparables: LiveComp[]; note: stri
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-1 flex-wrap">
-                      <span className="text-xs font-mono text-[#6B7280]">{r.date}</span>
-                      <span className="text-xs font-bold uppercase px-2 py-0.5 rounded-md" style={{ color: actionColor, background: `${actionColor}20` }}>
+                      <span className="text-xs text-ink-3">{r.date}</span>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-md" style={{ color: actionColor, background: `${actionColor}20` }}>
                         {(r.decision ?? "").replace(/_/g, " ")}
                       </span>
                       {r.conviction != null && (
-                        <span className="text-xs text-[#6B7280]">conviction {r.conviction}/100</span>
+                        <span className="text-xs text-ink-3">conviction {r.conviction}/100</span>
                       )}
                       {r.size_pct != null && (
-                        <span className="text-xs text-[#6B7280]">→ {r.size_pct}% portfolio</span>
+                        <span className="text-xs text-ink-3">→ {r.size_pct}% portfolio</span>
                       )}
                     </div>
-                    <p className="text-sm text-[#6B7280]">{r.rationale}</p>
+                    <p className="text-sm text-ink-3">{r.rationale}</p>
                   </div>
                 </div>
               );
