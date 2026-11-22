@@ -1,9 +1,8 @@
 "use client";
 
-// Team page — "The Aurora" (Design 3)
-// Background: 3 slow-drifting horizontal aurora bands (teal, indigo, gold)
-// Emil skill: custom cubic-bezier (0.32,0.72,0,1), stagger, scale entries, panel slide-in
-// Taste skill: double-bezel panel, node dimming via useMemo
+// Agents page — a blueprint-style schematic of the pipeline (DESIGN_DIRECTION.md).
+// Neutral graphite nodes; brass marks only the committee and the selected agent.
+// Motion only answers the user (select / hover); no ambient loops.
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 
@@ -36,29 +35,25 @@ function OrbitalNode({agent,x,y,selected,hovered,dimmed,onClick,onMouseEnter,onM
   agent:Agent;x:number;y:number;selected:boolean;hovered:boolean;dimmed:boolean;
   onClick:()=>void;onMouseEnter:()=>void;onMouseLeave:()=>void;
 }) {
-  const r=nodeR(agent.id); const rgb=hexToRgb(agent.color);
+  const r=nodeR(agent.id); const c=(selected||hovered)?"#C8A15A":agent.color; const rgb=hexToRgb(c);
   const scale=hovered?1.13:selected?1.07:1;
   return (
     <g transform={`translate(${x},${y})`} onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
       style={{cursor:"pointer",opacity:dimmed?0.22:1,transition:"opacity 0.4s cubic-bezier(0.32,0.72,0,1)"}}>
       <g style={{transform:`scale(${scale})`,transformOrigin:"0 0",transition:"transform 0.28s cubic-bezier(0.32,0.72,0,1)"}}>
         <circle r={r+20} fill={`rgba(${rgb},${(hovered||selected)?0.12:0.04})`} style={{transition:"all 0.28s cubic-bezier(0.32,0.72,0,1)"}}/>
-        {agent.has_live_data&&<circle r={r+28} fill="none" stroke={agent.color} strokeWidth="1" opacity="0" className="tm-pulse-ring"/>}
-        <circle r={r+3} fill="none" stroke={agent.color} strokeWidth={(hovered||selected)?1.8:0.5} opacity={(hovered||selected)?0.8:0.14} style={{transition:"all 0.28s cubic-bezier(0.32,0.72,0,1)"}}/>
+        <circle r={r+3} fill="none" stroke={c} strokeWidth={(hovered||selected)?1.8:0.5} opacity={(hovered||selected)?0.8:0.14} style={{transition:"all 0.28s cubic-bezier(0.32,0.72,0,1)"}}/>
         <circle r={r} fill={`rgba(${rgb},${selected?0.26:hovered?0.17:0.09})`}
-          stroke={selected?agent.color:`rgba(${rgb},0.6)`} strokeWidth={selected?2.5:1}
-          style={{filter:(hovered||selected)?`drop-shadow(0 0 ${hovered?22:15}px rgba(${rgb},0.8))`:"none",transition:"all 0.28s cubic-bezier(0.32,0.72,0,1)"}}/>
-        <text textAnchor="middle" dy="-5" fill={agent.color} fontSize={agent.id==="committee"?13:11} fontFamily="var(--font-fira-code)" fontWeight="700" opacity="0.92">
+          stroke={selected?c:`rgba(${rgb},0.6)`} strokeWidth={selected?2.5:1}
+          style={{transition:"fill 0.2s cubic-bezier(0.23,1,0.32,1), stroke 0.2s cubic-bezier(0.23,1,0.32,1)"}}/>
+        <text textAnchor="middle" dy="5" fill={c} fontSize={agent.id==="committee"?16:14} fontFamily="var(--font-sans)" fontWeight="700" opacity="0.92">
           {String(agent.number).padStart(2,"0")}
         </text>
-        <text textAnchor="middle" dy="10" fill="#E8EDF2" fontSize={agent.id==="committee"?9:8} fontFamily="var(--font-space-grotesk)" fontWeight="600" opacity="0.75">
-          {agent.name.split(" ")[0].toUpperCase()}
-        </text>
-        {agent.has_live_data&&<circle cx={r-5} cy={-(r-5)} r="4" fill="#10B981" stroke="#060A12" strokeWidth="1.5" className="tm-live-dot"/>}
+        {agent.has_live_data&&<circle cx={r-5} cy={-(r-5)} r="3.5" fill="#4DB887" stroke="#171A1D" strokeWidth="1.5"/>}
       </g>
-      <text textAnchor="middle" y={r+18} fill={selected||hovered?"#CBD5E1":"#6B7280"} fontSize="9"
-        fontFamily="var(--font-space-grotesk)" style={{transition:"fill 0.25s ease",letterSpacing:"0.05em"}}>
-        {agent.name.toUpperCase()}
+      <text textAnchor="middle" y={r+20} fill={selected||hovered?"#ECEDEE":"#B3B8BE"} fontSize="12"
+        fontFamily="var(--font-sans)" style={{transition:"fill 0.2s ease"}}>
+        {agent.name}
       </text>
     </g>
   );
@@ -102,33 +97,33 @@ function ReportViewer({agentId,color}:{agentId:string;color:string}) {
   const [report,setReport]=useState<any>(null); const [loading,setLoading]=useState(true); const [err,setErr]=useState<string|null>(null);
   const rgb=hexToRgb(color);
   useEffect(()=>{setLoading(true);setReport(null);setErr(null);fetch(`/api/agent-report/${agentId}`).then(async r=>{const d=await r.json().catch(()=>null); if(!r.ok) throw new Error(d?.error ?? `HTTP ${r.status}`); setReport(d);}).catch(e=>setErr(String(e?.message ?? e))).finally(()=>setLoading(false));},[agentId]);
-  if(loading) return <p className="text-[11px] text-[#6B7280] font-mono py-8 text-center tracking-widest">LOADING...</p>;
-  if(!report) return <p className="text-[11px] text-[#6B7280] py-4 text-center">Report unavailable{err ? ` — ${err}` : ""}.</p>;
+  if(loading) return <p className="text-micro text-ink-3 py-8 text-center">LOADING...</p>;
+  if(!report) return <p className="text-micro text-ink-3 py-4 text-center">Report unavailable{err ? ` — ${err}` : ""}.</p>;
   const keys = Object.keys(report).filter(k=>!HIDDEN_KEYS.has(k));
   return (
     <div className="space-y-2">
-      {report.generated_at&&<p className="text-[9px] font-mono text-[#6B7280] mb-3">GENERATED {String(report.generated_at)}</p>}
+      {report.generated_at&&<p className="text-micro text-ink-3 mb-3">GENERATED {String(report.generated_at)}</p>}
       {keys.map((key,i)=>{
         const v=report[key];
         let body: React.ReactNode;
         if (Array.isArray(v)) {
-          body = v.length === 0 ? <span className="text-[#4B5563]">None</span> : (
+          body = v.length === 0 ? <span className="text-ink-3">None</span> : (
             <>
-              <span className="text-[#6B7280]">{v.length} item{v.length!==1?"s":""}</span>
+              <span className="text-ink-3">{v.length} item{v.length!==1?"s":""}</span>
               <ul className="mt-1 space-y-0.5">{v.slice(0,6).map((x,j)=><li key={j}>• {describeItem(x)}</li>)}</ul>
-              {v.length>6&&<span className="text-[#4B5563]">+{v.length-6} more</span>}
+              {v.length>6&&<span className="text-ink-3">+{v.length-6} more</span>}
             </>
           );
         } else if (v && typeof v === "object") {
           const flat = Object.entries(v).filter(([,x])=>x==null||typeof x!=="object");
-          body = flat.length ? flat.slice(0,8).map(([k,x])=><div key={k}>{k.replace(/_/g," ")}: {x==null?"—":String(x)}</div>) : <span className="text-[#4B5563]">{Object.keys(v).length} fields</span>;
+          body = flat.length ? flat.slice(0,8).map(([k,x])=><div key={k}>{k.replace(/_/g," ")}: {x==null?"—":String(x)}</div>) : <span className="text-ink-3">{Object.keys(v).length} fields</span>;
         } else {
           body = String(v ?? "—");
         }
         return (
           <div key={key} className="rounded-xl p-3 tm-stagger" style={{background:`rgba(${rgb},0.05)`,border:`1px solid rgba(${rgb},0.12)`,animationDelay:`${i*40}ms`}}>
-            <p className="text-[9px] font-mono tracking-widest mb-1 uppercase" style={{color}}>{key.replace(/_/g," ")}</p>
-            <div className="text-[10px] text-[#9CA3AF] leading-relaxed whitespace-pre-wrap">{body}</div>
+            <p className="text-micro mb-1" style={{color}}>{key.charAt(0).toUpperCase()+key.slice(1).replace(/_/g," ")}</p>
+            <div className="text-micro text-ink-2 leading-relaxed whitespace-pre-wrap">{body}</div>
           </div>
         );
       })}
@@ -152,24 +147,24 @@ function ChatPanel({agent}:{agent:Agent}) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto space-y-2 mb-3 min-h-[120px] max-h-[360px]">
-        {msgs.length===0&&<p className="text-[10px] text-[#6B7280] text-center py-8">Ask {agent.name.split(" ")[0]} anything.</p>}
+        {msgs.length===0&&<p className="text-micro text-ink-3 text-center py-8">Ask {agent.name.split(" ")[0]} anything.</p>}
         {msgs.map((m,i)=>(
           <div key={i} className={`flex ${m.role==="user"?"justify-end":"justify-start"}`}>
             <div className="rounded-xl px-3 py-2 text-[12px] leading-relaxed whitespace-pre-wrap max-w-[85%]"
-              style={{background:m.role==="user"?`rgba(${rgb},0.18)`:"rgba(255,255,255,0.04)",border:`1px solid rgba(${rgb},${m.role==="user"?0.4:0.1})`,color:m.role==="user"?agent.color:"#CBD5E1"}}>
+              style={{background:m.role==="user"?`rgba(${rgb},0.18)`:"rgba(255,255,255,0.04)",border:`1px solid rgba(${rgb},${m.role==="user"?0.4:0.1})`,color:m.role==="user"?agent.color:"#ECEDEE"}}>
               {m.text}
             </div>
           </div>
         ))}
-        {sending&&<p className="text-[10px] text-[#6B7280] pl-1 animate-pulse">{agent.name.split(" ")[0]} is thinking…</p>}
+        {sending&&<p className="text-micro text-ink-3 pl-1">{agent.name.split(" ")[0]} is thinking…</p>}
       </div>
       <div className="flex gap-2">
-        <input className="flex-1 rounded-xl px-3 py-2 text-[11px] outline-none"
-          style={{background:"rgba(255,255,255,0.04)",border:`1px solid rgba(${rgb},0.2)`,color:"#E8EDF2"}}
+        <input className="flex-1 rounded-xl px-3 py-2 text-micro outline-none"
+          style={{background:"rgba(255,255,255,0.04)",border:`1px solid rgba(${rgb},0.2)`,color:"#ECEDEE"}}
           placeholder={`Message ${agent.name.split(" ")[0]}...`} value={input}
           onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}/>
         <button onClick={send} disabled={!input.trim()||sending}
-          className="rounded-xl px-4 py-2 text-[11px] font-bold cursor-pointer disabled:opacity-40"
+          className="rounded-xl px-4 py-2 text-micro font-bold cursor-pointer disabled:opacity-40"
           style={{background:`rgba(${rgb},0.18)`,border:`1px solid rgba(${rgb},0.35)`,color:agent.color,transition:"transform 160ms cubic-bezier(0.32,0.72,0,1)"}}
           onMouseDown={e=>(e.currentTarget as HTMLElement).style.transform="scale(0.95)"}
           onMouseUp={e=>(e.currentTarget as HTMLElement).style.transform="scale(1)"}>
@@ -185,7 +180,9 @@ export default function TeamPage() {
   const [hovered,setHovered]=useState<string|null>(null); const [tab,setTab]=useState<Tab>("overview");
   const [loading,setLoading]=useState(true);
 
-  useEffect(()=>{fetch("/api/agents").then(r=>r.json()).then((d:Agent[])=>{setAgents(d);setLoading(false);}).catch(()=>setLoading(false));},[]);
+  useEffect(()=>{fetch("/api/agents").then(r=>r.json()).then((d:Agent[])=>{
+    // One accent: the committee (where decisions are made) is brass; every other agent is graphite
+    setAgents(d.map(a=>({...a,color:a.id==="committee"?"#C8A15A":"#8E959D"})));setLoading(false);}).catch(()=>setLoading(false));},[]);
 
   const connectedToSelected=useMemo(()=>{
     if(!selected) return new Set<string>();
@@ -198,70 +195,37 @@ export default function TeamPage() {
 
   if(loading) return (
     <div className="flex items-center justify-center min-h-[100dvh]" style={{background:"#060A12"}}>
-      <p className="text-[#6B7280] font-mono text-sm tracking-widest">INITIALISING AGENTS...</p>
+      <p className="text-ink-3 text-sm">INITIALISING AGENTS...</p>
     </div>
   );
 
   return (
     <>
       <style>{`
-        @keyframes tm-dash{to{stroke-dashoffset:-28}} .tm-signal{animation:tm-dash 2s linear infinite}
-        @keyframes tm-dot{0%,100%{r:4;opacity:1}50%{r:6;opacity:0.5}} .tm-live-dot{animation:tm-dot 2s ease-in-out infinite}
-        @keyframes tm-ring{0%{r:46;opacity:0.4}100%{r:76;opacity:0}} .tm-pulse-ring{animation:tm-ring 2.8s ease-out infinite}
-        @keyframes tm-aurora-a{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-28px) scaleY(1.35)}}
-        @keyframes tm-aurora-b{0%,100%{transform:translateY(0)}45%{transform:translateY(22px)}}
-        @keyframes tm-aurora-c{0%,100%{transform:translateY(0)}62%{transform:translateY(-16px)}}
         @keyframes tm-panel{from{opacity:0;transform:translateX(16px) scale(0.98)}to{opacity:1;transform:translateX(0) scale(1)}}
         .tm-panel-in{animation:tm-panel 0.38s cubic-bezier(0.32,0.72,0,1) forwards}
         @keyframes tm-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
         .tm-stagger{opacity:0;animation:tm-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards}
       `}</style>
 
-      {/* Aurora background — fixed, GPU-safe: transform only */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden style={{background:"#060A12"}}/>
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"38%",left:"-15%",right:"-15%",height:"140px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(0,210,180,0.11) 35%,rgba(0,210,180,0.14) 50%,rgba(0,210,180,0.11) 65%,transparent 100%)",
-        filter:"blur(55px)",animation:"tm-aurora-a 20s ease-in-out infinite"
-      }}/>
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"58%",left:"-15%",right:"-15%",height:"100px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.1) 30%,rgba(99,102,241,0.13) 55%,rgba(99,102,241,0.08) 75%,transparent 100%)",
-        filter:"blur(48px)",animation:"tm-aurora-b 26s ease-in-out infinite"
-      }}/>
-      <div className="fixed pointer-events-none" aria-hidden style={{
-        top:"18%",left:"-15%",right:"-15%",height:"80px",
-        background:"linear-gradient(90deg,transparent 0%,rgba(245,166,35,0.07) 40%,rgba(245,166,35,0.1) 55%,rgba(245,166,35,0.06) 70%,transparent 100%)",
-        filter:"blur(60px)",animation:"tm-aurora-c 32s ease-in-out infinite"
-      }}/>
-
-      <div className="relative min-h-[100dvh] flex flex-col pt-16 z-10">
-        <div className="px-8 pt-8 pb-4 flex items-end justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 text-[10px] font-mono tracking-[0.18em]"
-              style={{background:"rgba(0,210,180,0.07)",border:"1px solid rgba(0,210,180,0.13)",color:"#F5A623"}}>
-              HAZ CAPITAL MANAGEMENT
-            </div>
-            <h1 className="text-[34px] font-bold tracking-tight text-[#E8EDF2]" style={{fontFamily:"var(--font-syne)"}}>
-              Agent Intelligence Map
-            </h1>
-            <p className="text-[10px] tracking-[0.22em] text-[#6B7280] font-mono mt-1">11 AGENTS — ONE PORTFOLIO</p>
+      <main className="relative flex min-h-[calc(100dvh-56px)] flex-col">
+        <header className="mx-auto flex w-full max-w-[1280px] flex-wrap items-end justify-between gap-6 px-4 pb-4 pt-10 sm:px-6">
+          <div className="max-w-2xl">
+            <h1 className="font-serif text-h1 font-medium text-ink-1">How the agents work together</h1>
+            <p className="mt-2 text-lead text-ink-2">Eleven agents pass their findings along this pipeline every weekday. Select one to see what it found, read its latest report, or ask it a question.</p>
           </div>
-          <div className="flex gap-5 text-[10px] font-mono text-[#6B7280] items-center">
-            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#10B981]"/>LIVE</span>
-            <span className="flex items-center gap-1.5"><span className="w-5 border-t border-dashed border-[#1F2937]"/>SIGNAL</span>
-            <span>{agents.filter(a=>a.has_live_data).length}/{agents.length} ONLINE</span>
-          </div>
-        </div>
+          <dl className="flex items-center gap-5 text-label text-ink-3">
+            <div className="flex items-center gap-2"><span aria-hidden className="h-2 w-2 rounded-full bg-gain" /><dt className="sr-only">Status</dt><dd>Reported today</dd></div>
+            <div className="flex items-center gap-2"><span aria-hidden className="w-5 border-t border-dashed border-ink-3" /><dd>Passes findings to</dd></div>
+            <div><dd className="tabular">{agents.filter(a=>a.has_live_data).length} of {agents.length} reported</dd></div>
+          </dl>
+        </header>
 
-        <div className="flex-1 flex flex-col lg:flex-row gap-0 px-4 pb-8 min-h-0">
-          <div className="flex-1 relative">
+        <div className="mx-auto flex w-full max-w-[1280px] min-h-0 flex-1 flex-col gap-6 px-4 pb-10 sm:px-6 lg:flex-row">
+          <div className="tex-dots relative flex-1 rounded-lg border border-line">
             <svg viewBox="0 0 1060 720" className="w-full h-full" style={{maxHeight:"calc(100vh - 160px)"}}>
-              {[...Array(10)].map((_,row)=>[...Array(15)].map((_,col)=>(
-                <circle key={`${row}-${col}`} cx={col*76+14} cy={row*78+14} r="0.7" fill="#ffffff04"/>
-              )))}
-              {[{x:38,y:58,label:"PHASE 1 — INTAKE"},{x:300,y:290,label:"FILTER"},{x:520,y:95,label:"PHASE 2 — ANALYSIS"},{x:790,y:252,label:"COMMITTEE"},{x:800,y:458,label:"EXECUTION"}].map(({x,y,label})=>(
-                <text key={label} x={x} y={y} fill="#1A202C" fontSize="9" fontFamily="var(--font-fira-code)" letterSpacing="3">{label}</text>
+              {[{x:38,y:58,label:"1  Market context"},{x:300,y:290,label:"2  Shortlist"},{x:520,y:95,label:"3  Analysis"},{x:790,y:240,label:"4  Decision"},{x:800,y:458,label:"5  Execution"}].map(({x,y,label})=>(
+                <text key={label} x={x} y={y} fill="#8E959D" fontSize="12" fontFamily="var(--font-sans)">{label}</text>
               ))}
               {CONNECTIONS.map(([from,to])=>{
                 const a=byId(from);const pA=LAYOUT[from];const pB=LAYOUT[to];
@@ -283,29 +247,27 @@ export default function TeamPage() {
 
           <div className="w-full lg:w-[355px] shrink-0 py-4 pr-2">
             {selected ? (
-              <div key={selected.id} className="tm-panel-in flex flex-col rounded-[1.6rem] p-1.5"
-                style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",height:"calc(100vh - 200px)",boxShadow:"0 0 100px rgba(0,0,0,0.7)"}}>
-                <div className="flex flex-col flex-1 rounded-[calc(1.6rem-6px)] overflow-hidden"
-                  style={{background:`rgba(${hexToRgb(selected.color)},0.05)`,border:`1px solid rgba(${hexToRgb(selected.color)},0.2)`,boxShadow:"inset 0 1px 1px rgba(255,255,255,0.06)"}}>
+              <div key={selected.id} className="tm-panel-in flex flex-col" style={{height:"calc(100vh - 220px)"}}>
+                <div className="flex flex-1 flex-col overflow-hidden rounded-lg border border-line bg-surface">
                   <div className="px-5 pt-4 pb-3 border-b" style={{borderColor:`rgba(${hexToRgb(selected.color)},0.12)`}}>
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <span className="text-[9px] font-mono tracking-widest" style={{color:selected.color}}>
+                        <span className="text-micro" style={{color:selected.color}}>
                           AGENT {String(selected.number).padStart(2,"0")}
-                          {selected.has_live_data&&<span className="ml-2 text-[#10B981]">● LIVE</span>}
+                          {selected.has_live_data&&<span className="ml-2 text-gain">● LIVE</span>}
                         </span>
-                        <h2 className="text-xl font-bold text-[#E8EDF2] mt-0.5" style={{fontFamily:"var(--font-syne)"}}>{selected.name}</h2>
-                        <p className="text-[11px] text-[#6B7280]">{selected.role}</p>
+                        <h2 className="text-xl font-bold text-ink-1 mt-0.5" style={{fontFamily:"var(--font-serif)"}}>{selected.name}</h2>
+                        <p className="text-micro text-ink-3">{selected.role}</p>
                       </div>
-                      <button onClick={()=>setSelected(null)} className="text-[#6B7280] hover:text-[#9CA3AF] text-xl cursor-pointer leading-none mt-1"
+                      <button onClick={()=>setSelected(null)} className="text-ink-3 hover:text-ink-2 text-xl cursor-pointer leading-none mt-1"
                         style={{transition:"color 0.15s ease,transform 120ms cubic-bezier(0.32,0.72,0,1)"}}
                         onMouseDown={e=>(e.currentTarget as HTMLElement).style.transform="scale(0.88)"}
                         onMouseUp={e=>(e.currentTarget as HTMLElement).style.transform="scale(1)"}>×</button>
                     </div>
                     <div className="flex gap-1">
                       {(["overview","report","chat"] as const).map(t=>(
-                        <button key={t} onClick={()=>setTab(t)} className="px-3 py-1 rounded-lg text-[9px] font-mono tracking-widest uppercase cursor-pointer"
-                          style={{background:tab===t?`rgba(${hexToRgb(selected.color)},0.18)`:"transparent",color:tab===t?selected.color:"#6B7280",border:`1px solid ${tab===t?`rgba(${hexToRgb(selected.color)},0.35)`:"transparent"}`,transition:"all 0.22s cubic-bezier(0.32,0.72,0,1)"}}>
+                        <button key={t} onClick={()=>setTab(t)} className="px-3 py-1 rounded-lg text-micro cursor-pointer"
+                          style={{background:tab===t?`rgba(${hexToRgb(selected.color)},0.18)`:"transparent",color:tab===t?selected.color:"#8E959D",border:`1px solid ${tab===t?`rgba(${hexToRgb(selected.color)},0.35)`:"transparent"}`,transition:"all 0.22s cubic-bezier(0.32,0.72,0,1)"}}>
                           {t}
                         </button>
                       ))}
@@ -314,18 +276,18 @@ export default function TeamPage() {
                   <div className="flex-1 overflow-y-auto p-4">
                     {tab==="overview"&&(
                       <div className="space-y-3">
-                        <p className="text-[11px] text-[#94A3B8] leading-relaxed">{selected.personality}</p>
+                        <p className="text-micro text-ink-2 leading-relaxed">{selected.personality}</p>
                         {selected.has_live_data&&(
                           <div className="space-y-2">
                             {[{label:"FOCUS",val:selected.current_focus},{label:"VIEW",val:selected.market_view},{label:"ACTIVITY",val:selected.recent_activity}].map(({label,val},i)=>(
                               <div key={label} className="rounded-xl p-3 tm-stagger" style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)",animationDelay:`${i*55}ms`}}>
-                                <p className="text-[9px] font-mono tracking-widest mb-0.5" style={{color:selected.color}}>{label}</p>
-                                <p className="text-[11px] text-[#CBD5E1] leading-snug">{val}</p>
+                                <p className="text-micro mb-0.5" style={{color:selected.color}}>{label}</p>
+                                <p className="text-micro text-ink-1 leading-snug">{val}</p>
                               </div>
                             ))}
                           </div>
                         )}
-                        {selected.feeds&&<div className="pt-2 border-t text-[10px] font-mono text-[#6B7280]" style={{borderColor:`rgba(${hexToRgb(selected.color)},0.12)`}}>FEEDS → <span className="text-[#6B7280]">{selected.feeds}</span></div>}
+                        {selected.feeds&&<div className="pt-2 border-t text-micro text-ink-3" style={{borderColor:`rgba(${hexToRgb(selected.color)},0.12)`}}>FEEDS → <span className="text-ink-3">{selected.feeds}</span></div>}
                       </div>
                     )}
                     {tab==="report"&&<ReportViewer agentId={selected.id} color={selected.color}/>}
@@ -334,27 +296,26 @@ export default function TeamPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col py-6 px-2">
-                <p className="text-[10px] font-mono tracking-widest text-[#6B7280] mb-1">SELECT AN AGENT</p>
-                <p className="text-[11px] text-[#4B5563] mb-6">Click any node to inspect it.</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {agents.map((a,i)=>(
-                    <button key={a.id} onClick={()=>{setSelected(a);setTab("overview");}}
-                      className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left cursor-pointer tm-stagger"
-                      style={{background:"rgba(255,255,255,0.02)",border:`1px solid rgba(${hexToRgb(a.color)},0.13)`,animationDelay:`${i*35}ms`,transition:"border-color 0.22s ease,background 0.22s ease"}}
-                      onMouseEnter={e=>{(e.currentTarget as HTMLElement).style.background=`rgba(${hexToRgb(a.color)},0.08)`;(e.currentTarget as HTMLElement).style.borderColor=`rgba(${hexToRgb(a.color)},0.35)`;}}
-                      onMouseLeave={e=>{(e.currentTarget as HTMLElement).style.background="rgba(255,255,255,0.02)";(e.currentTarget as HTMLElement).style.borderColor=`rgba(${hexToRgb(a.color)},0.13)`;}}>
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{background:a.color}}/>
-                      <span className="text-[10px] text-[#4B5563] truncate">{a.name}</span>
-                      {a.has_live_data&&<span className="w-1.5 h-1.5 rounded-full bg-[#10B981] ml-auto shrink-0"/>}
-                    </button>
+              <div className="flex flex-col py-2">
+                <h2 className="font-serif text-h3 text-ink-1">Select an agent</h2>
+                <p className="mb-5 mt-1 text-label text-ink-3">Choose a node on the map or from this list.</p>
+                <ul className="divide-y divide-line border-y border-line">
+                  {agents.map((a)=>(
+                    <li key={a.id}>
+                      <button onClick={()=>{setSelected(a);setTab("overview");}}
+                        className="flex w-full items-center gap-3 px-1 py-2.5 text-left transition-colors duration-fast hover:bg-raised/60">
+                        <span className="w-5 text-micro text-ink-3 tabular">{a.number}</span>
+                        <span className={`flex-1 truncate text-body ${a.id==="committee"?"text-accent":"text-ink-1"}`}>{a.name}</span>
+                        {a.has_live_data&&<span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gain" aria-label="Reported today"/>}
+                      </button>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
     </>
   );
 }

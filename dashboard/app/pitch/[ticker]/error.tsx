@@ -11,9 +11,9 @@ export default function PitchError({ error, reset }: { error: Error & { digest?:
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="card p-8 max-w-md w-full text-center">
-        <p className="text-xs text-[#EF4444] uppercase tracking-wider mb-2">Error</p>
+        <p className="text-xs text-[#EF4444]   mb-2">Error</p>
         <h1 className="font-display text-2xl font-bold text-[#E8EDF2] mb-3">Failed to load pitch</h1>
-        <p className="text-sm text-[#6B7280] mb-6 font-mono break-words">{error.message}</p>
+        <p className="text-sm text-[#6B7280] mb-6  break-words">{error.message}</p>
         <div className="flex gap-3 justify-center">
           <button
             onClick={reset}

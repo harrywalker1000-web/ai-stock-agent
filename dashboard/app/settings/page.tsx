@@ -137,32 +137,32 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080C10] pb-16">
+    <div className="min-h-screen bg-canvas pb-16">
       <div className="max-w-3xl mx-auto px-6 pt-8">
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Settings</h1>
-          <p className="text-[#6B7280] text-sm mt-1">Configure pipeline behaviour and analysis depth. Saved to the repo, so the next pipeline run uses it.</p>
+          <h1 className="font-serif text-h1 font-medium text-ink-1">Settings</h1>
+          <p className="mt-2 text-lead text-ink-2">Configure pipeline behaviour and analysis depth. Saved to the repo, so the next pipeline run uses it.</p>
         </div>
 
         {errorMsg && (
-          <div className="card p-4 mb-6 border border-[#EF4444]/30 bg-[#EF4444]/05" role="alert">
-            <p className="text-sm text-[#EF4444]">{errorMsg}</p>
+          <div className="card p-4 mb-6 border border-loss/30 bg-loss/5" role="alert">
+            <p className="text-sm text-loss">{errorMsg}</p>
           </div>
         )}
 
         {/* Analysis Mode */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Analysis Mode</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Analysis Mode</h2>
             {saved && (
-              <span className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md">
+              <span className="text-xs font-bold text-gain bg-gain/10 px-2 py-0.5 rounded-md">
                 Saved
               </span>
             )}
           </div>
-          <p className="text-xs text-[#6B7280] mb-6">
+          <p className="text-xs text-ink-3 mb-6">
             Controls how much of the pipeline runs each day. Takes effect on the next run.
-            The <code className="text-[#E8EDF2]">ANALYSIS_MODE</code> environment variable overrides this setting.
+            The <code className="text-ink-1">ANALYSIS_MODE</code> environment variable overrides this setting.
           </p>
 
           <div className="grid grid-cols-1 gap-3">
@@ -176,42 +176,42 @@ export default function SettingsPage() {
                   onClick={() => save(m)}
                   disabled={saving}
                   className={`text-left p-5 rounded-xl border transition-all duration-200 ${
-                    isSelected
-                      ? isAuto ? "border-[#06B6D4] bg-[#06B6D4]/08" : "border-[#F5A623] bg-[#F5A623]/08"
-                      : "border-white/08 bg-white/02 hover:border-white/15 hover:bg-white/04"
-                  }`}
+ isSelected
+ ? isAuto ?"border-accent bg-accent/8":"border-accent bg-accent/8"
+ :"border-line bg-raised/50 hover:border-line hover:bg-raised/50"
+ }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? (isAuto ? "border-[#06B6D4]" : "border-[#F5A623]") : "border-white/20"}`}>
-                        {isSelected && <div className={`w-2 h-2 rounded-full ${isAuto ? "bg-[#06B6D4]" : "bg-[#F5A623]"}`} />}
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${isSelected ? (isAuto ?"border-accent":"border-accent") :"border-line"}`}>
+                        {isSelected && <div className={`w-2 h-2 rounded-full ${isAuto ?"bg-accent":"bg-accent"}`} />}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className={`font-bold text-sm ${isSelected ? (isAuto ? "text-[#06B6D4]" : "text-[#F5A623]") : "text-[#E8EDF2]"}`}>{m}</span>
+                        <span className={`font-bold text-sm ${isSelected ? (isAuto ?"text-accent":"text-accent") :"text-ink-1"}`}>{m}</span>
                         {isAuto && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[#06B6D4]/15 text-[#06B6D4]">Recommended</span>
+                          <span className="text-micro font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent">Recommended</span>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-[#6B7280]">{info.time}</span>
+                      <span className="text-ink-3">{info.time}</span>
                       <span className={`px-1.5 py-0.5 rounded font-medium ${
-                        info.cost === "Smart" ? "bg-[#06B6D4]/10 text-[#06B6D4]"
-                        : info.cost === "Low" ? "bg-[#10B981]/10 text-[#10B981]"
-                        : info.cost === "Medium" ? "bg-[#F59E0B]/10 text-[#F59E0B]"
-                        : "bg-[#EF4444]/10 text-[#EF4444]"
-                      }`}>{info.cost} cost</span>
+ info.cost ==="Smart"?"bg-accent/10 text-accent"
+ : info.cost ==="Low"?"bg-gain/10 text-gain"
+ : info.cost ==="Medium"?"bg-caution/10 text-caution"
+ :"bg-loss/10 text-loss"
+ }`}>{info.cost} cost</span>
                     </div>
                   </div>
-                  <p className="text-xs text-[#6B7280] mb-3 ml-7">{info.description}</p>
+                  <p className="text-xs text-ink-3 mb-3 ml-7">{info.description}</p>
                   <div className="ml-7 grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <p className="text-[#4B5563] uppercase tracking-wider mb-0.5">Phase A (Review)</p>
-                      <p className="text-[#9CA3AF]">{info.phaseA}</p>
+                      <p className="text-ink-3 mb-0.5">Phase A (Review)</p>
+                      <p className="text-ink-2">{info.phaseA}</p>
                     </div>
                     <div>
-                      <p className="text-[#4B5563] uppercase tracking-wider mb-0.5">Phase B (Research)</p>
-                      <p className="text-[#9CA3AF]">{info.phaseB}</p>
+                      <p className="text-ink-3 mb-0.5">Phase B (Research)</p>
+                      <p className="text-ink-2">{info.phaseB}</p>
                     </div>
                   </div>
                 </button>
@@ -220,7 +220,7 @@ export default function SettingsPage() {
           </div>
 
           {updatedAt && (
-            <p className="text-[10px] text-[#4B5563] mt-4 text-right">
+            <p className="text-micro text-ink-3 mt-4 text-right">
               Last saved: {new Date(updatedAt).toLocaleString()}
             </p>
           )}
@@ -229,23 +229,23 @@ export default function SettingsPage() {
         {/* Phase B Candidate Limits */}
         <div className="card p-6 mb-6">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Phase B Candidate Limits</h2>
+            <h2 className="font-serif text-h3 font-medium text-ink-1">Phase B Candidate Limits</h2>
             <div className="flex items-center gap-2">
               {savedLimits && (
-                <span className="text-xs font-bold text-[#10B981] bg-[#10B981]/10 px-2 py-0.5 rounded-md">Saved</span>
+                <span className="text-xs font-bold text-gain bg-gain/10 px-2 py-0.5 rounded-md">Saved</span>
               )}
               {editingLimits ? (
                 <>
                   <button
                     onClick={() => { setDraftLimits({ ...limits }); setEditingLimits(false); }}
-                    className="text-xs text-[#6B7280] hover:text-[#E8EDF2] px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                    className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-line transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={saveLimits}
                     disabled={saving}
-                    className="text-xs font-semibold text-[#080C10] bg-[#F5A623] hover:bg-[#F5A623]/90 px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                    className="text-xs font-semibold text-ink-3 bg-accent hover:bg-accent/90 px-3 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
                   >
                     Save
                   </button>
@@ -253,7 +253,7 @@ export default function SettingsPage() {
               ) : (
                 <button
                   onClick={() => setEditingLimits(true)}
-                  className="text-xs text-[#6B7280] hover:text-[#E8EDF2] px-3 py-1 rounded-lg border border-white/10 transition-colors cursor-pointer"
+                  className="text-xs text-ink-3 hover:text-ink-1 px-3 py-1 rounded-lg border border-line transition-colors cursor-pointer"
                 >
                   Edit
                 </button>
@@ -261,33 +261,33 @@ export default function SettingsPage() {
             </div>
           </div>
           {/* Phase B flow explanation */}
-          <div className="flex items-start gap-3 mb-5 p-4 rounded-xl bg-white/03 border border-white/06">
+          <div className="flex items-start gap-3 mb-5 p-4 rounded-xl bg-raised/50 border border-line">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-[#6B7280] leading-relaxed mb-2">Phase B runs in three stages. Only configurable columns affect cost — <span className="text-[#E8EDF2]">Max Contested</span> is fixed at 10 in code.</p>
+              <p className="text-xs text-ink-3 leading-relaxed mb-2">Phase B runs in three stages. Only configurable columns affect cost — <span className="text-ink-1">Max Contested</span> is fixed at 10 in code.</p>
               <div className="flex items-center gap-2 flex-wrap text-xs">
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#06B6D4]/10 border border-[#06B6D4]/20 text-[#06B6D4] font-medium">① Analyse</span>
-                <span className="text-[#4B5563]">→</span>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F5A623]/10 border border-[#F5A623]/20 text-[#F5A623] font-medium">② Committee Vote</span>
-                <span className="text-[#4B5563]">→</span>
-                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/20 text-[#EF4444] font-medium">③ Contested Debate</span>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 text-accent font-medium">① Analyse</span>
+                <span className="text-ink-3">→</span>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/10 border border-accent/20 text-accent font-medium">② Committee Vote</span>
+                <span className="text-ink-3">→</span>
+                <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-loss/10 border border-loss/20 text-loss font-medium">③ Contested Debate</span>
               </div>
-              <div className="mt-3 space-y-1 text-[10px] text-[#6B7280]">
-                <p><span className="text-[#06B6D4]">① Analyse:</span> Candidate Generator selects stocks → Fundamental, Quant, Sentiment (not Lite) agents all run on each one.</p>
-                <p><span className="text-[#F5A623]">② Committee Vote:</span> Top N by composite score go to the Investment Committee. Each gets an initial verdict (Buy / Skip). A stock can be added to the portfolio here without proceeding further.</p>
-                <p><span className="text-[#EF4444]">③ Contested Debate:</span> Stocks where agents disagreed significantly (spread ≥ 20 pts) get up to 10 rounds of back-and-forth challenge. Max 10 stocks enter this stage. A stock can be added <em>without</em> reaching this stage if agents agreed from the start.</p>
+              <div className="mt-3 space-y-1 text-micro text-ink-3">
+                <p><span className="text-accent">① Analyse:</span> Candidate Generator selects stocks → Fundamental, Quant, Sentiment (not Lite) agents all run on each one.</p>
+                <p><span className="text-accent">② Committee Vote:</span> Top N by composite score go to the Investment Committee. Each gets an initial verdict (Buy / Skip). A stock can be added to the portfolio here without proceeding further.</p>
+                <p><span className="text-loss">③ Contested Debate:</span> Stocks where agents disagreed significantly (spread ≥ 20 pts) get up to 10 rounds of back-and-forth challenge. Max 10 stocks enter this stage. A stock can be added <em>without</em> reaching this stage if agents agreed from the start.</p>
               </div>
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-white/08">
+          <div className="overflow-hidden rounded-xl border border-line">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/08 bg-white/02">
-                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider">Mode</th>
-                  <th className="text-center px-4 py-3 text-[#06B6D4] text-xs font-semibold uppercase tracking-wider">① Analyse</th>
-                  <th className="text-center px-4 py-3 text-[#F5A623] text-xs font-semibold uppercase tracking-wider">② Committee</th>
-                  <th className="text-center px-4 py-3 text-[#EF4444] text-xs font-semibold uppercase tracking-wider hidden sm:table-cell">③ Max Contested</th>
-                  <th className="text-left px-4 py-3 text-[#4B5563] text-xs font-semibold uppercase tracking-wider hidden md:table-cell">Notes</th>
+                <tr className="border-b border-line bg-raised/50">
+                  <th className="text-left px-4 py-3 text-ink-3 text-xs font-semibold">Mode</th>
+                  <th className="text-center px-4 py-3 text-accent text-xs font-semibold">① Analyse</th>
+                  <th className="text-center px-4 py-3 text-accent text-xs font-semibold">② Committee</th>
+                  <th className="text-center px-4 py-3 text-loss text-xs font-semibold hidden sm:table-cell">③ Max Contested</th>
+                  <th className="text-left px-4 py-3 text-ink-3 text-xs font-semibold hidden md:table-cell">Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -297,12 +297,12 @@ export default function SettingsPage() {
                   const def = DEFAULT_LIMITS[m];
                   const changed = limits[m].analyze !== def.analyze || limits[m].debate !== def.debate || limits[m].contested !== def.contested;
                   return (
-                    <tr key={m} className={`border-b border-white/05 last:border-0 ${i % 2 === 0 ? "bg-white/01" : ""} ${isActive ? "bg-[#F5A623]/04" : ""}`}>
+                    <tr key={m} className={`border-b border-line last:border-0 ${i % 2 === 0 ?"bg-raised/50":""} ${isActive ?"bg-accent/4":""}`}>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className={`font-semibold text-sm ${isActive ? "text-[#F5A623]" : "text-[#E8EDF2]"}`}>{m}</span>
-                          {isActive && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#F5A623]/15 text-[#F5A623] font-semibold">Active</span>}
-                          {changed && !editingLimits && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#06B6D4]/15 text-[#06B6D4] font-semibold">Custom</span>}
+                          <span className={`font-semibold text-sm ${isActive ?"text-accent":"text-ink-1"}`}>{m}</span>
+                          {isActive && <span className="text-micro px-1.5 py-0.5 rounded bg-accent/15 text-accent font-semibold">Active</span>}
+                          {changed && !editingLimits && <span className="text-micro px-1.5 py-0.5 rounded bg-accent/15 text-accent font-semibold">Custom</span>}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -313,10 +313,10 @@ export default function SettingsPage() {
                             max={200}
                             value={draftLimits[m].analyze}
                             onChange={(e) => updateDraft(m, "analyze", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#06B6D4]/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
                           />
                         ) : (
-                          <span className="text-[#06B6D4] font-mono font-semibold">{row.analyze}</span>
+                          <span className="text-accent font-semibold">{row.analyze}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center">
@@ -327,10 +327,10 @@ export default function SettingsPage() {
                             max={draftLimits[m].analyze}
                             value={draftLimits[m].debate}
                             onChange={(e) => updateDraft(m, "debate", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#F5A623]/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-accent/60"
                           />
                         ) : (
-                          <span className="text-[#F5A623] font-mono font-semibold">{row.debate}</span>
+                          <span className="text-accent font-semibold">{row.debate}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-center hidden sm:table-cell">
@@ -341,13 +341,13 @@ export default function SettingsPage() {
                             max={draftLimits[m].debate}
                             value={draftLimits[m].contested}
                             onChange={(e) => updateDraft(m, "contested", e.target.value)}
-                            className="w-20 text-center bg-white/08 border border-white/15 rounded-lg px-2 py-1 text-[#E8EDF2] text-sm focus:outline-none focus:border-[#EF4444]/60"
+                            className="w-20 text-center bg-raised border border-line rounded-lg px-2 py-1 text-ink-1 text-sm focus:outline-none focus:border-loss/60"
                           />
                         ) : (
-                          <span className="text-[#EF4444] font-mono font-semibold">{row.contested}</span>
+                          <span className="text-loss font-semibold">{row.contested}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[#6B7280] text-xs hidden md:table-cell">
+                      <td className="px-4 py-3 text-ink-3 text-xs hidden md:table-cell">
                         {m === "Full" ? "Max coverage — good for weekend catch-up runs" :
                          m === "Auto" ? "Slightly above Standard for smarter days" :
                          m === "Standard" ? "Balanced — recommended for daily use" :
@@ -359,17 +359,17 @@ export default function SettingsPage() {
               </tbody>
             </table>
           </div>
-          <p className="text-[10px] text-[#4B5563] mt-3">
+          <p className="text-micro text-ink-3 mt-3">
             Constraints: ③ Contested ≤ ② Committee ≤ ① Analyse ≤ 200. Defaults: Lite 15/10/5 · Standard 25/20/8 · Auto 30/25/10 · Full 50/40/15.
           </p>
         </div>
 
         {/* Info card */}
-        <div className="card p-5 bg-[#F5A623]/04 border border-[#F5A623]/10">
-          <p className="text-xs text-[#6B7280] leading-relaxed">
-            <span className="text-[#F5A623] font-semibold">Note:</span> The pipeline runs daily at 9:45am ET.
+        <div className="card p-5 bg-accent/4 border border-accent/10">
+          <p className="text-xs text-ink-3 leading-relaxed">
+            <span className="text-accent font-semibold">Note:</span> The pipeline runs daily at 9:45am ET.
             Changes made here apply to the next scheduled run. You can also override this at runtime by setting
-            the <code className="text-[#E8EDF2]">ANALYSIS_MODE</code> environment variable.
+            the <code className="text-ink-1">ANALYSIS_MODE</code> environment variable.
           </p>
         </div>
       </div>
