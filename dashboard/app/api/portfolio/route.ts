@@ -367,7 +367,7 @@ export async function GET() {
     });
   } else if (positionsLog && Object.keys(positionsLog).length > 0) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    positions = Object.values(positionsLog).map((p: any) => ({
+    positions = Object.values(positionsLog).filter((p: any) => !p?.pending_confirmation).map((p: any) => ({
       ticker:        p.ticker ?? "—",
       company:       p.company ?? TICKER_META[p.ticker]?.company ?? p.ticker,
       sector:        p.sector ?? p.fund_mandate?.sector ?? TICKER_META[p.ticker]?.sector ?? "—",
@@ -380,7 +380,7 @@ export async function GET() {
       pct_portfolio: p.size_pct ?? 0,
       qty:           0,
       entry_date:    p.entry_date ?? "—",
-      conviction:    p.conviction ?? 70,
+      conviction:    p.conviction ?? null,
       entry_conviction: p.entry_conviction ?? null,
       status:        p.status ?? "pending",
       setup_type:    p.setup_type ?? "Pipeline",

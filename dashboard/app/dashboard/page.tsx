@@ -103,6 +103,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<PortfolioData | null>(null);
   const [timeframe, setTimeframe] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showAllPositions, setShowAllPositions] = useState(false);
   const [runModal, setRunModal] = useState<"review" | "full" | null>(null);
   const [runStatus, setRunStatus] = useState<"idle" | "running" | "done" | "error">("idle");
@@ -115,9 +116,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetch("/api/portfolio")
-      .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then(async (r) => {
+        const d = await r.json().catch(() => null);
+        if (!r.ok || !d) throw new Error(`HTTP ${r.status}`);
+        setData(d);
+        // _source "no_data" = Alpaca unreachable: numbers would be zeros, not real values
+        if (d?.stats?._source === "no_data") setLoadError("Live Alpaca data unavailable — figures below are not current.");
+      })
+      .catch((e) => setLoadError(`Portfolio data unavailable (${e instanceof Error ? e.message : "network error"}).`))
+      .finally(() => setLoading(false));
     fetch("/api/benchmark")
       .then((r) => r.json())
       .then((d: BenchmarkData) => setBenchmark(d))
@@ -222,12 +229,12 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#030005] pb-16">
       <div className="max-w-7xl mx-auto px-6 pt-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
           <div>
             <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Portfolio</h1>
             <p className="text-[#6B7280] text-sm mt-1">Haz Capital Management — Live Dashboard</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass" title={stats?.pipeline_detail ?? undefined}>
               <span className="w-2 h-2 rounded-full" style={{ background: pipelineColor, boxShadow: `0 0 6px ${pipelineColor}` }} />
               <span className="text-xs text-[#6B7280]">{pipelineLabel}</span>
@@ -320,6 +327,12 @@ export default function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {loadError && (
+          <div className="card p-4 mb-6 border border-[#EF4444]/30" role="alert">
+            <p className="text-sm text-[#EF4444]">{loadError}</p>
           </div>
         )}
 
@@ -526,7 +539,7 @@ export default function DashboardPage() {
                 ) : positions.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center py-12 text-[#6B7280]">
-                      No active positions — pipeline has not yet run
+                      {loadError ? "Data unavailable — positions could not be loaded" : "No open positions"}
                     </td>
                   </tr>
                 ) : (

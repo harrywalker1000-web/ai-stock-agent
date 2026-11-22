@@ -2505,7 +2505,7 @@ export default function AdhocTickerPage() {
               MANDATE {mandatePassed ? "PASS" : "FAIL"}
             </span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-x-4 gap-y-2 flex-wrap">
             {currentPrice && (
               <span className="text-lg font-bold font-mono text-white">{fmt$(currentPrice)}</span>
             )}
