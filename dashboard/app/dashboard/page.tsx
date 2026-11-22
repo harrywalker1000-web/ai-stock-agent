@@ -137,33 +137,56 @@ export default function DashboardPage() {
       .catch(() => null);
   }, []);
 
+  // Queues the real pipeline on GitHub Actions (/api/run), then polls the run's status.
   const startRun = async (type: "review" | "full") => {
     setRunModal(null);
     setRunMode(type);
     setRunStatus("running");
-    setRunLog([`Starting ${type === "review" ? "Position Review" : "Full Research Run"}...`]);
-    const slowMsg = setTimeout(() => {
-      setRunLog((prev) => [...prev, "Still running — this can take 10-20 minutes..."]);
-    }, 120000);
+    const label = type === "review" ? "Position Review" : "Full Research Run";
+    setRunLog([`Queuing ${label} on GitHub Actions...`]);
+    const queuedAt = Date.now();
     try {
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type }),
       });
-      clearTimeout(slowMsg);
-      const data = await res.json();
-      if (res.ok) {
-        setRunStatus("done");
-        setRunLog((prev) => [...prev, "Run complete.", data.summary ?? ""]);
-      } else {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
         setRunStatus("error");
-        setRunLog((prev) => [...prev, `Error: ${data.error ?? "unknown error"}`]);
+        setRunLog((prev) => [...prev, `Error: ${data.error ?? `HTTP ${res.status}`}`,
+          ...(data.run?.html_url ? [`Current run: ${data.run.html_url}`] : [])]);
+        return;
       }
+      setRunLog((prev) => [...prev, "Queued. The pipeline takes ~30-45 min; trades only execute while the market is open."]);
     } catch (e) {
-      clearTimeout(slowMsg);
       setRunStatus("error");
       setRunLog((prev) => [...prev, `Network error: ${String(e)}`]);
+      return;
+    }
+
+    // Poll every 30s for up to 2h
+    let lastStatus = "";
+    for (let i = 0; i < 240; i++) {
+      await new Promise((r) => setTimeout(r, 30000));
+      try {
+        const r = await fetch("/api/run");
+        const d = await r.json();
+        const run = d.run;
+        if (!run || new Date(run.created_at).getTime() < queuedAt - 60000) continue; // not visible yet
+        if (run.status !== lastStatus) {
+          lastStatus = run.status;
+          setRunLog((prev) => [...prev, `GitHub status: ${run.status.replace(/_/g, " ")} — ${run.html_url}`]);
+        }
+        if (run.status === "completed") {
+          const ok = run.conclusion === "success";
+          setRunStatus(ok ? "done" : "error");
+          setRunLog((prev) => [...prev, ok
+            ? "Run complete. The dashboard redeploys with the new data in a few minutes — refresh then."
+            : `Run finished with conclusion: ${run.conclusion}. See the GitHub log above.`]);
+          return;
+        }
+      } catch { /* transient — keep polling */ }
     }
   };
 
@@ -236,8 +259,8 @@ export default function DashboardPage() {
               </h3>
               <p className="text-sm text-[#6B7280] mb-4">
                 {runModal === "review"
-                  ? "Runs Phase A only — re-evaluates all open positions and makes hold/exit/size decisions. Takes ~8-15 min."
-                  : "Runs the full daily pipeline — Phase A position review + Phase B new opportunity research. Takes ~15-45 min depending on mode."}
+                  ? "Runs Phase A only on GitHub Actions — re-evaluates all open positions and makes hold/exit/size decisions. Places paper-trading orders if the market is open. Takes ~10-20 min."
+                  : "Runs the full daily pipeline on GitHub Actions — position review + new opportunity research. Places paper-trading orders if the market is open. Takes ~30-45 min depending on mode."}
               </p>
               <div className="flex gap-3">
                 <button onClick={() => setRunModal(null)} className="flex-1 px-4 py-2 rounded-lg text-sm font-medium text-[#6B7280] bg-white/05 hover:bg-white/08 transition-all">Cancel</button>

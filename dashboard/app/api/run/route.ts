@@ -1,69 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { spawn } from "child_process";
-import path from "path";
+import { dispatchWorkflow, latestRuns } from "@/lib/github";
 
 export const dynamic = "force-dynamic";
 
-// Max 15 minutes
-const TIMEOUT_MS = 15 * 60 * 1000;
+/**
+ * Run the real pipeline on GitHub Actions (the same workflow the daily cron uses).
+ * Vercel can't run Python, and a 30-45 min run can't live inside one HTTP request,
+ * so POST queues it and GET reports the latest run's status for the dashboard to poll.
+ */
+
+const WORKFLOW = "daily_run.yml";
+
+export async function GET() {
+  try {
+    const [run] = await latestRuns(WORKFLOW, 1);
+    return NextResponse.json({ run: run ?? null });
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 502 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));
-  const type = String(body.type ?? "full");
-
+  const type = String(body.type ?? "");
   if (!["review", "full"].includes(type)) {
     return NextResponse.json({ error: "Invalid type. Use 'review' or 'full'." }, { status: 400 });
   }
 
-  const projectRoot = path.join(process.cwd(), "..");
-  const args = ["main.py"];
-  if (type === "review") {
-    args.push("--phase-a-only");
-  }
-
-  return new Promise<NextResponse>((resolve) => {
-    const proc = spawn("python3", args, {
-      cwd: projectRoot,
-      env: {
-        ...process.env,
-        PYTHONUNBUFFERED: "1",
-        SKIP_PHASE_B: type === "review" ? "true" : "false",
-      },
-    });
-
-    const stdout: string[] = [];
-    const stderr: string[] = [];
-
-    proc.stdout.on("data", (chunk: Buffer) => stdout.push(chunk.toString()));
-    proc.stderr.on("data", (chunk: Buffer) => stderr.push(chunk.toString()));
-
-    const timeout = setTimeout(() => {
-      proc.kill("SIGTERM");
-      resolve(
-        NextResponse.json(
-          { error: "Pipeline timed out after 15 minutes.", stdout: stdout.join(""), stderr: stderr.join("") },
-          { status: 504 }
-        )
+  try {
+    // Never stack two pipeline runs — they would both trade off the same portfolio state
+    const runs = await latestRuns(WORKFLOW, 5);
+    const active = runs.find((r) => r.status === "in_progress" || r.status === "queued" || r.status === "waiting");
+    if (active) {
+      return NextResponse.json(
+        { error: "A pipeline run is already in progress", run: active },
+        { status: 409 },
       );
-    }, TIMEOUT_MS);
-
-    proc.on("close", (code) => {
-      clearTimeout(timeout);
-      if (code === 0) {
-        resolve(NextResponse.json({ ok: true, summary: `Run completed (${type})`, stdout: stdout.join("").slice(-2000) }));
-      } else {
-        resolve(
-          NextResponse.json(
-            { error: `Process exited with code ${code}`, stderr: stderr.join("").slice(-2000) },
-            { status: 500 }
-          )
-        );
-      }
+    }
+    await dispatchWorkflow(WORKFLOW, {
+      start_at_et: "",                                  // start now
+      phase_a_only: type === "review" ? "true" : "false",
     });
-
-    proc.on("error", (err) => {
-      clearTimeout(timeout);
-      resolve(NextResponse.json({ error: `Failed to start process: ${err.message}` }, { status: 500 }));
-    });
-  });
+    return NextResponse.json({ queued: true, type });
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 502 });
+  }
 }

@@ -50,6 +50,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [savedLimits, setSavedLimits] = useState(false);
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [limits, setLimits] = useState<CandidateLimits>(DEFAULT_LIMITS);
   const [editingLimits, setEditingLimits] = useState(false);
   const [draftLimits, setDraftLimits] = useState<CandidateLimits>(DEFAULT_LIMITS);
@@ -58,6 +59,7 @@ export default function SettingsPage() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((data) => {
+        if (data.error) setErrorMsg(data.error);
         if (data.mode && ["Auto", "Lite", "Standard", "Full"].includes(data.mode)) setMode(data.mode as AnalysisMode);
         if (data.updated_at) setUpdatedAt(data.updated_at);
         if (data.candidate_limits) {
@@ -65,7 +67,7 @@ export default function SettingsPage() {
           setDraftLimits(data.candidate_limits as CandidateLimits);
         }
       })
-      .catch(() => {});
+      .catch(() => setErrorMsg("Could not load saved settings — network error"));
   }, []);
 
   const save = async (newMode: AnalysisMode) => {
@@ -77,6 +79,9 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mode: newMode }),
       });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) setErrorMsg(d.error ?? `Save failed (HTTP ${res.status})`);
+      else setErrorMsg(null);
       if (res.ok) {
         setMode(newMode);
         setSaved(true);
@@ -97,7 +102,11 @@ export default function SettingsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ candidate_limits: draftLimits }),
       });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) setErrorMsg(d.error ?? `Save failed (HTTP ${res.status})`);
+      else setErrorMsg(null);
       if (res.ok) {
+        if (d.candidate_limits) setDraftLimits(d.candidate_limits as CandidateLimits);
         setLimits({ ...draftLimits });
         setEditingLimits(false);
         setSavedLimits(true);
@@ -132,8 +141,14 @@ export default function SettingsPage() {
       <div className="max-w-3xl mx-auto px-6 pt-8">
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold text-[#E8EDF2]">Settings</h1>
-          <p className="text-[#6B7280] text-sm mt-1">Configure pipeline behaviour and analysis depth.</p>
+          <p className="text-[#6B7280] text-sm mt-1">Configure pipeline behaviour and analysis depth. Saved to the repo, so the next pipeline run uses it.</p>
         </div>
+
+        {errorMsg && (
+          <div className="card p-4 mb-6 border border-[#EF4444]/30 bg-[#EF4444]/05" role="alert">
+            <p className="text-sm text-[#EF4444]">{errorMsg}</p>
+          </div>
+        )}
 
         {/* Analysis Mode */}
         <div className="card p-6 mb-6">

@@ -23,11 +23,13 @@ on:
         type: choice
         options: ['false', 'true']
       phase_a_mode:
-        description: 'Phase A mode (Standard=daily sentiment refresh; Full=full re-analysis every day; Auto=Standard + Fundamental near earnings)'
+        description: 'Override analysis mode (Auto | Lite | Standard | Full). Blank = use the mode saved on the dashboard Settings page (data/config/analysis_mode.json)'
         required: false
-        default: 'Standard'
-        type: choice
-        options: ['Auto', 'Lite', 'Standard', 'Full']
+        default: ''
+      phase_a_only:
+        description: 'Review held positions only — skip new-opportunity research (dashboard "Review Positions" button)'
+        required: false
+        default: 'false'
 
 jobs:
   run-pipeline:
@@ -109,6 +111,7 @@ jobs:
           # Pipeline config
           PHASE_A_MODE: ${{ github.event.inputs.phase_a_mode || '' }}
           SKIP_PHASE_A: ${{ github.event.inputs.skip_phase_a || 'false' }}
+          SKIP_PHASE_B: ${{ github.event.inputs.phase_a_only || 'false' }}
           ALLOW_LIVE_TRADING: 'true'
         run: python main.py
 
