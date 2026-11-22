@@ -30,10 +30,41 @@ const EVENT_STYLE: Record<string, { color: string; shape: "arrowUp" | "arrowDown
   exit:        { color: "#EF4444", shape: "arrowDown", position: "aboveBar", label: "Exit" },
 };
 
-function dateToUnixSeconds(dateStr: string): number | null {
-  const d = new Date(`${dateStr}T00:00:00Z`);
-  const t = Math.floor(d.getTime() / 1000);
-  return Number.isNaN(t) ? null : t;
+// NY calendar date of a unix-seconds timestamp
+function nyDay(t: number): string {
+  return new Date(t * 1000).toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+}
+
+/**
+ * Snap each trade event (a NY calendar date) onto the candle that contains it:
+ *  - intraday / daily: the first candle on that date
+ *  - weekly: the last candle starting on or before that date (the week it falls in)
+ * Events outside the loaded window are dropped instead of being pinned to the first bar.
+ */
+function buildMarkers(events: TradeEvent[], candles: Candle[], tf: TF) {
+  if (!candles.length) return [];
+  const days = candles.map((c) => nyDay(c.time));
+  const firstDay = days[0];
+  const lastDay = days[days.length - 1];
+  const out: { time: number; position: string; color: string; shape: string; text: string }[] = [];
+  for (const ev of events) {
+    const style = EVENT_STYLE[ev.decision];
+    if (!style || !/^\d{4}-\d{2}-\d{2}$/.test(ev.date)) continue;
+    let idx = -1;
+    if (tf === "1W") {
+      if (ev.date < firstDay) continue;
+      for (let i = 0; i < days.length; i++) { if (days[i] <= ev.date) idx = i; else break; }
+      // beyond the last weekly bar's week → not loaded
+      if (idx === days.length - 1 && (new Date(`${ev.date}T12:00:00Z`).getTime() - candles[idx].time * 1000) > 7 * 86400_000) idx = -1;
+    } else {
+      if (ev.date < firstDay || ev.date > lastDay) continue;
+      idx = days.indexOf(ev.date);
+    }
+    if (idx < 0) continue;
+    const pct = ev.size_pct != null ? ` ${ev.size_pct.toFixed(0)}%` : "";
+    out.push({ time: candles[idx].time, position: style.position, color: style.color, shape: style.shape, text: `${style.label}${pct}` });
+  }
+  return out.sort((a, b) => a.time - b.time);
 }
 
 export default function CandlestickChart({ ticker, entryPrice, currentPrice, tradeEvents }: Props) {
@@ -44,24 +75,33 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice, tra
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const loadedTfRef = useRef<TF | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markersRef = useRef<any>(null);
+  const requestIdRef = useRef(0);
+  const eventsRef = useRef<TradeEvent[]>(tradeEvents ?? []);
+  eventsRef.current = tradeEvents ?? [];
 
   const fetchAndRender = useCallback(async (timeframe: TF) => {
     if (!seriesRef.current) return;
+    const reqId = ++requestIdRef.current; // a newer click supersedes this one
     setLoading(true);
     setError(false);
     try {
       const res = await fetch(`/api/chart/${ticker}?tf=${timeframe}`);
       const json = await res.json();
+      if (reqId !== requestIdRef.current || !seriesRef.current) return;
       const candles: Candle[] = json.candles ?? [];
       if (candles.length === 0) {
         setError(true);
       } else {
         // @ts-expect-error -- series ref typed as unknown
         seriesRef.current.setData(candles);
+        markersRef.current?.setMarkers(buildMarkers(eventsRef.current, candles, timeframe));
         // @ts-expect-error -- chart ref typed as unknown
         chartRef.current?.timeScale().fitContent();
       }
     } catch {
+      if (reqId !== requestIdRef.current) return;
       setError(true);
     }
     setLoading(false);
@@ -73,6 +113,7 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice, tra
     let cancelled = false;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let chart: any;
+    let onResize: (() => void) | null = null;
 
     (async () => {
       try {
@@ -148,42 +189,21 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice, tra
           });
         }
 
-        // Trade-event annotations: entered / expanded / trimmed markers at their
-        // actual dates, from decision_log — complements the Entry/Current lines
-        // (which only show price, not when each capital move happened).
-        if (tradeEvents && tradeEvents.length > 0 && typeof lc.createSeriesMarkers === "function") {
-          const markers = tradeEvents
-            .map((ev) => {
-              const style = EVENT_STYLE[ev.decision];
-              const time = style ? dateToUnixSeconds(ev.date) : null;
-              if (!style || time == null) return null;
-              const pct = ev.size_pct != null ? ` ${ev.size_pct.toFixed(0)}%` : "";
-              return {
-                time,
-                position: style.position,
-                color: style.color,
-                shape: style.shape,
-                text: `${style.label}${pct}`,
-              };
-            })
-            .filter((m): m is NonNullable<typeof m> => m !== null)
-            .sort((a, b) => a.time - b.time);
-          if (markers.length > 0) {
-            lc.createSeriesMarkers(series, markers);
-          }
+        // Trade-event markers: positions are computed per timeframe after each data
+        // load (buildMarkers), so they always sit on the candle containing the event.
+        if (typeof lc.createSeriesMarkers === "function") {
+          markersRef.current = lc.createSeriesMarkers(series, []);
         }
 
         chartRef.current = chart;
         seriesRef.current = series;
 
-        const onResize = () => {
+        onResize = () => {
           if (el) chart?.applyOptions({ width: el.offsetWidth });
         };
         window.addEventListener("resize", onResize);
 
         if (!cancelled) await fetchAndRender("1D");
-
-        return () => window.removeEventListener("resize", onResize);
       } catch (err) {
         console.error("Chart init error:", err);
         setLoading(false);
@@ -193,6 +213,8 @@ export default function CandlestickChart({ ticker, entryPrice, currentPrice, tra
 
     return () => {
       cancelled = true;
+      if (onResize) window.removeEventListener("resize", onResize);
+      markersRef.current = null;
       chart?.remove();
       chartRef.current = null;
       seriesRef.current = null;

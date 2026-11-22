@@ -82,13 +82,84 @@ def append_nav_point(equity: float | None = None, run_date: str | None = None) -
 # ---------------------------------------------------------------------------
 
 def _fetch_spy_closes(start: str, end: str) -> dict[str, float]:
-    """Fetch SPY adjusted-close prices and return {date_str: close}."""
+    """
+    SPY dividend-adjusted closes {YYYY-MM-DD: close}, inclusive of `end`.
+    (yf.download returns MultiIndex columns in yfinance >= 0.2.5x, which made
+    raw["Close"][ts] raise and the bare except return {} on every run; and its `end`
+    is exclusive, which dropped today.)
+    """
     try:
-        raw = yf.download("SPY", start=start, end=end, auto_adjust=True, progress=False)
-        if raw.empty:
+        end_incl = (datetime.strptime(end, "%Y-%m-%d") + timedelta(days=1)).date().isoformat()
+        hist = yf.Ticker("SPY").history(start=start, end=end_incl, auto_adjust=True)
+        if hist is None or hist.empty:
             return {}
-        closes = raw["Close"]
-        return {str(ts.date()): float(closes[ts]) for ts in closes.index}
+        return {str(ts.date()): float(v) for ts, v in hist["Close"].items()}
+    except Exception as exc:
+        print(f"  benchmark_tracker: SPY fetch failed: {exc}")
+        return {}
+
+
+def _alpaca_nav_history() -> list[dict]:
+    """
+    Daily equity from Alpaca's own portfolio history (period=all) — the authoritative
+    NAV series, independent of whether nav_history.json survived between CI runs.
+    Each point is stamped 20:00 New York time; labelled with its New York date.
+    """
+    import os
+    import requests
+    from zoneinfo import ZoneInfo
+    key, secret = os.environ.get("ALPACA_API_KEY"), os.environ.get("ALPACA_SECRET_KEY")
+    base = os.environ.get("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+    if not key or not secret:
+        return []
+    try:
+        r = requests.get(f"{base}/v2/account/portfolio/history",
+                         params={"period": "all", "timeframe": "1D"},
+                         headers={"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret}, timeout=20)
+        r.raise_for_status()
+        d = r.json()
+        ny = ZoneInfo("America/New_York")
+        out = []
+        for ts, eq in zip(d.get("timestamp") or [], d.get("equity") or []):
+            if eq:
+                out.append({"date": datetime.fromtimestamp(ts, ny).date().isoformat(), "equity": round(float(eq), 2)})
+        return out
+    except Exception as exc:
+        print(f"  benchmark_tracker: Alpaca history fetch failed: {exc}")
+        return []
+
+
+def _apply_split_corrections(nav: list[dict]) -> list[dict]:
+    """
+    While Alpaca still holds a pre-split share count at the post-split price, its equity
+    history understates NAV by (ratio − 1) × stale_qty × close on each day since the
+    ex-date. Detection is shared with the executor (trade_executor._get_alpaca_positions).
+    """
+    try:
+        from agents.trade_executor import _get_alpaca_client, _get_alpaca_positions
+        pending = {t: p for t, p in _get_alpaca_positions(_get_alpaca_client()).items() if p.get("split_pending")}
+    except Exception as exc:
+        print(f"  benchmark_tracker: split check skipped: {exc}")
+        return nav
+    if not pending:
+        return nav
+    delta: dict[str, float] = {}
+    for ticker, p in pending.items():
+        sp = p["split_pending"]
+        sign = 1 if p.get("side") == "long" else -1
+        closes = _ticker_closes(ticker, sp["ex_date"])
+        for d, c in closes.items():
+            if d >= sp["ex_date"]:
+                delta[d] = delta.get(d, 0.0) + sign * (sp["ratio"] - 1) * p["broker_qty"] * c
+    print(f"  benchmark_tracker: corrected NAV for pending split(s): {', '.join(pending)}")
+    return [{**e, "equity": round(e["equity"] + delta.get(e["date"], 0.0), 2)} for e in nav]
+
+
+def _ticker_closes(ticker: str, start: str) -> dict[str, float]:
+    """Split-adjusted daily closes (same basis Alpaca marks the stale position at)."""
+    try:
+        hist = yf.Ticker(ticker).history(start=start, auto_adjust=False)
+        return {str(ts.date()): float(v) for ts, v in hist["Close"].items()}
     except Exception:
         return {}
 
@@ -176,8 +247,9 @@ def _compute_period(series: list[dict], days: int | None, ytd: bool = False) -> 
     if start_point is None or start_point["date"] == today:
         return {"portfolio_return_pct": None, "spy_return_pct": None, "note": "insufficient_history"}
 
-    port_return = round(latest["portfolio_cumulative"] - start_point["portfolio_cumulative"], 3)
-    spy_return  = round(latest["spy_cumulative"]       - start_point["spy_cumulative"], 3)
+    # Compound, don't subtract: cumulative % values must be converted to growth factors
+    port_return = round(((1 + latest["portfolio_cumulative"] / 100) / (1 + start_point["portfolio_cumulative"] / 100) - 1) * 100, 3)
+    spy_return  = round(((1 + latest["spy_cumulative"] / 100) / (1 + start_point["spy_cumulative"] / 100) - 1) * 100, 3)
     alpha       = round(port_return - spy_return, 3)
 
     return {
@@ -192,7 +264,10 @@ def compute_benchmark_history() -> dict:
     Read nav_history.json, fetch SPY, compute all periods and daily series,
     write benchmark_history.json. Returns the full benchmark dict.
     """
-    nav_history: list = _load_json(NAV_HISTORY_PATH, default=[])
+    # Alpaca's daily equity history is the source of truth; nav_history.json is only a
+    # fallback (it was never committed, so on CI it reset to a single point every run).
+    nav_history: list = _alpaca_nav_history() or _load_json(NAV_HISTORY_PATH, default=[])
+    nav_history = _apply_split_corrections(nav_history)
     if not nav_history:
         result = {"error": "No NAV history yet — pipeline has not run with tracking enabled"}
         _save_json(BENCHMARK_PATH, result)

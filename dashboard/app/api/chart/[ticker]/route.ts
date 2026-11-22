@@ -48,9 +48,32 @@ export async function GET(
         close: Number(q.close),
       }))
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((c: any) => c.time > 0);
+      .filter((c: any) => c.time > 0)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .sort((a: any, b: any) => a.time - b.time);
 
-    return NextResponse.json({ candles, ticker, tf });
+    // Yahoo's weekly series appends the in-progress week as a separate row stamped with
+    // the latest quote time — merge any bar that starts <7 days after the previous one.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let out: any[] = candles;
+    if (interval === "1wk") {
+      out = [];
+      for (const c of candles) {
+        const prev = out[out.length - 1];
+        if (prev && c.time - prev.time < 6.5 * 86400) {
+          prev.high = Math.max(prev.high, c.high);
+          prev.low = Math.min(prev.low, c.low);
+          prev.close = c.close;
+        } else {
+          out.push({ ...c });
+        }
+      }
+    }
+    // Strictly ascending, unique times (lightweight-charts requirement)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    out = out.filter((c: any, i: number) => i === 0 || c.time > out[i - 1].time);
+
+    return NextResponse.json({ candles: out, ticker, tf });
   } catch (err) {
     console.error(`Chart API error for ${ticker}:`, err);
     return NextResponse.json({ candles: [], ticker, tf, error: "fetch_failed" });

@@ -137,11 +137,20 @@ def build_valuation_metrics(data: dict, mandate: dict) -> dict:
 
     # Core multiples from yfinance
     pe_ttm    = _safe_float(yf_info.get("pe_ttm"))
-    pe_fwd    = _safe_float(yf_info.get("forward_pe"))
-    pb        = _safe_float(yf_info.get("price_to_book"))
-    ps        = _safe_float(yf_info.get("price_to_sales_ttm"))
+    # data_fetcher names these pe_fwd / pb / ps — the old keys never existed, so these were always None
+    pe_fwd    = _safe_float(yf_info.get("pe_fwd") or yf_info.get("forward_pe"))
+    pb        = _safe_float(yf_info.get("pb") or yf_info.get("price_to_book"))
+    ps        = _safe_float(yf_info.get("ps") or yf_info.get("price_to_sales_ttm"))
     ev_ebitda = _safe_float(yf_info.get("ev_ebitda"))
-    div_yield = _safe_float(yf_info.get("dividend_yield"))
+    # Dividend yield as a FRACTION, computed unambiguously: annual dividend $ / price.
+    # (yfinance's dividendYield switched from a fraction to a percent between versions,
+    # and multiplying the percent by 100 again showed NVDA at 61%, PEP at 416%.)
+    _div_rate = _safe_float(yf_info.get("dividend_rate"))
+    _px       = _safe_float(yf_info.get("current_price"))
+    if _div_rate is not None and _px:
+        div_yield = _div_rate / _px
+    else:
+        div_yield = _safe_float(yf_info.get("trailing_dividend_yield"))
     beta      = _safe_float(yf_info.get("beta"))
 
     # Cross-check P/B from FMP key metrics
@@ -598,11 +607,14 @@ def build_institutional_activity(data: dict) -> dict:
             "filing_url":       f.get("url"),
         })
 
+    # Finnhub returns one row per month; each row is a full snapshot of current ratings.
+    # Summing rows counted every analyst 4-5 times (NVDA 275 vs ~54) — use the latest month.
     buy_cnt = hold_cnt = sell_cnt = 0
-    for r in ratings:
-        buy_cnt  += int(r.get("buy", 0) or 0) + int(r.get("strongBuy", 0) or 0)
-        hold_cnt += int(r.get("hold", 0) or 0)
-        sell_cnt += int(r.get("sell", 0) or 0) + int(r.get("strongSell", 0) or 0)
+    latest = max(ratings, key=lambda r: str(r.get("period") or ""), default=None) if ratings else None
+    if latest:
+        buy_cnt  = int(latest.get("buy", 0) or 0) + int(latest.get("strongBuy", 0) or 0)
+        hold_cnt = int(latest.get("hold", 0) or 0)
+        sell_cnt = int(latest.get("sell", 0) or 0) + int(latest.get("strongSell", 0) or 0)
 
     total_ratings = buy_cnt + hold_cnt + sell_cnt
     consensus_str = (

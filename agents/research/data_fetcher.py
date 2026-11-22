@@ -263,7 +263,9 @@ def fetch_yfinance_comprehensive(ticker: str) -> dict:
             "pb":                       info.get("priceToBook"),
             "ev_ebitda":                info.get("enterpriseToEbitda"),
             "peg":                      info.get("pegRatio"),
-            "dividend_yield":           info.get("dividendYield"),
+            "dividend_yield":           info.get("dividendYield"),   # units vary by yfinance version — don't use directly
+            "dividend_rate":            info.get("dividendRate"),    # annual $ per share
+            "trailing_dividend_yield":  info.get("trailingAnnualDividendYield"),  # fraction
             "gross_margins":            info.get("grossMargins"),
             "ebitda_margins":           info.get("ebitdaMargins"),
             "profit_margins":           info.get("profitMargins"),
