@@ -12,6 +12,13 @@ async function safe(url: string): Promise<any> {
   } catch { return null; }
 }
 
+function has(x: unknown): boolean {
+  if (x == null) return false;
+  if (Array.isArray(x)) return x.length > 0;
+  if (typeof x === "object") return Object.values(x as Record<string, unknown>).some((v) => v != null);
+  return true;
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: { ticker: string } }
@@ -162,15 +169,16 @@ export async function GET(
     insider_trades,
     revenue_segments,
     revenue_geo,
+    // A source is credited only if it actually returned data (not merely because a key is set)
     sources: {
-      earnings_surprises: fhKey ? "Finnhub" : null,
-      price_target: fhKey ? "Finnhub" : null,
-      recommendation_trend: fhKey ? "Finnhub" : null,
-      news: fhKey ? "Finnhub" : null,
-      key_metrics: fmpKey ? "Financial Modeling Prep" : null,
-      insider_trades: fmpKey ? "Financial Modeling Prep" : null,
-      revenue_segments: fmpKey ? "Financial Modeling Prep" : null,
-      revenue_geo: fmpKey ? "Financial Modeling Prep" : null,
+      earnings_surprises: fhKey && has(earnings_surprises) ? "Finnhub" : null,
+      price_target: fhKey && has(price_target) ? "Finnhub" : null,
+      recommendation_trend: fhKey && has(recommendation_trend) ? "Finnhub" : null,
+      news: fhKey && has(news) ? "Finnhub" : null,
+      key_metrics: fmpKey && has(key_metrics) ? "Financial Modeling Prep" : null,
+      insider_trades: fmpKey && has(insider_trades) ? "Financial Modeling Prep" : null,
+      revenue_segments: fmpKey && has(revenue_segments) ? "Financial Modeling Prep" : null,
+      revenue_geo: fmpKey && has(revenue_geo) ? "Financial Modeling Prep" : null,
     },
   });
 }

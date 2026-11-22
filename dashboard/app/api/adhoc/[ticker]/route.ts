@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
-import { exec } from "child_process";
-import { promisify } from "util";
-
-const execAsync = promisify(exec);
+import { adhocTicker, isAdhocFilename, listAdhocFiles, readAdhocFile, readLatestAdhoc, sortAdhocNames } from "@/lib/adhoc-files";
+import { isSectionsReport } from "@/lib/adhoc-normalize";
 
 const REPO = process.env.GITHUB_REPO ?? "harrywalker1000-web/ai-stock-agent";
 const BRANCH = "main";
@@ -14,153 +10,90 @@ const REPO_DIRS = [
 ];
 
 function sanitizeTicker(raw: string): string {
-  return String(raw).toUpperCase().replace(/[^A-Z0-9.]/g, "");
+  return String(raw).toUpperCase().replace(/[^A-Z0-9.\-]/g, "");
 }
 
-function getAdhocDir(): string {
-  // Check dashboard/data/adhoc_reports (Vercel + local dashboard-root)
-  const inDashboard = path.join(process.cwd(), "data", "adhoc_reports");
-  if (fs.existsSync(inDashboard)) return inDashboard;
-  // Fallback: repo-root/data/adhoc_reports (local dev from repo root)
-  return path.join(process.cwd(), "..", "data", "adhoc_reports");
-}
-
-function readLatestReport(ticker: string): Record<string, unknown> | null {
-  const adhocDir = getAdhocDir();
-  if (!fs.existsSync(adhocDir)) return null;
-  const files = fs.readdirSync(adhocDir)
-    .filter((f) => f.startsWith(`${ticker}_`) && f.endsWith(".json"))
-    .sort()
-    .reverse();
-  if (files.length === 0) return null;
-  try {
-    const content = fs.readFileSync(path.join(adhocDir, files[0]), "utf-8");
-    return JSON.parse(content);
-  } catch {
-    return null;
-  }
-}
-
-async function fetchLatestReportFromGitHub(
-  ticker: string
-): Promise<Record<string, unknown> | null> {
+function ghHeaders(): Record<string, string> {
+  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
   const token = process.env.GITHUB_DISPATCH_TOKEN;
-
-  // Token is optional — public repos work without auth.
-  // If token is absent and repo is private, GitHub returns 401 and we continue gracefully.
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-  };
   if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
 
-  let latestFile: { name: string; download_url: string } | null = null;
-
+/**
+ * GitHub fallback: a report committed after the current deployment was built isn't in
+ * the bundle yet. `file` = a specific filename; otherwise the newest for the ticker.
+ */
+async function fetchReportFromGitHub(
+  ticker: string,
+  file: string | null,
+): Promise<{ file: string; report: Record<string, unknown> } | null> {
+  const candidates: { name: string; download_url: string }[] = [];
   for (const dir of REPO_DIRS) {
     try {
-      const res = await fetch(
-        `https://api.github.com/repos/${REPO}/contents/${dir}?ref=${BRANCH}`,
-        { headers }
-      );
+      const res = await fetch(`https://api.github.com/repos/${REPO}/contents/${dir}?ref=${BRANCH}`, {
+        headers: ghHeaders(),
+        next: { revalidate: 120 },
+      });
       if (!res.ok) continue;
-      const items: Array<{ name: string; download_url: string; type: string }> =
-        await res.json();
+      const items: Array<{ name: string; download_url: string; type: string }> = await res.json();
       if (!Array.isArray(items)) continue;
       for (const item of items) {
-        if (
-          item.type === "file" &&
-          item.name.startsWith(`${ticker}_`) &&
-          item.name.endsWith(".json")
-        ) {
-          // Filename format YYYYMMDD_HHMMSS — lexicographic = chronological
-          if (!latestFile || item.name > latestFile.name) {
-            latestFile = item;
-          }
-        }
+        if (item.type !== "file") continue;
+        if (file ? item.name === file : adhocTicker(item.name) === ticker) candidates.push(item);
       }
     } catch {
       continue;
     }
   }
-
-  if (!latestFile) return null;
-
-  try {
-    const fileRes = await fetch(latestFile.download_url);
-    if (!fileRes.ok) return null;
-    return await fileRes.json();
-  } catch {
-    return null;
+  const order = sortAdhocNames(candidates.map((c) => c.name));
+  for (const name of order) {
+    const item = candidates.find((c) => c.name === name)!;
+    try {
+      const fileRes = await fetch(item.download_url, { headers: ghHeaders() });
+      if (!fileRes.ok) continue;
+      return { file: name, report: JSON.parse(await fileRes.text()) };
+    } catch {
+      continue; // NaN / truncated JSON — try the next-newest
+    }
   }
+  return null;
 }
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { ticker: string } }
 ) {
   const ticker = sanitizeTicker(params.ticker);
   if (!ticker) return NextResponse.json({ error: "Invalid ticker" }, { status: 400 });
 
-  // 1. Try local filesystem (works locally and when includeFiles bundles the files)
-  const report = readLatestReport(ticker);
-  if (report) return NextResponse.json(report);
+  // Optional ?file=TICKER_YYYY-MM-DD.json — open one specific report
+  const file = new URL(request.url).searchParams.get("file");
+  if (file !== null && (!isAdhocFilename(file) || adhocTicker(file) !== ticker)) {
+    return NextResponse.json({ error: "Invalid report file" }, { status: 400 });
+  }
 
-  // 2. Fallback: fetch from GitHub (handles Vercel build cache not picking up new files)
-  const githubReport = await fetchLatestReportFromGitHub(ticker);
-  if (githubReport) return NextResponse.json(githubReport);
+  // ?schema=flat — newest report in the older flat format (the pitch page only reads that one)
+  if (new URL(request.url).searchParams.get("schema") === "flat") {
+    for (const name of listAdhocFiles(ticker)) {
+      const r = readAdhocFile(name);
+      if (r && !isSectionsReport(r)) return NextResponse.json({ ...r, _file: name });
+    }
+    return NextResponse.json({ error: `No pitch-format report for ${ticker}`, latest_available: !!readLatestAdhoc(ticker) }, { status: 404 });
+  }
+
+  // 1. Bundled / local files
+  if (file) {
+    const report = readAdhocFile(file);
+    if (report) return NextResponse.json({ ...report, _file: file });
+  } else {
+    const latest = readLatestAdhoc(ticker);
+    if (latest) return NextResponse.json({ ...latest.report, _file: latest.file });
+  }
+
+  // 2. GitHub fallback (report committed after this deployment was built)
+  const gh = await fetchReportFromGitHub(ticker, file);
+  if (gh) return NextResponse.json({ ...gh.report, _file: gh.file });
 
   return NextResponse.json({ error: `No report found for ${ticker}` }, { status: 404 });
-}
-
-export async function POST(
-  _request: Request,
-  { params }: { params: { ticker: string } }
-) {
-  const ticker = sanitizeTicker(params.ticker);
-  if (!ticker) return NextResponse.json({ error: "Invalid ticker" }, { status: 400 });
-
-  const scriptPath = path.join(process.cwd(), "..", "scripts", "run_adhoc_research.py");
-
-  if (!fs.existsSync(scriptPath)) {
-    return NextResponse.json(
-      { error: `Script not found: ${scriptPath}` },
-      { status: 500 }
-    );
-  }
-
-  try {
-    const { stdout, stderr } = await execAsync(
-      `python3 "${scriptPath}" ${ticker}`,
-      {
-        timeout: 120000,
-        cwd: path.join(process.cwd(), ".."),
-        env: { ...process.env },
-      }
-    );
-
-    // Try to parse stdout as JSON first
-    const trimmed = stdout.trim();
-    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-      try {
-        return NextResponse.json(JSON.parse(trimmed));
-      } catch {
-        // fall through to file read
-      }
-    }
-
-    // Script may write to file instead of stdout — read latest
-    const report = readLatestReport(ticker);
-    if (report) return NextResponse.json(report);
-
-    // Return stderr as error if nothing else works
-    return NextResponse.json(
-      { error: `Pipeline error: ${stderr || "No output"}` },
-      { status: 500 }
-    );
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    // On timeout or failure, try reading any partial report
-    const report = readLatestReport(ticker);
-    if (report) return NextResponse.json(report);
-    return NextResponse.json({ error: msg }, { status: 500 });
-  }
 }

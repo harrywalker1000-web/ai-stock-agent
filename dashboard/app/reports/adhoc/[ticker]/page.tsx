@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CandlestickChart from "@/components/CandlestickChart";
 import {
@@ -2228,6 +2228,32 @@ export default function AdhocTickerPage() {
   const { ticker: rawTicker } = useParams() as { ticker: string };
   const ticker = rawTicker.toUpperCase();
   const router = useRouter();
+  // ?file=TICKER_YYYY-MM-DD.json opens one specific report (list rows link this way)
+  const fileParam = useSearchParams().get("file");
+  const [reloadKey, setReloadKey] = useState(0);
+  const [runState, setRunState] = useState<"idle" | "sending" | "error">("idle");
+  const [runError, setRunError] = useState<string | null>(null);
+
+  // Queue a fresh report on GitHub Actions (same path as the Research page's Run button),
+  // then hand over to the Research page, which tracks progress.
+  const queueRun = async () => {
+    setRunState("sending");
+    setRunError(null);
+    try {
+      const res = await fetch("/api/adhoc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker, forceRefresh: true }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok || d.error) throw new Error(d.error ?? `Request failed (${res.status})`);
+      try { localStorage.setItem("adhocQueued", JSON.stringify({ ticker, queuedAt: Date.now() })); } catch { /* ignore */ }
+      router.push("/reports/adhoc");
+    } catch (e) {
+      setRunState("error");
+      setRunError(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   const [report, setReport] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -2246,18 +2272,14 @@ export default function AdhocTickerPage() {
     setLoading(true);
     setError(null);
 
-    // Try GET first (serves cached report — works on Vercel and locally)
-    // Fall back to POST only if no cached report exists (local dev with Python)
-    fetch(`/api/adhoc/${ticker}`)
+    const url = fileParam
+      ? `/api/adhoc/${ticker}?file=${encodeURIComponent(fileParam)}`
+      : `/api/adhoc/${ticker}`;
+    fetch(url)
       .then(async (r) => {
-        if (r.ok) return r.json();
-        // No cached report — try to generate (requires local Python)
-        const post = await fetch(`/api/adhoc/${ticker}`, { method: "POST" });
-        if (!post.ok) {
-          const d = await post.json();
-          return Promise.reject(d.error ?? "Pipeline failed — ensure Python and API keys are configured locally");
-        }
-        return post.json();
+        const d = await r.json().catch(() => null);
+        if (!r.ok || !d) return Promise.reject(d?.error ?? `Failed to load report (HTTP ${r.status})`);
+        return d;
       })
       .then((data) => {
         if (cancelled) return;
@@ -2272,7 +2294,7 @@ export default function AdhocTickerPage() {
       });
 
     return () => { cancelled = true; };
-  }, [ticker]);
+  }, [ticker, fileParam, reloadKey]);
 
   // Fetch live comparables (always up-to-date peer list, overrides stale JSON peers)
   useEffect(() => {
@@ -2317,11 +2339,20 @@ export default function AdhocTickerPage() {
         </div>
         <div className="flex gap-3">
           <button
-            onClick={() => { setLoading(true); setError(null); }}
+            onClick={() => setReloadKey((k) => k + 1)}
             className="text-xs px-4 py-2 rounded-lg bg-[#131929] border border-[#1E2D4A] text-[#94A3B8] hover:text-white hover:border-[#2D6BFF] transition-all"
           >
             Retry
           </button>
+          {error?.startsWith("No report found") && (
+            <button
+              onClick={queueRun}
+              disabled={runState === "sending"}
+              className="text-xs px-4 py-2 rounded-lg bg-[#131929] border border-[#1E2D4A] text-[#94A3B8] hover:text-white hover:border-[#2D6BFF] transition-all disabled:opacity-50"
+            >
+              {runState === "sending" ? "Queuing…" : runState === "error" ? `Couldn't queue (${runError}) — retry` : `Run analysis for ${ticker}`}
+            </button>
+          )}
           <Link href="/reports/adhoc"
             className="text-xs px-4 py-2 rounded-lg bg-[#2D6BFF]/10 border border-[#2D6BFF]/30 text-[#60A5FA] hover:bg-[#2D6BFF]/20 transition-all">
             Back to Research
@@ -2511,18 +2542,12 @@ export default function AdhocTickerPage() {
               </span>
             )}
             <button
-              onClick={() => {
-                setReport(null);
-                setError(null);
-                setLoading(true);
-                fetch(`/api/adhoc/${ticker}`, { method: "POST" })
-                  .then(r => r.ok ? r.json() : r.json().then(d => Promise.reject(d.error ?? "Failed")))
-                  .then(d => { setReport(d); setLoading(false); })
-                  .catch(e => { setError(String(e)); setLoading(false); });
-              }}
-              className="text-[10px] px-3 py-1.5 rounded border transition-all"
-              style={{ background: "var(--bg-card)", color: "var(--text-muted)", borderColor: "var(--border)" }}>
-              Regenerate
+              onClick={queueRun}
+              disabled={runState === "sending"}
+              title={runState === "error" ? `Could not queue: ${runError}` : "Queue a fresh report (runs on GitHub, ~10 min)"}
+              className="text-[10px] px-3 py-1.5 rounded border transition-all disabled:opacity-50"
+              style={{ background: "var(--bg-card)", color: runState === "error" ? "#EF4444" : "var(--text-muted)", borderColor: "var(--border)" }}>
+              {runState === "sending" ? "Queuing…" : runState === "error" ? "Regenerate failed — retry" : "Regenerate"}
             </button>
             <button onClick={handlePrint}
               className="text-[10px] px-3 py-1.5 rounded border transition-all"

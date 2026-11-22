@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readFileSync, readdirSync } from "fs";
-import { join } from "path";
 import YahooFinanceClass from "yahoo-finance2";
 import { findPendingSplits, correctPosition } from "@/lib/splits";
+import { readLatestAdhoc } from "@/lib/adhoc-files";
+import { normalizeAdhoc } from "@/lib/adhoc-normalize";
 
 // Static JSON imports — bundler includes these in the serverless function.
 // fs.readFileSync at runtime is NOT reliably bundled by Next.js/Vercel.
@@ -76,21 +76,14 @@ async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
-// Read the most recent adhoc report for a ticker from the filesystem at runtime.
-// Adhoc reports live outside the Next.js build — they are written by the Python pipeline
-// after every entry decision and cannot be statically imported.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function loadAdhocReport(ticker: string): Record<string, any> | null {
-  try {
-    // process.cwd() = dashboard/ in Next.js; adhoc reports are in ../data/adhoc_reports/
-    const adhocDir = join(process.cwd(), "..", "data", "adhoc_reports");
-    const files = readdirSync(adhocDir)
-      .filter(f => f.startsWith(`${ticker}_`) && f.endsWith(".json"))
-      .sort()
-      .reverse();
-    if (!files.length) return null;
-    return JSON.parse(readFileSync(join(adhocDir, files[0]), "utf-8"));
-  } catch { return null; }
+// Risks arrive as strings or {name, mechanism, category} objects depending on the agent.
+function riskText(risks: unknown): string {
+  return (Array.isArray(risks) ? risks : []).slice(0, 3).map((r) => {
+    if (typeof r === "string") return r;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const o = (r ?? {}) as any;
+    return String(o.name ?? o.risk ?? o.title ?? o.mechanism ?? "");
+  }).filter(Boolean).join("; ");
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -143,7 +136,10 @@ export async function GET(
   const sectorReport      = sectorReportData as any;
 
   // Load adhoc deep-dive report if available (written at entry time by pipeline)
-  const adhocReport = loadAdhocReport(ticker);
+  // Latest report by date in filename (either naming style); either schema, normalised
+  const adhocLatest = readLatestAdhoc(ticker);
+  const adhocReport = adhocLatest?.report ?? null;
+  const adhoc = normalizeAdhoc(adhocReport);
 
   const scorecard    = findByTicker(committeeReport?.scorecards ?? [], ticker);
   const decision     = findByTicker(committeeReport?.position_decisions ?? [], ticker);
@@ -193,12 +189,12 @@ export async function GET(
   let liveQuote: any = null;
   try {
     const summary = await yf.quoteSummary(ticker, {
-      modules: ["price", "summaryDetail", "defaultKeyStatistics", "financialData"],
+      modules: ["price", "summaryDetail", "defaultKeyStatistics", "financialData", "summaryProfile"],
     });
     liveQuote = {
       current_price: summary.price?.regularMarketPrice ?? null,
       company:       summary.price?.longName ?? summary.price?.shortName ?? ticker,
-      sector:        summary.price?.sector ?? null,
+      sector:        summary.summaryProfile?.sector ?? null,
       pe_trailing:   summary.summaryDetail?.trailingPE ?? null,
       pe_forward:    summary.defaultKeyStatistics?.forwardPE ?? null,
       ps_ratio:      summary.summaryDetail?.priceToSalesTrailing12Months ?? null,
@@ -240,8 +236,7 @@ export async function GET(
       { agent: "Fundamental", score: ads.fundamental ?? 0, view: ads.fundamental_summary ?? "—" },
       { agent: "Quant",       score: ads.quant ?? 0,       view: ads.quant_summary ?? "—" },
       { agent: "Sentiment",   score: ads.sentiment ?? 0,   view: ads.sentiment_summary ?? "—" },
-      { agent: "Macro",       score: 0,                    view: macroReport ? `${macroReport.regime}` : "—" },
-    ].filter(a => a.score > 0 || a.view !== "—");
+    ].filter(a => a.score > 0);  // only agents that actually scored this ticker
 
     const peDirection = (alpacaPosition?.side === "short" || pe.direction?.toUpperCase() === "SHORT") ? "SHORT" : "LONG";
     const peConviction = pe.conviction ?? 50;
@@ -264,7 +259,7 @@ export async function GET(
       if (peSC.default_risk)     items.push({ item: "Default risk",  detail: String(peSC.default_risk) });
       if (peSC.leverage_vs_peers) items.push({ item: "Leverage vs peers", detail: String(peSC.leverage_vs_peers) });
       if ((peSC.upcoming_catalysts ?? []).length > 0) items.push({ item: "Catalysts", detail: (peSC.upcoming_catalysts as string[]).slice(0, 3).join("; ") });
-      if ((peSC.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: (peSC.key_risks as string[]).slice(0, 3).join("; ") });
+      if ((peSC.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: riskText(peSC.key_risks) });
       if (peSC.moat_strength)    items.push({ item: "Moat strength", detail: String(peSC.moat_strength) });
       return items;
     })() : [];
@@ -323,47 +318,25 @@ export async function GET(
       cap_table:       pe.cap_table ?? null,
       agent_debate:    pe.agent_debate ?? null,
       // Adhoc deep-dive sections if available
-      thesis_narrative: adhocReport?.s6_thesis?.narrative ?? null,
-      scenarios:        adhocReport?.s13_scenarios ?? null,
-      adhoc_recommendation: adhocReport?.s7_recommendation ?? null,
-      adhoc_entry_verdict:  adhocReport?.s5_timing?.entry_verdict ?? null,
-      adhoc_generated_at:   adhocReport?.generated_at ?? null,
-      institutional:        adhocReport?.s10_institutional ?? null,
-      historical_performance: adhocReport?.s11_performance ?? null,
-      risk_dashboard:       adhocReport?.s12_risk ?? null,
+      thesis_narrative: adhoc?.thesis_narrative ?? null,
+      scenarios:        adhoc?.scenarios ?? null,
+      adhoc_recommendation: adhoc?.recommendation ?? null,
+      adhoc_entry_verdict:  adhoc?.entry_verdict ?? null,
+      adhoc_generated_at:   adhoc?.generated_at ?? null,
+      adhoc_schema:         adhoc?.schema ?? null,
+      institutional:        adhoc?.institutional ?? null,
+      historical_performance: adhoc?.historical_performance ?? null,
+      risk_dashboard:       adhoc?.risk_dashboard ?? null,
       _source:         "positions_log",
       _pipeline_date:  pe.opened_at ?? "—",
       _macro_regime:   macroReport?.regime,
     });
   }
 
-  // Derive macro score from portfolio macro report when scorecard doesn't have it yet
-  function deriveMacroScore(): number {
-    if (!macroReport) return 50;
-    const regime = (macroReport.regime ?? "NEUTRAL").toUpperCase();
-    const base = regime.includes("RISK-ON") ? 65 : regime.includes("RISK-OFF") ? 35 : 50;
-    const signals: string[] = scorecard?.candidate_signals ?? [];
-    if (signals.includes("macro_tailwind")) return Math.min(75, base + 15);
-    if (signals.includes("macro_headwind")) return Math.max(25, base - 15);
-    return base;
-  }
-
-  function deriveNewsScore(): number {
-    if (!catalysts.length) return 50;
-    const confMap: Record<string, number> = { high: 80, medium: 60, low: 40 };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const scores = catalysts.map((c: any) => {
-      const sc = c.signal_confidence;
-      const level = typeof sc === "object" ? (sc?.level ?? "medium") : (sc ?? "medium");
-      return confMap[level.toLowerCase()] ?? 50;
-    });
-    return Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
-  }
-
-  const macroScore = (scorecard?.macro_score != null && scorecard.macro_score > 0)
-    ? scorecard.macro_score : deriveMacroScore();
-  const newsScore = (scorecard?.news_score != null && scorecard.news_score > 0)
-    ? scorecard.news_score : deriveNewsScore();
+  // Macro/News only appear when the committee scorecard carries a real score for them —
+  // never a regime-based or confidence-mapped placeholder.
+  const macroScore: number | null = scorecard?.macro_score > 0 ? scorecard.macro_score : null;
+  const newsScore: number | null = scorecard?.news_score > 0 ? scorecard.news_score : null;
 
   // Build agent_scores array from scorecard
   const agentScores = scorecard ? [
@@ -372,7 +345,7 @@ export async function GET(
     { agent: "Sentiment",   score: scorecard.sentiment_score ?? 0,   view: sentiment?.sentiment_summary ?? sentiment?.analyst_consensus ?? "—" },
     { agent: "Macro",       score: macroScore, view: macroReport ? `${macroReport.regime} — ${(macroReport.favoured_themes ?? []).slice(0,2).join(", ")}` : "—" },
     { agent: "News",        score: newsScore,  view: catalysts[0]?.reasoning ?? newsReport?.news_summary ?? "—" },
-  ] : [];
+  ].filter((a): a is { agent: string; score: number; view: string } => typeof a.score === "number" && a.score > 0) : [];
 
   // Build structured investment thesis bullets covering 4 angles:
   // Why this market | Why now | Why this price | Why this stock
@@ -495,7 +468,7 @@ export async function GET(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     competition_intensity: (fundamental as any)?.market_analysis?.competition_intensity ?? peLog?.market_analysis?.competition_intensity ?? "—",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sector_trends:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.sector_trends ?? peLog?.market_analysis?.sector_trends ?? sectorReport?.sector_summary ?? "—",
+    sector_trends:         (fundamental as any)?.market_analysis?.sector_trends ?? peLog?.market_analysis?.sector_trends ?? sectorReport?.sector_summary ?? "—",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     macro_factors:         macroReport?.macro_summary ?? (fundamental as any)?.market_analysis?.macro_factors ?? peLog?.market_analysis?.macro_factors ?? "—",
     _macro_regime:         macroReport?.regime,
@@ -596,7 +569,7 @@ export async function GET(
       if (sc.fcf_positive != null) items.push({ item: "FCF status", detail: sc.fcf_positive ? "Positive — cash generation intact" : "Negative — burning cash, monitor" });
       if (sc.default_risk) items.push({ item: "Default risk", detail: `${sc.default_risk}${sc.leverage_vs_peers ? " — Leverage vs peers: " + sc.leverage_vs_peers : ""}` });
       if ((sc.upcoming_catalysts ?? []).length > 0) items.push({ item: "Upcoming catalysts", detail: (sc.upcoming_catalysts as string[]).slice(0, 3).join("; ") });
-      if ((sc.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: (sc.key_risks as string[]).slice(0, 3).join("; ") });
+      if ((sc.key_risks ?? []).length > 0) items.push({ item: "Key risks", detail: riskText(sc.key_risks) });
       if (sc.moat_strength) items.push({ item: "Moat strength", detail: `${sc.moat_strength}${sc.longevity_estimate ? " — " + sc.longevity_estimate : ""}` });
       return items;
     }
@@ -632,7 +605,8 @@ export async function GET(
     const gf = fm.geography_flags ?? {};
     const sanctionsClean = !gf.russia_exposure && !gf.mongolia_exposure && !gf.cambodia_exposure;
     items.push({ item: `Sanctions check — ${sanctionsClean ? "Clean" : "FLAGGED"} (${gf.exposure_detail ?? "—"})`, pass: sanctionsClean });
-    const pepsClean = fm.peps_check?.clean !== false;
+    // Only an explicit clean=true passes — "unverified" (clean=null) is not a pass
+    const pepsClean = fm.peps_check?.clean === true;
     items.push({ item: `PEPs check — ${fm.peps_check?.notes ?? "manual check required"}`, pass: pepsClean });
     if (fm.setup_type) items.push({ item: `Setup type identified: ${fm.setup_type}`, pass: true });
     if (fm.float_pct != null) items.push({ item: `Float: ${fm.float_pct}%`, pass: Number(fm.float_pct) > 20 });
@@ -648,12 +622,17 @@ export async function GET(
     return {
       trade_type_classification: f?.setup_type ?? pv?.trade_type_classification ?? (decision?.action?.includes("long") ? "Long momentum" : "Tactical/Swing"),
       methodology: pv?.methodology ?? "Peer comps + technical signals",
-      analyst_consensus_target: decision?.target_price ?? liveQuote?.analyst_target ?? null,
+      // Live Yahoo consensus only — the committee's own target is an AI estimate, shown below
+      analyst_consensus_target: liveQuote?.analyst_target ?? null,
       implied_multiples: f?.valuation_vs_peers ?? pv?.implied_multiples ?? "—",
       is_forecast_realistic: f?.price_vs_intrinsic_value ?? pv?.is_forecast_realistic ?? "—",
-      expected_roi_2_3yr: decision?.target_price
-        ? `Target: $${decision.target_price}${decision.stop_loss ? `, stop $${decision.stop_loss}` : ""}. Conviction: ${decision.conviction ?? "—"}/100`
-        : (pv?.expected_roi_2_3yr ?? "—"),
+      // Committee target is LLM output -> labelled AI estimate; the % is computed vs live price
+      expected_roi_2_3yr: decision?.target_price && liveQuote?.current_price
+        ? (() => {
+            const chg = (decision.target_price - liveQuote.current_price) / liveQuote.current_price * 100;
+            return `AI estimate: committee target $${decision.target_price} → ${chg >= 0 ? "+" : ""}${chg.toFixed(1)}% vs $${Number(liveQuote.current_price).toFixed(2)} now`;
+          })()
+        : pv?.expected_roi_2_3yr ? `AI estimate: ${pv.expected_roi_2_3yr}` : "—",
       moic_estimate: pv?.moic_estimate ?? "—",
     };
   })();
@@ -705,9 +684,9 @@ export async function GET(
   })();
 
   // ── Adhoc synthesis sections — enriched by GPT-4o at entry time ─────────────
-  const thesisNarrative: string | null = adhocReport?.s6_thesis?.narrative ?? null;
-  const scenarios: Record<string, unknown> | null = adhocReport?.s13_scenarios ?? null;
-  const adhocRec = adhocReport?.s7_recommendation ?? null;
+  const thesisNarrative: string | null = adhoc?.thesis_narrative ?? null;
+  const scenarios = adhoc?.scenarios ?? null;
+  const adhocRec = adhoc?.recommendation ?? null;
 
   // ── Compute live position stats (Alpaca is source of truth) ─────────────────
   const liveCurrentPrice = alpacaCurrentPrice ?? liveQuote?.current_price ?? positionEntry?.entry_price ?? 0;
@@ -727,7 +706,7 @@ export async function GET(
     // Core position fields — Alpaca is source of truth for live metrics
     ticker,
     company:        liveQuote?.company ?? ticker,
-    sector:         liveQuote?.sector ?? null,
+    sector:         liveQuote?.sector ?? positionEntry?.fund_mandate?.sector ?? null,
     direction:      alpacaPosition?.side === "short" ? "short" : (positionEntry?.direction ?? "LONG").toLowerCase(),
     entry_price:    parseFloat(liveEntryPrice.toFixed(2)),
     current_price:  parseFloat(liveCurrentPrice.toFixed(2)),
@@ -777,12 +756,13 @@ export async function GET(
     thesis_narrative:     thesisNarrative,
     scenarios,
     adhoc_recommendation: adhocRec,
-    adhoc_entry_verdict:  adhocReport?.s5_timing?.entry_verdict ?? null,
-    adhoc_generated_at:   adhocReport?.generated_at ?? null,
+    adhoc_entry_verdict:  adhoc?.entry_verdict ?? null,
+    adhoc_generated_at:   adhoc?.generated_at ?? null,
+    adhoc_schema:         adhoc?.schema ?? null,
     // Sections 10-12 from adhoc (not available from pipeline batch reports alone)
-    institutional:        adhocReport?.s10_institutional ?? null,
-    historical_performance: adhocReport?.s11_performance ?? null,
-    risk_dashboard:       adhocReport?.s12_risk ?? null,
+    institutional:        adhoc?.institutional ?? null,
+    historical_performance: adhoc?.historical_performance ?? null,
+    risk_dashboard:       adhoc?.risk_dashboard ?? null,
 
     _source:              "pipeline",
     _pipeline_date:       committeeReport?.generated_at ?? fundamentalReport?.generated_at ?? "—",

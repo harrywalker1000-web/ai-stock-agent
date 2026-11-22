@@ -52,7 +52,7 @@ const fmtPrice = (n: number | null | undefined) =>
 const yoy = (curr: number | null, prev: number | null) =>
   !curr || !prev || prev === 0 ? null : ((curr - prev) / Math.abs(prev)) * 100;
 const dirBadge = (d: string) => {
-  const u = d.toUpperCase();
+  const u = String(d ?? "").toUpperCase();
   if (u.includes("BUY") || u.includes("LONG")) return "bg-green-700 text-white";
   if (u.includes("SELL") || u.includes("SHORT")) return "bg-red-700 text-white";
   return "bg-amber-500 text-white";
@@ -152,12 +152,18 @@ export default function PitchDetail() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/adhoc/${ticker}`).then(r => r.json()),
+      fetch(`/api/adhoc/${ticker}?schema=flat`).then(r => r.json()).catch(() => ({ error: "Failed to load report" })),
       fetch(`/api/comparables/${ticker}`).then(r => r.json()).catch(() => ({ comparables: [] })),
       fetch(`/api/chart/${ticker}?tf=1W`).then(r => r.json()).catch(() => ({ candles: [] })),
       fetch(`/api/pitch-data/${ticker}`).then(r => r.json()).catch(() => null),
     ]).then(([adhoc, compsData, chartData, pd]) => {
-      if (adhoc.error) { setErr(adhoc.error); setLoading(false); return; }
+      if (adhoc.error) {
+        setErr(adhoc.latest_available
+          ? `The pitch view needs an older-format report, and ${ticker} only has new-format research.`
+          : adhoc.error);
+        setLoading(false);
+        return;
+      }
       setData(adhoc);
       setComps(compsData?.comparables || []);
       setCandles(chartData?.candles || []);
@@ -182,7 +188,10 @@ export default function PitchDetail() {
         <div className="text-center max-w-sm">
           <p className="text-4xl font-bold text-[#1B2951] mb-2">{ticker}</p>
           <p className="text-slate-500 text-sm mb-6">{err || "No report found."}</p>
-          <a href="/pitch" className="text-sm text-amber-600 hover:underline">← Pitch Generator</a>
+          <div className="flex gap-4 justify-center">
+            <a href="/pitch" className="text-sm text-amber-600 hover:underline">← Pitch Generator</a>
+            <a href={`/reports/adhoc/${ticker}`} className="text-sm text-amber-600 hover:underline">Open full research report →</a>
+          </div>
         </div>
       </div>
     );
@@ -242,6 +251,11 @@ export default function PitchDetail() {
         <div className="print:hidden flex justify-between items-center mb-8">
           <a href="/pitch" className="text-sm text-slate-500 hover:text-slate-700">← All Pitches</a>
           <div className="flex items-center gap-3">
+            {(data as any)._file && (
+              <span className="text-[10px] text-slate-400 print:hidden">
+                Report: {String((data as any).generated_at ?? (data as any)._file).slice(0, 10)}
+              </span>
+            )}
             {pitchData?.sources && Object.values(pitchData.sources).some(Boolean) && (
               <span className="text-[10px] text-slate-400 print:hidden">
                 Live data from: {Array.from(new Set(Object.values(pitchData.sources).filter(Boolean))).join(" · ")}
@@ -261,7 +275,7 @@ export default function PitchDetail() {
               <p className="text-xs text-blue-400 mt-0.5">Equity Research · {data.date}</p>
             </div>
             <span className={`text-sm font-bold px-5 py-2.5 rounded-xl ${dirBadge(data.direction)}`}>
-              {data.direction.replace(/_/g, " ")}
+              {String(data.direction ?? "—").replace(/_/g, " ")}
             </span>
           </div>
           <div className="px-8 py-7 border-b border-slate-100">
@@ -1265,7 +1279,7 @@ export default function PitchDetail() {
             <div className="bg-[#1B2951] text-white px-8 py-7 flex items-center justify-between">
               <div>
                 <p className="text-xs font-mono text-blue-300 uppercase tracking-[0.15em] mb-2">Final Recommendation</p>
-                <p className="text-6xl font-bold tracking-tight">{data.direction.replace(/_/g, " ")}</p>
+                <p className="text-6xl font-bold tracking-tight">{String(data.direction ?? "—").replace(/_/g, " ")}</p>
                 <p className="text-blue-300 mt-2 text-sm">{data.company_name !== ticker ? data.company_name : ticker} · {data.sector || "Equity"}</p>
               </div>
               <div className="text-right">
