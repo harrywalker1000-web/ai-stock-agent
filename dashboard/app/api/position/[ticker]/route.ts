@@ -76,6 +76,29 @@ async function fetchAlpacaAccount(): Promise<{ equity: number } | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const yf = new (YahooFinanceClass as any)({ suppressNotices: ["yahooSurvey"] });
 
+// Live Yahoo analyst numbers over the stored (entry-time, LLM) analyst block.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function liveAnalystHistory(liveQuote: any, stored: any) {
+  if (!liveQuote && !stored) return null;
+  const s = stored ?? {};
+  const target = liveQuote?.analyst_target ?? null;
+  const price = liveQuote?.current_price ?? null;
+  const rec = liveQuote?.recommendation_key as string | undefined;
+  return {
+    ...s,
+    current_consensus: rec ? rec.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : (s.current_consensus ?? null),
+    num_analysts: liveQuote?.number_of_analyst_opinions ?? s.num_analysts ?? null,
+    avg_target_price: target ?? s.avg_target_price ?? null,
+    implied_upside_pct: target && price ? parseFloat(((target - price) / price * 100).toFixed(1)) : (s.implied_upside_pct ?? null),
+    summary: [
+      liveQuote?.number_of_analyst_opinions ? `${liveQuote.number_of_analyst_opinions} analysts covering.` : "",
+      target ? `Mean target $${Number(target).toFixed(0)}` : "",
+      liveQuote?.analyst_low && liveQuote?.analyst_high ? `(range $${Number(liveQuote.analyst_low).toFixed(0)}–$${Number(liveQuote.analyst_high).toFixed(0)}).` : "",
+      s.summary ?? "",
+    ].filter(Boolean).join(" "),
+  };
+}
+
 // Risks arrive as strings or {name, mechanism, category} objects depending on the agent.
 function riskText(risks: unknown): string {
   return (Array.isArray(risks) ? risks : []).slice(0, 3).map((r) => {
@@ -298,7 +321,8 @@ export async function GET(
       agent_scores:   posAgentScores,
       investment_thesis_bullets: pe.investment_thesis_bullets ?? [],
       recommendation: { direction: peDirection, action: "HOLD", conviction: peConviction, stop_loss: pe.stop_loss ?? null, stop_loss_note: pe.stop_loss ? `Stop loss: $${pe.stop_loss}` : null },
-      financial_snapshot: peFS ? { historical: peFS.historical ?? [], forward: peFS.forward ?? [], revenue_ttm: liveQuote?.revenue_ttm, ebitda_live: liveQuote?.ebitda, gross_margins: liveQuote?.gross_margins, ebitda_margins: liveQuote?.ebitda_margins, profit_margins: liveQuote?.profit_margins } : null,
+      // Live Yahoo numbers fill what the entry-time log snapshot lacks (P/E, margins)
+      financial_snapshot: { historical: peFS?.historical ?? [], forward: peFS?.forward ?? [], pe_ratio: liveQuote?.pe_trailing ?? null, revenue_ttm: liveQuote?.revenue_ttm, ebitda_live: liveQuote?.ebitda, gross_margins: liveQuote?.gross_margins, ebitda_margins: liveQuote?.ebitda_margins, profit_margins: liveQuote?.profit_margins },
       market_analysis: { ...(pe.market_analysis ?? {}), _source: "positions_log", _macro_regime: macroReport?.regime },
       quality_of_earnings: pe.quality_of_earnings ?? null,
       technical_data:  null,
@@ -310,8 +334,12 @@ export async function GET(
       fund_mandate:    peFM,
       setup_checklist: peSetupChecklist,
       mandate_checklist: peMandateChecklist,
-      valuation:       pe.valuation ?? null,
-      analyst_rating_history: pe.analyst_rating_history ?? null,
+      valuation: {
+        ...(pe.valuation ?? {}),
+        trade_type_classification: pe.valuation?.trade_type_classification ?? pe.setup_type ?? pe.setup_checklist?.setup_type ?? peFM?.setup_type ?? null,
+        analyst_consensus_target: liveQuote?.analyst_target ?? null,  // live only — never the LLM's
+      },
+      analyst_rating_history: liveAnalystHistory(liveQuote, pe.analyst_rating_history),
       market_timing:   pe.market_timing ?? null,
       comparables:     pe.comparables ?? null,
       management_team: pe.management_team ?? null,

@@ -135,6 +135,57 @@ def _edgar_latest_annual(us_gaap: dict, concept: str) -> float | None:
 
 
 # ---------------------------------------------------------------------------
+# Live analyst consensus → analysis (deterministic, overrides LLM placeholders)
+# ---------------------------------------------------------------------------
+
+_REC_LABEL = {
+    "strong_buy": "Strong Buy", "buy": "Buy", "hold": "Hold",
+    "underperform": "Underperform", "sell": "Sell", "strong_sell": "Strong Sell",
+}
+
+
+def _apply_live_analyst_data(result: dict, metrics: dict) -> None:
+    """
+    Fill analyst_rating_history / valuation targets from real Yahoo consensus data.
+    The framework prompt forces these to null so the LLM can't invent them; before this
+    function existed nothing filled them, so every analysis (and the committee's
+    valuation_summary) had no analyst count, target or upside. The LLM's "consensus"
+    was training knowledge — replaced with the live recommendation when available.
+    """
+    price = metrics.get("current_price")
+    mean = metrics.get("analyst_target_mean")
+    count = metrics.get("analyst_count")
+    rec = metrics.get("analyst_recommendation")
+    upside = round((mean - price) / price * 100, 1) if mean and price else None
+
+    arh = result.get("analyst_rating_history")
+    if not isinstance(arh, dict):
+        arh = {}
+    if count is not None:
+        arh["num_analysts"] = int(count)
+    if mean is not None:
+        arh["avg_target_price"] = round(float(mean), 2)
+        arh["target_high"] = metrics.get("analyst_target_high")
+        arh["target_low"] = metrics.get("analyst_target_low")
+    if upside is not None:
+        arh["implied_upside_pct"] = upside
+    if rec:
+        arh["current_consensus"] = _REC_LABEL.get(str(rec).lower(), str(rec).replace("_", " ").title())
+        arh["consensus_source"] = "yahoo_finance_live"
+    result["analyst_rating_history"] = arh
+
+    val = result.get("valuation")
+    if isinstance(val, dict) and mean is not None:
+        val["analyst_consensus_target"] = round(float(mean), 2)
+        if upside is not None:
+            val["analyst_target_upside_pct"] = upside
+    # Top-level fields for the committee / debate prompts
+    result["analyst_consensus_target"] = round(float(mean), 2) if mean is not None else None
+    result["analyst_target_upside_pct"] = upside
+    result["analyst_count"] = int(count) if count is not None else None
+
+
+# ---------------------------------------------------------------------------
 # Metric extraction per source
 # ---------------------------------------------------------------------------
 
@@ -173,6 +224,13 @@ def _fetch_yf_metrics(ticker: str) -> dict:
                 market_cap = shares * price
         result["market_cap"] = market_cap
         result["beta"] = info.get("beta")
+        # Analyst consensus — real Yahoo data. The framework LLM is told to leave these
+        # null (never invent them); _apply_live_analyst_data() fills them afterwards.
+        result["analyst_target_mean"] = info.get("targetMeanPrice")
+        result["analyst_target_high"] = info.get("targetHighPrice")
+        result["analyst_target_low"] = info.get("targetLowPrice")
+        result["analyst_count"] = info.get("numberOfAnalystOpinions")
+        result["analyst_recommendation"] = info.get("recommendationKey")
         result["sector"] = info.get("sector", "")
         result["industry"] = info.get("industry", "")
         result["company_name"] = info.get("longName") or info.get("shortName", "")
@@ -653,6 +711,10 @@ def _cross_reference(yf: dict, av: dict, edgar: dict, fmp: dict | None = None) -
         "total_cash", "total_debt",
         "analyst_revenue_estimates", "analyst_eps_estimates",
         "avg_daily_volume", "company_name",
+        # previously dropped here, so every analysis had current_price = None
+        "current_price",
+        "analyst_target_mean", "analyst_target_high", "analyst_target_low",
+        "analyst_count", "analyst_recommendation",
     ):
         reconciled[field] = yf.get(field)
 
@@ -1348,6 +1410,7 @@ def _analyse_with_llm(
         "company_info": "llm_knowledge_display_only",
         "management_team": "llm_knowledge_display_only",
         "analyst_rating_trend": "llm_knowledge_display_only",
+        "analyst_consensus_targets": "yahoo_finance_live",
         "cap_table_holders": "llm_knowledge_display_only",
         "market_analysis": "llm_knowledge_display_only",
         "setup_checklist_narrative": "llm_knowledge_display_only",
@@ -1458,7 +1521,9 @@ def run(mode: str = "new_opportunities") -> dict:
         llm_result.setdefault("beta", reconciled.get("beta"))
         llm_result.setdefault("current_ratio", reconciled.get("current_ratio"))
         llm_result.setdefault("avg_daily_volume", reconciled.get("avg_daily_volume"))
-        llm_result.setdefault("current_price", reconciled.get("current_price"))
+        if llm_result.get("current_price") is None:
+            llm_result["current_price"] = reconciled.get("current_price")
+        _apply_live_analyst_data(llm_result, reconciled)
 
         # Compute all null setup_checklist fields from live API data
         hist = reconciled.get("historical_financials") or []
