@@ -8,6 +8,8 @@ import committeeReportRaw from "../../../data/reports/committee_report.json";
 import positionsLogRaw from "../../../data/memory/positions_log.json";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import decisionLogRaw from "../../../data/memory/decision_log.json";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+import pipelineResultRaw from "../../../data/reports/pipeline_result.json";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const committeeReport: any = committeeReportRaw;
@@ -115,6 +117,50 @@ async function fetchAlpacaHistory(): Promise<{ date: string; value: number }[]> 
   } catch { return []; }
 }
 
+// Company names from Alpaca's asset records (cached a day). "Sandisk Corporation Common
+// Stock" → "Sandisk Corporation".
+async function fetchAssetNames(symbols: string[]): Promise<Record<string, string>> {
+  const key = process.env.ALPACA_API_KEY;
+  const secret = process.env.ALPACA_SECRET_KEY;
+  const base = process.env.ALPACA_BASE_URL ?? "https://paper-api.alpaca.markets";
+  if (!key || !secret) return {};
+  const out: Record<string, string> = {};
+  await Promise.all(symbols.map(async (sym) => {
+    try {
+      const res = await fetch(`${base}/v2/assets/${encodeURIComponent(sym)}`, {
+        headers: { "APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret },
+        next: { revalidate: 86400 },
+      });
+      if (!res.ok) return;
+      const name = String((await res.json())?.name ?? "")
+        .replace(/\s+(Class [A-Z] )?(Common|Ordinary|Capital) (Stock|Shares)\b.*$/i, "")
+        .replace(/\s+(American Depositary Shares|ADS)\b.*$/i, "")
+        .trim();
+      if (name) out[sym] = name;
+    } catch { /* fall back to static map */ }
+  }));
+  return out;
+}
+
+// Pipeline health from the last run's result file — not merely "Alpaca answered".
+// A run that finishes in minutes with nothing reviewed is the LLM-credit-outage pattern.
+function pipelineHealth(): { status: "success" | "degraded" | "stale" | "unknown"; detail: string; date: string | null } {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pr: any = pipelineResultRaw;
+  const date: string | null = pr?.date ?? null;
+  if (!date) return { status: "unknown", detail: "No pipeline result found", date: null };
+  const ageDays = (Date.now() - new Date(`${date}T12:00:00Z`).getTime()) / 86400_000;
+  const sum = pr.pipeline_summary ?? {};
+  const reviewed = Number(sum.phase_a_positions_reviewed ?? 0);
+  const candidates = Number(sum.phase_b_candidates ?? 0);
+  const elapsed = Number(pr.total_elapsed_sec ?? sum.total_elapsed_sec ?? 0);
+  if (ageDays > 4) return { status: "stale", detail: `Last run ${date}`, date };
+  if ((reviewed === 0 && candidates === 0) || (elapsed > 0 && elapsed < 600)) {
+    return { status: "degraded", detail: `Last run ${date} finished in ${Math.round(elapsed / 60)} min with ${reviewed} positions reviewed, ${candidates} candidates — check LLM credit`, date };
+  }
+  return { status: "success", detail: `Last run ${date}: ${reviewed} reviewed, ${candidates} candidates, ${Math.round(elapsed / 60)} min`, date };
+}
+
 // Static sector + company map — last-resort fallback only.
 // Primary source: logEntry?.fund_mandate?.sector (stored by pipeline at entry time).
 const TICKER_META: Record<string, { sector: string; company: string }> = {
@@ -202,6 +248,11 @@ export async function GET() {
     fetchAlpacaStopOrders(),
   ]);
 
+  const assetNames = rawPositions ? await fetchAssetNames(rawPositions.map((p) => p.symbol)) : {};
+  const health = pipelineHealth();
+  const liveTrading = (process.env.ALPACA_BASE_URL ?? "").includes("api.alpaca.markets") &&
+    !(process.env.ALPACA_BASE_URL ?? "").includes("paper-api") && process.env.ALLOW_LIVE_TRADING === "true";
+
   // ── Stock-split correction (see lib/splits.ts) ────────────────────────────
   // Positions Alpaca hasn't re-based after a split are corrected, and account
   // equity / history are shifted by the same deterministic market-value delta.
@@ -274,7 +325,7 @@ export async function GET() {
       const unrealisedPct = parseFloat(p.unrealized_plpc) * 100;
       return {
         ticker,
-        company:       logEntry?.company ?? logEntry?.company_info?.hq?.split(",")[0] ?? meta.company,
+        company:       assetNames[ticker] ?? logEntry?.company ?? TICKER_META[ticker]?.company ?? ticker,
         sector:        resolvedSector,
         direction:     p.side === "short" ? "short" : "long",
         entry_price:   parseFloat(p.avg_entry_price),
@@ -286,7 +337,8 @@ export async function GET() {
         qty:           parseFloat(p.qty),
         entry_date:    logEntry?.entry_date ?? "—",
         conviction:    sc?.composite_score ?? logEntry?.conviction ?? null,
-        entry_conviction: logEntry?.entry_conviction ?? null,
+        conviction_source: sc?.composite_score != null ? "committee" : logEntry?.conviction != null ? "log" : null,
+        entry_conviction: logEntry?.entry_conviction > 0 ? logEntry.entry_conviction : null,
         status:        "open",
         setup_type:         (() => {
           const raw = logEntry?.setup_type ?? "Pipeline";
@@ -364,8 +416,10 @@ export async function GET() {
       daily_pnl_pct:      parseFloat((lastEquity > 0 ? (dailyPnl / lastEquity) * 100 : 0).toFixed(2)),
       daily_pnl_absolute: parseFloat(dailyPnl.toFixed(2)),
       active_positions:   positions.length,
-      pipeline_status:    "success",
-      pipeline_last_run:  committeeReport?.generated_at ?? "—",
+      pipeline_status:    health.status,
+      pipeline_detail:    health.detail,
+      pipeline_last_run:  health.date ?? committeeReport?.generated_at ?? "—",
+      trading_mode:       liveTrading ? "live" : "paper",
       margin_warning:     usingMargin,
       split_corrections:  Object.values(pendingSplits),
       _source:            "alpaca_live",

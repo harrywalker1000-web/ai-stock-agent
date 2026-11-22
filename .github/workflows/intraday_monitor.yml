@@ -54,7 +54,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin main
           git rebase --autostash origin/main
-          git add data/reports/intraday_alerts.json || true
+          # data/reports/ is gitignored — publish the alert log where the dashboard reads it
+          mkdir -p dashboard/data/reports
+          cp data/reports/intraday_alerts.json dashboard/data/reports/intraday_alerts.json
+          git add dashboard/data/reports/intraday_alerts.json
           if git diff --cached --quiet; then
             echo "No alert changes to commit"
           else

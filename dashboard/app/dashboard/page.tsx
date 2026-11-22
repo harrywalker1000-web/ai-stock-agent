@@ -12,7 +12,7 @@ interface Position {
   pnl_absolute: number; position_size: number; pct_portfolio: number;
   entry_date: string; conviction: number; entry_conviction?: number; status: string;
   setup_type?: string; expected_roi?: string;
-  stop_price?: number | null; has_native_stop?: boolean;
+  stop_price?: number | null; has_native_stop?: boolean; conviction_source?: "committee" | "log" | null;
   native_order_type?: string | null; native_trail_pct?: number | null; native_limit_price?: number | null;
 }
 
@@ -22,7 +22,7 @@ interface PortfolioData {
     total_value: number; cash: number; deployed: number; deployed_pct: number;
     total_pnl_pct: number | null; total_pnl_absolute: number | null;
     daily_pnl_pct: number; daily_pnl_absolute: number;
-    active_positions: number; pipeline_status: string; pipeline_last_run: string;
+    active_positions: number; pipeline_status: string; pipeline_last_run: string; pipeline_detail?: string; trading_mode?: "paper" | "live";
     margin_warning?: boolean;
   };
   history: Array<{ date: string; value: number }>;
@@ -67,6 +67,7 @@ interface AttributionData {
   avg_pnl_pct: number | null;
   avg_alpha_vs_spy: number | null;
   agents: Record<string, AgentAccuracyEntry>;
+  last_attributed?: string | null;
   recent_trades: Array<{
     ticker: string; direction: string; entry_date: string; exit_date: string;
     pnl_pct: number; alpha_vs_spy: number | null; sector: string | null; exit_reason: string;
@@ -212,11 +213,10 @@ export default function DashboardPage() {
   const visiblePositions = showAllPositions ? positions : positions.slice(0, 10);
 
   const agentConviction = data?.agent_conviction ?? [];
-  const positionsClosed = data?._positions_closed ?? 0;
 
   const pipelineStatus = stats?.pipeline_status ?? "unknown";
-  const pipelineColor = pipelineStatus === "success" ? "#10B981" : pipelineStatus === "failed" ? "#EF4444" : "#6B7280";
-  const pipelineLabel = pipelineStatus === "success" ? "Pipeline OK" : pipelineStatus === "failed" ? "Pipeline Failed" : "Not Yet Run";
+  const pipelineColor = pipelineStatus === "success" ? "#10B981" : pipelineStatus === "failed" ? "#EF4444" : pipelineStatus === "degraded" || pipelineStatus === "stale" ? "#F59E0B" : "#6B7280";
+  const pipelineLabel = pipelineStatus === "success" ? "Pipeline OK" : pipelineStatus === "degraded" ? "Pipeline Degraded" : pipelineStatus === "stale" ? "Pipeline Stale" : pipelineStatus === "failed" ? "Pipeline Failed" : "Status Unknown";
 
   return (
     <div className="min-h-screen bg-[#030005] pb-16">
@@ -228,7 +228,7 @@ export default function DashboardPage() {
             <p className="text-[#6B7280] text-sm mt-1">Haz Capital Management — Live Dashboard</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass" title={stats?.pipeline_detail ?? undefined}>
               <span className="w-2 h-2 rounded-full" style={{ background: pipelineColor, boxShadow: `0 0 6px ${pipelineColor}` }} />
               <span className="text-xs text-[#6B7280]">{pipelineLabel}</span>
             </div>
@@ -372,9 +372,9 @@ export default function DashboardPage() {
           />
           <StatCard
             label="Mode"
-            value="Paper"
-            sub="Alpaca verified"
-            color="text-[#F59E0B]"
+            value={stats?.trading_mode === "live" ? "LIVE" : "Paper"}
+            sub={stats?.trading_mode === "live" ? "Real money — Alpaca live" : "Alpaca paper account"}
+            color={stats?.trading_mode === "live" ? "text-[#EF4444]" : "text-[#F59E0B]"}
           />
         </div>
 
@@ -579,9 +579,12 @@ export default function DashboardPage() {
                                   }}
                                 />
                               </div>
-                              <span className="text-xs font-mono text-[#E8EDF2]">{pos.conviction}</span>
+                              <span className="text-xs font-mono text-[#E8EDF2]"
+                                title={pos.conviction_source === "committee" ? "Committee composite score from the latest run" : "Conviction logged at the last decision (not re-scored in the latest run)"}>
+                                {pos.conviction}{pos.conviction_source === "log" ? "*" : ""}
+                              </span>
                             </div>
-                            {pos.entry_conviction != null && pos.entry_conviction !== pos.conviction && (
+                            {pos.entry_conviction != null && pos.entry_conviction > 0 && pos.entry_conviction !== pos.conviction && (
                               <span className="text-[10px] text-[#6B7280]">entry: {pos.entry_conviction}</span>
                             )}
                           </div>
@@ -618,7 +621,16 @@ export default function DashboardPage() {
                                     : "GTC"}
                                 </span>
                               )}
+                              {!pos.has_native_stop && (
+                                <span title="Stop level recorded by the pipeline — no stop order is placed at Alpaca, so it is not enforced automatically"
+                                  className="text-[10px] text-[#9CA3AF] bg-white/5 px-1 rounded uppercase">log</span>
+                              )}
                             </div>
+                            {!pos.has_native_stop && pos.stop_price != null && (
+                              (pos.direction === "short" ? pos.current_price >= pos.stop_price : pos.current_price <= pos.stop_price)
+                            ) && (
+                              <span className="text-[10px] text-[#EF4444]" title="Current price is through the logged stop level">breached</span>
+                            )}
                           </div>
                         ) : (
                           <span className="text-xs text-[#9CA3AF]">—</span>
@@ -778,7 +790,7 @@ export default function DashboardPage() {
               <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Signal Attribution</h2>
               <p className="text-xs text-[#6B7280] mt-0.5">
                 {attribution && attribution.total_closed_trades > 0
-                  ? `${attribution.total_closed_trades} closed trade${attribution.total_closed_trades !== 1 ? "s" : ""} · agent directional accuracy`
+                  ? `${attribution.total_closed_trades} attributed trade${attribution.total_closed_trades !== 1 ? "s" : ""} · agent directional accuracy${attribution.last_attributed ? ` · last attributed ${String(attribution.last_attributed).slice(0, 10)} — closed trades since then aren't in the attribution log yet` : ""}`
                   : "Populates as positions are closed — tracks which agents predicted the right direction"}
               </p>
             </div>
@@ -891,10 +903,10 @@ export default function DashboardPage() {
             <div className="flex items-start justify-between mb-1">
               <h2 className="font-display text-lg font-bold text-[#E8EDF2]">Agent Conviction</h2>
               <span className="text-[10px] text-[#6B7280] bg-white/05 px-2 py-1 rounded-md mt-0.5">
-                {positionsClosed === 0 ? "Accuracy tracking starts on first exit" : `${positionsClosed} closed positions`}
+                Accuracy: see Signal Attribution
               </span>
             </div>
-            <p className="text-xs text-[#6B7280] mb-4">Avg score each agent gave to current positions — not accuracy (no exits yet)</p>
+            <p className="text-xs text-[#6B7280] mb-4">Avg score each agent gave to current positions scored in the latest committee run — a measure of conviction, not accuracy</p>
             {agentConviction.length === 0 ? (
               <p className="text-sm text-[#6B7280]">No scorecard data yet</p>
             ) : (

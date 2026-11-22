@@ -1,34 +1,46 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
 
-export async function GET() {
-  // On Vercel: process.cwd() = /var/task (dashboard root), data/ is bundled inside it
-  // Locally without sync: fall back to ../data/reports
+/**
+ * Daily reports, newest first, paginated: ?limit=20&offset=0 →
+ * { reports, total, offset, has_more }. (Loading all ~150 files — 4+ MB — on every
+ * visit was the old behaviour; only the requested page is read and parsed now.)
+ */
+export async function GET(req: NextRequest) {
   const reportsDir = fs.existsSync(path.join(process.cwd(), "data", "reports"))
     ? path.join(process.cwd(), "data", "reports")
     : path.join(process.cwd(), "..", "data", "reports");
-  const reports: unknown[] = [];
 
+  const limit = Math.min(50, Math.max(1, Number(req.nextUrl.searchParams.get("limit") ?? 20) || 20));
+  const offset = Math.max(0, Number(req.nextUrl.searchParams.get("offset") ?? 0) || 0);
+
+  let files: string[] = [];
   try {
     if (fs.existsSync(reportsDir)) {
-      const files = fs.readdirSync(reportsDir)
-        .filter((f) => f.startsWith("daily_report_") && f.endsWith(".json"))
+      // daily_report_YYYY-MM-DD.json — ISO dates, so string order is chronological
+      files = fs.readdirSync(reportsDir)
+        .filter((f) => /^daily_report_\d{4}-\d{2}-\d{2}\.json$/.test(f))
         .sort()
         .reverse();
-
-      for (const file of files) {
-        try {
-          const content = fs.readFileSync(path.join(reportsDir, file), "utf-8");
-          reports.push(JSON.parse(content));
-        } catch {
-          // skip malformed files
-        }
-      }
     }
   } catch {
-    // no reports available
+    return NextResponse.json({ error: "Could not read reports directory" }, { status: 500 });
   }
 
-  return NextResponse.json(reports);
+  const reports: unknown[] = [];
+  for (const file of files.slice(offset, offset + limit)) {
+    try {
+      reports.push(JSON.parse(fs.readFileSync(path.join(reportsDir, file), "utf-8")));
+    } catch {
+      // skip malformed files
+    }
+  }
+
+  return NextResponse.json({
+    reports,
+    total: files.length,
+    offset,
+    has_more: offset + limit < files.length,
+  });
 }

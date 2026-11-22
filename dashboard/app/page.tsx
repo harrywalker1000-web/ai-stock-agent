@@ -79,12 +79,18 @@ function Tape({ positions }: { positions: { ticker: string; pct_change: number }
   );
 }
 
-interface Stats { total_value: number; daily_pnl_absolute: number; daily_pnl_pct: number; total_pnl_absolute: number | null; total_pnl_pct: number | null; active_positions: number; }
+interface Stats { total_value: number; daily_pnl_absolute: number; daily_pnl_pct: number; total_pnl_absolute: number | null; total_pnl_pct: number | null; active_positions: number; pipeline_status?: string; pipeline_last_run?: string; _source?: string; }
 interface PData { stats: Stats; positions: { ticker: string; pct_change: number; direction: string }[]; }
 
 export default function Design7() {
   const [data, setData] = useState<PData | null>(null);
-  useEffect(() => { fetch("/api/portfolio").then(r => r.json()).then(setData).catch(() => {}); }, []);
+  const [loadError, setLoadError] = useState(false);
+  useEffect(() => {
+    fetch("/api/portfolio")
+      .then(async (r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((d) => { if (d?.stats?._source === "no_data") setLoadError(true); setData(d); })
+      .catch(() => setLoadError(true));
+  }, []);
   const s = data?.stats;
   const fmtUsd = (v: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
   const fmt = (v: number) => (v >= 0 ? "+" : "") + v.toFixed(2);
@@ -113,14 +119,15 @@ export default function Design7() {
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
               textShadow: "none", filter: "drop-shadow(0 0 40px rgba(245,166,35,0.3))",
             }}>
-              {s ? fmtUsd(s.total_value) : "———"}
+              {s && !loadError ? fmtUsd(s.total_value) : loadError ? "—" : "———"}
             </div>
+            {loadError && <div style={{ fontSize: 11, color: "#FF4141", marginTop: 8 }}>Live data unavailable — could not reach the portfolio feed.</div>}
           </div>
 
-          <div style={{ fontSize: 9, letterSpacing: 3, color: "rgba(255,255,255,0.2)", marginBottom: 40 }}>PAPER TRADING · ALPACA API · UPDATED DAILY 09:45 ET</div>
+          <div style={{ fontSize: 9, letterSpacing: 3, color: "rgba(255,255,255,0.2)", marginBottom: 40 }}>PAPER TRADING · ALPACA API · PIPELINE RUNS DAILY 10:30 ET</div>
 
           <h1 style={{ fontSize: "clamp(52px,8vw,90px)", fontWeight: 900, letterSpacing: -4, lineHeight: 0.92, marginBottom: 28 }}>
-            Eight agents.<br />
+            Eleven agents.<br />
             <span style={{ color: "#00D4FF", textShadow: "0 0 40px rgba(0,212,255,0.5)" }}>One portfolio.</span>
           </h1>
 
@@ -129,13 +136,18 @@ export default function Design7() {
           </p>
 
           {/* Stat cards row */}
-          {s && (
+          {s && !loadError && (
             <div style={{ display: "flex", gap: 10, marginBottom: 44 }}>
               {[
                 { label: "Daily P&L", val: fmt(s.daily_pnl_pct) + "%", sub: fmtUsd(s.daily_pnl_absolute), color: s.daily_pnl_pct >= 0 ? "#00FF87" : "#FF4141" },
                 { label: "Total P&L", val: s.total_pnl_pct == null ? "—" : fmt(s.total_pnl_pct) + "%", sub: s.total_pnl_absolute == null ? "unavailable" : fmtUsd(s.total_pnl_absolute), color: (s.total_pnl_pct ?? 0) >= 0 ? "#00FF87" : "#FF4141" },
                 { label: "Positions", val: String(s.active_positions), sub: "open trades", color: "#00D4FF" },
-                { label: "Pipeline", val: "LIVE", sub: "GitHub Actions", color: "#F5A623" },
+                {
+                  label: "Pipeline",
+                  val: s.pipeline_status === "success" ? "OK" : s.pipeline_status === "degraded" ? "DEGRADED" : s.pipeline_status === "stale" ? "STALE" : "—",
+                  sub: s.pipeline_last_run ? `Last run ${String(s.pipeline_last_run).slice(0, 10)}` : "GitHub Actions",
+                  color: s.pipeline_status === "success" ? "#00FF87" : "#F5A623",
+                },
               ].map(item => (
                 <div key={item.label} style={{ flex: 1, ...glassCard, padding: "18px 16px", borderTop: `2px solid ${item.color}60` }}>
                   <div style={{ fontSize: 8, letterSpacing: 3, color: "rgba(255,255,255,0.3)", marginBottom: 8 }}>{item.label.toUpperCase()}</div>

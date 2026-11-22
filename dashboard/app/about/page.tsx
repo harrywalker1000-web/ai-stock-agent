@@ -2,7 +2,7 @@
 
 const TECH_STACK = [
   { name: "Python 3.11", category: "Runtime", color: "#F59E0B" },
-  { name: "OpenAI GPT-4o-mini", category: "Intelligence", color: "#F5A623" },
+  { name: "Anthropic Claude (OpenAI fallback)", category: "Intelligence", color: "#F5A623" },
   { name: "yfinance", category: "Market Data", color: "#10B981" },
   { name: "SEC EDGAR", category: "Fundamentals", color: "#8B5CF6" },
   { name: "Alpha Vantage", category: "Financials", color: "#06B6D4" },
@@ -57,7 +57,7 @@ export default function AboutPage() {
           <h2 className="font-display text-2xl font-bold text-[#E8EDF2] mb-5">What This Is</h2>
           <div className="card p-8">
             <p className="text-[#6B7280] leading-relaxed mb-4">
-              Haz Capital Management is a paper-trading AI hedge fund running on real market data. The system runs at 9:15am EST every trading day via GitHub Actions, working through an 11-agent pipeline that mirrors how a real institutional research desk operates — macro context first, then sector analysis, institutional flow, news, candidate generation, deep fundamental and quantitative analysis, sentiment, and finally an Investment Committee that weighs all inputs and makes the call.
+              Haz Capital Management is a paper-trading AI hedge fund running on real market data. The system runs at 10:30am New York time every trading day via GitHub Actions, working through an 11-agent pipeline that mirrors how a real institutional research desk operates — macro context first, then sector analysis, institutional flow, news, candidate generation, deep fundamental and quantitative analysis, sentiment, and finally an Investment Committee that weighs all inputs and makes the call.
             </p>
             <p className="text-[#6B7280] leading-relaxed mb-4">
               The fund currently operates in paper trading mode using Alpaca&apos;s paper account — real market prices, real order execution logic, zero real capital at risk. The goal is to reach 20+ consecutive successful daily runs before considering live trading.
@@ -91,8 +91,8 @@ export default function AboutPage() {
                 </svg>
               </div>
               <div>
-                <p className="font-semibold text-[#E8EDF2] mb-1">Claude Code + GPT-4o-mini</p>
-                <p className="text-[#6B7280] text-sm">Claude Code built the entire system across multiple sessions. GPT-4o-mini runs inside every agent as the reasoning engine — analysing financial data, producing structured outputs, and reasoning about forward price movements.</p>
+                <p className="font-semibold text-[#E8EDF2] mb-1">Claude Code + Claude</p>
+                <p className="text-[#6B7280] text-sm">Claude Code built the entire system across multiple sessions. Anthropic Claude runs inside every agent as the reasoning engine, with OpenAI as an automatic fallback — analysing financial data, producing structured outputs, and reasoning about forward price movements.</p>
               </div>
             </div>
             <p className="text-[#6B7280] text-sm mt-6 italic border-l-2 border-[#F5A623]/30 pl-4">
@@ -219,7 +219,7 @@ export default function AboutPage() {
                 <div className="space-y-2">
                   {[
                     { label: "Mode", value: "Paper Trading", color: "#F59E0B" },
-                    { label: "Pipeline", value: "Live — 9:15am EST Mon–Fri", color: "#10B981" },
+                    { label: "Pipeline", value: "Daily — 10:30am New York, Mon–Fri", color: "#10B981" },
                     { label: "Agents", value: "11 of 11 operational", color: "#10B981" },
                     { label: "Capital", value: "$100,000 paper account (Alpaca)", color: "#6B7280" },
                     { label: "Live trading", value: "After 20+ successful runs", color: "#6B7280" },

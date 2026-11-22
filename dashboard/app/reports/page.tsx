@@ -318,11 +318,18 @@ function BriefingView({ b }: { b: Briefing }) {
                   <span className="text-xs text-[#9CA3AF] pt-0.5">{m.why ?? ""}</span>
                 </div>
               ))}
-              {pnl.other != null && Math.abs(pnl.other) >= 1 && (
-                <p className="text-[11px] text-[#4B5563] pl-1">
-                  Everything else (smaller positions, trades during the day): {fmtMoney(pnl.other)}
-                </p>
-              )}
+              {(() => {
+                // Recomputed so the rows always add up to the day's P&L — older reports
+                // stored a residual after ALL positions while listing only the top movers.
+                const other = typeof pnl.abs === "number"
+                  ? pnl.abs - pnl.movers!.reduce((sum, m) => sum + (m.contribution ?? 0), 0)
+                  : pnl.other;
+                return other != null && Math.abs(other) >= 1 ? (
+                  <p className="text-[11px] text-[#4B5563] pl-1">
+                    Everything else (smaller positions, trades during the day): {fmtMoney(other)}
+                  </p>
+                ) : null;
+              })()}
             </div>
           )}
         </div>
@@ -542,17 +549,20 @@ function ReportCard({ report }: { report: Report }) {
             <div>
               <h3 className="text-xs font-bold text-[#6B7280] uppercase tracking-widest mb-3">{report.briefing ? "Committee decisions (intent)" : "Decisions"}</h3>
               <div className="space-y-2">
-                {report.decisions.map((d) => {
-                  const color = d.action === "skip" || d.action === "exit" || d.action.includes("short")
-                    ? "#EF4444" : "#10B981";
+                {report.decisions.map((d, di) => {
+                  const a = String(d.action ?? "");
+                  const color = a === "skip" || a === "exit" || a.includes("short") ? "#EF4444"
+                    : a === "decrease" ? "#F59E0B"
+                    : a === "hold" ? "#94A3B8"
+                    : "#10B981";
                   return (
-                    <div key={d.ticker} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/06">
+                    <div key={`${d.ticker}-${di}`} className="flex gap-4 p-3 rounded-xl bg-white/[0.02] border border-white/06">
                       <span className="font-mono font-bold text-[#E8EDF2] w-12">{d.ticker}</span>
                       <span
                         className="text-xs font-bold uppercase px-2 py-0.5 rounded-md self-start whitespace-nowrap"
                         style={{ color, background: `${color}20` }}
                       >
-                        {d.action.replace("_", " ")}
+                        {a.replace("_", " ")}
                       </span>
                       <div className="flex-1">
                         <p className="text-xs text-[#6B7280]">{d.thesis}</p>
@@ -587,13 +597,39 @@ function ReportCard({ report }: { report: Report }) {
 export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const PAGE = 20;
+
+  const loadPage = async (offset: number) => {
+    const r = await fetch(`/api/reports?limit=${PAGE}&offset=${offset}`);
+    const d = await r.json().catch(() => null);
+    if (!r.ok || !d || !Array.isArray(d.reports)) throw new Error(d?.error ?? `HTTP ${r.status}`);
+    setHasMore(!!d.has_more);
+    setTotal(Number(d.total) || 0);
+    return d.reports as Report[];
+  };
 
   useEffect(() => {
-    fetch("/api/reports")
-      .then((r) => r.json())
-      .then((d) => { setReports(d); setLoading(false); })
-      .catch(() => setLoading(false));
+    loadPage(0)
+      .then((rs) => setReports(rs))
+      .catch((e) => setError(`Could not load reports — ${e instanceof Error ? e.message : String(e)}`))
+      .finally(() => setLoading(false));
   }, []);
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const more = await loadPage(reports.length);
+      setReports((prev) => [...prev, ...more]);
+    } catch (e) {
+      setError(`Could not load older reports — ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#080C10] pb-16">
@@ -630,6 +666,11 @@ export default function ReportsPage() {
               </div>
             ))}
           </div>
+        ) : error && reports.length === 0 ? (
+          <div className="card p-10 text-center border border-[#EF4444]/30">
+            <h3 className="font-display text-lg font-bold text-[#EF4444] mb-2">Data unavailable</h3>
+            <p className="text-[#6B7280] text-sm">{error}</p>
+          </div>
         ) : reports.length === 0 ? (
           <div className="card p-16 text-center">
             <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center bg-white/05">
@@ -648,6 +689,18 @@ export default function ReportsPage() {
             {reports.map((r, i) => (
               <ReportCard key={r.date ?? i} report={r} />
             ))}
+            {error && <p className="text-xs text-[#EF4444] text-center">{error}</p>}
+            {hasMore && (
+              <div className="text-center pt-2">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="text-sm text-[#F5A623] hover:text-[#FDE68A] font-medium transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading…" : `Load older reports (${total - reports.length} more)`}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

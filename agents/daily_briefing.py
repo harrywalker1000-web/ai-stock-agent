@@ -175,10 +175,14 @@ def compute_movers(pnl: dict, opening_positions: dict, positions_log: dict) -> d
             "sector_move_pct": round(sector_move[1], 2) if sector_move else None,
         })
     movers.sort(key=lambda m: -abs(m["contribution"]))
-    explained = sum(m["contribution"] for m in movers)
+    shown = movers[:4]
+    # "Everything else" = the day's P&L minus the movers actually listed, so the rows
+    # on the page add up to the total (previously it subtracted ALL positions while
+    # only the top 4 were shown).
+    explained = sum(m["contribution"] for m in shown)
     return {
         "spy_pct": round(spy[1], 2) if spy else None,
-        "movers": movers[:4],
+        "movers": shown,
         "other": round(pnl["abs"] - explained, 2),
     }
 
@@ -296,7 +300,7 @@ DATA:
 
 Return ONLY JSON:
 {{
-  "headline": "<2 sentences max. First: the $ and % result, how it compared with the S&P 500, and the 1-2 names that drove it. Second: what we changed today and the one-line reason why (or that we made no trades).>",
+  "headline": "<2 sentences max. First: the $ and % result, how it compared with the S&P 500, and the names in top_drivers (exactly those, in that order — they are the largest $ contributors). Second: what we changed today and the one-line reason why (or that we made no trades).>",
   "pnl_why": "<1 sentence on what drove the day overall, e.g. broad market vs a few names>",
   "mover_why": {{"TICKER": "<≤15 words>", ...}},
   "trade_why": {{"TICKER": "<≤15 words>", ...}},
@@ -367,7 +371,10 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
             upcoming.append(f"{t}: {str(c)[:140]}")
 
     movers = (pnl_block or {}).get("movers", [])
+    # Biggest $ contributors, computed — the LLM must not choose which names "drove" the day
+    top_drivers = [m["ticker"] for m in movers[:2]]
     facts = {
+        "top_drivers": top_drivers,
         "pnl": {k: (pnl_block or {}).get(k) for k in ("date", "abs", "pct", "spy_pct", "other")},
         "movers": [{**m, "news": catalysts.get(m["ticker"], [])[:2]} for m in movers],
         "trades_today": [{k: t[k] for k in ("ticker", "verb", "notional", "rationale")} for t in trades],
@@ -397,8 +404,13 @@ def build_briefing(pnl: dict | None, opening_positions: dict, executors: list[di
     if pnl_block is not None:
         pnl_block["why"] = written.get("pnl_why")
 
+    headline = written.get("headline")
+    if headline and top_drivers and top_drivers[0] not in headline:
+        logger.warning("Daily briefing: LLM headline omitted top driver %s — using computed headline", top_drivers[0])
+        headline = None
+
     return {
-        "headline": written.get("headline") or _fallback_headline(pnl, movers, trades),
+        "headline": headline or _fallback_headline(pnl, movers, trades),
         "pnl": pnl_block,
         "trades": trades,
         "not_executed": not_executed,
