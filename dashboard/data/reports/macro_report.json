@@ -1,44 +1,45 @@
 {
-  "regime": "RISK-OFF",
+  "regime": "NEUTRAL",
   "interest_rate_direction": "stable",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "bonds",
+    "high-quality bonds",
     "commodities",
-    "cash equivalents"
+    "inflation-hedged assets"
   ],
   "avoid_themes": [
-    "high-growth tech",
-    "cyclical stocks",
-    "emerging markets"
+    "high-risk equities",
+    "emerging markets",
+    "cyclical stocks"
   ],
   "geopolitical_risks": [
-    "US-China trade tensions",
-    "Iran war implications",
-    "political instability in the US"
+    "escalation in Israel-Palestine conflict",
+    "US-Iran tensions over naval blockade"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF regime with rising inflation and stable interest rates. The yield curve is inverted, suggesting recession risks. All three data sources agree on the RISK-OFF classification, leading to a high confidence level, with no conflicts present.",
+  "macro_summary": "The current macro environment shows mixed signals with FRED indicating a RISK-OFF stance, while yfinance_market remains NEUTRAL and newsapi_finnhub suggests RISK-ON. Inflation is rising as indicated by the CPI increase, and the yield curve remains positive but close to inversion, suggesting recession risks. The lack of agreement among sources leads to a low confidence level.",
   "signal_confidence": {
-    "level": "high",
+    "level": "low",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [
-      "All 3 sources agree: RISK-OFF"
+    "agreements": [],
+    "conflicts": [
+      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
+      "FRED signals RISK-OFF but newsapi_finnhub signals RISK-ON",
+      "newsapi_finnhub signals RISK-ON but yfinance_market signals NEUTRAL"
     ],
-    "conflicts": [],
-    "confidence_note": "The confidence level is high due to unanimous agreement across all sources."
+    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
   },
-  "confidence": 90,
+  "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.88,
-    "us_10y_yield": 5.07,
-    "us_2y_yield": 4.8,
-    "yield_curve_spread": 0.27,
+    "us_10y_yield": 5.04,
+    "us_2y_yield": 4.76,
+    "yield_curve_spread": 0.28,
     "cpi_latest": 337.48,
     "cpi_prev": 336.3,
     "cpi_trend": "rising",
@@ -46,41 +47,38 @@
     "gdp_latest": 33010.0,
     "gdp_prev": 32563.0,
     "gdp_growth": 1.37,
-    "dxy_current": 103.74,
-    "dxy_1m_ago": 101.73,
+    "dxy_current": 104.33,
+    "dxy_1m_ago": 101.81,
     "dxy_trend": "strengthening",
-    "vix": 28.49,
-    "tlt_1m_change_pct": 1.68,
-    "hyg_1m_change_pct": 0.01,
+    "vix": 27.08,
+    "tlt_1m_change_pct": 0.4,
+    "hyg_1m_change_pct": 0.08,
     "macro_headlines": [
-      "Our top 10 things to watch in the stock market Friday",
-      "Anthropic raises $93.5 billion total as underwriters scoop up \u2018greenshoe\u2019 overallotment",
-      "U.S.-China trade, Taiwan and tech tensions remain unresolved as Trump returns from Asia",
-      "Rejecting cheap fabrics, higher prices: Why shoppers are asking for better clothes",
-      "A24 is having a great year at the box office. That could give HBO Max a streaming edge",
-      "UK finds fix for fridge and freezer vulnerability after European hacks - Reuters",
-      "Congress struggles to avert US shutdown as Iran war divides lawmakers - Reuters",
-      "PODCAST: Anthropic IPO, Europe bristles over Trump-Xi-Putin meeting and Meta's muse - Reuters",
-      "Anthropic defies the odds, holding record IPO despite \u2018massively disruptive\u2019 market",
-      "Iraqi security forces deploy in Iran-backed militia stronghold - Reuters"
+      "JPMorgan's top books and experiences for the wealthy this holiday season",
+      "Jim Cramer's top 10 things to watch in the stock market Monday",
+      "Wall Street's 'Fear Gauge' just flashed a buy sign",
+      "COMMENTARY: China's steel sector bifurcates as iron ore remains robust - Reuters",
+      "Most Gulf bourses end higher, buoyed by diplomatic momentum - Reuters",
+      "SpaceX sued by Oregon and Virginia over AI deepfake porn, Grok safety claims",
+      "Tokenized stocks face pushback as NYSE, Nasdaq pivot for a new market",
+      "COMMENTARY: Morning Bid: Wall Street reprieve or recovery? - Reuters",
+      "Iran says it will use all its tools to confront US naval blockade - Reuters",
+      "Denmark to propose mobile phone ban in schools in 2027 - Reuters"
     ],
     "geopolitical_headlines": [
-      "Deutsche Bank",
-      "US National Security Agency's classified internal network reportedly goes offline",
-      "Good sound doesn't have to break the bank \u2014 here are the 12 best affordable audio accessories for your phone",
-      "Trump lands in China with key meetings with Xi and Putin on the agenda",
-      "The Verge\u2019s 2026 holiday gift guide for travelers",
-      "UK sanctions Israeli settlement firms to protect two-state solution",
-      "Australia issues sanctions targeting Israeli settlers",
-      "Banks are warning customers they could be liable for an AI agent's mistakes",
-      "Shelly\u2019s new smart valve shuts off your home\u2019s water before a leak becomes a flood",
-      "Major privacy breaches reported in Muse AI, including bank balances"
+      "Contenders to lead Senate Democrats reflect the party's split over Israel",
+      "Here are the Apple deals actually worth picking up ahead of Black Friday",
+      "Nvidia's neocloud empire lost its biggest champion. Washington may have dealt a bigger blow.",
+      "Visa, Mastercard and JPMorgan customer data leaked",
+      "UGREEN\u2019s excellent liquid cooled 25W MagSafe battery for iPhone is now 40% off",
+      "Anker's Black Friday Steals: The Lowest Prices Yet on MagSafe Favorites",
+      "GTA 6 Players Hate Using ATMs: \u2018Just Let Me Type In A Number!\u201d",
+      "Israeli settlers attack several Palestinian villages in occupied West Bank",
+      "I\u2019m a Gen Zer who's not interested in doomsday prepping. This is the one under-$100 item I'll buy, just in case.",
+      "'GTA 6' players can't stop doomscrolling in the game: 'Art really does imitate life'"
     ],
-    "central_bank_headlines": [
-      "Stocks slip as investors mull Nvidia earnings; Anthropic IPO to test AI boom",
-      "US futures point higher led by rebound for Nvidia"
-    ],
-    "as_of": "2026-11-20 15:32 UTC"
+    "central_bank_headlines": [],
+    "as_of": "2026-11-23 15:32 UTC"
   },
-  "generated_at": "2026-11-20T15:32:19.829067"
+  "generated_at": "2026-11-23T15:32:19.450708"
 }

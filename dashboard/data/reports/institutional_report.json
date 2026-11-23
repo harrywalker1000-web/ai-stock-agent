@@ -3,10 +3,10 @@
     {
       "ticker": "NVDA",
       "company_name": "NVIDIA Corporation",
-      "signal": "Large call sweeps indicating bullish positioning",
+      "signal": "Large call sweeps indicating bullish sentiment",
       "institution": "Various institutions",
       "signal_type": "unusual_options_activity",
-      "value_or_detail": "Multiple call options with high volume/OI ratios",
+      "value_or_detail": "Multiple call options with high volume",
       "recency": "today",
       "direction": "LONG",
       "signal_confidence": {
@@ -19,15 +19,15 @@
         ],
         "conflicts": []
       },
-      "reasoning": "The unusual options activity shows strong institutional interest in NVDA, corroborated by a bullish analyst consensus."
+      "reasoning": "The unusual options activity shows significant bullish positioning by institutions, corroborated by strong analyst ratings."
     },
     {
       "ticker": "COIN",
       "company_name": "Coinbase Global, Inc.",
-      "signal": "Analyst upgrades and strong buy ratings",
+      "signal": "Analyst upgrades and positive sentiment",
       "institution": "Various analysts",
       "signal_type": "analyst_upgrade",
-      "value_or_detail": "Price target of $192.64 with 80.4% upside",
+      "value_or_detail": "Price target increased to $192.64",
       "recency": "this_month",
       "direction": "LONG",
       "signal_confidence": {
@@ -35,19 +35,19 @@
         "sources_count": 2,
         "sources": [
           "analyst_consensus",
-          "unusual_options_activity"
+          "13F_holding"
         ],
         "conflicts": []
       },
-      "reasoning": "Analyst upgrades indicate strong potential for growth, supported by unusual options activity suggesting bullish sentiment."
+      "reasoning": "The analyst upgrades indicate strong future expectations for Coinbase, supported by institutional holdings."
     },
     {
       "ticker": "INTC",
       "company_name": "Intel Corporation",
-      "signal": "Analyst upgrades and strong buy ratings",
+      "signal": "Analyst upgrades and positive sentiment",
       "institution": "Various analysts",
       "signal_type": "analyst_upgrade",
-      "value_or_detail": "Price target of $90.65 with 66.7% upside",
+      "value_or_detail": "Price target increased to $90.65",
       "recency": "this_month",
       "direction": "LONG",
       "signal_confidence": {
@@ -55,22 +55,22 @@
         "sources_count": 2,
         "sources": [
           "analyst_consensus",
-          "unusual_options_activity"
+          "13F_holding"
         ],
         "conflicts": []
       },
-      "reasoning": "Analyst upgrades indicate strong potential for growth, supported by unusual options activity suggesting bullish sentiment."
+      "reasoning": "The analyst upgrades suggest a positive outlook for Intel, corroborated by institutional holdings."
     }
   ],
   "analyst_upgrades": [
     {
       "ticker": "NVDA",
       "company_name": "NVIDIA Corporation",
-      "analyst_count": 55,
+      "analyst_count": 56,
       "consensus": "strong_buy",
-      "price_target": 246.67,
-      "current_price": 137.15,
-      "implied_upside_pct": 79.9,
+      "price_target": 244.18,
+      "current_price": 168.38,
+      "implied_upside_pct": 45.0,
       "strong_buy_count": 25,
       "buy_count": 41,
       "hold_count": 2,
@@ -81,27 +81,27 @@
         "sources_count": 1,
         "corroborated_by": []
       },
-      "reasoning": "The strong buy consensus and high analyst count indicate significant confidence in NVIDIA's growth potential."
+      "reasoning": "NVIDIA has a strong analyst consensus with significant upside potential, indicating strong institutional interest."
     },
     {
       "ticker": "COIN",
       "company_name": "Coinbase Global, Inc.",
       "analyst_count": 34,
-      "consensus": "strong_buy",
+      "consensus": "buy",
       "price_target": 192.64,
-      "current_price": 106.8,
-      "implied_upside_pct": 80.4,
+      "current_price": 110.94,
+      "implied_upside_pct": 73.6,
       "strong_buy_count": 10,
       "buy_count": 21,
       "hold_count": 14,
       "sell_count": 1,
-      "signal": "strong conviction buy",
+      "signal": "moderate buy",
       "signal_confidence": {
         "level": "medium",
-        "sources_count": 1,
+        "sources_count": 2,
         "corroborated_by": []
       },
-      "reasoning": "The strong buy consensus and high implied upside indicate significant confidence in Coinbase's growth potential."
+      "reasoning": "Analysts see significant upside for Coinbase, reflecting strong institutional interest."
     },
     {
       "ticker": "INTC",
@@ -109,8 +109,8 @@
       "analyst_count": 43,
       "consensus": "buy",
       "price_target": 90.65,
-      "current_price": 54.37,
-      "implied_upside_pct": 66.7,
+      "current_price": 58.56,
+      "implied_upside_pct": 54.8,
       "strong_buy_count": 4,
       "buy_count": 12,
       "hold_count": 38,
@@ -118,10 +118,10 @@
       "signal": "moderate buy",
       "signal_confidence": {
         "level": "medium",
-        "sources_count": 1,
+        "sources_count": 2,
         "corroborated_by": []
       },
-      "reasoning": "The buy consensus and significant implied upside indicate confidence in Intel's recovery potential."
+      "reasoning": "Intel's analyst consensus indicates a positive outlook with substantial upside potential."
     }
   ],
   "insider_buys": [],
@@ -130,20 +130,14 @@
     {
       "ticker": "NVDA",
       "direction": "bullish",
-      "max_vol_oi_ratio": 215.0,
+      "max_vol_oi_ratio": 17.7,
       "interpretation": "The high volume relative to open interest indicates strong institutional bullish sentiment for NVIDIA."
-    },
-    {
-      "ticker": "GOOGL",
-      "direction": "bullish",
-      "max_vol_oi_ratio": 2.8,
-      "interpretation": "The call activity suggests institutions are positioning for upside in Alphabet."
     },
     {
       "ticker": "AAPL",
       "direction": "bullish",
-      "max_vol_oi_ratio": 2.3,
-      "interpretation": "The call activity suggests institutions are positioning for upside in Apple."
+      "max_vol_oi_ratio": 18.9,
+      "interpretation": "The high volume relative to open interest suggests fresh institutional bullish positioning in Apple."
     }
   ],
   "top_institutional_signals": [
@@ -164,24 +158,24 @@
     {
       "ticker": "COIN",
       "funds": [
-        "Various analysts"
+        "Various institutions"
       ],
       "inferred_thesis": "growth",
-      "thesis_reasoning": "Coinbase is expected to benefit from the growing adoption of cryptocurrencies and blockchain technology.",
-      "conviction": "high"
+      "thesis_reasoning": "Coinbase is expected to benefit from increasing cryptocurrency adoption and trading volume.",
+      "conviction": "medium"
     },
     {
       "ticker": "INTC",
       "funds": [
-        "Various analysts"
+        "Various institutions"
       ],
       "inferred_thesis": "value",
-      "thesis_reasoning": "Intel is trading below its intrinsic value with potential for recovery as it restructures its operations.",
+      "thesis_reasoning": "Intel is trading below its intrinsic value with potential for recovery as it invests in new technologies.",
       "conviction": "medium"
     }
   ],
   "convergence_signals": [],
-  "institutional_summary": "There are no recent 13D/13G activist filings, indicating a lack of immediate activist interest. However, unusual options activity in NVDA, GOOGL, and AAPL suggests strong institutional positioning for upside. NVDA stands out with multiple bullish signals, including analyst upgrades and significant call sweeps, indicating high confidence in its growth potential. The overall confidence level in these signals is medium to high, reflecting a cautious yet optimistic institutional sentiment.",
+  "institutional_summary": "There are no recent 13D/13G activist filings, indicating a lack of immediate activist interest. However, unusual options activity in NVIDIA and Apple suggests strong bullish sentiment from institutions. Analyst upgrades for NVIDIA, Coinbase, and Intel further support positive expectations for these stocks. Confidence levels are medium to high across these signals, reflecting a favorable outlook for growth-oriented investments.",
   "confidence": 85,
   "raw_data": {
     "fund_holdings": {
@@ -1200,12 +1194,12 @@
     "analyst_data": [
       {
         "ticker": "AAPL",
-        "current_price": 349.0282,
+        "current_price": 351.96,
         "analyst_count": 39,
         "target_mean": 345.63,
         "target_high": 425.0,
         "target_low": 250.0,
-        "implied_upside_pct": -1.0,
+        "implied_upside_pct": -1.8,
         "recommendation_key": "buy",
         "strong_buy": 11,
         "buy": 19,
@@ -1216,12 +1210,12 @@
       },
       {
         "ticker": "MSFT",
-        "current_price": 495.55,
+        "current_price": 502.3899,
         "analyst_count": 54,
         "target_mean": 636.12,
         "target_high": 870.0,
         "target_low": 440.0,
-        "implied_upside_pct": 28.4,
+        "implied_upside_pct": 26.6,
         "recommendation_key": "strong_buy",
         "strong_buy": 22,
         "buy": 40,
@@ -1232,12 +1226,12 @@
       },
       {
         "ticker": "NVDA",
-        "current_price": 137.1522,
-        "analyst_count": 55,
-        "target_mean": 246.67,
+        "current_price": 168.38,
+        "analyst_count": 56,
+        "target_mean": 244.18,
         "target_high": 425.0,
         "target_low": 130.0,
-        "implied_upside_pct": 79.9,
+        "implied_upside_pct": 45.0,
         "recommendation_key": "buy",
         "strong_buy": 25,
         "buy": 41,
@@ -1248,12 +1242,12 @@
       },
       {
         "ticker": "GOOGL",
-        "current_price": 279.605,
+        "current_price": 282.72,
         "analyst_count": 53,
-        "target_mean": 400.15,
+        "target_mean": 397.13,
         "target_high": 500.0,
         "target_low": 300.0,
-        "implied_upside_pct": 43.1,
+        "implied_upside_pct": 40.5,
         "recommendation_key": "strong_buy",
         "strong_buy": 20,
         "buy": 41,
@@ -1264,12 +1258,12 @@
       },
       {
         "ticker": "AMZN",
-        "current_price": 255.67,
+        "current_price": 257.56,
         "analyst_count": 60,
         "target_mean": 326.51,
         "target_high": 405.0,
         "target_low": 230.0,
-        "implied_upside_pct": 27.7,
+        "implied_upside_pct": 26.8,
         "recommendation_key": "strong_buy",
         "strong_buy": 19,
         "buy": 48,
@@ -1280,12 +1274,12 @@
       },
       {
         "ticker": "META",
-        "current_price": 579.15,
+        "current_price": 592.39,
         "analyst_count": 58,
-        "target_mean": 848.23,
+        "target_mean": 846.5,
         "target_high": 1050.0,
         "target_low": 650.0,
-        "implied_upside_pct": 46.5,
+        "implied_upside_pct": 42.9,
         "recommendation_key": "strong_buy",
         "strong_buy": 20,
         "buy": 41,
@@ -1296,12 +1290,12 @@
       },
       {
         "ticker": "TSLA",
-        "current_price": 364.505,
+        "current_price": 392.28,
         "analyst_count": 40,
-        "target_mean": 412.48,
+        "target_mean": 417.53,
         "target_high": 600.0,
         "target_low": 128.11,
-        "implied_upside_pct": 13.2,
+        "implied_upside_pct": 6.4,
         "recommendation_key": "buy",
         "strong_buy": 10,
         "buy": 19,
@@ -1312,12 +1306,12 @@
       },
       {
         "ticker": "JPM",
-        "current_price": 318.37,
+        "current_price": 318.21,
         "analyst_count": 23,
         "target_mean": 373.48,
         "target_high": 425.0,
         "target_low": 312.0,
-        "implied_upside_pct": 17.3,
+        "implied_upside_pct": 17.4,
         "recommendation_key": "buy",
         "strong_buy": 3,
         "buy": 15,
@@ -1328,12 +1322,12 @@
       },
       {
         "ticker": "V",
-        "current_price": 407.9775,
+        "current_price": 410.05,
         "analyst_count": 37,
         "target_mean": 450.96,
         "target_high": 500.0,
         "target_low": 330.0,
-        "implied_upside_pct": 10.5,
+        "implied_upside_pct": 10.0,
         "recommendation_key": "strong_buy",
         "strong_buy": 12,
         "buy": 32,
@@ -1344,13 +1338,13 @@
       },
       {
         "ticker": "UNH",
-        "current_price": 343.84,
+        "current_price": 330.155,
         "analyst_count": 25,
-        "target_mean": 476.36,
+        "target_mean": 478.48,
         "target_high": 531.0,
         "target_low": 385.0,
-        "implied_upside_pct": 38.5,
-        "recommendation_key": "buy",
+        "implied_upside_pct": 44.9,
+        "recommendation_key": "strong_buy",
         "strong_buy": 8,
         "buy": 19,
         "hold": 5,
@@ -1360,12 +1354,12 @@
       },
       {
         "ticker": "XOM",
-        "current_price": 160.2,
+        "current_price": 158.0,
         "analyst_count": 22,
         "target_mean": 184.18,
         "target_high": 213.0,
         "target_low": 160.0,
-        "implied_upside_pct": 15.0,
+        "implied_upside_pct": 16.6,
         "recommendation_key": "buy",
         "strong_buy": 5,
         "buy": 8,
@@ -1376,12 +1370,12 @@
       },
       {
         "ticker": "CVX",
-        "current_price": 208.57,
+        "current_price": 207.16,
         "analyst_count": 24,
         "target_mean": 242.54,
         "target_high": 272.0,
         "target_low": 202.0,
-        "implied_upside_pct": 16.3,
+        "implied_upside_pct": 17.1,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 18,
@@ -1392,12 +1386,12 @@
       },
       {
         "ticker": "LLY",
-        "current_price": 1361.61,
+        "current_price": 1376.61,
         "analyst_count": 29,
         "target_mean": 1470.06,
         "target_high": 1700.0,
         "target_low": 940.0,
-        "implied_upside_pct": 8.0,
+        "implied_upside_pct": 6.8,
         "recommendation_key": "buy",
         "strong_buy": 11,
         "buy": 21,
@@ -1408,12 +1402,12 @@
       },
       {
         "ticker": "JNJ",
-        "current_price": 271.8,
+        "current_price": 270.91,
         "analyst_count": 22,
-        "target_mean": 279.17,
+        "target_mean": 279.85,
         "target_high": 320.0,
         "target_low": 190.0,
-        "implied_upside_pct": 2.7,
+        "implied_upside_pct": 3.3,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 14,
@@ -1424,13 +1418,13 @@
       },
       {
         "ticker": "WMT",
-        "current_price": 130.14,
-        "analyst_count": 40,
-        "target_mean": 133.88,
+        "current_price": 128.199,
+        "analyst_count": 41,
+        "target_mean": 135.9,
         "target_high": 155.0,
         "target_low": 81.0,
-        "implied_upside_pct": 2.9,
-        "recommendation_key": "strong_buy",
+        "implied_upside_pct": 6.0,
+        "recommendation_key": "buy",
         "strong_buy": 12,
         "buy": 31,
         "hold": 5,
@@ -1440,12 +1434,12 @@
       },
       {
         "ticker": "PG",
-        "current_price": 171.1,
+        "current_price": 169.83,
         "analyst_count": 23,
-        "target_mean": 174.78,
-        "target_high": 190.0,
+        "target_mean": 176.13,
+        "target_high": 192.0,
         "target_low": 151.0,
-        "implied_upside_pct": 2.2,
+        "implied_upside_pct": 3.7,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 14,
@@ -1456,12 +1450,12 @@
       },
       {
         "ticker": "HD",
-        "current_price": 344.085,
+        "current_price": 347.22,
         "analyst_count": 32,
         "target_mean": 375.59,
         "target_high": 425.0,
         "target_low": 310.0,
-        "implied_upside_pct": 9.2,
+        "implied_upside_pct": 8.2,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 20,
@@ -1472,7 +1466,7 @@
       },
       {
         "ticker": "BAC",
-        "current_price": 48.325,
+        "current_price": 48.315,
         "analyst_count": 22,
         "target_mean": 62.48,
         "target_high": 71.0,
@@ -1488,12 +1482,12 @@
       },
       {
         "ticker": "MA",
-        "current_price": 635.28,
+        "current_price": 634.925,
         "analyst_count": 37,
         "target_mean": 720.69,
         "target_high": 800.0,
         "target_low": 550.0,
-        "implied_upside_pct": 13.4,
+        "implied_upside_pct": 13.5,
         "recommendation_key": "strong_buy",
         "strong_buy": 12,
         "buy": 36,
@@ -1504,12 +1498,12 @@
       },
       {
         "ticker": "AVGO",
-        "current_price": 319.335,
+        "current_price": 312.69,
         "analyst_count": 47,
         "target_mean": 526.47,
         "target_high": 660.0,
         "target_low": 398.47,
-        "implied_upside_pct": 64.9,
+        "implied_upside_pct": 68.4,
         "recommendation_key": "strong_buy",
         "strong_buy": 17,
         "buy": 37,
@@ -1520,12 +1514,12 @@
       },
       {
         "ticker": "COST",
-        "current_price": 1119.085,
+        "current_price": 1090.935,
         "analyst_count": 37,
         "target_mean": 1085.35,
         "target_high": 1315.0,
         "target_low": 770.0,
-        "implied_upside_pct": -3.0,
+        "implied_upside_pct": -0.5,
         "recommendation_key": "buy",
         "strong_buy": 13,
         "buy": 19,
@@ -1536,12 +1530,12 @@
       },
       {
         "ticker": "MRK",
-        "current_price": 136.0,
+        "current_price": 135.46,
         "analyst_count": 26,
         "target_mean": 161.53,
         "target_high": 186.0,
         "target_low": 105.0,
-        "implied_upside_pct": 18.8,
+        "implied_upside_pct": 19.2,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 17,
@@ -1552,12 +1546,12 @@
       },
       {
         "ticker": "ABBV",
-        "current_price": 288.505,
+        "current_price": 289.355,
         "analyst_count": 26,
         "target_mean": 315.88,
         "target_high": 350.0,
         "target_low": 237.0,
-        "implied_upside_pct": 9.5,
+        "implied_upside_pct": 9.2,
         "recommendation_key": "buy",
         "strong_buy": 10,
         "buy": 21,
@@ -1568,12 +1562,12 @@
       },
       {
         "ticker": "PEP",
-        "current_price": 142.88,
+        "current_price": 140.31,
         "analyst_count": 22,
         "target_mean": 141.14,
         "target_high": 165.0,
         "target_low": 106.0,
-        "implied_upside_pct": -1.2,
+        "implied_upside_pct": 0.6,
         "recommendation_key": "hold",
         "strong_buy": 2,
         "buy": 9,
@@ -1584,12 +1578,12 @@
       },
       {
         "ticker": "KO",
-        "current_price": 97.25,
+        "current_price": 96.115,
         "analyst_count": 25,
         "target_mean": 99.64,
         "target_high": 112.0,
         "target_low": 88.0,
-        "implied_upside_pct": 2.5,
+        "implied_upside_pct": 3.7,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 20,
@@ -1600,12 +1594,12 @@
       },
       {
         "ticker": "TMO",
-        "current_price": 680.815,
+        "current_price": 693.16,
         "analyst_count": 25,
         "target_mean": 756.52,
         "target_high": 830.0,
         "target_low": 590.0,
-        "implied_upside_pct": 11.1,
+        "implied_upside_pct": 9.1,
         "recommendation_key": "strong_buy",
         "strong_buy": 11,
         "buy": 16,
@@ -1616,12 +1610,12 @@
       },
       {
         "ticker": "ORCL",
-        "current_price": 105.1,
+        "current_price": 115.73,
         "analyst_count": 40,
         "target_mean": 236.18,
         "target_high": 400.0,
         "target_low": 110.0,
-        "implied_upside_pct": 124.7,
+        "implied_upside_pct": 104.1,
         "recommendation_key": "strong_buy",
         "strong_buy": 15,
         "buy": 23,
@@ -1632,12 +1626,12 @@
       },
       {
         "ticker": "CRM",
-        "current_price": 187.38,
+        "current_price": 184.7851,
         "analyst_count": 53,
         "target_mean": 286.14,
         "target_high": 475.0,
         "target_low": 165.0,
-        "implied_upside_pct": 52.7,
+        "implied_upside_pct": 54.9,
         "recommendation_key": "buy",
         "strong_buy": 15,
         "buy": 26,
@@ -1648,12 +1642,12 @@
       },
       {
         "ticker": "AMD",
-        "current_price": 447.635,
+        "current_price": 461.03,
         "analyst_count": 49,
         "target_mean": 657.74,
         "target_high": 1250.0,
         "target_low": 525.0,
-        "implied_upside_pct": 46.9,
+        "implied_upside_pct": 42.7,
         "recommendation_key": "strong_buy",
         "strong_buy": 17,
         "buy": 33,
@@ -1664,12 +1658,12 @@
       },
       {
         "ticker": "INTC",
-        "current_price": 54.37,
+        "current_price": 58.56,
         "analyst_count": 43,
         "target_mean": 90.65,
         "target_high": 160.0,
         "target_low": 63.0,
-        "implied_upside_pct": 66.7,
+        "implied_upside_pct": 54.8,
         "recommendation_key": "hold",
         "strong_buy": 4,
         "buy": 12,
@@ -1680,12 +1674,12 @@
       },
       {
         "ticker": "QCOM",
-        "current_price": 159.42,
+        "current_price": 163.98,
         "analyst_count": 28,
         "target_mean": 185.25,
         "target_high": 305.0,
         "target_low": 100.0,
-        "implied_upside_pct": 16.2,
+        "implied_upside_pct": 13.0,
         "recommendation_key": "hold",
         "strong_buy": 6,
         "buy": 13,
@@ -1696,12 +1690,12 @@
       },
       {
         "ticker": "PLTR",
-        "current_price": 148.3,
+        "current_price": 159.57,
         "analyst_count": 29,
         "target_mean": 222.9,
         "target_high": 273.0,
         "target_low": 80.0,
-        "implied_upside_pct": 50.3,
+        "implied_upside_pct": 39.7,
         "recommendation_key": "buy",
         "strong_buy": 12,
         "buy": 19,
@@ -1712,12 +1706,12 @@
       },
       {
         "ticker": "COIN",
-        "current_price": 106.8,
+        "current_price": 110.935,
         "analyst_count": 34,
         "target_mean": 192.64,
         "target_high": 280.0,
         "target_low": 110.0,
-        "implied_upside_pct": 80.4,
+        "implied_upside_pct": 73.6,
         "recommendation_key": "buy",
         "strong_buy": 10,
         "buy": 21,
@@ -1728,12 +1722,12 @@
       },
       {
         "ticker": "GS",
-        "current_price": 810.155,
+        "current_price": 825.66,
         "analyst_count": 21,
-        "target_mean": 1031.57,
+        "target_mean": 1030.71,
         "target_high": 1250.0,
         "target_low": 730.0,
-        "implied_upside_pct": 27.3,
+        "implied_upside_pct": 24.8,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 11,
@@ -1744,12 +1738,12 @@
       },
       {
         "ticker": "MS",
-        "current_price": 169.66,
+        "current_price": 173.69,
         "analyst_count": 22,
         "target_mean": 211.5,
         "target_high": 262.0,
         "target_low": 185.0,
-        "implied_upside_pct": 24.7,
+        "implied_upside_pct": 21.8,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 13,
@@ -1760,12 +1754,12 @@
       },
       {
         "ticker": "C",
-        "current_price": 112.53,
+        "current_price": 114.21,
         "analyst_count": 21,
         "target_mean": 150.6,
         "target_high": 170.0,
         "target_low": 127.0,
-        "implied_upside_pct": 33.8,
+        "implied_upside_pct": 31.9,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 17,
@@ -1776,12 +1770,12 @@
       },
       {
         "ticker": "WFC",
-        "current_price": 80.815,
+        "current_price": 80.1675,
         "analyst_count": 24,
         "target_mean": 97.38,
         "target_high": 108.0,
         "target_low": 88.0,
-        "implied_upside_pct": 20.5,
+        "implied_upside_pct": 21.5,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 16,
@@ -1792,12 +1786,12 @@
       },
       {
         "ticker": "RTX",
-        "current_price": 193.77,
+        "current_price": 193.505,
         "analyst_count": 23,
         "target_mean": 228.13,
         "target_high": 250.0,
         "target_low": 200.0,
-        "implied_upside_pct": 17.7,
+        "implied_upside_pct": 17.9,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 14,
@@ -1808,12 +1802,12 @@
       },
       {
         "ticker": "LMT",
-        "current_price": 573.64,
+        "current_price": 566.45,
         "analyst_count": 22,
         "target_mean": 660.86,
         "target_high": 835.0,
         "target_low": 498.0,
-        "implied_upside_pct": 15.2,
+        "implied_upside_pct": 16.7,
         "recommendation_key": "buy",
         "strong_buy": 6,
         "buy": 11,
@@ -1824,12 +1818,12 @@
       },
       {
         "ticker": "NOC",
-        "current_price": 545.645,
+        "current_price": 536.7,
         "analyst_count": 24,
         "target_mean": 636.5,
         "target_high": 815.0,
         "target_low": 430.0,
-        "implied_upside_pct": 16.7,
+        "implied_upside_pct": 18.6,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 13,
@@ -1840,12 +1834,12 @@
       },
       {
         "ticker": "GD",
-        "current_price": 349.52,
+        "current_price": 346.03,
         "analyst_count": 21,
         "target_mean": 419.29,
         "target_high": 480.0,
         "target_low": 320.0,
-        "implied_upside_pct": 20.0,
+        "implied_upside_pct": 21.2,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 15,
@@ -1856,12 +1850,12 @@
       },
       {
         "ticker": "BA",
-        "current_price": 162.97,
+        "current_price": 161.45,
         "analyst_count": 26,
         "target_mean": 233.35,
         "target_high": 305.0,
         "target_low": 157.0,
-        "implied_upside_pct": 43.2,
+        "implied_upside_pct": 44.5,
         "recommendation_key": "strong_buy",
         "strong_buy": 13,
         "buy": 21,
@@ -1872,12 +1866,12 @@
       },
       {
         "ticker": "CAT",
-        "current_price": 525.06,
+        "current_price": 549.0001,
         "analyst_count": 26,
         "target_mean": 807.26,
         "target_high": 1027.0,
         "target_low": 575.0,
-        "implied_upside_pct": 53.7,
+        "implied_upside_pct": 47.0,
         "recommendation_key": "buy",
         "strong_buy": 8,
         "buy": 12,
@@ -1888,12 +1882,12 @@
       },
       {
         "ticker": "DE",
-        "current_price": 617.84,
+        "current_price": 629.79,
         "analyst_count": 23,
         "target_mean": 694.01,
         "target_high": 813.18,
         "target_low": 500.0,
-        "implied_upside_pct": 12.3,
+        "implied_upside_pct": 10.2,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 17,
@@ -1904,12 +1898,12 @@
       },
       {
         "ticker": "UNP",
-        "current_price": 294.03,
+        "current_price": 289.91,
         "analyst_count": 24,
         "target_mean": 329.96,
         "target_high": 375.0,
         "target_low": 245.0,
-        "implied_upside_pct": 12.2,
+        "implied_upside_pct": 13.8,
         "recommendation_key": "buy",
         "strong_buy": 9,
         "buy": 13,
@@ -1920,12 +1914,12 @@
       },
       {
         "ticker": "NEE",
-        "current_price": 84.98,
+        "current_price": 83.25,
         "analyst_count": 19,
-        "target_mean": 94.11,
-        "target_high": 110.0,
+        "target_mean": 94.47,
+        "target_high": 117.0,
         "target_low": 56.0,
-        "implied_upside_pct": 10.7,
+        "implied_upside_pct": 13.5,
         "recommendation_key": "buy",
         "strong_buy": 7,
         "buy": 11,
@@ -1936,12 +1930,12 @@
       },
       {
         "ticker": "DUK",
-        "current_price": 130.745,
+        "current_price": 128.46,
         "analyst_count": 19,
-        "target_mean": 133.39,
+        "target_mean": 133.92,
         "target_high": 145.0,
         "target_low": 121.0,
-        "implied_upside_pct": 2.0,
+        "implied_upside_pct": 4.3,
         "recommendation_key": "buy",
         "strong_buy": 4,
         "buy": 11,
@@ -1961,7 +1955,7 @@
         "price": 525.94,
         "value_usd": 1552336103,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -1972,7 +1966,7 @@
         "price": 524.82,
         "value_usd": 1549072357,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -1983,7 +1977,7 @@
         "price": 523.74,
         "value_usd": 1546115047,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -1994,7 +1988,7 @@
         "price": 522.91,
         "value_usd": 1544208658,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2005,7 +1999,7 @@
         "price": 521.62,
         "value_usd": 1541025096,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2016,7 +2010,7 @@
         "price": 520.71,
         "value_usd": 1538690760,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2027,7 +2021,7 @@
         "price": 519.54,
         "value_usd": 1535649058,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2038,7 +2032,7 @@
         "price": 518.53,
         "value_usd": 1532954091,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2049,7 +2043,7 @@
         "price": 517.02,
         "value_usd": 1528738179,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2060,7 +2054,7 @@
         "price": 516.14,
         "value_usd": 1526177463,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2071,7 +2065,7 @@
         "price": 514.2,
         "value_usd": 1520564473,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2082,7 +2076,7 @@
         "price": 513.49,
         "value_usd": 1518794560,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2093,7 +2087,7 @@
         "price": 502.06,
         "value_usd": 1516555572,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2104,7 +2098,7 @@
         "price": 512.3,
         "value_usd": 1515929512,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2115,7 +2109,7 @@
         "price": 511.16,
         "value_usd": 1512842426,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2126,7 +2120,7 @@
         "price": 510.32,
         "value_usd": 1511549468,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2137,7 +2131,7 @@
         "price": 509.28,
         "value_usd": 1510313638,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2148,7 +2142,7 @@
         "price": 508.29,
         "value_usd": 1509520659,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2159,7 +2153,7 @@
         "price": 507.28,
         "value_usd": 1509007845,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2170,7 +2164,7 @@
         "price": 506.31,
         "value_usd": 1507585618,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2181,7 +2175,7 @@
         "price": 505.21,
         "value_usd": 1506513486,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2192,7 +2186,7 @@
         "price": 504.28,
         "value_usd": 1505630813,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2203,7 +2197,7 @@
         "price": 503.41,
         "value_usd": 1504644666,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AAPL",
@@ -2214,7 +2208,7 @@
         "price": 352.26,
         "value_usd": 1290252292,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AAPL",
@@ -2225,7 +2219,7 @@
         "price": 353.43,
         "value_usd": 1275732446,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "MSFT",
@@ -2236,7 +2230,7 @@
         "price": 544.2359,
         "value_usd": 299048919,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "MSFT",
@@ -2247,7 +2241,7 @@
         "price": 544.9467,
         "value_usd": 298680382,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "WMT",
@@ -2258,7 +2252,7 @@
         "price": 123.21,
         "value_usd": 201106196,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
       },
       {
         "ticker": "AMD",
@@ -2269,7 +2263,7 @@
         "price": 505.7,
         "value_usd": 177289823,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2280,7 +2274,7 @@
         "price": 504.41,
         "value_usd": 177072122,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2291,7 +2285,7 @@
         "price": 503.4,
         "value_usd": 176837876,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2302,7 +2296,7 @@
         "price": 507,
         "value_usd": 174716763,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2313,7 +2307,7 @@
         "price": 508.2,
         "value_usd": 174661733,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMD",
@@ -2324,7 +2318,7 @@
         "price": 507.5,
         "value_usd": 174461752,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMZN",
@@ -2335,7 +2329,7 @@
         "price": 262.5144,
         "value_usd": 125821052,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMZN",
@@ -2346,7 +2340,7 @@
         "price": 261.7333,
         "value_usd": 125540901,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMZN",
@@ -2357,7 +2351,7 @@
         "price": 260.7859,
         "value_usd": 125535030,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMZN",
@@ -2368,7 +2362,7 @@
         "price": 259.6232,
         "value_usd": 125151883,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "AMZN",
@@ -2379,7 +2373,7 @@
         "price": 243.47,
         "value_usd": 115327113,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "V",
@@ -2390,7 +2384,7 @@
         "price": 425.3885,
         "value_usd": 110136911,
         "date": "2026-11-04",
-        "days_ago": 16
+        "days_ago": 19
       },
       {
         "ticker": "V",
@@ -2401,7 +2395,7 @@
         "price": 426.7186,
         "value_usd": 107488282,
         "date": "2026-11-04",
-        "days_ago": 16
+        "days_ago": 19
       },
       {
         "ticker": "V",
@@ -2412,7 +2406,7 @@
         "price": 427.3636,
         "value_usd": 99196220,
         "date": "2026-11-04",
-        "days_ago": 16
+        "days_ago": 19
       },
       {
         "ticker": "V",
@@ -2423,7 +2417,7 @@
         "price": 425.4286,
         "value_usd": 98747083,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "INTC",
@@ -2434,7 +2428,7 @@
         "price": 64.7312,
         "value_usd": 94809782,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "WMT",
@@ -2445,7 +2439,7 @@
         "price": 124.509,
         "value_usd": 76574654,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "META",
@@ -2456,7 +2450,7 @@
         "price": 640,
         "value_usd": 48254080,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -2467,7 +2461,7 @@
         "price": 640.39,
         "value_usd": 47499647,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "META",
@@ -2478,7 +2472,18 @@
         "price": 631.03,
         "value_usd": 47062848,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
+      },
+      {
+        "ticker": "HD",
+        "name": "Decker Edward P.",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 137930,
+        "price": 338.53,
+        "value_usd": 46693443,
+        "date": "2026-11-18",
+        "days_ago": 5
       },
       {
         "ticker": "META",
@@ -2489,7 +2494,7 @@
         "price": 614.15,
         "value_usd": 46054494,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "AMD",
@@ -2500,7 +2505,7 @@
         "price": 564.88,
         "value_usd": 44158364,
         "date": "2026-11-11",
-        "days_ago": 9
+        "days_ago": 12
       },
       {
         "ticker": "MSFT",
@@ -2511,7 +2516,7 @@
         "price": 531,
         "value_usd": 28892772,
         "date": "2026-11-10",
-        "days_ago": 10
+        "days_ago": 13
       },
       {
         "ticker": "ABBV",
@@ -2522,7 +2527,7 @@
         "price": 293.6,
         "value_usd": 24419006,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "MA",
@@ -2533,7 +2538,7 @@
         "price": 642.43,
         "value_usd": 22966872,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
       },
       {
         "ticker": "MA",
@@ -2544,7 +2549,7 @@
         "price": 641,
         "value_usd": 22915750,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "KO",
@@ -2555,7 +2560,7 @@
         "price": 98,
         "value_usd": 21886340,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "KO",
@@ -2566,7 +2571,7 @@
         "price": 95.6233,
         "value_usd": 21355552,
         "date": "2026-11-05",
-        "days_ago": 15
+        "days_ago": 18
       },
       {
         "ticker": "MRK",
@@ -2577,7 +2582,7 @@
         "price": 148.0085,
         "value_usd": 16718300,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "KO",
@@ -2588,7 +2593,7 @@
         "price": 95.0165,
         "value_usd": 15243307,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "KO",
@@ -2599,7 +2604,7 @@
         "price": 94.8414,
         "value_usd": 15215216,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "KO",
@@ -2610,7 +2615,7 @@
         "price": 94.8414,
         "value_usd": 15215216,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "V",
@@ -2621,7 +2626,40 @@
         "price": 423.09,
         "value_usd": 14348251,
         "date": "2026-11-10",
-        "days_ago": 10
+        "days_ago": 13
+      },
+      {
+        "ticker": "AMD",
+        "name": "Hahn Ava",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 26723,
+        "price": 511,
+        "value_usd": 13655453,
+        "date": "2026-11-17",
+        "days_ago": 6
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 21587,
+        "price": 620.2521,
+        "value_usd": 13389382,
+        "date": "2026-11-17",
+        "days_ago": 6
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 18654,
+        "price": 621.1674,
+        "value_usd": 11587257,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "AAPL",
@@ -2632,7 +2670,7 @@
         "price": 343.36,
         "value_usd": 11123491,
         "date": "2026-10-27",
-        "days_ago": 24
+        "days_ago": 27
       },
       {
         "ticker": "PG",
@@ -2643,7 +2681,7 @@
         "price": 169,
         "value_usd": 11089442,
         "date": "2026-11-05",
-        "days_ago": 15
+        "days_ago": 18
       },
       {
         "ticker": "PG",
@@ -2654,7 +2692,7 @@
         "price": 165,
         "value_usd": 10826970,
         "date": "2026-11-04",
-        "days_ago": 16
+        "days_ago": 19
       },
       {
         "ticker": "KO",
@@ -2665,7 +2703,7 @@
         "price": 99.4049,
         "value_usd": 9892179,
         "date": "2026-11-17",
-        "days_ago": 3
+        "days_ago": 6
       },
       {
         "ticker": "META",
@@ -2676,7 +2714,7 @@
         "price": 641.69,
         "value_usd": 9847375,
         "date": "2026-11-15",
-        "days_ago": 5
+        "days_ago": 8
       },
       {
         "ticker": "AAPL",
@@ -2687,7 +2725,7 @@
         "price": 325.75,
         "value_usd": 9771523,
         "date": "2026-11-03",
-        "days_ago": 17
+        "days_ago": 20
       },
       {
         "ticker": "AAPL",
@@ -2698,7 +2736,18 @@
         "price": 351.36,
         "value_usd": 9696833,
         "date": "2026-11-10",
-        "days_ago": 10
+        "days_ago": 13
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 15385,
+        "price": 622.1192,
+        "value_usd": 9571304,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "META",
@@ -2709,7 +2758,7 @@
         "price": 606.85,
         "value_usd": 9332139,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "PG",
@@ -2720,18 +2769,18 @@
         "price": 164.4342,
         "value_usd": 9083839,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
       },
       {
-        "ticker": "PG",
-        "name": "Jejurikar Shailesh",
+        "ticker": "AAPL",
+        "name": "Newstead Jennifer",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 55391,
-        "price": 163.0871,
-        "value_usd": 9033558,
-        "date": "2026-10-23",
-        "days_ago": 28
+        "shares": 25200,
+        "price": 352.77,
+        "value_usd": 8889804,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "META",
@@ -2742,7 +2791,18 @@
         "price": 608.26,
         "value_usd": 8823420,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 14156,
+        "price": 623.1286,
+        "value_usd": 8821008,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "CVX",
@@ -2753,7 +2813,40 @@
         "price": 210.4734,
         "value_usd": 8786633,
         "date": "2026-11-10",
-        "days_ago": 10
+        "days_ago": 13
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 13546,
+        "price": 624.1334,
+        "value_usd": 8454511,
+        "date": "2026-11-17",
+        "days_ago": 6
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 13266,
+        "price": 625.2964,
+        "value_usd": 8295182,
+        "date": "2026-11-17",
+        "days_ago": 6
+      },
+      {
+        "ticker": "META",
+        "name": "LI SUSAN J",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 13186,
+        "price": 625.96,
+        "value_usd": 8253909,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "TMO",
@@ -2764,7 +2857,7 @@
         "price": 706.45,
         "value_usd": 8166562,
         "date": "2026-10-28",
-        "days_ago": 23
+        "days_ago": 26
       },
       {
         "ticker": "PG",
@@ -2775,7 +2868,7 @@
         "price": 165,
         "value_usd": 7877925,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
       },
       {
         "ticker": "V",
@@ -2786,7 +2879,7 @@
         "price": 423,
         "value_usd": 7784892,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "META",
@@ -2797,18 +2890,7 @@
         "price": 609.33,
         "value_usd": 7642217,
         "date": "2026-11-02",
-        "days_ago": 18
-      },
-      {
-        "ticker": "PG",
-        "name": "Gama Paul",
-        "title": "",
-        "transaction_type": "SELL",
-        "shares": 46793,
-        "price": 161.27,
-        "value_usd": 7546307,
-        "date": "2026-10-23",
-        "days_ago": 28
+        "days_ago": 21
       },
       {
         "ticker": "PG",
@@ -2819,7 +2901,18 @@
         "price": 165,
         "value_usd": 7243335,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
+      },
+      {
+        "ticker": "AMZN",
+        "name": "Huttenlocher Daniel P",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 26930,
+        "price": 259.63,
+        "value_usd": 6991836,
+        "date": "2026-11-18",
+        "days_ago": 5
       },
       {
         "ticker": "META",
@@ -2830,7 +2923,7 @@
         "price": 640.39,
         "value_usd": 6950153,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "V",
@@ -2841,7 +2934,7 @@
         "price": 416.22,
         "value_usd": 6315722,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "COST",
@@ -2852,7 +2945,7 @@
         "price": 1083.953,
         "value_usd": 6176364,
         "date": "2026-11-11",
-        "days_ago": 9
+        "days_ago": 12
       },
       {
         "ticker": "LLY",
@@ -2863,7 +2956,7 @@
         "price": 1402.52,
         "value_usd": 5802225,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "GOOGL",
@@ -2874,7 +2967,7 @@
         "price": 284,
         "value_usd": 5440588,
         "date": "2026-10-29",
-        "days_ago": 22
+        "days_ago": 25
       },
       {
         "ticker": "JNJ",
@@ -2885,7 +2978,7 @@
         "price": 284.39,
         "value_usd": 4832924,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "META",
@@ -2896,7 +2989,7 @@
         "price": 610.27,
         "value_usd": 4829067,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "PG",
@@ -2907,7 +3000,7 @@
         "price": 169,
         "value_usd": 3610009,
         "date": "2026-11-05",
-        "days_ago": 15
+        "days_ago": 18
       },
       {
         "ticker": "META",
@@ -2918,7 +3011,7 @@
         "price": 640,
         "value_usd": 3576320,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -2929,7 +3022,7 @@
         "price": 640,
         "value_usd": 3576320,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -2940,7 +3033,7 @@
         "price": 631.03,
         "value_usd": 3422707,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "META",
@@ -2951,7 +3044,7 @@
         "price": 631.03,
         "value_usd": 3422707,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "META",
@@ -2962,7 +3055,7 @@
         "price": 640.39,
         "value_usd": 3420963,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "META",
@@ -2973,7 +3066,7 @@
         "price": 640.39,
         "value_usd": 3420963,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "COST",
@@ -2984,7 +3077,7 @@
         "price": 1096.01,
         "value_usd": 3410783,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "META",
@@ -2995,7 +3088,7 @@
         "price": 614.15,
         "value_usd": 3381510,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "META",
@@ -3006,7 +3099,7 @@
         "price": 614.15,
         "value_usd": 3381510,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "META",
@@ -3017,7 +3110,7 @@
         "price": 640,
         "value_usd": 3225600,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -3028,7 +3121,7 @@
         "price": 614.15,
         "value_usd": 2514330,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "CVX",
@@ -3039,7 +3132,7 @@
         "price": 210.4828,
         "value_usd": 2451493,
         "date": "2026-11-10",
-        "days_ago": 10
+        "days_ago": 13
       },
       {
         "ticker": "KO",
@@ -3050,7 +3143,7 @@
         "price": 100.14,
         "value_usd": 2169633,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "META",
@@ -3061,7 +3154,7 @@
         "price": 611.14,
         "value_usd": 2042430,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "META",
@@ -3072,7 +3165,7 @@
         "price": 631.03,
         "value_usd": 1986482,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "KO",
@@ -3083,18 +3176,18 @@
         "price": 100.14,
         "value_usd": 1942015,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
-        "ticker": "PG",
-        "name": "Purushothaman Balaji",
+        "ticker": "META",
+        "name": "Mahoney Curtis J.",
         "title": "",
         "transaction_type": "SELL",
-        "shares": 11296,
-        "price": 160.71,
-        "value_usd": 1815380,
-        "date": "2026-10-23",
-        "days_ago": 28
+        "shares": 2796,
+        "price": 625,
+        "value_usd": 1747500,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "META",
@@ -3105,7 +3198,7 @@
         "price": 640,
         "value_usd": 1568000,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "PG",
@@ -3116,7 +3209,7 @@
         "price": 168.47,
         "value_usd": 1510839,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "CVX",
@@ -3127,7 +3220,7 @@
         "price": 230.7081,
         "value_usd": 880844,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "GOOGL",
@@ -3138,7 +3231,7 @@
         "price": 300,
         "value_usd": 875700,
         "date": "2026-11-12",
-        "days_ago": 8
+        "days_ago": 11
       },
       {
         "ticker": "V",
@@ -3149,7 +3242,7 @@
         "price": 415.28,
         "value_usd": 861291,
         "date": "2026-10-30",
-        "days_ago": 21
+        "days_ago": 24
       },
       {
         "ticker": "META",
@@ -3160,7 +3253,18 @@
         "price": 612.12,
         "value_usd": 830035,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
+      },
+      {
+        "ticker": "META",
+        "name": "Bosworth Andrew",
+        "title": "",
+        "transaction_type": "SELL",
+        "shares": 1242,
+        "price": 625,
+        "value_usd": 776250,
+        "date": "2026-11-17",
+        "days_ago": 6
       },
       {
         "ticker": "META",
@@ -3171,7 +3275,7 @@
         "price": 640,
         "value_usd": 569600,
         "date": "2026-10-26",
-        "days_ago": 25
+        "days_ago": 28
       },
       {
         "ticker": "META",
@@ -3182,7 +3286,7 @@
         "price": 614.15,
         "value_usd": 511587,
         "date": "2026-11-02",
-        "days_ago": 18
+        "days_ago": 21
       },
       {
         "ticker": "META",
@@ -3193,7 +3297,7 @@
         "price": 631.03,
         "value_usd": 489679,
         "date": "2026-11-09",
-        "days_ago": 11
+        "days_ago": 14
       },
       {
         "ticker": "META",
@@ -3204,7 +3308,7 @@
         "price": 640.39,
         "value_usd": 460440,
         "date": "2026-11-16",
-        "days_ago": 4
+        "days_ago": 7
       },
       {
         "ticker": "PG",
@@ -3215,7 +3319,7 @@
         "price": 163,
         "value_usd": 207173,
         "date": "2026-11-03",
-        "days_ago": 17
+        "days_ago": 20
       }
     ],
     "fmp_institutional_holders": {},
@@ -3224,392 +3328,392 @@
       {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 145.0,
-        "expiry": "2026-11-20",
-        "volume": 97970,
-        "open_interest": 4722,
-        "vol_oi_ratio": 20.7,
-        "implied_volatility": 68.9,
+        "strike": 170.0,
+        "expiry": "2026-11-23",
+        "volume": 197749,
+        "open_interest": 11171,
+        "vol_oi_ratio": 17.7,
+        "implied_volatility": 49.9,
         "in_the_money": false,
-        "last_price": 0.13,
+        "last_price": 3.25,
         "signal": "bullish"
       },
       {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 142.0,
-        "expiry": "2026-11-20",
-        "volume": 57848,
-        "open_interest": 269,
-        "vol_oi_ratio": 215.0,
-        "implied_volatility": 68.0,
-        "in_the_money": false,
-        "last_price": 0.42,
+        "strike": 165.0,
+        "expiry": "2026-11-23",
+        "volume": 106423,
+        "open_interest": 10185,
+        "vol_oi_ratio": 10.4,
+        "implied_volatility": 0.0,
+        "in_the_money": true,
+        "last_price": 6.64,
         "signal": "bullish"
       },
       {
         "ticker": "NVDA",
-        "type": "call",
-        "strike": 141.0,
-        "expiry": "2026-11-20",
-        "volume": 50103,
-        "open_interest": 249,
-        "vol_oi_ratio": 201.2,
-        "implied_volatility": 72.4,
-        "in_the_money": false,
-        "last_price": 0.66,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 140.0,
-        "expiry": "2026-11-20",
-        "volume": 45958,
-        "open_interest": 2501,
-        "vol_oi_ratio": 18.4,
-        "implied_volatility": 74.2,
-        "in_the_money": false,
-        "last_price": 0.96,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 150.0,
-        "expiry": "2026-11-20",
-        "volume": 43320,
-        "open_interest": 20501,
-        "vol_oi_ratio": 2.1,
-        "implied_volatility": 81.3,
-        "in_the_money": false,
-        "last_price": 0.03,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 143.0,
-        "expiry": "2026-11-20",
-        "volume": 39307,
-        "open_interest": 334,
-        "vol_oi_ratio": 117.7,
-        "implied_volatility": 68.8,
-        "in_the_money": false,
-        "last_price": 0.29,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "XOM",
-        "type": "call",
-        "strike": 167.5,
-        "expiry": "2026-11-27",
-        "volume": 32117,
-        "open_interest": 895,
-        "vol_oi_ratio": 35.9,
-        "implied_volatility": 26.8,
-        "in_the_money": false,
-        "last_price": 0.4,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 144.0,
-        "expiry": "2026-11-20",
-        "volume": 22819,
-        "open_interest": 522,
-        "vol_oi_ratio": 43.7,
-        "implied_volatility": 68.4,
-        "in_the_money": false,
-        "last_price": 0.19,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 146.0,
-        "expiry": "2026-11-20",
-        "volume": 22481,
-        "open_interest": 1296,
-        "vol_oi_ratio": 17.3,
-        "implied_volatility": 69.9,
-        "in_the_money": false,
-        "last_price": 0.09,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "GOOGL",
-        "type": "call",
-        "strike": 280.0,
-        "expiry": "2026-11-20",
-        "volume": 19634,
-        "open_interest": 7055,
-        "vol_oi_ratio": 2.8,
-        "implied_volatility": 34.2,
-        "in_the_money": false,
-        "last_price": 1.69,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "AAPL",
         "type": "put",
-        "strike": 347.5,
-        "expiry": "2026-11-20",
-        "volume": 17289,
-        "open_interest": 6273,
-        "vol_oi_ratio": 2.8,
-        "implied_volatility": 28.2,
+        "strike": 160.0,
+        "expiry": "2026-11-23",
+        "volume": 88264,
+        "open_interest": 1635,
+        "vol_oi_ratio": 54.0,
+        "implied_volatility": 77.6,
         "in_the_money": false,
-        "last_price": 1.39,
+        "last_price": 0.35,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 150.0,
+        "expiry": "2026-11-23",
+        "volume": 85517,
+        "open_interest": 5651,
+        "vol_oi_ratio": 15.1,
+        "implied_volatility": 101.2,
+        "in_the_money": false,
+        "last_price": 0.04,
         "signal": "bearish"
       },
       {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 147.0,
-        "expiry": "2026-11-20",
-        "volume": 17277,
-        "open_interest": 2912,
-        "vol_oi_ratio": 5.9,
-        "implied_volatility": 72.3,
+        "strike": 175.0,
+        "expiry": "2026-11-23",
+        "volume": 84845,
+        "open_interest": 3786,
+        "vol_oi_ratio": 22.4,
+        "implied_volatility": 94.4,
         "in_the_money": false,
-        "last_price": 0.06,
+        "last_price": 1.4,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 167.5,
+        "expiry": "2026-11-23",
+        "volume": 79160,
+        "open_interest": 3341,
+        "vol_oi_ratio": 23.7,
+        "implied_volatility": 23.7,
+        "in_the_money": true,
+        "last_price": 4.59,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 180.0,
+        "expiry": "2026-11-23",
+        "volume": 71992,
+        "open_interest": 4296,
+        "vol_oi_ratio": 16.8,
+        "implied_volatility": 104.3,
+        "in_the_money": false,
+        "last_price": 0.5,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 155.0,
+        "expiry": "2026-11-23",
+        "volume": 65293,
+        "open_interest": 2779,
+        "vol_oi_ratio": 23.5,
+        "implied_volatility": 91.4,
+        "in_the_money": false,
+        "last_price": 0.14,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 172.5,
+        "expiry": "2026-11-23",
+        "volume": 62147,
+        "open_interest": 3638,
+        "vol_oi_ratio": 17.1,
+        "implied_volatility": 73.1,
+        "in_the_money": false,
+        "last_price": 2.02,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 157.5,
+        "expiry": "2026-11-23",
+        "volume": 56921,
+        "open_interest": 1362,
+        "vol_oi_ratio": 41.8,
+        "implied_volatility": 85.5,
+        "in_the_money": false,
+        "last_price": 0.23,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 160.0,
+        "expiry": "2026-11-23",
+        "volume": 47312,
+        "open_interest": 14622,
+        "vol_oi_ratio": 3.2,
+        "implied_volatility": 114.9,
+        "in_the_money": true,
+        "last_price": 10.68,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 162.5,
+        "expiry": "2026-11-23",
+        "volume": 46325,
+        "open_interest": 5104,
+        "vol_oi_ratio": 9.1,
+        "implied_volatility": 136.6,
+        "in_the_money": true,
+        "last_price": 8.9,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 165.0,
+        "expiry": "2026-11-23",
+        "volume": 45138,
+        "open_interest": 489,
+        "vol_oi_ratio": 92.3,
+        "implied_volatility": 64.8,
+        "in_the_money": false,
+        "last_price": 0.99,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 177.5,
+        "expiry": "2026-11-23",
+        "volume": 38398,
+        "open_interest": 1370,
+        "vol_oi_ratio": 28.0,
+        "implied_volatility": 104.6,
+        "in_the_money": false,
+        "last_price": 0.82,
         "signal": "bullish"
       },
       {
         "ticker": "AAPL",
         "type": "call",
         "strike": 352.5,
-        "expiry": "2026-11-20",
-        "volume": 15598,
-        "open_interest": 6749,
-        "vol_oi_ratio": 2.3,
-        "implied_volatility": 22.4,
+        "expiry": "2026-11-23",
+        "volume": 33440,
+        "open_interest": 1766,
+        "vol_oi_ratio": 18.9,
+        "implied_volatility": 18.3,
         "in_the_money": false,
-        "last_price": 0.44,
+        "last_price": 1.13,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 162.5,
+        "expiry": "2026-11-23",
+        "volume": 32734,
+        "open_interest": 503,
+        "vol_oi_ratio": 65.1,
+        "implied_volatility": 71.2,
+        "in_the_money": false,
+        "last_price": 0.57,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 170.0,
+        "expiry": "2026-11-25",
+        "volume": 31861,
+        "open_interest": 3568,
+        "vol_oi_ratio": 8.9,
+        "implied_volatility": 71.3,
+        "in_the_money": false,
+        "last_price": 6.45,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 152.5,
+        "expiry": "2026-11-23",
+        "volume": 28215,
+        "open_interest": 1521,
+        "vol_oi_ratio": 18.6,
+        "implied_volatility": 96.9,
+        "in_the_money": false,
+        "last_price": 0.07,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 185.0,
+        "expiry": "2026-11-23",
+        "volume": 25169,
+        "open_interest": 3102,
+        "vol_oi_ratio": 8.1,
+        "implied_volatility": 108.2,
+        "in_the_money": false,
+        "last_price": 0.2,
         "signal": "bullish"
       },
       {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 148.0,
-        "expiry": "2026-11-20",
-        "volume": 15330,
-        "open_interest": 3896,
-        "vol_oi_ratio": 3.9,
-        "implied_volatility": 73.4,
+        "strike": 165.0,
+        "expiry": "2026-11-25",
+        "volume": 22849,
+        "open_interest": 4902,
+        "vol_oi_ratio": 4.7,
+        "implied_volatility": 38.3,
+        "in_the_money": true,
+        "last_price": 9.0,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 180.0,
+        "expiry": "2026-11-25",
+        "volume": 22385,
+        "open_interest": 2063,
+        "vol_oi_ratio": 10.9,
+        "implied_volatility": 102.1,
+        "in_the_money": false,
+        "last_price": 2.39,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 200.0,
+        "expiry": "2026-11-23",
+        "volume": 21549,
+        "open_interest": 5725,
+        "vol_oi_ratio": 3.8,
+        "implied_volatility": 137.5,
         "in_the_money": false,
         "last_price": 0.04,
         "signal": "bullish"
       },
       {
-        "ticker": "GOOGL",
+        "ticker": "AAPL",
         "type": "call",
-        "strike": 282.5,
-        "expiry": "2026-11-20",
-        "volume": 13468,
-        "open_interest": 3427,
-        "vol_oi_ratio": 3.9,
-        "implied_volatility": 33.7,
-        "in_the_money": false,
-        "last_price": 0.78,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "BAC",
-        "type": "put",
-        "strike": 55.0,
-        "expiry": "2026-11-20",
-        "volume": 12219,
-        "open_interest": 3534,
-        "vol_oi_ratio": 3.5,
-        "implied_volatility": 223.4,
+        "strike": 350.0,
+        "expiry": "2026-11-23",
+        "volume": 21032,
+        "open_interest": 1998,
+        "vol_oi_ratio": 10.5,
+        "implied_volatility": 17.8,
         "in_the_money": true,
-        "last_price": 6.21,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "NVDA",
-        "type": "call",
-        "strike": 149.0,
-        "expiry": "2026-11-20",
-        "volume": 10827,
-        "open_interest": 4826,
-        "vol_oi_ratio": 2.2,
-        "implied_volatility": 77.3,
-        "in_the_money": false,
-        "last_price": 0.04,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "INTC",
-        "type": "call",
-        "strike": 57.0,
-        "expiry": "2026-11-27",
-        "volume": 10407,
-        "open_interest": 2479,
-        "vol_oi_ratio": 4.2,
-        "implied_volatility": 73.1,
-        "in_the_money": false,
-        "last_price": 1.44,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "INTC",
-        "type": "put",
-        "strike": 100.0,
-        "expiry": "2026-11-20",
-        "volume": 9632,
-        "open_interest": 2184,
-        "vol_oi_ratio": 4.4,
-        "implied_volatility": 725.4,
-        "in_the_money": true,
-        "last_price": 44.25,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "MSFT",
-        "type": "call",
-        "strike": 505.0,
-        "expiry": "2026-11-20",
-        "volume": 9131,
-        "open_interest": 3397,
-        "vol_oi_ratio": 2.7,
-        "implied_volatility": 35.1,
-        "in_the_money": false,
-        "last_price": 0.75,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "INTC",
-        "type": "put",
-        "strike": 85.0,
-        "expiry": "2026-11-20",
-        "volume": 8666,
-        "open_interest": 3002,
-        "vol_oi_ratio": 2.9,
-        "implied_volatility": 506.3,
-        "in_the_money": true,
-        "last_price": 29.83,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "GOOGL",
-        "type": "call",
-        "strike": 277.5,
-        "expiry": "2026-11-20",
-        "volume": 8514,
-        "open_interest": 1128,
-        "vol_oi_ratio": 7.5,
-        "implied_volatility": 30.2,
-        "in_the_money": true,
-        "last_price": 2.74,
+        "last_price": 2.58,
         "signal": "bullish"
       },
       {
         "ticker": "NVDA",
         "type": "call",
-        "strike": 139.0,
-        "expiry": "2026-11-20",
-        "volume": 8404,
-        "open_interest": 282,
-        "vol_oi_ratio": 29.8,
-        "implied_volatility": 77.6,
+        "strike": 182.5,
+        "expiry": "2026-11-23",
+        "volume": 19836,
+        "open_interest": 1059,
+        "vol_oi_ratio": 18.7,
+        "implied_volatility": 105.7,
         "in_the_money": false,
-        "last_price": 1.36,
+        "last_price": 0.31,
         "signal": "bullish"
       },
       {
-        "ticker": "AMD",
-        "type": "put",
-        "strike": 420.0,
-        "expiry": "2026-11-20",
-        "volume": 8301,
-        "open_interest": 3963,
-        "vol_oi_ratio": 2.1,
-        "implied_volatility": 103.3,
-        "in_the_money": false,
-        "last_price": 1.27,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "AMD",
-        "type": "put",
-        "strike": 460.0,
-        "expiry": "2026-11-20",
-        "volume": 8223,
-        "open_interest": 3074,
-        "vol_oi_ratio": 2.7,
-        "implied_volatility": 72.5,
-        "in_the_money": true,
-        "last_price": 14.2,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "GOOGL",
-        "type": "put",
-        "strike": 277.5,
-        "expiry": "2026-11-20",
-        "volume": 7951,
-        "open_interest": 2841,
-        "vol_oi_ratio": 2.8,
-        "implied_volatility": 52.8,
-        "in_the_money": false,
-        "last_price": 2.22,
-        "signal": "bearish"
-      },
-      {
-        "ticker": "AMZN",
+        "ticker": "NVDA",
         "type": "call",
-        "strike": 262.5,
-        "expiry": "2026-11-20",
-        "volume": 7892,
-        "open_interest": 3667,
-        "vol_oi_ratio": 2.2,
-        "implied_volatility": 41.3,
+        "strike": 190.0,
+        "expiry": "2026-11-23",
+        "volume": 19621,
+        "open_interest": 4318,
+        "vol_oi_ratio": 4.5,
+        "implied_volatility": 114.5,
         "in_the_money": false,
-        "last_price": 0.27,
+        "last_price": 0.08,
         "signal": "bullish"
       },
       {
-        "ticker": "GOOGL",
-        "type": "call",
-        "strike": 287.5,
-        "expiry": "2026-11-20",
-        "volume": 7661,
-        "open_interest": 1966,
-        "vol_oi_ratio": 3.9,
-        "implied_volatility": 38.9,
-        "in_the_money": false,
-        "last_price": 0.18,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "MSFT",
-        "type": "call",
-        "strike": 502.5,
-        "expiry": "2026-11-20",
-        "volume": 7555,
-        "open_interest": 478,
-        "vol_oi_ratio": 15.8,
-        "implied_volatility": 36.2,
-        "in_the_money": false,
-        "last_price": 1.31,
-        "signal": "bullish"
-      },
-      {
-        "ticker": "AVGO",
+        "ticker": "NVDA",
         "type": "put",
-        "strike": 335.0,
-        "expiry": "2026-11-20",
-        "volume": 7529,
-        "open_interest": 2673,
-        "vol_oi_ratio": 2.8,
-        "implied_volatility": 55.7,
-        "in_the_money": true,
-        "last_price": 14.85,
+        "strike": 145.0,
+        "expiry": "2026-11-23",
+        "volume": 18743,
+        "open_interest": 5247,
+        "vol_oi_ratio": 3.6,
+        "implied_volatility": 117.2,
+        "in_the_money": false,
+        "last_price": 0.02,
         "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 135.0,
+        "expiry": "2026-11-23",
+        "volume": 17298,
+        "open_interest": 5782,
+        "vol_oi_ratio": 3.0,
+        "implied_volatility": 157.8,
+        "in_the_money": false,
+        "last_price": 0.01,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "call",
+        "strike": 240.0,
+        "expiry": "2026-11-23",
+        "volume": 16667,
+        "open_interest": 835,
+        "vol_oi_ratio": 20.0,
+        "implied_volatility": 212.5,
+        "in_the_money": false,
+        "last_price": 0.01,
+        "signal": "bullish"
+      },
+      {
+        "ticker": "NVDA",
+        "type": "put",
+        "strike": 167.5,
+        "expiry": "2026-11-23",
+        "volume": 16259,
+        "open_interest": 234,
+        "vol_oi_ratio": 69.5,
+        "implied_volatility": 57.5,
+        "in_the_money": false,
+        "last_price": 1.64,
+        "signal": "bearish"
+      },
+      {
+        "ticker": "AAPL",
+        "type": "call",
+        "strike": 355.0,
+        "expiry": "2026-11-23",
+        "volume": 15912,
+        "open_interest": 3424,
+        "vol_oi_ratio": 4.6,
+        "implied_volatility": 18.3,
+        "in_the_money": false,
+        "last_price": 0.36,
+        "signal": "bullish"
       }
     ],
     "ticker_confidence": {
@@ -3620,8 +3724,8 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": -1.0,
-        "insider_net_usd": -2596576585
+        "analyst_upside_pct": -1.8,
+        "insider_net_usd": -2605466389
       },
       "MSFT": {
         "level": "low",
@@ -3633,7 +3737,7 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 28.4,
+        "analyst_upside_pct": 26.6,
         "insider_net_usd": -626622073
       },
       "NVDA": {
@@ -3643,7 +3747,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 79.9,
+        "analyst_upside_pct": 45.0,
         "insider_net_usd": 0
       },
       "GOOGL": {
@@ -3656,7 +3760,7 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 43.1,
+        "analyst_upside_pct": 40.5,
         "insider_net_usd": -6316288
       },
       "AMZN": {
@@ -3669,8 +3773,8 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 27.7,
-        "insider_net_usd": -617375979
+        "analyst_upside_pct": 26.8,
+        "insider_net_usd": -624367815
       },
       "META": {
         "level": "low",
@@ -3683,17 +3787,15 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 46.5,
-        "insider_net_usd": -278096623
+        "analyst_upside_pct": 42.9,
+        "insider_net_usd": -348992926
       },
       "TSLA": {
-        "level": "low",
-        "sources_count": 1,
-        "sources": [
-          "analyst_consensus"
-        ],
+        "level": "no_signal",
+        "sources_count": 0,
+        "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 13.2,
+        "analyst_upside_pct": 6.4,
         "insider_net_usd": 0
       },
       "JPM": {
@@ -3703,21 +3805,18 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 17.3,
+        "analyst_upside_pct": 17.4,
         "insider_net_usd": 0
       },
       "V": {
-        "level": "low",
-        "sources_count": 3,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
           "13F_holding",
-          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 10.5,
+        "conflicts": [],
+        "analyst_upside_pct": 10.0,
         "insider_net_usd": -444878652
       },
       "UNH": {
@@ -3727,7 +3826,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 38.5,
+        "analyst_upside_pct": 44.9,
         "insider_net_usd": 0
       },
       "XOM": {
@@ -3737,7 +3836,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 15.0,
+        "analyst_upside_pct": 16.6,
         "insider_net_usd": 0
       },
       "CVX": {
@@ -3750,7 +3849,7 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 16.3,
+        "analyst_upside_pct": 17.1,
         "insider_net_usd": -12118970
       },
       "LLY": {
@@ -3760,7 +3859,7 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 8.0,
+        "analyst_upside_pct": 6.8,
         "insider_net_usd": -5802225
       },
       "JNJ": {
@@ -3770,7 +3869,7 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 2.7,
+        "analyst_upside_pct": 3.3,
         "insider_net_usd": -4832924
       },
       "WMT": {
@@ -3780,7 +3879,7 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 2.9,
+        "analyst_upside_pct": 6.0,
         "insider_net_usd": -277680850
       },
       "PG": {
@@ -3791,18 +3890,19 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 2.2,
-        "insider_net_usd": -69844777
+        "analyst_upside_pct": 3.7,
+        "insider_net_usd": -51449532
       },
       "HD": {
-        "level": "low",
-        "sources_count": 1,
+        "level": "medium",
+        "sources_count": 2,
         "sources": [
-          "13F_holding"
+          "13F_holding",
+          "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 9.2,
-        "insider_net_usd": 0
+        "analyst_upside_pct": 8.2,
+        "insider_net_usd": -46693443
       },
       "BAC": {
         "level": "low",
@@ -3825,7 +3925,7 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 13.4,
+        "analyst_upside_pct": 13.5,
         "insider_net_usd": -45882622
       },
       "AVGO": {
@@ -3835,7 +3935,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 64.9,
+        "analyst_upside_pct": 68.4,
         "insider_net_usd": 0
       },
       "COST": {
@@ -3845,7 +3945,7 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": -3.0,
+        "analyst_upside_pct": -0.5,
         "insider_net_usd": -9587147
       },
       "MRK": {
@@ -3858,7 +3958,7 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 18.8,
+        "analyst_upside_pct": 19.2,
         "insider_net_usd": -16718300
       },
       "ABBV": {
@@ -3868,7 +3968,7 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 9.5,
+        "analyst_upside_pct": 9.2,
         "insider_net_usd": -24419006
       },
       "PEP": {
@@ -3876,7 +3976,7 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": -1.2,
+        "analyst_upside_pct": 0.6,
         "insider_net_usd": 0
       },
       "KO": {
@@ -3886,20 +3986,17 @@
           "insider_selling"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 2.5,
+        "analyst_upside_pct": 3.7,
         "insider_net_usd": -102919458
       },
       "TMO": {
         "level": "low",
-        "sources_count": 2,
+        "sources_count": 1,
         "sources": [
-          "analyst_consensus",
           "insider_selling"
         ],
-        "conflicts": [
-          "Analyst says bullish but insider activity says bearish"
-        ],
-        "analyst_upside_pct": 11.1,
+        "conflicts": [],
+        "analyst_upside_pct": 9.1,
         "insider_net_usd": -8166562
       },
       "ORCL": {
@@ -3909,7 +4006,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 124.7,
+        "analyst_upside_pct": 104.1,
         "insider_net_usd": 0
       },
       "CRM": {
@@ -3919,7 +4016,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 52.7,
+        "analyst_upside_pct": 54.9,
         "insider_net_usd": 0
       },
       "AMD": {
@@ -3932,8 +4029,8 @@
         "conflicts": [
           "Analyst says bullish but insider activity says bearish"
         ],
-        "analyst_upside_pct": 46.9,
-        "insider_net_usd": -36143617981
+        "analyst_upside_pct": 42.7,
+        "insider_net_usd": -36157273434
       },
       "INTC": {
         "level": "medium",
@@ -3943,7 +4040,7 @@
           "insider_buying"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 66.7,
+        "analyst_upside_pct": 54.8,
         "insider_net_usd": 94809782
       },
       "QCOM": {
@@ -3953,7 +4050,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 16.2,
+        "analyst_upside_pct": 13.0,
         "insider_net_usd": 0
       },
       "PLTR": {
@@ -3963,7 +4060,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 50.3,
+        "analyst_upside_pct": 39.7,
         "insider_net_usd": 0
       },
       "COIN": {
@@ -3974,7 +4071,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 80.4,
+        "analyst_upside_pct": 73.6,
         "insider_net_usd": 0
       },
       "GS": {
@@ -3985,7 +4082,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 27.3,
+        "analyst_upside_pct": 24.8,
         "insider_net_usd": 0
       },
       "MS": {
@@ -3996,7 +4093,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 24.7,
+        "analyst_upside_pct": 21.8,
         "insider_net_usd": 0
       },
       "C": {
@@ -4007,7 +4104,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 33.8,
+        "analyst_upside_pct": 31.9,
         "insider_net_usd": 0
       },
       "WFC": {
@@ -4017,7 +4114,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 20.5,
+        "analyst_upside_pct": 21.5,
         "insider_net_usd": 0
       },
       "RTX": {
@@ -4027,7 +4124,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 17.7,
+        "analyst_upside_pct": 17.9,
         "insider_net_usd": 0
       },
       "LMT": {
@@ -4037,7 +4134,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 15.2,
+        "analyst_upside_pct": 16.7,
         "insider_net_usd": 0
       },
       "NOC": {
@@ -4047,7 +4144,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 16.7,
+        "analyst_upside_pct": 18.6,
         "insider_net_usd": 0
       },
       "GD": {
@@ -4057,7 +4154,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 20.0,
+        "analyst_upside_pct": 21.2,
         "insider_net_usd": 0
       },
       "BA": {
@@ -4068,7 +4165,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 43.2,
+        "analyst_upside_pct": 44.5,
         "insider_net_usd": 0
       },
       "CAT": {
@@ -4078,7 +4175,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 53.7,
+        "analyst_upside_pct": 47.0,
         "insider_net_usd": 0
       },
       "DE": {
@@ -4089,7 +4186,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 12.3,
+        "analyst_upside_pct": 10.2,
         "insider_net_usd": 0
       },
       "UNP": {
@@ -4099,7 +4196,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 12.2,
+        "analyst_upside_pct": 13.8,
         "insider_net_usd": 0
       },
       "NEE": {
@@ -4109,7 +4206,7 @@
           "analyst_consensus"
         ],
         "conflicts": [],
-        "analyst_upside_pct": 10.7,
+        "analyst_upside_pct": 13.5,
         "insider_net_usd": 0
       },
       "DUK": {
@@ -4117,11 +4214,11 @@
         "sources_count": 0,
         "sources": [],
         "conflicts": [],
-        "analyst_upside_pct": 2.0,
+        "analyst_upside_pct": 4.3,
         "insider_net_usd": 0
       }
     },
-    "as_of": "2026-11-20 15:42 UTC"
+    "as_of": "2026-11-23 15:42 UTC"
   },
-  "generated_at": "2026-11-20T15:42:36.552523"
+  "generated_at": "2026-11-23T15:43:21.851584"
 }
