@@ -1,23 +1,23 @@
 {
-  "regime": "NEUTRAL",
-  "interest_rate_direction": "stable",
+  "regime": "RISK-OFF",
+  "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
     "defensive stocks",
-    "high-quality bonds",
     "commodities",
-    "inflation-hedged assets"
+    "Treasury bonds"
   ],
   "avoid_themes": [
-    "high-risk equities",
-    "emerging markets",
-    "cyclical stocks"
+    "high-yield bonds",
+    "cyclical stocks",
+    "emerging markets"
   ],
   "geopolitical_risks": [
-    "escalation in Israel-Palestine conflict",
-    "US-Iran tensions over naval blockade"
+    "US-Iran tensions affecting oil prices",
+    "Russia's military activities near South Korea",
+    "Israeli-Palestinian conflict escalating"
   ],
-  "macro_summary": "The current macro environment shows mixed signals with FRED indicating a RISK-OFF stance, while yfinance_market remains NEUTRAL and newsapi_finnhub suggests RISK-ON. Inflation is rising as indicated by the CPI increase, and the yield curve remains positive but close to inversion, suggesting recession risks. The lack of agreement among sources leads to a low confidence level.",
+  "macro_summary": "The current macro environment indicates a RISK-OFF sentiment, supported by rising inflation and a negative yield curve suggesting recession risks. Conflicting signals from sources show FRED and newsapi_finnhub indicating RISK-OFF, while yfinance_market remains NEUTRAL, leading to a low confidence level. The elevated VIX and geopolitical tensions further contribute to market caution.",
   "signal_confidence": {
     "level": "low",
     "sources_count": 3,
@@ -29,17 +29,16 @@
     "agreements": [],
     "conflicts": [
       "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "FRED signals RISK-OFF but newsapi_finnhub signals RISK-ON",
-      "newsapi_finnhub signals RISK-ON but yfinance_market signals NEUTRAL"
+      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
     ],
-    "confidence_note": "The conflicting signals from multiple sources contribute to a low confidence level for downstream agents."
+    "confidence_note": "The low confidence level reflects significant conflicts among the sources."
   },
   "confidence": 50,
   "raw_data": {
     "fed_funds_rate": 3.88,
-    "us_10y_yield": 5.04,
-    "us_2y_yield": 4.76,
-    "yield_curve_spread": 0.28,
+    "us_10y_yield": 4.92,
+    "us_2y_yield": 4.63,
+    "yield_curve_spread": 0.29,
     "cpi_latest": 337.48,
     "cpi_prev": 336.3,
     "cpi_trend": "rising",
@@ -47,38 +46,38 @@
     "gdp_latest": 33010.0,
     "gdp_prev": 32563.0,
     "gdp_growth": 1.37,
-    "dxy_current": 104.33,
+    "dxy_current": 104.23,
     "dxy_1m_ago": 101.81,
     "dxy_trend": "strengthening",
-    "vix": 27.08,
-    "tlt_1m_change_pct": 0.4,
-    "hyg_1m_change_pct": 0.08,
+    "vix": 26.62,
+    "tlt_1m_change_pct": 0.43,
+    "hyg_1m_change_pct": -0.36,
     "macro_headlines": [
-      "JPMorgan's top books and experiences for the wealthy this holiday season",
-      "Jim Cramer's top 10 things to watch in the stock market Monday",
-      "Wall Street's 'Fear Gauge' just flashed a buy sign",
-      "COMMENTARY: China's steel sector bifurcates as iron ore remains robust - Reuters",
-      "Most Gulf bourses end higher, buoyed by diplomatic momentum - Reuters",
-      "SpaceX sued by Oregon and Virginia over AI deepfake porn, Grok safety claims",
-      "Tokenized stocks face pushback as NYSE, Nasdaq pivot for a new market",
-      "COMMENTARY: Morning Bid: Wall Street reprieve or recovery? - Reuters",
-      "Iran says it will use all its tools to confront US naval blockade - Reuters",
-      "Denmark to propose mobile phone ban in schools in 2027 - Reuters"
+      "US eyes Iran as possible culprit in dozens of new cyberattacks against ships, WSJ reports - Reuters",
+      "CrowdStrike CEO defends Zscaler acquisition, calls it a 'winning combination'",
+      "South Korea briefly scrambles fighter jets, issues warning after Russia aircraft fly off coast - Reuters",
+      "Nvidia sets options-trading record after CEO comeback. Here are the big trades",
+      "Jim Cramer sees more upside for Nvidia stock with Jensen Huang back as CEO",
+      "Iran carries out flogging of singer and her team, Iranian website says - Reuters",
+      "Fed's John Williams indicates higher interest rates likely 'over time' to address inflation",
+      "Jensen Huang cheered by Nvidia employees after return, pledges to be a better CEO",
+      "Belgian PM sets December 31 budget talks deadline amid national strike - Reuters",
+      "Nvidia breathes new life into the AI trade. Plus, Qnity inks a smart deal to get stronger"
     ],
     "geopolitical_headlines": [
       "Contenders to lead Senate Democrats reflect the party's split over Israel",
-      "Here are the Apple deals actually worth picking up ahead of Black Friday",
+      "Israeli settlers launch attacks in West Bank as Netanyahu rival decries 'Jewish terrorism'",
       "Nvidia's neocloud empire lost its biggest champion. Washington may have dealt a bigger blow.",
       "Visa, Mastercard and JPMorgan customer data leaked",
       "UGREEN\u2019s excellent liquid cooled 25W MagSafe battery for iPhone is now 40% off",
-      "Anker's Black Friday Steals: The Lowest Prices Yet on MagSafe Favorites",
       "GTA 6 Players Hate Using ATMs: \u2018Just Let Me Type In A Number!\u201d",
       "Israeli settlers attack several Palestinian villages in occupied West Bank",
       "I\u2019m a Gen Zer who's not interested in doomsday prepping. This is the one under-$100 item I'll buy, just in case.",
-      "'GTA 6' players can't stop doomscrolling in the game: 'Art really does imitate life'"
+      "'GTA 6' players can't stop doomscrolling in the game: 'Art really does imitate life'",
+      "Sanctions and Colonialism in Israel/Palestine"
     ],
     "central_bank_headlines": [],
-    "as_of": "2026-11-23 15:32 UTC"
+    "as_of": "2026-11-24 02:44 UTC"
   },
-  "generated_at": "2026-11-23T15:32:19.450708"
+  "generated_at": "2026-11-24T02:44:57.583916"
 }
