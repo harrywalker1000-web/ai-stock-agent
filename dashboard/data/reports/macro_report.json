@@ -3,39 +3,36 @@
   "interest_rate_direction": "rising",
   "inflation_trend": "rising",
   "favoured_themes": [
-    "inflation-protected assets",
-    "defensive stocks",
-    "commodities",
-    "high-quality bonds"
+    "municipal bonds",
+    "long-term treasuries",
+    "defensive equities"
   ],
   "avoid_themes": [
     "high-yield bonds",
     "growth stocks",
-    "emerging markets",
-    "cyclical sectors"
+    "emerging markets"
   ],
   "geopolitical_risks": [
+    "escalation of conflict in Israel and Palestine",
     "US sanctions on Iran",
-    "Israeli-Palestinian tensions",
-    "cybersecurity breaches affecting US agencies"
+    "political instability in Iraq"
   ],
-  "macro_summary": "The current macro environment indicates a RISK-OFF regime, supported by rising inflation and interest rates, as evidenced by the Fed Funds Rate at 3.88% and CPI showing a rising trend. However, there is a conflict in signals, with FRED and newsapi_finnhub indicating RISK-OFF while yfinance_market remains NEUTRAL, leading to a low confidence level overall.",
+  "macro_summary": "The current macro environment is characterized by a RISK-OFF sentiment, with all three data sources indicating this stance. Interest rates are rising, and inflation is trending upward, as evidenced by the CPI increase from 336.3 to 337.48. The yield curve remains inverted, indicating recession risk, while geopolitical tensions, particularly in the Middle East, pose additional risks to market stability.",
   "signal_confidence": {
-    "level": "low",
+    "level": "high",
     "sources_count": 3,
     "sources": [
       "FRED",
       "yfinance_market",
       "newsapi_finnhub"
     ],
-    "agreements": [],
-    "conflicts": [
-      "FRED signals RISK-OFF but yfinance_market signals NEUTRAL",
-      "newsapi_finnhub signals RISK-OFF but yfinance_market signals NEUTRAL"
+    "agreements": [
+      "All 3 sources agree: RISK-OFF"
     ],
-    "confidence_note": "The conflicting signals from different sources contribute to a low confidence level for downstream agents."
+    "conflicts": [],
+    "confidence_note": "The confidence level is high as all sources consistently indicate a RISK-OFF environment."
   },
-  "confidence": 50,
+  "confidence": 90,
   "raw_data": {
     "fed_funds_rate": 3.88,
     "us_10y_yield": 4.92,
@@ -44,46 +41,47 @@
     "cpi_latest": 337.48,
     "cpi_prev": 336.3,
     "cpi_trend": "rising",
-    "pce_latest": 132.257,
-    "gdp_latest": 33010.0,
+    "pce_latest": 132.703,
+    "gdp_latest": 33056.2,
     "gdp_prev": 32563.0,
-    "gdp_growth": 1.37,
-    "dxy_current": 103.85,
+    "gdp_growth": 1.51,
+    "dxy_current": 103.99,
     "dxy_1m_ago": 101.96,
     "dxy_trend": "strengthening",
-    "vix": 26.36,
-    "tlt_1m_change_pct": 0.19,
-    "hyg_1m_change_pct": -0.48,
+    "vix": 33.16,
+    "tlt_1m_change_pct": 1.4,
+    "hyg_1m_change_pct": -0.76,
     "macro_headlines": [
-      "China's Huawei convicted in sprawling US criminal trial over Iran business - Reuters",
-      "US CIA, ODNI suffer cybersecurity breach of some unclassified information, source says - Reuters",
-      "Israel's Eisenkot clinches first coalition agreement in bid to form government - Reuters",
-      "UK warns of Russian sabotage threat to companies that supply Ukraine - Reuters",
-      "Hostages held in Cartagena, Colombia, supermarket after failed armored car hijacking - Reuters",
-      "Houthis won't seize Aden, Yemeni government forces say - Reuters",
-      "Houthis hit Riyadh's tallest tower, 11 wounded, Saudi Civil defense says - Reuters",
-      "Shein to pay $100 million to settle US shipping, customer service claims - Reuters",
-      "How Meta is using Instagram to get an ad boost from its Muse personal AI agent",
-      "Iraqi PM cracks down on Kurds' control of oilfields, Kurds reject risky move - Reuters"
+      "Wealthy investors seek tax savings from municipal bonds as yields remain elevated",
+      "Our top 10 things to watch in the stock market Wednesday",
+      "Iraq's top court says Baghdad can deploy troops to secure borders in Kurdistan region - Reuters",
+      "Israeli strike kills Hamas official, his wife and children - Reuters",
+      "Nasdaq futures slide over 2% as AI losses deepen; inflation data in focus - Reuters",
+      "Liesman: Nvidia whiplash tests Kevin Warsh\u2019s push to read market signals",
+      "Catalan separatist Puigdemont to return to Spain after election - Reuters",
+      "Secondhand shopping is going mainstream this holiday season as consumers seek value",
+      "'I'm going to drive': FAA outage and high fares reshape Thanksgiving travel plans - Reuters",
+      "Migrant arrivals in Spain's Canary Islands break single-day record - Reuters"
     ],
     "geopolitical_headlines": [
+      "India's 'cockroach' party leader says he was stopped from flying to UK",
       "Israeli settlers launch attacks in West Bank as Netanyahu rival decries 'Jewish terrorism'",
       "US escalates sanctions on Iran, targets \u2018shadow banking\u2019 networks",
       "Jensen Huang Is Back as Nvidia CEO",
-      "UGREEN\u2019s excellent liquid cooled 25W MagSafe battery for iPhone is now 40% off",
       "Get ready for 3 consecutive rate hikes starting next month, bank economist warns",
       "\u8fea\u62dc\u636e\u6089\u8003\u8651\u5408\u5e76Dubai Islamic Bank\u548cEmirates Islamic Bank",
       "MCX gold prices rise Rs 2,800/10g after 5-day fall, silver jumps Rs 3,600/kg despite increasing rate hike bets. Here\u2019s why",
       "Save $200 on the Google Pixel 10 with this record-low Black Friday deal",
-      "Israeli settlers attack several Palestinian villages in occupied West Bank",
-      "'GTA 6' players can't stop doomscrolling in the game: 'Art really does imitate life'"
+      "Goats drafted in to tame Greenwich Park slope",
+      "This award-winning tabletop fireplace turns a 295-million-year-old stone into a light show"
     ],
     "central_bank_headlines": [
       "Scott Bessent\u2019s Economic Turnaround",
       "Monetary Reform for the 2028 Election: Van Buren Succeeds Jackson, the Panic of 1837, and the Whig Victory in 1840. Part 1.7",
+      "Links 11/24/2026",
       "Weekly Climate and Energy News Roundup #716"
     ],
-    "as_of": "2026-11-25 00:19 UTC"
+    "as_of": "2026-11-25 15:32 UTC"
   },
-  "generated_at": "2026-11-25T00:19:28.658730"
+  "generated_at": "2026-11-25T15:32:19.528287"
 }
